@@ -24,9 +24,13 @@
  * @param convergence_dif when the largest value of change per iteration for an element in x is less than this,
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
+ * @param p_iter pointer which if not null receives the number of iterations that were performed
+ * @param p_error pointer which receives the final error
  * @return zero if successful
  */
-mtx_res_t gauss_seidel_crs(const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* n_iter);
+mtx_res_t gauss_seidel_crs(
+        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
+        scalar_t* p_error);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method) to solve the linear system Ax = y.
@@ -38,8 +42,13 @@ mtx_res_t gauss_seidel_crs(const CrsMatrix* mtx, const scalar_t* y, scalar_t* x,
  * @param convergence_dif when the largest value of change per iteration for an element in x is less than this,
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
+ * @param p_iter pointer which if not null receives the number of iterations that were performed
+ * @param p_error pointer which receives the final error
  * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
  * @return zero if successful
  */
-mtx_res_t gauss_seidel_crs_mt(const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* n_iter, uint n_thrds);
+mtx_res_t gauss_seidel_crs_mt(
+        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
+        scalar_t* p_error, uint n_thrds);
+
 #endif //MTXLIB_GAUSS_SEIDEL_ITERATION_H

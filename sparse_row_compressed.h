@@ -86,6 +86,19 @@ mtx_res_t matrix_crs_shrink(CrsMatrix* mtx);
 mtx_res_t matrix_crs_set_row(CrsMatrix* mtx, uint row, uint n, const uint* indices, const scalar_t* elements);
 
 /**
+ * Version of matrix_crs_set_row which does not touch the count of elements after the current row. This is useful when
+ * building a new matrix, as it avoids unnecessary setting and resetting of these values. Should be called for each row
+ * in order to ensure that the matrix is properly built.
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param row index of the row to set
+ * @param n how many elements are in the row
+ * @param indices column indices of the elements, which has to be sorted from lowest to highest
+ * @param elements values of non-zero elements
+ * @return zero if successful
+ */
+mtx_res_t matrix_crs_build_row(CrsMatrix* mtx, uint row, uint n, const uint* indices, const scalar_t* elements);
+
+/**
  * Returns the pointers to arrays of column indices and element values for that row
  * @param mtx pointer to the memory where the matrix is stored
  * @param row index of the row to get

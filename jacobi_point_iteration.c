@@ -8,7 +8,8 @@
 #include <pthread.h>
 
 mtx_res_t jacobi_crs(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* n_iter)
+        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
+        scalar_t* p_error)
 {
     //  Length of x and y
     const uint n = mtx->columns;
@@ -71,22 +72,6 @@ mtx_res_t jacobi_crs(
             max_dif += iter_dif;
         }
         max_dif /= (scalar_t)n;
-
-//        printf("\n[");
-//        for (uint i = 0; i < 10; ++i)
-//        {
-//            printf(" %g", x0[i]);
-//        }
-//        printf(" ]\n");
-//
-//        printf("\n[");
-//        for (uint i = 0; i < 10; ++i)
-//        {
-//            printf(" %g", x1[i]);
-//        }
-//        printf(" ]\n");
-
-
         n_iterations += 1;
     } while(max_dif > convergence_dif & n_iterations < n_max_iter);
 
@@ -96,7 +81,8 @@ mtx_res_t jacobi_crs(
         memcpy(x, auxiliary_x, sizeof*x * n);
     }
     free(auxiliary_x);
-    if (n_iterations) *n_iter = n_iterations;
+    if (p_iter) *p_iter = n_iterations;
+    if (p_error) *p_error = max_dif;
     return 0;
 }
 
@@ -170,12 +156,12 @@ static void print_vector(const scalar_t* x, const uint len)
 }
 
 mtx_res_t jacobi_crs_mt(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* n_iter,
-        uint n_thrds)
+        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
+        scalar_t* p_error, uint n_thrds)
 {
     if (!n_thrds)
     {
-        return jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, n_iter);
+        return jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, NULL);
     }
 
     //  Length of x and y
@@ -279,7 +265,6 @@ mtx_res_t jacobi_crs_mt(
         happy = !(max_dif > convergence_dif & n_iterations < n_max_iter);
 //        print_vector(x0, n);
 //        print_vector(x1, n);
-
         pthread_barrier_wait(&barrier);
         n_iterations += 1;
     } while(!happy);
@@ -297,6 +282,7 @@ mtx_res_t jacobi_crs_mt(
     free(errors);
     free(thrds);
     free(auxiliary_x);
-    if (n_iterations) *n_iter = n_iterations;
+    if (n_iterations) *p_iter = n_iterations;
+    if (p_error) *p_error = max_dif;
     return 0;
 }

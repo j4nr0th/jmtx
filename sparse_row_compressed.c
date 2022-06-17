@@ -630,3 +630,34 @@ mtx_res_t matrix_crs_copy(const CrsMatrix* mtx, CrsMatrix* out)
 
     return 0;
 }
+
+mtx_res_t matrix_crs_build_row(CrsMatrix* mtx, uint row, uint n, const uint* indices, const scalar_t* elements)
+{
+    mtx_res_t res = 0;
+    const int required_capacity = (int)mtx->n_elements + (int)n;
+    if (mtx->capacity < required_capacity)
+    {
+        scalar_t* new_element_ptr = realloc(mtx->elements, sizeof*mtx->elements * (required_capacity + 1));
+        if (!new_element_ptr)
+        {
+            res = -1;
+            goto end;
+        }
+        mtx->elements = new_element_ptr;
+        uint* new_indices_ptr = realloc(mtx->indices, sizeof*mtx->indices * (required_capacity + 1));
+        if (!new_indices_ptr)
+        {
+            res = -1;
+            goto end;
+        }
+        mtx->indices = new_indices_ptr;
+    }
+
+    memcpy(mtx->elements + mtx->elements_before[row], elements, sizeof*elements * n);
+    memcpy(mtx->indices + mtx->elements_before[row], indices, sizeof*indices * n);
+
+    mtx->elements_before[row + 1] = n + mtx->elements_before[row];
+    mtx->n_elements += n;
+    end:
+    return res;
+}
