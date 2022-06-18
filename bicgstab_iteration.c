@@ -374,8 +374,6 @@ static void* bicgstab_crs_thrd_fn(void* param)
         pthread_barrier_wait(args->barrier);
         if (*args->done) break;
 
-
-
         for (uint i = begin; i < end; ++i)
         {
             r_new[i] = s[i] - omega_new * t[i];
@@ -385,7 +383,6 @@ static void* bicgstab_crs_thrd_fn(void* param)
 //        pthread_barrier_wait(args->barrier);
     }
     *args->p_iter = iter_count;
-    *args->p_err = err;
     pthread_barrier_wait(args->barrier);
 
     return 0;

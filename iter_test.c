@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
             printf("Setting the middle rows\n");
             const scalar_t values[3] = {-1/(2 * DX) + (1 - VIS) / (DX * DX), 2 * (VIS - 1) / (DX * DX) - 1, 1/(2*DX) + (1 - VIS)/(DX * DX)};
             uint indices[3] = {0, 1, 2};
-            clock_t t0, t1, t2, t3;
+//            clock_t t0, t1, t2, t3;
 
             for (uint i = 1; i < dims - 1; ++i)
             {
@@ -86,17 +86,37 @@ int main(int argc, char* argv[])
             uint n_iter;
             scalar_t error;
             printf("Solving for a problem of size %u\n", dims);
-            t0 = clock();
-            bicgstab_crs(&matrix, y, x, 1e-6f, 1000, &n_iter, &error);
-            t1 = clock();
+            struct timespec t0, t1, t2, t3;
 
-            printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
+            clock_gettime(CLOCK_MONOTONIC, &t0);
+            bicgstab_crs(&matrix, y, x, 1e-5f, 1000, &n_iter, &error);
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            matrix_crs_vector_multiply(&matrix, x, x2);
+            scalar_t residual_magnitude = 0;
+            for (uint i = 0; i < dims; ++i)
+            {
+                scalar_t residual = y[i] - x2[i];
+                residual_magnitude += residual * residual;
+            }
+            residual_magnitude = sqrtf(residual_magnitude);
 
-            t0 = clock();
-            bicgstab_crs_mt(&matrix, y, x2, 1e-6f, 1000, &n_iter, &error, 8);
-            t1 = clock();
+            printf("Solution obtained with error %f after %u iterations (%g s)\n", error, n_iter, ((double)(t1.tv_sec - t0.tv_sec) + (double)(t1.tv_nsec - t0.tv_nsec) * 1e-9) );
+            printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (scalar_t)dims);
 
-            printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
+            clock_gettime(CLOCK_MONOTONIC, &t2);
+            bicgstab_crs_mt(&matrix, y, x2, 1e-5f, 1000, &n_iter, &error, 8);
+            clock_gettime(CLOCK_MONOTONIC, &t3);
+            matrix_crs_vector_multiply(&matrix, x2, x);
+            residual_magnitude = 0;
+            for (uint i = 0; i < dims; ++i)
+            {
+                scalar_t residual = y[i] - x[i];
+                residual_magnitude += residual * residual;
+            }
+            residual_magnitude = sqrtf(residual_magnitude);
+
+            printf("Solution obtained with error %f after %u iterations (%g s)\n", error, n_iter, ((double)(t3.tv_sec - t2.tv_sec) + (double)(t3.tv_nsec - t2.tv_nsec) * 1e-9));
+            printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (scalar_t)dims);
 
             scalar_t err_s = 0, err = 0;
             for (uint i = 0; i < dims; ++i)
@@ -107,12 +127,6 @@ int main(int argc, char* argv[])
             }
             printf("Errors:\n\tSum of absolute: %g\n\tMagnitude: %g\n\tRMS: %g\n", err, sqrtf(err_s), sqrtf(err_s / (scalar_t)dims));
 
-//            printf("\n[");
-//            for (uint i = 0; i < dims; ++i)
-//            {
-//                printf(" %g,", x[i]);
-//            }
-//            printf(" ]\n");
 
 
             printf("Freeing the matrix\n");

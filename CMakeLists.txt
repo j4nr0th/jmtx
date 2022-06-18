@@ -6,3 +6,4 @@ add_library(mtxlib matrix_base.h sparse_row_compressed.c sparse_row_compressed.h
 add_executable(test_mtx matrix_base.h sparse_row_compressed.h sparse_row_compressed.c common.c common.h sparse_column_compressed.c sparse_column_compressed.h jacobi_point_iteration.c jacobi_point_iteration.h iter_test.c gauss_seidel_iteration.c gauss_seidel_iteration.h bicgstab_iteration.c bicgstab_iteration.h)
 target_link_libraries(test_mtx m pthread)
 target_link_libraries(mtxlib pthread)
+target_compile_options(mtxlib PRIVATE -march=native -O3)

@@ -3,7 +3,7 @@
 //
 
 #include "jacobi_point_iteration.h"
-
+#include <math.h>
 #include <stdio.h>
 #include <pthread.h>
 
@@ -30,11 +30,11 @@ mtx_res_t jacobi_crs(
 
     scalar_t* x0 = auxiliary_x;
     scalar_t* x1 = x;
-    scalar_t max_dif = 0.0f;
+    scalar_t err = 0.0f;
     uint n_iterations = 0;
     do
     {
-        max_dif = 0.0f;
+        err = 0.0f;
         {
             scalar_t* tmp = x1;
             x1 = x0;
@@ -65,15 +65,14 @@ mtx_res_t jacobi_crs(
 
         for (uint i = 0; i < n; ++i)
         {
-            scalar_t iter_dif = (x1[i] - x0[i]);
-            uint f_abs_d = *(uint*)(&iter_dif)& 0x7FFFFFFF;
-            iter_dif = *(scalar_t*)&f_abs_d;
-//            if (iter_dif > max_dif) max_dif = iter_dif;
-            max_dif += iter_dif;
+            scalar_t val;
+            matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+            val -= y[i];
+            err += val * val;
         }
-        max_dif /= (scalar_t)n;
+        err = sqrtf(err) / (scalar_t)n;
         n_iterations += 1;
-    } while(max_dif > convergence_dif & n_iterations < n_max_iter);
+    } while(err > convergence_dif & n_iterations < n_max_iter);
 
 
     if (x1 == auxiliary_x)
@@ -82,7 +81,7 @@ mtx_res_t jacobi_crs(
     }
     free(auxiliary_x);
     if (p_iter) *p_iter = n_iterations;
-    if (p_error) *p_error = max_dif;
+    if (p_error) *p_error = err;
     return 0;
 }
 
@@ -222,16 +221,6 @@ mtx_res_t jacobi_crs_mt(
         if (pthread_create(thrds + i, NULL, jacobi_crs_thread_fn, &arg) != 0)
         {
             happy = 1;
-//            cnd_broadcast(&condition);
-//            for (uint j = 0; j < n_thrds; ++j)
-//            {
-//                if (j < i)
-//                {
-//                    thrd_join(thrds[j], NULL);
-//                }
-//                mtx_destroy(mutexes + j);
-//            }
-//            cnd_destroy(&condition);
             for (uint j = 0; j < i; ++j)
                 pthread_cancel(thrds[j]);
             free(errors);
