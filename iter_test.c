@@ -87,10 +87,25 @@ int main(int argc, char* argv[])
             scalar_t error;
             printf("Solving for a problem of size %u\n", dims);
             t0 = clock();
-            gauss_seidel_crs_mt(&matrix, y, x, 1e-5f, 20000, &n_iter, &error, 8);
+            bicgstab_crs(&matrix, y, x, 1e-5f, 20000, &n_iter, &error);
             t1 = clock();
 
-            printf("Solution obtained with error %g after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
+            printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
+
+            t0 = clock();
+            bicgstab_crs_mt(&matrix, y, x2, 1e-5f, 20000, &n_iter, &error, 8);
+            t1 = clock();
+
+            printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
+
+            scalar_t err_s = 0, err = 0;
+            for (uint i = 0; i < dims; ++i)
+            {
+                const scalar_t d = x[i] - x2[i];
+                err += fabsf(d);
+                err_s += d * d;
+            }
+            printf("Errors:\n\tSum of absolute: %g\n\tMagnitude: %g\n\tRMS: %g\n", err, sqrtf(err_s), sqrtf(err_s / (scalar_t)dims));
 
 //            printf("\n[");
 //            for (uint i = 0; i < dims; ++i)

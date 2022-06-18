@@ -388,8 +388,9 @@ static void* gauss_seidel_thrd_fn(void* param)
         }
         args->p_errors[args->id] = max_dif;
         args->rounds_done += 1;
+        const _Bool flag_c = atomic_flag_test_and_set(args->error_flag);
         pthread_barrier_wait(args->work_barrier);
-        if (!atomic_flag_test_and_set(args->error_flag))
+        if (!flag_c)
         {
             max_dif = 0;
             for (uint i = 0; i < args->n_thrds; ++i)
@@ -399,8 +400,8 @@ static void* gauss_seidel_thrd_fn(void* param)
             max_dif /= (scalar_t)args->n;
             if (max_dif < args->converge_dif || args->rounds_done > args->n_max_iter) *args->done = 1;
             *args->p_errors = max_dif;
+            atomic_flag_clear(args->error_flag);
         }
-        atomic_flag_clear(args->error_flag);
         pthread_barrier_wait(args->work_barrier);
     }
     return 0;
