@@ -661,3 +661,17 @@ mtx_res_t matrix_crs_build_row(CrsMatrix* mtx, uint row, uint n, const uint* ind
     end:
     return res;
 }
+
+mtx_res_t matrix_crs_vector_multiply_row(const CrsMatrix* mtx, const scalar_t* x, uint i, scalar_t* p_r)
+{
+    const uint* const indices = mtx->indices + mtx->elements_before[i];
+    const scalar_t* const elements = mtx->elements + mtx->elements_before[i];
+    const uint n_row = mtx->elements_before[i + 1] - mtx->elements_before[i];
+    scalar_t v = 0;
+    for (uint j = 0; j < n_row; ++j)
+    {
+        v += elements[j] * x[indices[j]];
+    }
+    *p_r = v;
+    return 0;
+}

@@ -46,7 +46,6 @@ mtx_res_t bicgstab_crs(
     {
         rho_old = rho_new;
         omega_old = omega_new;
-        err_rms = 0;
 
         rho_new = 0;
         for (uint i = 0; i < n; ++i)
@@ -68,10 +67,19 @@ mtx_res_t bicgstab_crs(
         for (uint i = 0; i < n; ++i)
         {
             const scalar_t dx = a * p[i];
-            err_rms += dx * dx;
+//            err_rms += dx * dx;
             h[i] = x[i] + dx;
         }
-        err_rms = sqrtf(err_rms);
+        err_rms = 0;
+        for (uint i = 0; i < n; ++i)
+        {
+            scalar_t val;
+            matrix_crs_vector_multiply_row(mtx, h, i, &val);
+            val -= y[i];
+            err_rms += val * val;
+        }
+
+        err_rms = sqrtf(err_rms) / (scalar_t)n;
         if (err_rms < convergence_dif) break;
         for (uint i = 0; i < n; ++i)
         {
@@ -86,15 +94,21 @@ mtx_res_t bicgstab_crs(
             tmp += t[i] * t[i];
         }
         omega_new /= tmp;
-        err_rms = 0;
         for (uint i = 0; i < n; ++i)
         {
             const scalar_t new_x = h[i] + omega_new * s[i];
-            const scalar_t dx = new_x - x[i];
-            err_rms += dx * dx;
             x[i] = new_x;
         }
-        err_rms = sqrtf(err_rms);
+        err_rms = 0;
+        for (uint i = 0; i < n; ++i)
+        {
+            scalar_t val;
+            matrix_crs_vector_multiply_row(mtx, x, i, &val);
+            val -= y[i];
+            err_rms += val * val;
+        }
+
+        err_rms = sqrtf(err_rms) / (scalar_t)n;
 //        printf("RMS error on iteration %u is %g\n", iter_count, err_rms);
         if ((err_rms) < convergence_dif) break;
 
@@ -117,6 +131,7 @@ struct bicgstab_crs_args
     const CrsMatrix* mtx;
     scalar_t* rho_old, *rho_new, *a, *omega_old, *omega_new;
     scalar_t* x;
+    const scalar_t* y;
     scalar_t* p_common;
     scalar_t* p_common2;
     scalar_t* p_err;
@@ -134,7 +149,7 @@ struct bicgstab_crs_args
 
 static void* bicgstab_crs_thrd_fn(void* param)
 {
-    struct bicgstab_crs_args* args = param;
+    const struct bicgstab_crs_args* args = param;
     scalar_t* const x = args->x;
     scalar_t* const p = args->joint_buffer;
     scalar_t* const v = args->joint_buffer + args->n;
@@ -145,7 +160,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
     scalar_t* const h = args->joint_buffer + 6 * args->n;
     uint iter_count = 0;
     _Bool flag_v = 0;
-    scalar_t err;
+    scalar_t err = 0;
 
     const uint complete_chunk = args->n / args->thrd_count;
     const uint remaining_chunk = args->n % args->thrd_count;
@@ -163,7 +178,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
     const uint end = begin_work + work_chunk;
 
 
-    while (!*args->done)
+    while (!*args->done && iter_count < args->max_iter)
     {
         flag_v = atomic_flag_test_and_set(args->once_flag);
         pthread_barrier_wait(args->barrier);
@@ -245,12 +260,19 @@ static void* bicgstab_crs_thrd_fn(void* param)
         pthread_barrier_wait(args->barrier);
 
         const scalar_t a = *args->a;
+        for (uint i = begin; i < end; ++i)
+        {
+            h[i] = x[i] + a * p[i];
+        }
+        pthread_barrier_wait(args->barrier);
+
         err = 0;
         for (uint i = begin; i < end; ++i)
         {
-            const scalar_t dx = a * p[i];
-            err += dx * dx;
-            h[i] = x[i] + dx;
+            scalar_t y0;
+            matrix_crs_vector_multiply_row(args->mtx, h, i, &y0);
+            y0 -= args->y[i];
+            err += y0 * y0;
         }
         args->p_common[args->id] = err;
 
@@ -263,9 +285,10 @@ static void* bicgstab_crs_thrd_fn(void* param)
             {
                 err += args->p_common[i];
             }
-            err = sqrtf(err);
+            err = sqrtf(err) / (scalar_t)args->n;
             if (err < args->req_error)
             {
+                memcpy(x, h, args->n * sizeof*x);
                 *args->p_iter = iter_count;
                 *args->p_err = err;
                 *args->done = 1;
@@ -314,15 +337,22 @@ static void* bicgstab_crs_thrd_fn(void* param)
         }
         pthread_barrier_wait(args->barrier);
         const scalar_t omega_new = *args->omega_new;
+        for (uint i = begin; i < end; ++i)
+        {
+            x[i] = h[i] + omega_new * s[i];
+        }
+        pthread_barrier_wait(args->barrier);
+
         err = 0;
         for (uint i = begin; i < end; ++i)
         {
-            const scalar_t new_x = h[i] + omega_new * s[i];
-            const scalar_t dx = new_x - x[i];
-            err += dx * dx;
-            x[i] = new_x;
+            scalar_t y0;
+            matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
+            y0 -= args->y[i];
+            err += y0 * y0;
         }
         args->p_common[args->id] = err;
+
         flag_v = atomic_flag_test_and_set(args->once_flag);
         pthread_barrier_wait(args->barrier);
         if (!flag_v)
@@ -332,7 +362,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
             {
                 err += args->p_common[i];
             }
-            err = sqrtf(err);
+            err = sqrtf(err) / (scalar_t)args->n;
             if (err < args->req_error)
             {
                 *args->p_err = err;
@@ -354,7 +384,8 @@ static void* bicgstab_crs_thrd_fn(void* param)
         iter_count += 1;
 //        pthread_barrier_wait(args->barrier);
     }
-
+    *args->p_iter = iter_count;
+    *args->p_err = err;
     pthread_barrier_wait(args->barrier);
 
     return 0;
@@ -423,7 +454,7 @@ mtx_res_t bicgstab_crs_mt(
     }
     memcpy(r_new, r0, sizeof*r0 * n);
 
-    // TODO: create threads and send them on their merry way
+
     uint done = 0;
     scalar_t err_rms;
     uint iter_count = 0;
@@ -450,7 +481,8 @@ mtx_res_t bicgstab_crs_mt(
             .req_error = convergence_dif,
             .max_iter = n_max_iter,
             .mtx = mtx,
-            .x = x
+            .x = x,
+            .y = y,
                 };
         if (pthread_create(threads + i, NULL, bicgstab_crs_thrd_fn, args + i))
         {

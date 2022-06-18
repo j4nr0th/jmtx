@@ -87,13 +87,13 @@ int main(int argc, char* argv[])
             scalar_t error;
             printf("Solving for a problem of size %u\n", dims);
             t0 = clock();
-            bicgstab_crs(&matrix, y, x, 1e-5f, 20000, &n_iter, &error);
+            bicgstab_crs(&matrix, y, x, 1e-6f, 1000, &n_iter, &error);
             t1 = clock();
 
             printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);
 
             t0 = clock();
-            bicgstab_crs_mt(&matrix, y, x2, 1e-5f, 20000, &n_iter, &error, 8);
+            bicgstab_crs_mt(&matrix, y, x2, 1e-6f, 1000, &n_iter, &error, 8);
             t1 = clock();
 
             printf("Solution obtained with error %f after %u iterations (%g ms)\n", error, n_iter, ((double)(t1 - t0) / (double)CLOCKS_PER_SEC) * 1e3);

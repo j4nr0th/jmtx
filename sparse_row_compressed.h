@@ -212,4 +212,14 @@ mtx_res_t matrix_crs_transpose(const CrsMatrix* restrict mtx, CrsMatrix* restric
  */
 mtx_res_t matrix_crs_copy(const CrsMatrix* restrict mtx, CrsMatrix* restrict out);
 
+/**
+ * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel
+ * @param mtx pointer to the memory where the matrix A is stored
+ * @param x pointer to the memory where the vector x is stored
+ * @param i what entry of the residual to compute
+ * @param p_r pointer to the memory which receives the computed residual
+ * @return zero if successful
+ */
+mtx_res_t matrix_crs_vector_multiply_row(const CrsMatrix* mtx, const scalar_t* x, uint i, scalar_t* p_r);
+
 #endif //MTXLIB_SPARSE_ROW_COMPRESSED_H
