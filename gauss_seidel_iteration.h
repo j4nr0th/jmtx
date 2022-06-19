@@ -5,6 +5,9 @@
 #ifndef MTXLIB_GAUSS_SEIDEL_ITERATION_H
 #define MTXLIB_GAUSS_SEIDEL_ITERATION_H
 #include "sparse_row_compressed.h"
+#ifdef MTX_MATRIX_CHECKS
+#include "errors.h"
+#endif
 
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -31,6 +34,9 @@
 mtx_res_t gauss_seidel_crs(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error);
+#ifdef MTX_ERROR_MESSAGES
+#define gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error) CALL_FUNCTION(gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error))
+#endif
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method) to solve the linear system Ax = y.
@@ -50,5 +56,8 @@ mtx_res_t gauss_seidel_crs(
 mtx_res_t gauss_seidel_crs_mt(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error, uint n_thrds);
+#ifdef MTX_ERROR_MESSAGES
+#define gauss_seidel_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds) CALL_FUNCTION(gauss_seidel_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds))
+#endif
 
 #endif //MTXLIB_GAUSS_SEIDEL_ITERATION_H

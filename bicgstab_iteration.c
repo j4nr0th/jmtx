@@ -8,13 +8,47 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
+#undef bicgstab_crs
+#undef bicgstab_crs_mt
+
 mtx_res_t bicgstab_crs(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     const uint n = mtx->rows;
     scalar_t* const joint_buffer = calloc(n + n + n + n + n + n + n, sizeof(*joint_buffer));
-    if (!joint_buffer) return -1;
+    if (!joint_buffer)
+    {
+        CALLOC_FAILED((n + n + n + n + n + n + n) * sizeof(*joint_buffer));
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
     scalar_t rho_new = 1, rho_old = 1, a = 1, omega_old = 1, omega_new = 1;
 
     scalar_t* const p = joint_buffer;
@@ -122,7 +156,8 @@ mtx_res_t bicgstab_crs(
     free(joint_buffer);
     if (p_iter) *p_iter = iter_count;
     if (p_error) *p_error = err_rms;
-    return 0;
+    LEAVE_FUNCTION();
+    return iter_count == n_max_iter ? mtx_not_converged : mtx_success;
 }
 
 
@@ -150,6 +185,7 @@ struct bicgstab_crs_args
 static void* bicgstab_crs_thrd_fn(void* param)
 {
     const struct bicgstab_crs_args* args = param;
+    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args->id, args->thrd_count);
     scalar_t* const x = args->x;
     scalar_t* const p = args->joint_buffer;
     scalar_t* const v = args->joint_buffer + args->n;
@@ -384,7 +420,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
     }
     *args->p_iter = iter_count;
     pthread_barrier_wait(args->barrier);
-
+    THREAD_END;
     return 0;
 }
 
@@ -392,26 +428,63 @@ mtx_res_t bicgstab_crs_mt(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error, uint n_thrds)
 {
-    if (n_thrds == 0)
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
     {
-        return bicgstab_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error);
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
+    if (n_thrds == 0 || n_thrds == 1)
+    {
+        const mtx_res_t result = CALL_FUNCTION(bicgstab_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error));
+        LEAVE_FUNCTION();
+        return result;
     }
     const uint n = mtx->rows;
     pthread_t* const threads = calloc(n_thrds, sizeof*threads);
-    if (!threads) return -1;
+    if (!threads)
+    {
+        CALLOC_FAILED(n_thrds * sizeof*threads);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
     atomic_flag once_flag = ATOMIC_FLAG_INIT;
     scalar_t* const common_buffer = calloc(2 * n_thrds, sizeof*common_buffer);
     if (!common_buffer)
     {
         free(threads);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*common_buffer);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     struct bicgstab_crs_args* const args = calloc(n_thrds, sizeof*args);
     if (!args)
     {
         free(common_buffer);
         free(threads);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*args);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     pthread_barrier_t barrier;
     pthread_barrier_init(&barrier, NULL, n_thrds);
@@ -422,7 +495,9 @@ mtx_res_t bicgstab_crs_mt(
         free(args);
         free(common_buffer);
         free(threads);
-        return -1;
+        CALLOC_FAILED((n + n + n + n + n + n + n) * sizeof*joint_buffer);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     scalar_t rho_new = 1, rho_old = 1, a = 1, omega_old = 1, omega_new = 1;
@@ -484,6 +559,8 @@ mtx_res_t bicgstab_crs_mt(
         if (pthread_create(threads + i, NULL, bicgstab_crs_thrd_fn, args + i))
         {
             done = 1;
+            REPORT_ERROR_MESSAGE("Could not create a new worker thread (%d out of %d), reason: %s", i + 1, n_thrds,
+                                 strerror(errno));
             for (uint j = 0; j < i; ++i)
             {
                 pthread_cancel(threads[i]);
@@ -493,7 +570,7 @@ mtx_res_t bicgstab_crs_mt(
             free(args);
             free(common_buffer);
             free(threads);
-            return -1;
+            return mtx_thread_fail;
         }
     }
 
@@ -510,6 +587,7 @@ mtx_res_t bicgstab_crs_mt(
     free(threads);
     if (p_iter) *p_iter = iter_count;
     if (p_error) *p_error = err_rms;
-    return 0;
+    LEAVE_FUNCTION();
+    return iter_count == n_max_iter ? mtx_not_converged : mtx_success;
 }
 

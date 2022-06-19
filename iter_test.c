@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
                 continue;
             }
 //            const uint dims = 4096;
-            CrsMatrix matrix;
+            CrsMatrix matrix = {0};
             printf("Creating a %u by %u matrix\n", dims, dims);
             matrix_crs_new(&matrix, dims, dims, 3 * dims);
             printf("Setting the top BC\n");
@@ -136,6 +136,6 @@ int main(int argc, char* argv[])
             printf("Freeing y\n");
             free(y);
         }
-
+    THREAD_END;
     return 0;
 }

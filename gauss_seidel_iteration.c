@@ -12,11 +12,39 @@
 //#include <unistd.h>
 //#include <errno.h>
 
+#undef gauss_seidel_crs
+#undef gauss_seidel_crs_mt
 
 mtx_res_t gauss_seidel_crs(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     //  Length of x and y
     const uint n = mtx->columns;
 
@@ -76,7 +104,8 @@ mtx_res_t gauss_seidel_crs(
 
     if (p_iter) *p_iter = n_iterations;
     if (p_error) *p_error = err;
-    return 0;
+    LEAVE_FUNCTION();
+    return n_iterations == n_max_iter ? mtx_not_converged : mtx_success;
 }
 
 
@@ -100,6 +129,7 @@ struct gauss_seidel_crs_thread_param
 static void* gauss_seidel_thrd_fn(void* param)
 {
     struct gauss_seidel_crs_thread_param* args = (struct gauss_seidel_crs_thread_param*)param;
+    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args->id, args->n_thrds);
     uint loop_type = 1;
     const uint chunk_size = args->n / args->n_thrds;
     pthread_barrier_wait(args->work_barrier);
@@ -175,6 +205,7 @@ static void* gauss_seidel_thrd_fn(void* param)
         }
         pthread_barrier_wait(args->work_barrier);
     }
+    THREAD_END;
     return 0;
 }
 
@@ -182,9 +213,37 @@ mtx_res_t gauss_seidel_crs_mt(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error, uint n_thrds)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     if (!n_thrds)
     {
-        return gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, NULL);
+        const mtx_res_t result = CALL_FUNCTION(gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error));
+        LEAVE_FUNCTION();
+        return result;
     }
 
     //  Length of x and y
@@ -204,21 +263,27 @@ mtx_res_t gauss_seidel_crs_mt(
     pthread_t* const thrds = calloc(n_thrds, sizeof*thrds);
     if (!thrds)
     {
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*thrds);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     scalar_t* const errors = calloc(n_thrds, sizeof*errors);
     if (!errors)
     {
         free(thrds);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*errors);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     struct gauss_seidel_crs_thread_param* const args = calloc(n_thrds, sizeof* args);
     if (!args)
     {
         free(thrds);
         free(errors);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*args);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     uint happy = 0;
@@ -247,13 +312,15 @@ mtx_res_t gauss_seidel_crs_mt(
         if (pthread_create(thrds + i, NULL, gauss_seidel_thrd_fn, args + i) != 0)
         {
             happy = 1;
+            REPORT_ERROR_MESSAGE("Could not create a new worker thread (%d out of %d), reason: %s", i + 1, n_thrds,
+                                 strerror(errno));
             for (uint j = 0; j < i; ++j)
                 pthread_cancel(thrds[j]);
             pthread_barrier_destroy(&work_barrier);
             free(args);
             free(errors);
             free(thrds);
-            return -1;
+            return mtx_thread_fail;
         }
     }
 
@@ -275,7 +342,8 @@ mtx_res_t gauss_seidel_crs_mt(
     free(args);
     if (p_iter) *p_iter = n_iterations;
     if (p_error) *p_error = max_dif;
-    return 0;
+    LEAVE_FUNCTION();
+    return n_iterations == n_max_iter ? mtx_not_converged : mtx_success;
 }
 
 

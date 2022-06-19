@@ -7,10 +7,39 @@
 #include <stdio.h>
 #include <pthread.h>
 
+#undef jacobi_crs
+#undef jacobi_crs_mt
+
 mtx_res_t jacobi_crs(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     //  Length of x and y
     const uint n = mtx->columns;
 
@@ -26,7 +55,12 @@ mtx_res_t jacobi_crs(
 
     //  Memory used to store result of the current iteration
     scalar_t* const auxiliary_x = calloc(n, sizeof*x);
-    if (!auxiliary_x) return -1;
+    if (!auxiliary_x)
+    {
+        CALLOC_FAILED(n * sizeof*x);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
 
     scalar_t* x0 = auxiliary_x;
     scalar_t* x1 = x;
@@ -82,7 +116,8 @@ mtx_res_t jacobi_crs(
     free(auxiliary_x);
     if (p_iter) *p_iter = n_iterations;
     if (p_error) *p_error = err;
-    return 0;
+    LEAVE_FUNCTION();
+    return n_iterations == n_max_iter ? mtx_not_converged : mtx_success;
 }
 
 struct jacobi_crs_thread_param
@@ -103,6 +138,7 @@ static void* jacobi_crs_thread_fn(void* param)
 {
     struct jacobi_crs_thread_param args = *(struct jacobi_crs_thread_param*)param;
     *args.ready = 1;
+    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args.id, args.n_thrds);
     while (!*args.done)
     {
         scalar_t residual_sum = 0.0f;
@@ -140,11 +176,11 @@ static void* jacobi_crs_thread_fn(void* param)
         pthread_barrier_wait(args.barrier);
         pthread_barrier_wait(args.barrier);
     }
-
+    THREAD_END;
     return 0;
 }
 
-static void print_vector(const scalar_t* x, const uint len)
+static inline void print_vector(const scalar_t* x, const uint len)
 {
     printf("\n[");
     for (uint i = 0; i < len; ++i)
@@ -158,9 +194,35 @@ mtx_res_t jacobi_crs_mt(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error, uint n_thrds)
 {
-    if (!n_thrds)
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
     {
-        return jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, NULL);
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_crs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
+    if (!n_thrds || n_thrds == 1)
+    {
+        return CALL_FUNCTION(jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, NULL));
     }
 
     //  Length of x and y
@@ -178,12 +240,19 @@ mtx_res_t jacobi_crs_mt(
 
     //  Memory used to store result of the current iteration
     scalar_t* const auxiliary_x = calloc(n, sizeof*x);
-    if (!auxiliary_x) return -1;
+    if (!auxiliary_x)
+    {
+        CALLOC_FAILED(n_thrds * sizeof*auxiliary_x);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
     pthread_t* const thrds = calloc(n_thrds, sizeof*thrds);
     if (!thrds)
     {
         free(auxiliary_x);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*thrds);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     scalar_t* const errors = calloc(n_thrds, sizeof*errors);
@@ -191,7 +260,9 @@ mtx_res_t jacobi_crs_mt(
     {
         free(auxiliary_x);
         free(thrds);
-        return -1;
+        CALLOC_FAILED(n_thrds * sizeof*errors);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     pthread_barrier_t barrier;
     pthread_barrier_init(&barrier, NULL, n_thrds + 1);
@@ -199,7 +270,7 @@ mtx_res_t jacobi_crs_mt(
     uint happy = 0;
     scalar_t* x0 = x;
     scalar_t* x1 = auxiliary_x;
-    scalar_t max_dif = 0.0f;
+    scalar_t err;
     _Atomic uint thrd_is_ready = 0;
     struct jacobi_crs_thread_param arg =
             {
@@ -227,7 +298,9 @@ mtx_res_t jacobi_crs_mt(
             pthread_barrier_destroy(&barrier);
             free(auxiliary_x);
             free(thrds);
-            return -1;
+            REPORT_ERROR_MESSAGE("Could not create a new worker thread (%d out of %d), reason: %s", i + 1, n_thrds,
+                                 strerror(errno));
+            return mtx_thread_fail;
         }
     }
 
@@ -242,16 +315,16 @@ mtx_res_t jacobi_crs_mt(
             x0 = tmp;
         }
 
-        max_dif = 0;
+        err = 0;
 
 //        print_vector(errors, n_thrds);
 //        max_dif = errors[0];
         for (uint i = 0; i < n_thrds; ++i)
         {
-            max_dif += errors[i];
+            err += errors[i];
         }
-        max_dif /= (scalar_t)n;
-        happy = !(max_dif > convergence_dif & n_iterations < n_max_iter);
+        err /= (scalar_t)n;
+        happy = !(err > convergence_dif & n_iterations < n_max_iter);
 //        print_vector(x0, n);
 //        print_vector(x1, n);
         pthread_barrier_wait(&barrier);
@@ -272,6 +345,7 @@ mtx_res_t jacobi_crs_mt(
     free(thrds);
     free(auxiliary_x);
     if (n_iterations) *p_iter = n_iterations;
-    if (p_error) *p_error = max_dif;
-    return 0;
+    if (p_error) *p_error = err;
+    LEAVE_FUNCTION();
+    return n_iterations == n_max_iter ? mtx_not_converged : mtx_success;
 }

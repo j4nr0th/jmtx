@@ -3,9 +3,28 @@
 //
 
 #include "sparse_column_compressed.h"
+#include "errors.h"
 //
 // Created by jan on 13.6.2022.
 //
+
+
+#undef matrix_ccs_new
+#undef matrix_ccs_destroy
+#undef matrix_ccs_shrink
+#undef matrix_ccs_set_col
+#undef matrix_ccs_get_col
+#undef matrix_ccs_vector_multiply
+#undef matrix_ccs_set_element
+#undef matrix_ccs_get_element
+#undef matrix_ccs_beef_check
+#undef matrix_ccs_apply_unary_fn
+#undef matrix_ccs_remove_zeros
+#undef matrix_ccs_remove_bellow
+#undef matrix_ccs_elements_in_row
+#undef matrix_ccs_get_row
+#undef matrix_ccs_transpose
+#undef matrix_ccs_copy
 
 #define DEFAULT_RESERVED_ELEMENTS 64
 
@@ -48,32 +67,61 @@ static int beef_check(const scalar_t* ptr, size_t elements)
 
 mtx_res_t matrix_ccs_new(CcsMatrix* mtx, uint columns, uint rows, uint reserved_elements)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!rows)
+    {
+        REPORT_ERROR_MESSAGE("Number of rows was 0");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!columns)
+    {
+        REPORT_ERROR_MESSAGE("Number of columns was 0");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (reserved_elements > columns * rows)
+    {
+        REPORT_ERROR_MESSAGE("Number of reserved elements (%u) exceeds product of columns (%u) by rows (%u)", reserved_elements, rows, columns);
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     if (reserved_elements == 0)
     {
         reserved_elements = DEFAULT_RESERVED_ELEMENTS;
         reserved_elements = reserved_elements < columns * rows ? reserved_elements : columns * rows;
     }
-    mtx_res_t res = 0;
+    mtx_res_t res = mtx_success;
     uint* elements_per_col = NULL;
     uint* indices = NULL;
     scalar_t* p_elements = calloc(1 + reserved_elements, sizeof*p_elements);
     if (p_elements == NULL)
     {
-        res = -1;
+        res = mtx_malloc_fail;
+        CALLOC_FAILED((1 + reserved_elements) * sizeof*p_elements);
         goto fail1;
     }
 
     indices = calloc(1 + reserved_elements, sizeof*indices);
     if (indices == NULL)
     {
-        res = -1;
+        res = mtx_malloc_fail;
+        CALLOC_FAILED((1 + reserved_elements) * sizeof*indices);
         goto fail2;
     }
 
     elements_per_col = calloc(columns + 1, sizeof*elements_per_col);
     if (elements_per_col == NULL)
     {
-        res = -1;
+        res = mtx_malloc_fail;
+        CALLOC_FAILED((columns + 1) * sizeof*elements_per_col);
         goto fail3;
     }
     beef_it_up(p_elements + 1, reserved_elements);
@@ -92,50 +140,125 @@ mtx_res_t matrix_ccs_new(CcsMatrix* mtx, uint columns, uint rows, uint reserved_
     mtx->capacity = reserved_elements;
     mtx->n_elements = 0;
     mtx->elements_before = elements_per_col;
-
+    LEAVE_FUNCTION();
     return res;
     fail3: free(indices);
     fail2: free(elements_per_col);
     fail1: free(p_elements);
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_destroy(CcsMatrix* mtx)
 {
-    mtx_res_t res = 0;
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+#endif
+    mtx_res_t res = mtx_success;
     free(mtx->indices);
     free(mtx->elements_before);
     free(mtx->elements);
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_shrink(CcsMatrix* mtx)
 {
-    mtx_res_t res = 0;
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+#endif
+    mtx_res_t res = mtx_success;
 
-    if (mtx->n_elements == mtx->capacity) return 0;
+    if (mtx->n_elements == mtx->capacity)
+    {
+        LEAVE_FUNCTION();
+        return mtx_success;
+    }
     mtx->capacity = mtx->n_elements;
     scalar_t* element_new_ptr = realloc(mtx->elements, sizeof*mtx->elements * (mtx->n_elements + 1));
     if (!element_new_ptr)
     {
-        res = -1;
+        res = mtx_malloc_fail;
+        REALLOC_FAILED(sizeof*mtx->elements * (mtx->n_elements + 1));
         goto end;
     }
     mtx->elements = element_new_ptr;
     uint* new_indices_ptr = realloc(mtx->indices, sizeof*mtx->indices * (mtx->n_elements + 1));
     if (!new_indices_ptr)
     {
-        res = -1;
+        res = mtx_malloc_fail;
+        REALLOC_FAILED(sizeof*mtx->indices * (mtx->n_elements + 1));
         goto end;
     }
     mtx->indices = new_indices_ptr;
 
     end:
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_set_col(CcsMatrix* mtx, uint col, uint n, const uint* indices, const scalar_t* elements)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->columns <= col)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u columns, but column %u was requested", mtx->columns, col);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (mtx->rows < n)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u rows, but %u elements were specified to be set in column %u", mtx->rows, n, col);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (!indices)
+    {
+        REPORT_ERROR_MESSAGE("Indices pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!elements)
+    {
+        REPORT_ERROR_MESSAGE("Elements pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     mtx_res_t res = 0;
     const int new_elements = (int)n - (int)(mtx->elements_before[col + 1] - mtx->elements_before[col]);
     const int required_capacity = (int)mtx->n_elements + new_elements;
@@ -144,14 +267,16 @@ mtx_res_t matrix_ccs_set_col(CcsMatrix* mtx, uint col, uint n, const uint* indic
         scalar_t* new_element_ptr = realloc(mtx->elements, sizeof*mtx->elements * (required_capacity + 1));
         if (!new_element_ptr)
         {
-            res = -1;
+            res = mtx_malloc_fail;
+            REALLOC_FAILED(sizeof*mtx->elements * (required_capacity + 1));
             goto end;
         }
         mtx->elements = new_element_ptr;
         uint* new_indices_ptr = realloc(mtx->indices, sizeof*mtx->indices * (required_capacity + 1));
         if (!new_indices_ptr)
         {
-            res = -1;
+            res = mtx_malloc_fail;
+            REALLOC_FAILED(sizeof*mtx->indices * (required_capacity + 1));
             goto end;
         }
         mtx->indices = new_indices_ptr;
@@ -173,12 +298,39 @@ mtx_res_t matrix_ccs_set_col(CcsMatrix* mtx, uint col, uint n, const uint* indic
         mtx->elements_before[i + 1] += new_elements;
     }
     mtx->n_elements += new_elements;
-    end:
+end:
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_vector_multiply(const CcsMatrix* mtx, const scalar_t* restrict x, scalar_t* restrict y)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (!x)
+    {
+        REPORT_ERROR_MESSAGE("Vector x was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!y)
+    {
+        REPORT_ERROR_MESSAGE("Vector y was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     mtx_res_t res = 0;
 
     for (uint i = 0; i < mtx->columns; ++i)
@@ -194,13 +346,39 @@ mtx_res_t matrix_ccs_vector_multiply(const CcsMatrix* mtx, const scalar_t* restr
         }
         y[i] = v;
     }
-
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x)
 {
-    mtx_res_t res = 0;
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (j >= mtx->columns)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->columns, j);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (i >= mtx->rows)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->rows, i);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+#endif
+    mtx_res_t res = mtx_success;
 
     const uint n_col_elements = mtx->elements_before[j + 1] - mtx->elements_before[j];
     const uint* const col_indices = mtx->indices + mtx->elements_before[j];
@@ -239,7 +417,8 @@ mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x)
             scalar_t* const new_element_ptr = realloc(mtx->elements, sizeof*mtx->elements * (new_capacity + 1));
             if (!new_element_ptr)
             {
-                res = -1;
+                res = mtx_malloc_fail;
+                REALLOC_FAILED(sizeof*mtx->elements * (new_capacity + 1));
                 goto end;
             }
             mtx->elements = new_element_ptr;
@@ -247,7 +426,8 @@ mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x)
             uint* const new_index_ptr = realloc(mtx->indices, sizeof*mtx->indices * (new_capacity + 1));
             if (!new_index_ptr)
             {
-                res = -1;
+                res = mtx_malloc_fail;
+                REALLOC_FAILED(sizeof*mtx->indices * (new_capacity + 1));
                 goto end;
             }
             mtx->indices = new_index_ptr;
@@ -268,16 +448,42 @@ mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x)
             mtx->elements_before[k + 1] += 1;
         }
     }
-    end:
+end:
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_get_element(const CcsMatrix* mtx, uint i, uint j, scalar_t* x)
 {
-    mtx_res_t res = 0;
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (j >= mtx->columns)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->columns, j);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (i >= mtx->rows)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->rows, i);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+#endif
+    mtx_res_t res = mtx_success;
     const uint n_col_elements = mtx->elements_before[j + 1] - mtx->elements_before[j];
     const uint* const col_indices = mtx->indices + mtx->elements_before[j];
-    uint index = 0;
     uint current = 0;
     for (
             uint size = n_col_elements, step = n_col_elements / 2;
@@ -310,11 +516,50 @@ mtx_res_t matrix_ccs_get_element(const CcsMatrix* mtx, uint i, uint j, scalar_t*
         *x = (scalar_t)0.0;
     }
 
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_get_col(const CcsMatrix* mtx, uint col, uint* n, uint** p_indices, scalar_t** p_elements)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (col >= mtx->columns)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->columns, col);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (!n)
+    {
+        REPORT_ERROR_MESSAGE("Count pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!p_indices)
+    {
+        REPORT_ERROR_MESSAGE("Index pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!p_elements)
+    {
+        REPORT_ERROR_MESSAGE("Element pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     mtx_res_t res = 0;
     const uint n_col = mtx->elements_before[col + 1] - mtx->elements_before[col];
     *n = n_col;
@@ -324,18 +569,60 @@ mtx_res_t matrix_ccs_get_col(const CcsMatrix* mtx, uint col, uint* n, uint** p_i
         *p_elements = mtx->elements + mtx->elements_before[col];
     }
 
+    LEAVE_FUNCTION();
     return res;
 }
 
 mtx_res_t matrix_ccs_beef_check(const CcsMatrix* mtx, int* p_beef_status)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (!p_beef_status)
+    {
+        REPORT_ERROR_MESSAGE("Beef status pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+#endif
     const int beef_status = beef_check(mtx->elements + 1, mtx->n_elements);
     *p_beef_status = beef_status;
+    LEAVE_FUNCTION();
     return 0;
 }
 
 mtx_res_t matrix_ccs_apply_unary_fn(const CcsMatrix* mtx, int (*unary_fn)(uint i, uint j, scalar_t* p_element, void* param), void* param)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (!unary_fn)
+    {
+        REPORT_ERROR_MESSAGE("Unary function pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     for (uint j = 0; j < mtx->columns; ++j)
     {
         const uint n_in_col = mtx->elements_before[j + 1] - mtx->elements_before[j];
@@ -346,24 +633,49 @@ mtx_res_t matrix_ccs_apply_unary_fn(const CcsMatrix* mtx, int (*unary_fn)(uint i
             int res;
             if ((res = unary_fn(p_indices[i], j, p_elements + j, param)))
             {
+                LEAVE_FUNCTION();
                 return res;
             }
         }
     }
-    return 0;
+    LEAVE_FUNCTION();
+    return mtx_success;
 }
 
 mtx_res_t matrix_ccs_remove_zeros(CcsMatrix* mtx)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+#endif
     uint zero_count, k, l;
     for (zero_count = 0, k = 0; k < mtx->n_elements; ++k)
     {
         zero_count += (mtx->elements[k + 1] == (scalar_t)0.0);
     }
-    if (!zero_count) return 0;
+    if (!zero_count)
+    {
+        LEAVE_FUNCTION();
+        return mtx_success;
+    }
 
     uint* const zero_indices = calloc(zero_count, sizeof*zero_indices);
-    if (!zero_indices) return -1;
+    if (!zero_indices)
+    {
+        CALLOC_FAILED(zero_count * sizeof*zero_indices);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
 
     for (k = 0, l = 0; l < zero_count && k < mtx->n_elements; ++k)
     {
@@ -411,11 +723,26 @@ mtx_res_t matrix_ccs_remove_zeros(CcsMatrix* mtx)
 
 
     free(zero_indices);
+    LEAVE_FUNCTION();
     return 0;
 }
 
 mtx_res_t matrix_ccs_remove_bellow(CcsMatrix* mtx, scalar_t v)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+#endif
     //  AND-ing with 0x7FFFFFFF should remove the sign bit, allowing to use fast comparison of float's absolute values
     const uint int_abs_v = ((*(uint*)&v) & 0x7FFFFFFF);
     const scalar_t abs_v = *(scalar_t*)&int_abs_v;
@@ -426,10 +753,19 @@ mtx_res_t matrix_ccs_remove_bellow(CcsMatrix* mtx, scalar_t v)
         const uint element_abs = ((uint*)mtx->elements)[k + 1] & 0x7FFFFFFF;
         zero_count += (*(scalar_t*)&element_abs < abs_v);
     }
-    if (!zero_count) return 0;
+    if (!zero_count)
+    {
+        LEAVE_FUNCTION();
+        return mtx_success;
+    }
 
     uint* const zero_indices = calloc(zero_count, sizeof*zero_indices);
-    if (!zero_indices) return -1;
+    if (!zero_indices)
+    {
+        CALLOC_FAILED(zero_count * sizeof*zero_indices);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
 
     for (k = 0, l = 0; l < zero_count && k < mtx->n_elements; ++k)
     {
@@ -478,11 +814,38 @@ mtx_res_t matrix_ccs_remove_bellow(CcsMatrix* mtx, scalar_t v)
 
 
     free(zero_indices);
+    LEAVE_FUNCTION();
     return 0;
 }
 
 mtx_res_t matrix_ccs_elements_in_row(const CcsMatrix* mtx, uint row, uint* p_n)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (row >= mtx->rows)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->rows, row);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (!p_n)
+    {
+        REPORT_ERROR_MESSAGE("Count pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     uint element_count = 0;
     for (uint col = 0; col < mtx->columns && mtx->elements_before[col] != mtx->elements_before[mtx->columns]; ++col)
     {
@@ -517,12 +880,44 @@ mtx_res_t matrix_ccs_elements_in_row(const CcsMatrix* mtx, uint row, uint* p_n)
         }
     }
     *p_n = element_count;
-
-    return 0;
+    LEAVE_FUNCTION();
+    return mtx_success;
 }
 
 mtx_res_t matrix_ccs_get_row(const CcsMatrix* mtx, uint row, uint n, scalar_t* p_elements, uint* p_cols)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (row >= mtx->rows)
+    {
+        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->rows, row);
+        LEAVE_FUNCTION();
+        return mtx_out_of_range;
+    }
+    if (!p_elements)
+    {
+        REPORT_ERROR_MESSAGE("Element pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (!p_cols)
+    {
+        REPORT_ERROR_MESSAGE("Columns pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     uint k = 0;
     for (uint col = 0; col < mtx->columns && mtx->elements_before[col] != mtx->elements_before[mtx->columns] && k != n; ++col)
     {
@@ -558,39 +953,68 @@ mtx_res_t matrix_ccs_get_row(const CcsMatrix* mtx, uint row, uint n, scalar_t* p
             k += 1;
         }
     }
-
-    return 0;
+    LEAVE_FUNCTION();
+    return mtx_success;
 }
 
 mtx_res_t matrix_ccs_transpose(const CcsMatrix* restrict mtx, CcsMatrix* restrict out)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Input matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Input matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (!out)
+    {
+        REPORT_ERROR_MESSAGE("Output matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     const uint n_elements = mtx->n_elements;
     const uint new_rows = mtx->columns;
     const uint new_cols = mtx->rows;
 
     uint* const row_cum_counts = calloc(new_cols + 1, sizeof*row_cum_counts);
-    if (!row_cum_counts) return -1;
+    if (!row_cum_counts)
+    {
+        CALLOC_FAILED((new_rows + 1) * sizeof*row_cum_counts);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
     uint* const new_indices = calloc(n_elements + 1, sizeof*new_indices);
     if (!new_indices)
     {
         free(row_cum_counts);
-        return -1;
+        CALLOC_FAILED((n_elements + 1) * sizeof*new_indices);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     scalar_t* const new_elements = calloc(n_elements + 1, sizeof*new_elements);
     if (!new_elements)
     {
         free(row_cum_counts);
         free(new_indices);
-        return -1;
+        CALLOC_FAILED((n_elements + 1) * sizeof*new_elements);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     *row_cum_counts = 1;
 
     for (uint j = 0, n, p = 1; j < mtx->rows; ++j)
     {
-        matrix_ccs_elements_in_row(mtx, j, &n);
+        CALL_FUNCTION(matrix_ccs_elements_in_row(mtx, j, &n));
 
-        matrix_ccs_get_row(mtx, j, n, new_elements + p, new_indices + p);
+        CALL_FUNCTION(matrix_ccs_get_row(mtx, j, n, new_elements + p, new_indices + p));
         p += n;
         row_cum_counts[j + 1] = row_cum_counts[j] + n;
     }
@@ -602,26 +1026,55 @@ mtx_res_t matrix_ccs_transpose(const CcsMatrix* restrict mtx, CcsMatrix* restric
     out->capacity = n_elements;
     out->rows = new_rows;
     out->columns = new_cols;
-
+    LEAVE_FUNCTION();
     return 0;
 }
 
 mtx_res_t matrix_ccs_copy(const CcsMatrix* mtx, CcsMatrix* out)
 {
+#ifdef MTX_MATRIX_CHECKS
+    if (!mtx)
+    {
+        REPORT_ERROR_MESSAGE("Input matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+    if (mtx->type != mtx_type_ccs)
+    {
+        REPORT_ERROR_MESSAGE("Input matrix was not compressed column sparse");
+        LEAVE_FUNCTION();
+        return mtx_wrong_storage;
+    }
+    if (!out)
+    {
+        REPORT_ERROR_MESSAGE("Output matrix pointer was null");
+        LEAVE_FUNCTION();
+        return mtx_bad_param;
+    }
+#endif
     scalar_t* const elements = calloc(1 + mtx->n_elements, sizeof *elements);
-    if (!elements) return -1;
+    if (!elements)
+    {
+        CALLOC_FAILED((1 + mtx->n_elements) * sizeof *elements);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
+    }
     uint* const indices = calloc(1 + mtx->n_elements, sizeof *indices);
     if (!indices)
     {
-        free(indices);
-        return -1;
+        free(elements);
+        CALLOC_FAILED((1 + mtx->n_elements) * sizeof *indices);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
     uint* const cum_sum = calloc(1 + mtx->columns, sizeof *cum_sum);
     if (!cum_sum)
     {
         free(indices);
-        free(cum_sum);
-        return -1;
+        free(elements);
+        CALLOC_FAILED((1 + mtx->rows) * sizeof *cum_sum);
+        LEAVE_FUNCTION();
+        return mtx_malloc_fail;
     }
 
     memcpy(elements + 1, mtx->elements + 1, sizeof* elements * mtx->n_elements);
@@ -631,6 +1084,6 @@ mtx_res_t matrix_ccs_copy(const CcsMatrix* mtx, CcsMatrix* out)
     out->elements = elements;
     out->indices = indices;
     out->elements_before = cum_sum;
-
+    LEAVE_FUNCTION();
     return 0;
 }

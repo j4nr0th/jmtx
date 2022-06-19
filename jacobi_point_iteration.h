@@ -6,6 +6,9 @@
 #define MTXLIB_JACOBI_POINT_ITERATION_H
 #include "sparse_row_compressed.h"
 #include "sparse_column_compressed.h"
+#ifdef MTX_ERROR_MESSAGES
+#include "errors.h"
+#endif
 
 /*
  * Jacobi Point Iteration is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -32,6 +35,9 @@
 mtx_res_t jacobi_crs(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error);
+#ifdef MTX_ERROR_MESSAGES
+#define jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error) CALL_FUNCTION(jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error))
+#endif
 
 /**
  * @warning Currently broken for God knows why. Not in a hurry to fix it, since it is inferior
@@ -51,6 +57,9 @@ mtx_res_t jacobi_crs(
 mtx_res_t jacobi_crs_mt(
         const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
         scalar_t* p_error, uint n_thrds);
+#ifdef MTX_ERROR_MESSAGES
+#define jacobi_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds) CALL_FUNCTION(jacobi_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds))
+#endif
 
 
 #endif //MTXLIB_JACOBI_POINT_ITERATION_H
