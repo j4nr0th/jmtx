@@ -8,7 +8,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <math.h>
-
+#include "errors.h"
 //#include <unistd.h>
 //#include <errno.h>
 

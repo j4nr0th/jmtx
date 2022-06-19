@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <pthread.h>
+#include "errors.h"
 
 #undef jacobi_crs
 #undef jacobi_crs_mt

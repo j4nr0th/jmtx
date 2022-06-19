@@ -7,6 +7,7 @@
 #include "bicgstab_iteration.h"
 #include <pthread.h>
 #include <stdatomic.h>
+#include "errors.h"
 
 #undef bicgstab_crs
 #undef bicgstab_crs_mt

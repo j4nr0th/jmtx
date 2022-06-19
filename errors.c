@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "errors.h"
 
+#ifdef MTX_ERROR_MESSAGES
 _Thread_local struct ErrorCallStack error_thread_call_stack;
 
 void error_enter_function(struct ErrorCallStack* stack, const char* caller, const char* file, int line, const char* callee)
@@ -166,3 +167,4 @@ void set_error_hook(void (* new_hook)(const char*, void*), void* param)
     error_hook_fn = new_hook;
     error_hook_param = param;
 }
+#endif

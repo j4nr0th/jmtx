@@ -53,6 +53,11 @@ void set_error_hook(void(*new_hook)(const char* error_message, void* param), voi
 #define CALL_FUNCTION(exp) exp
 #define LEAVE_FUNCTION() (void)0
 #define REPORT_ERROR_MESSAGE(msg, ...) (void)0
+#define MALLOC_FAILED(size) (void)0
+#define REALLOC_FAILED(size) (void)0
+#define CALLOC_FAILED(size) (void)0
+#define THREAD_BEGIN(fmt, ...) (void)0
+#define THREAD_END (void)0
 #endif
 
 

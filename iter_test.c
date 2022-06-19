@@ -10,7 +10,7 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
-
+#include "errors.h"
 
 #define MATRIX_TEST_DIMS 10000
 #define DX 0.1f
@@ -117,15 +117,6 @@ int main(int argc, char* argv[])
 
             printf("Solution obtained with error %f after %u iterations (%g s)\n", error, n_iter, ((double)(t3.tv_sec - t2.tv_sec) + (double)(t3.tv_nsec - t2.tv_nsec) * 1e-9));
             printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (scalar_t)dims);
-
-            scalar_t err_s = 0, err = 0;
-            for (uint i = 0; i < dims; ++i)
-            {
-                const scalar_t d = x[i] - x2[i];
-                err += fabsf(d);
-                err_s += d * d;
-            }
-            printf("Errors:\n\tSum of absolute: %g\n\tMagnitude: %g\n\tRMS: %g\n", err, sqrtf(err_s), sqrtf(err_s / (scalar_t)dims));
 
 
 
