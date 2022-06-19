@@ -181,248 +181,6 @@ struct bicgstab_crs_args
     pthread_barrier_t* barrier;
 };
 
-//static void* bicgstab_crs_thrd_fn(void* param)
-//{
-//    const struct bicgstab_crs_args* args = param;
-//    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args->id, args->thrd_count);
-//    scalar_t* const x = args->x;
-//    scalar_t* const p = args->joint_buffer;
-//    scalar_t* const v = args->joint_buffer + args->n;
-//    scalar_t* const r0 = args->joint_buffer + 2 * args->n;
-//    scalar_t* const r_new = args->joint_buffer + 3 * args->n;
-//    scalar_t* const s = args->joint_buffer + 4 * args->n;
-//    scalar_t* const t = args->joint_buffer + 5 * args->n;
-//    scalar_t* const h = args->joint_buffer + 6 * args->n;
-//    uint iter_count = 0;
-//    _Bool flag_v = 0;
-//    scalar_t err = 0;
-//
-//    const uint complete_chunk = args->n / args->thrd_count;
-//    const uint remaining_chunk = args->n % args->thrd_count;
-//    uint work_chunk = complete_chunk;
-//    if (remaining_chunk)
-//    {
-//        work_chunk += args->id < remaining_chunk;
-//    }
-//    uint begin_work = complete_chunk * args->id;
-//    if (remaining_chunk)
-//    {
-//        begin_work += (remaining_chunk > args->id ? args->id : remaining_chunk);
-//    }
-//    const uint begin = begin_work;
-//    const uint end = begin_work + work_chunk;
-//
-//
-//    while (!*args->done && iter_count < args->max_iter)
-//    {
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            *args->rho_old = *args->rho_new;
-//            *args->omega_old = *args->omega_new;
-//            atomic_flag_clear(args->once_flag);
-//        }
-////        pthread_barrier_wait(args->barrier);
-//
-//
-//        // compute new rho
-//        scalar_t res_rho = 0;
-//
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            res_rho += r0[i] * r_new[i];
-//        }
-//        args->p_common[args->id] = res_rho;
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            res_rho = 0;
-//            for (uint i = 0; i < args->thrd_count; ++i)
-//            {
-//                res_rho += args->p_common[i];
-//            }
-//            *args->rho_new = res_rho;
-//            atomic_flag_clear(args->once_flag);
-//        }
-//        pthread_barrier_wait(args->barrier);
-//        const scalar_t rho_new = *args->rho_new;
-//        const scalar_t rho_old = *args->rho_old;
-//        const scalar_t omega_old = *args->omega_old;
-//
-//        const scalar_t beta = rho_new / rho_old * *args->a / omega_old;
-//
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            p[i] = r_new[i] + beta * (p[i] - omega_old * v[i]);
-//        }
-//
-//        pthread_barrier_wait(args->barrier);
-////        matrix_crs_vector_multiply(mtx, p, v);
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            scalar_t val = 0, * elements;
-//            uint n, * indices;
-//
-//            matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
-//            for (uint j = 0; j < n; ++j)
-//            {
-//                val += elements[j] * p[indices[j]];
-//            }
-//            v[i] = val;
-//        }
-//
-//        //  No barrier yet, because only values of v between begin and end are needed
-//        scalar_t mag = 0;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            mag += r0[i] * v[i];
-//        }
-//        args->p_common[args->id] = mag;
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            mag = 0;
-//            for (uint i = 0; i < args->thrd_count; ++i)
-//            {
-//                mag += args->p_common[i];
-//            }
-//            *args->a = rho_new / mag;
-//            atomic_flag_clear(args->once_flag);
-//        }
-//        pthread_barrier_wait(args->barrier);
-//
-//        const scalar_t a = *args->a;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            h[i] = x[i] + a * p[i];
-//        }
-//        pthread_barrier_wait(args->barrier);
-//
-//        err = 0;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            scalar_t y0;
-//            matrix_crs_vector_multiply_row(args->mtx, h, i, &y0);
-//            y0 -= args->y[i];
-//            err += y0 * y0;
-//        }
-//        args->p_common[args->id] = err;
-//
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            err = 0;
-//            for (uint i = 0; i < args->thrd_count; ++i)
-//            {
-//                err += args->p_common[i];
-//            }
-//            err = sqrtf(err) / (scalar_t)args->n;
-//            if (err < args->req_error)
-//            {
-//                memcpy(x, h, args->n * sizeof*x);
-//                *args->p_iter = iter_count;
-//                *args->p_err = err;
-//                *args->done = 1;
-//            }
-//            atomic_flag_clear(args->once_flag);
-//        }
-//        pthread_barrier_wait(args->barrier);
-//        if (*args->done) break;
-//
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            s[i] = r_new[i] - a * v[i];
-//        }
-//        pthread_barrier_wait(args->barrier);
-//
-//        scalar_t o = 0;
-//        mag = 0;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            scalar_t val = 0, * elements;
-//            uint n, * indices;
-//
-//            matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
-//            for (uint j = 0; j < n; ++j)
-//            {
-//                val += elements[j] * s[indices[j]];
-//            }
-//            t[i] = val;
-//            o += val * s[i];
-//            mag += val * val;
-//        }
-//        args->p_common[args->id] = o;
-//        args->p_common2[args->id] = mag;
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            o = 0, mag = 0;
-//            for (uint i = 0; i < args->thrd_count; ++i)
-//            {
-//                o += args->p_common[i];
-//                mag += args->p_common2[i];
-//            }
-//            *args->omega_new = o / mag;
-//            atomic_flag_clear(args->once_flag);
-//        }
-//        pthread_barrier_wait(args->barrier);
-//        const scalar_t omega_new = *args->omega_new;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            x[i] = h[i] + omega_new * s[i];
-//        }
-//        pthread_barrier_wait(args->barrier);
-//
-//        err = 0;
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            scalar_t y0;
-//            matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
-//            y0 -= args->y[i];
-//            err += y0 * y0;
-//        }
-//        args->p_common[args->id] = err;
-//
-//        flag_v = atomic_flag_test_and_set(args->once_flag);
-//        pthread_barrier_wait(args->barrier);
-//        if (!flag_v)
-//        {
-//            err = 0;
-//            for (uint i = 0; i < args->thrd_count; ++i)
-//            {
-//                err += args->p_common[i];
-//            }
-//            err = sqrtf(err) / (scalar_t)args->n;
-//            if (err < args->req_error)
-//            {
-//                *args->p_err = err;
-//                *args->p_iter = iter_count;
-//                *args->done = 1;
-//            }
-//            atomic_flag_clear(args->once_flag);
-//        }
-//        pthread_barrier_wait(args->barrier);
-//        if (*args->done) break;
-//
-//        for (uint i = begin; i < end; ++i)
-//        {
-//            r_new[i] = s[i] - omega_new * t[i];
-//        }
-//
-//        iter_count += 1;
-////        pthread_barrier_wait(args->barrier);
-//    }
-//    *args->p_iter = iter_count;
-//    pthread_barrier_wait(args->barrier);
-//    THREAD_END;
-//    return 0;
-//}
-
 static void* bicgstab_crs_thrd_fn(void* param)
 {
     const struct bicgstab_crs_args* args = param;
@@ -593,13 +351,13 @@ static void* bicgstab_crs_thrd_fn(void* param)
             y0 -= args->y[i];
             err += y0 * y0;
         }
-        args->p_common[args->id] = err;
+        args->p_common2[args->id] = err;
         //  Barrier to compute total residual
         pthread_barrier_wait(args->barrier);
         err = 0;
         for (uint i = 0; i < args->thrd_count; ++i)
         {
-            err += args->p_common[i];
+            err += args->p_common2[i];
         }
         err = sqrtf(err) / (scalar_t)args->n;
         if (err < args->req_error) break;
@@ -614,6 +372,15 @@ static void* bicgstab_crs_thrd_fn(void* param)
     *args->p_iter = iter_count;
     *args->p_err = err;
     pthread_barrier_wait(args->barrier);
+    args->p_common[args->id] = err;
+    pthread_barrier_wait(args->barrier);
+    for (uint i = 0; i < args->thrd_count; ++i)
+    {
+        if (err != args->p_common[i])
+        {
+            REPORT_ERROR_MESSAGE("Error computed by thread %u does not match error by this thread (%g vs %g)", i, err, args->p_common[i]);
+        }
+    }
     THREAD_END;
     return 0;
 }
