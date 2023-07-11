@@ -113,7 +113,7 @@ jmtx_result matrix_crs_new(
 //        CALLOC_FAILED((columns + 1) * sizeof*elements_per_row);
         goto fail3;
     }
-    memset(elements_per_row, 0, (1 + reserved_elements) *  sizeof(*elements_per_row));
+    memset(elements_per_row, 0, (rows + 1) *  sizeof(*elements_per_row));
 
     beef_it_up(p_elements + 1, reserved_elements);
     static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "element and index sizes must be the same");
@@ -268,6 +268,7 @@ jmtx_result matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, c
             goto end;
         }
         mtx->indices = new_indices_ptr;
+        mtx->capacity = required_capacity;
     }
 
     if (new_elements != 0)

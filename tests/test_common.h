@@ -2,8 +2,8 @@
 // Created by jan on 15.6.2022.
 //
 
-#ifndef MTXLIB_COMMON_H
-#define MTXLIB_COMMON_H
+#ifndef MTXLIB_TEST_COMMON_H
+#define MTXLIB_TEST_COMMON_H
 #include <stdint.h>
 
 typedef union struct_fRNG_state fRNG;
@@ -34,4 +34,4 @@ typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
 void print_crs_matrix(const jmtx_matrix_crs* mtx);
 void print_ccs_matrix(const jmtx_matrix_ccs* mtx);
 
-#endif //MTXLIB_COMMON_H
+#endif //MTXLIB_TEST_COMMON_H

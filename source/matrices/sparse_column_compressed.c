@@ -129,6 +129,8 @@ jmtx_result matrix_ccs_new(
     mtx->base.type = JMTX_TYPE_CCS;
     mtx->base.rows = rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
+    mtx->base.get_element = (jmtx_result (*)(
+            jmtx_matrix*, jmtx_index_t, jmtx_index_t, jmtx_scalar_t*)) matrix_ccs_get_element;
     mtx->indices = indices;
     mtx->elements = p_elements;
     mtx->capacity = reserved_elements;
@@ -136,9 +138,9 @@ jmtx_result matrix_ccs_new(
     mtx->elements_before = elements_per_col;
 //    //LEAVE_FUNCTION();
     return res;
-    fail3: allocator_callbacks->free(allocator_callbacks->state, indices);
-    fail2: allocator_callbacks->free(allocator_callbacks->state, elements_per_col);
-    fail1: allocator_callbacks->free(allocator_callbacks->state, p_elements);
+fail3: allocator_callbacks->free(allocator_callbacks->state, indices);
+fail2: allocator_callbacks->free(allocator_callbacks->state, elements_per_col);
+fail1: allocator_callbacks->free(allocator_callbacks->state, p_elements);
 //    //LEAVE_FUNCTION();
     return res;
 }
@@ -159,9 +161,9 @@ jmtx_result matrix_ccs_destroy(jmtx_matrix_ccs* mtx)
     }
 
     jmtx_result res = JMTX_RESULT_SUCCESS;
-    free(mtx->indices);
-    free(mtx->elements_before);
-    free(mtx->elements);
+    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->indices);
+    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->elements_before);
+    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->elements);
     //LEAVE_FUNCTION();
     return res;
 }

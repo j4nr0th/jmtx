@@ -59,7 +59,7 @@ struct jmtx_matrix_struct
     uint32_t rows;
     uint32_t cols;
     jmtx_allocator_callbacks allocator_callbacks;
-    jmtx_scalar_t (*get_element)(jmtx_index_t row, jmtx_index_t col);
+    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, jmtx_scalar_t* p_out);
     int (*has_element)(jmtx_index_t row, jmtx_index_t col);
 };
 

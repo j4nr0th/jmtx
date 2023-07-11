@@ -2,9 +2,9 @@
 // Created by jan on 15.6.2022.
 //
 
-#include "common.h"
-#include "source/matrices/sparse_row_compressed.h"
-#include "source/matrices/sparse_column_compressed.h"
+#include "test_common.h"
+#include "../source/matrices/sparse_row_compressed.h"
+#include "../source/matrices/sparse_column_compressed.h"
 #include <stdio.h>
 
 

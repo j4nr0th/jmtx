@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "source/matrices/sparse_column_compressed.h"
 #include "source/matrices/sparse_row_compressed.h"
-#include "common.h"
+#include "tests/test_common.h"
 #include <math.h>
 
 #define TEST_MATRIX_MAJOR_DIM 255
