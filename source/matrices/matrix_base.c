@@ -13,6 +13,7 @@ static const char* const jmtx_result_string_array[JMTX_RESULT_COUNT] =
                 [JMTX_RESULT_INDEX_OUT_OF_BOUNDS] = "Index was too large",//  Index was too large
                 [JMTX_RESULT_BAD_PARAM] = "Parameter had an invalid value",          //  Parameter had a bad value
                 [JMTX_RESULT_NULL_PARAM] = "Parameter was null",         //  Parameter was null
+                [JMTX_RESULT_BAD_MATRIX] = "Matrix could not be handled by the iterative solver",   //  Matrix is fucked
         };
 
 const char* jmtx_result_to_str(jmtx_result res)

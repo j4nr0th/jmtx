@@ -19,6 +19,8 @@ enum jmtx_result_enum
     JMTX_RESULT_BAD_PARAM,          //  Parameter had a bad value
     JMTX_RESULT_NULL_PARAM,         //  Parameter was null
 
+    JMTX_RESULT_BAD_MATRIX,         //  Matrix is fucked
+
     JMTX_RESULT_COUNT,
 };
 typedef enum jmtx_result_enum jmtx_result;

@@ -38,6 +38,31 @@ jmtx_result jacobi_crs(
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
+ * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
+ * to solve the linear system Ax = y. Uses a relaxation factor ω for the following relation:
+ *
+ *  x(n + 1) = ω D⁻¹ (y - A x(n)) + x(n)
+ *
+ *  This may allow for better convergence
+ *
+ * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
+ * @param y pointer to the memory where the vector y is stored
+ * @param x pointer to the memory where the solution vector x will be stored
+ * @param convergence_dif when the largest value of change per iteration for an element in x is less than this,
+ * the solution is considered found
+ * @param n_max_iter maximum number of iterations to perform before giving up
+ * @param p_iter pointer which if not null receives the number of iterations that were performed
+ * @param p_error pointer which receives the evolution of error (may be null)
+ * @param p_final_error pointer which receives the final error
+ * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
+ * @return zero if successful
+ */
+jmtx_result jacobi_relaxed_crs(
+        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t relaxation_factor,
+        jmtx_scalar_t convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error,
+        jmtx_scalar_t* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks);
+
+/**
  * @warning Currently broken for God knows why. Not in a hurry to fix it, since it is inferior
  *
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
