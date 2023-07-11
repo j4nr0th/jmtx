@@ -46,7 +46,7 @@ static int beef_check(const jmtx_scalar_t* ptr, size_t elements)
     {
         beef_count += (buffer[i] == 0xDEADBEEF);
     }
-    return (beef_count << 16) | 0x0000BEEF;
+    return beef_count;
 }
 
 jmtx_result matrix_ccs_new(
@@ -101,6 +101,7 @@ jmtx_result matrix_ccs_new(
 //        CALLOC_FAILED((1 + reserved_elements) * sizeof*p_elements);
         goto fail1;
     }
+    memset(p_elements, 0, (1 + reserved_elements) *  sizeof(*p_elements));
 
     indices = allocator_callbacks->alloc(allocator_callbacks->state, (1 + reserved_elements) * sizeof*indices);
     if (!indices)
@@ -109,6 +110,7 @@ jmtx_result matrix_ccs_new(
 //        CALLOC_FAILED((1 + reserved_elements) * sizeof*indices);
         goto fail2;
     }
+    memset(indices, 0, (1 + reserved_elements) *  sizeof(*indices));
 
     elements_per_col = allocator_callbacks->alloc(allocator_callbacks->state, (columns + 1) * sizeof*elements_per_col);
     if (!elements_per_col)
@@ -117,6 +119,7 @@ jmtx_result matrix_ccs_new(
 //        CALLOC_FAILED((columns + 1) * sizeof*elements_per_col);
         goto fail3;
     }
+    memset(elements_per_col, 0, (columns + 1) *  sizeof(*elements_per_col));
     beef_it_up(p_elements + 1, reserved_elements);
     static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "element and index sizes must be the same");
     beef_it_up((jmtx_scalar_t*)indices + 1, reserved_elements);
@@ -272,6 +275,7 @@ jmtx_result matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, c
             goto end;
         }
         mtx->indices = new_indices_ptr;
+        mtx->capacity = required_capacity;
     }
 
     const uint32_t elements_after = mtx->elements_before[mtx->base.cols] - mtx->elements_before[col + 1];
@@ -380,12 +384,12 @@ jmtx_result matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j,
             step = size / 2
             )
     {
-        if (col_indices[current + step] < j)
+        if (col_indices[current + step] < i)
         {
             current += step;
             size -= step;
         }
-        else if (col_indices[current + step] == j)
+        else if (col_indices[current + step] == i)
         {
             current += step;
             break;
@@ -396,7 +400,7 @@ jmtx_result matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j,
         }
     }
 
-    if (n_col_elements && col_indices[current] == j)
+    if (n_col_elements && col_indices[current] == i)
     {
         *(mtx->elements + mtx->elements_before[j] + current) = x;
     }
@@ -425,14 +429,21 @@ jmtx_result matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j,
             beef_it_up((jmtx_scalar_t *)(new_index_ptr + 1 + mtx->n_elements), new_capacity - mtx->capacity);
             mtx->capacity = new_capacity;
         }
-        if (mtx->elements_before[mtx->base.cols] - mtx->elements_before[j + 1] != 0)
+        if (
+                (mtx->elements_before[mtx->base.cols] - mtx->elements_before[j + 1] || (j + 1 == mtx->base.cols))  //  Number of elements following this column
+                + (n_col_elements && (n_col_elements - 1 - current))                                    //  Number of elements following the element in the same column
+                != 0
+                )
         {
-            current += (n_col_elements != 0);
+            current += (n_col_elements != 0 && col_indices[current] < i);
+//        if (mtx->elements_before[mtx->base.cols] - mtx->elements_before[j + 1] != 0)
+//        {
+//            current += (n_col_elements != 0);
             memmove(mtx->elements + mtx->elements_before[j] + current + 1, mtx->elements + mtx->elements_before[j] + current, (mtx->elements_before[mtx->base.cols] - mtx->elements_before[j + 1] + n_col_elements - current) * sizeof(*mtx->elements));
             memmove(mtx->indices + mtx->elements_before[j] + current + 1, mtx->indices + mtx->elements_before[j] + current, (mtx->elements_before[mtx->base.cols] - mtx->elements_before[j + 1] + n_col_elements - current) * sizeof(*mtx->indices));
         }
         *(mtx->elements + mtx->elements_before[j] + current) = x;
-        *(mtx->indices + mtx->elements_before[j] + current) = j;
+        *(mtx->indices + mtx->elements_before[j] + current) = i;
         mtx->n_elements += 1;
         for (uint32_t k = j; k < mtx->base.cols; ++k)
         {
@@ -586,8 +597,8 @@ jmtx_result matrix_ccs_beef_check(const jmtx_matrix_ccs* mtx, int* p_beef_status
         return JMTX_RESULT_WRONG_TYPE;
     }
 
-    const int beef_status = beef_check(mtx->elements + 1, mtx->n_elements);
-    *p_beef_status = beef_status;
+    const int beef_status = beef_check(mtx->elements, mtx->n_elements + 1) + beef_check((void*)mtx->indices, mtx->n_elements + 1);
+    *p_beef_status = (beef_status << 16) | 0x0000Beef;
     //LEAVE_FUNCTION();
     return 0;
 }
@@ -652,7 +663,7 @@ jmtx_result matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx)
     uint32_t zero_count, k, l;
     for (zero_count = 0, k = 0; k < mtx->n_elements; ++k)
     {
-        zero_count += (mtx->elements[k + 1] == (jmtx_scalar_t)0.0);
+        zero_count += (mtx->elements[k + 1] == 0);
     }
     if (!zero_count)
     {
@@ -668,9 +679,10 @@ jmtx_result matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx)
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    for (k = 0, l = 0; l < zero_count && k < mtx->n_elements; ++k)
+    for (k = 0, l = 0; l < zero_count; ++k)
     {
-        if (mtx->elements[k + 1] == (jmtx_scalar_t)0.0)
+        assert(k < mtx->n_elements);
+        if (mtx->elements[k + 1] == 0)
         {
             zero_indices[l++] = k;
         }
@@ -989,6 +1001,7 @@ jmtx_result matrix_ccs_transpose(const jmtx_matrix_ccs* restrict mtx, jmtx_matri
         //LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
+    memset(new_indices, 0, (n_elements + 1) * sizeof*new_indices);
     jmtx_scalar_t* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements + 1) * sizeof*new_elements);
     if (!new_elements)
     {
