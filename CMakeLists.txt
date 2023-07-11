@@ -50,6 +50,18 @@ add_executable(base_ccs_test tests/base_ccs_test.c tests/test_common.c)
 target_link_libraries(base_ccs_test mtxlib m)
 add_test(NAME base_ccs COMMAND base_ccs_test)
 
+add_executable(old_crs_demo run_crs_tests.c)
+target_link_libraries(old_crs_demo PRIVATE mtxlib m)
+add_test(NAME old_crs COMMAND old_crs_demo)
+
+add_executable(old_ccs_demo run_ccs_tests.c)
+target_link_libraries(old_ccs_demo PRIVATE mtxlib m)
+add_test(NAME old_ccs COMMAND old_ccs_demo)
+
+add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
+target_link_libraries(old_compare_demo PRIVATE mtxlib m)
+add_test(NAME old_compare COMMAND old_compare_demo)
+
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_options(mtxlib PRIVATE -Wall -Wpedantic -Werror -Wextra)
 endif ()
