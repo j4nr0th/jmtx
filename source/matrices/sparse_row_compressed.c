@@ -41,7 +41,7 @@ static int beef_check(const jmtx_scalar_t* ptr, size_t elements)
     {
         beef_count += (buffer[i] == 0xDEADBEEF);
     }
-    return (beef_count << 16) | 0x0000BEEF;
+    return beef_count;
 }
 
 jmtx_result matrix_crs_new(
@@ -434,9 +434,13 @@ jmtx_result matrix_crs_set_element(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j,
             beef_it_up((jmtx_scalar_t *)(new_index_ptr + 1 + mtx->n_elements), new_capacity - mtx->capacity);
             mtx->capacity = new_capacity;
         }
-        if (mtx->elements_before[mtx->base.rows] - mtx->elements_before[i + 1] != 0)
+        if (
+                (mtx->elements_before[mtx->base.rows] - mtx->elements_before[i + 1] || (i + 1 == mtx->base.rows))  //  Number of elements following this row
+                + (n_row_elements && (n_row_elements - 1 - current))                                    //  Number of elements following the element in the same row
+                != 0
+                )
         {
-            current += (n_row_elements != 0);
+            current += (n_row_elements != 0 && row_indices[current] < j);
             memmove(mtx->elements + mtx->elements_before[i] + current + 1, mtx->elements + mtx->elements_before[i] + current, (mtx->elements_before[mtx->base.rows] - mtx->elements_before[i + 1] + n_row_elements - current) * sizeof(*mtx->elements));
             memmove(mtx->indices + mtx->elements_before[i] + current + 1, mtx->indices + mtx->elements_before[i] + current, (mtx->elements_before[mtx->base.rows] - mtx->elements_before[i + 1] + n_row_elements - current) * sizeof(*mtx->indices));
         }
@@ -593,8 +597,8 @@ jmtx_result matrix_crs_beef_check(const jmtx_matrix_crs* mtx, int* p_beef_status
         return JMTX_RESULT_WRONG_TYPE;
     }
 
-    const int beef_status = beef_check(mtx->elements + 1, mtx->n_elements);
-    *p_beef_status = beef_status;
+    const int beef_status = beef_check(mtx->elements, mtx->n_elements + 1) + beef_check((void*)mtx->indices, mtx->n_elements + 1);
+    *p_beef_status = (beef_status << 16) | 0x0000Beef;
 //    LEAVE_FUNCTION();
     return 0;
 }
@@ -658,7 +662,7 @@ jmtx_result matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
     uint32_t zero_count, k, l;
     for (zero_count = 0, k = 0; k < mtx->n_elements; ++k)
     {
-        zero_count += (mtx->elements[k + 1] == (jmtx_scalar_t)0.0);
+        zero_count += ((mtx->elements[k + 1] == 0.0f) || (mtx->elements[k + 1] == -0.0f));
     }
     if (!zero_count)
     {
@@ -673,9 +677,10 @@ jmtx_result matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    for (k = 0, l = 0; l < zero_count && k < mtx->n_elements; ++k)
+    for (k = 0, l = 0; l < zero_count; ++k)
     {
-        if (mtx->elements[k + 1] == (jmtx_scalar_t)0.0)
+        assert(k < mtx->n_elements);
+        if ((mtx->elements[k + 1] == 0.0f) || (mtx->elements[k + 1] == -0.0f))
         {
             zero_indices[l++] = k;
         }

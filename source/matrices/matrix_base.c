@@ -75,7 +75,7 @@ static void* default_realloc(void* state, void* ptr, uint64_t new_size)
 {
     assert(state == funny_string);
     void* const p_out = realloc(ptr, new_size);
-    if (p_out) BEEF_FILL(p_out, new_size);
+//    if (p_out) BEEF_FILL(p_out, new_size);    DO NOT BEEF THE NEW POINTER!
     return p_out;
 }
 

@@ -3,6 +3,7 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "test_common.h"
 #include "../source/matrices/sparse_row_compressed.h"
 
@@ -18,11 +19,15 @@
 #define MATRIX_TEST_CALL(x) printf("Called:\t"#x" -> %s\n", jmtx_result_to_str((mtx_res = (x))))
 int main()
 {
+    int beef_status;
     jmtx_matrix_crs mtx;
     const uint32_t n_rows = 16, n_cols = 16;
     jmtx_result mtx_res;
     MATRIX_TEST_CALL(matrix_crs_new(&mtx, n_rows, n_cols, 4, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    ASSERT(beef_status == 0x0000Beef);
 
     //  Empty matrix should have only zeros everywhere
     for (uint32_t row = 0; row < n_rows; ++row)
@@ -74,6 +79,9 @@ int main()
             };
     MATRIX_TEST_CALL(matrix_crs_set_row(&mtx, 3, 15, indices, some_values));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    ASSERT(beef_status == 0x0000Beef);
 
     //  fourth row should have correct values now
     for (uint32_t row = 0; row < n_rows; ++row)
@@ -111,11 +119,84 @@ int main()
     {
         mtx_res = matrix_crs_set_element(&mtx, i, i, -0.0f);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        ASSERT(beef_status == 0x0000Beef);
+    }
+
+    MATRIX_TEST_CALL(matrix_crs_remove_zeros(&mtx));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    ASSERT(beef_status == 0x0000Beef);
+//    print_crs_matrix(&mtx);
+
+    //  Matrix should not contain any negative zeros
+    for (uint32_t row = 0; row < n_rows; ++row)
+    {
+        for (uint32_t col = 0; col < n_cols; ++col)
+        {
+            mtx_res = matrix_crs_get_element(&mtx, row, col, &v);
+            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+            //  No negative zeros!
+            ASSERT(v != 0.0f || !signbit(v));
+        }
+    }
+
+    const jmtx_scalar_t other_values[16] =
+            {
+            124.756f, -123e5f, -1.35f, 31.092f,
+            490.0231e-4f, 123.21f, -232e9f, +195.2f,
+            -412.0f, 5556.0f, -513.04f, 4494.342f,
+            95.3053f, 441.034f, 596.3f, 3059.03f,
+            };
+    const uint32_t row_indices[16] =
+            {
+             1,  5,  2, 12,
+             3,  4,  6,  5,
+             7, 15, 15,  2,
+            11, 12,  3,  4,
+            };
+    const uint32_t col_indices[16] =
+            {
+             0,  0,  2,  5,
+            14, 15, 13, 13,
+             2,  4, 15,  8,
+             7,  7,  2,  6,
+            };
+
+    for (uint32_t i = 0; i < 16; ++i)
+    {
+        mtx_res = matrix_crs_set_element(&mtx, row_indices[i], col_indices[i], other_values[i]);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        ASSERT(beef_status == 0x0000Beef);
+
+        for (uint32_t j = 0; j <= i; ++j)
+        {
+            mtx_res = matrix_crs_get_element(&mtx, row_indices[j], col_indices[j], &v);
+            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+            ASSERT(v == other_values[j]);
+        }
+    }
+//    print_crs_matrix(&mtx);
+
+    for (uint32_t i = 0; i < 16; ++i)
+    {
+        mtx_res = matrix_crs_get_element(&mtx, row_indices[i], col_indices[i], &v);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        ASSERT(v == other_values[i]);
     }
 
 
+    mtx_res = matrix_crs_beef_check(&mtx, &beef_status);
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    ASSERT(beef_status == 0x0000Beef);
+    printf("Called: matrix_crs_beef_check -> %X\n", beef_status);
 
-    print_crs_matrix(&mtx);
+
+//    print_crs_matrix(&mtx);
 
 
     MATRIX_TEST_CALL(matrix_crs_destroy(&mtx));
