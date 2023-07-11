@@ -2,8 +2,8 @@
 // Created by jan on 15.6.2022.
 //
 #include <stdio.h>
-#include "sparse_column_compressed.h"
-#include "sparse_row_compressed.h"
+#include "source/matrices/sparse_column_compressed.h"
+#include "source/matrices/sparse_row_compressed.h"
 #include "common.h"
 #include <math.h>
 
@@ -23,13 +23,13 @@ int main()
 //    CcsMatrix ccs_matrix_2;
     matrix_ccs_new(&ccs_matrix_1, TEST_MATRIX_MAJOR_DIM, TEST_MATRIX_MINOR_DIM, 0);
 
-    for (uint i = 0; i < TEST_MATRIX_MAJOR_DIM; ++i)
+    for (uint32_t i = 0; i < TEST_MATRIX_MAJOR_DIM; ++i)
     {
         X[i] = fRNG_float_range(&rng, -10, 10);
         scalar_t val[TEST_MATRIX_MINOR_DIM];
-        uint     ind[TEST_MATRIX_MINOR_DIM];
-        const uint n_elements = (uint) TEST_MATRIX_MINOR_DIM;
-        for (uint j = 0; j < n_elements; ++j)
+        uint32_t     ind[TEST_MATRIX_MINOR_DIM];
+        const uint32_t n_elements = (uint32_t) TEST_MATRIX_MINOR_DIM;
+        for (uint32_t j = 0; j < n_elements; ++j)
         {
             val[j] = fRNG_float_range(&rng, -10, 10);
             ind[j] = j + (TEST_MATRIX_MINOR_DIM - n_elements) / 2;
@@ -48,7 +48,7 @@ int main()
     matrix_ccs_vector_multiply(&ccs_matrix_1, X, Y_ccs);
 
     scalar_t residual = 0.0f;
-    for (uint i = 0; i < TEST_MATRIX_MAJOR_DIM; ++i)
+    for (uint32_t i = 0; i < TEST_MATRIX_MAJOR_DIM; ++i)
     {
         residual += fabsf(Y_ccs[i] - Y_crs[i]);
     }
@@ -57,9 +57,9 @@ int main()
 
     matrix_crs_transpose(&crs_matrix_1, &crs_matrix_2);
     residual = 0.0f;
-    for (uint j = 0; j < TEST_MATRIX_MAJOR_DIM; ++j)
+    for (uint32_t j = 0; j < TEST_MATRIX_MAJOR_DIM; ++j)
     {
-        for (uint i = 0; i < TEST_MATRIX_MINOR_DIM; ++i)
+        for (uint32_t i = 0; i < TEST_MATRIX_MINOR_DIM; ++i)
         {
             scalar_t x1, x2;
             matrix_crs_get_element(&crs_matrix_2, i, j, &x1);

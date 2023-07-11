@@ -29,9 +29,9 @@ float fRNG_float_range(fRNG* p_rng, float min, float max);
 
 double fRNG_double_range(fRNG* p_rng, double min, double max);
 
-typedef struct struct_CRS_Matrix CrsMatrix;
-typedef struct struct_CCS_Matrix CcsMatrix;
-void print_crs_matrix(const CrsMatrix* mtx);
-void print_ccs_matrix(const CcsMatrix* mtx);
+typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
+typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
+void print_crs_matrix(const jmtx_matrix_crs* mtx);
+void print_ccs_matrix(const jmtx_matrix_ccs* mtx);
 
 #endif //MTXLIB_COMMON_H

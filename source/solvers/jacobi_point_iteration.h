@@ -4,11 +4,8 @@
 
 #ifndef MTXLIB_JACOBI_POINT_ITERATION_H
 #define MTXLIB_JACOBI_POINT_ITERATION_H
-#include "sparse_row_compressed.h"
-#include "sparse_column_compressed.h"
-#ifdef MTX_ERROR_MESSAGES
-#include "errors.h"
-#endif
+#include "../matrices/sparse_row_compressed.h"
+#include "../matrices/sparse_column_compressed.h"
 
 /*
  * Jacobi Point Iteration is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -22,6 +19,7 @@
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
  * to solve the linear system Ax = y
+ *
  * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
  * @param y pointer to the memory where the vector y is stored
  * @param x pointer to the memory where the solution vector x will be stored
@@ -29,20 +27,22 @@
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
  * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_error pointer which receives the final error
+ * @param p_error pointer which receives the evolution of error (may be null)
+ * @param p_final_error pointer which receives the final error
+ * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
  * @return zero if successful
  */
-mtx_res_t jacobi_crs(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
-        scalar_t* p_error);
-#ifdef MTX_ERROR_MESSAGES
-#define jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error) CALL_FUNCTION(jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error))
-#endif
+jmtx_result jacobi_crs(
+        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * @warning Currently broken for God knows why. Not in a hurry to fix it, since it is inferior
+ *
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
  * to solve the linear system Ax = y
+ *
  * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
  * @param y pointer to the memory where the vector y is stored
  * @param x pointer to the memory where the solution vector x will be stored
@@ -50,16 +50,16 @@ mtx_res_t jacobi_crs(
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
  * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_error pointer which receives the final error
+ * @param p_error pointer which receives the evolution of error (may be null)
+ * @param p_final_error pointer which receives the final error
+ * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
  * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
  * @return zero if successful
  */
-mtx_res_t jacobi_crs_mt(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
-        scalar_t* p_error, uint n_thrds);
-#ifdef MTX_ERROR_MESSAGES
-#define jacobi_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds) CALL_FUNCTION(jacobi_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds))
-#endif
+jmtx_result jacobi_crs_mt(
+        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 
 #endif //MTXLIB_JACOBI_POINT_ITERATION_H

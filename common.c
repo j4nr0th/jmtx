@@ -3,8 +3,8 @@
 //
 
 #include "common.h"
-#include "sparse_row_compressed.h"
-#include "sparse_column_compressed.h"
+#include "source/matrices/sparse_row_compressed.h"
+#include "source/matrices/sparse_column_compressed.h"
 #include <stdio.h>
 
 
@@ -126,79 +126,79 @@ double fRNG_double_range(fRNG* p_rng, double min, double max)
     return (max - min) * ((double)(res >> 11) / (double)(UINT64_MAX >> 11)) + min;
 }
 
-void print_crs_matrix(const CrsMatrix* mtx)
+void print_crs_matrix(const jmtx_matrix_crs* mtx)
 {
     printf("elements:");
-    for (uint i = 0, l = 0; i < mtx->n_elements; ++i)
+    for (uint32_t i = 0, l = 0; i < mtx->n_elements; ++i)
     {
-        if (l < mtx->rows && mtx->elements_before[l + 1] <= i + 1)
+        if (l < mtx->base.rows && mtx->elements_before[l + 1] <= i + 1)
         {
             l += 1;
         }
         printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->elements[i + 1]);
     }
     printf("\nelement offsets:");
-    for (uint i = 0; i < mtx->rows; ++i)
+    for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         printf(" %u,", mtx->elements_before[i]);
     }
-    printf(" %u", mtx->elements_before[mtx->rows]);
+    printf(" %u", mtx->elements_before[mtx->base.rows]);
     printf("\nMatrix:\n[");
 
-    for (uint i = 0; i < mtx->rows; ++i)
+    for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         if (i != 0)
             printf(" [");
         else
             printf("[");
-        scalar_t x;
-        for (uint j = 0; j < mtx->columns - 1; ++j)
+        jmtx_scalar_t x;
+        for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
             matrix_crs_get_element(mtx, i, j, &x);
             printf("%g ", x);
         }
-        matrix_crs_get_element(mtx, i, mtx->columns - 1, &x);
+        matrix_crs_get_element(mtx, i, mtx->base.cols - 1, &x);
         printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
-        if (i != mtx->rows - 1) printf("\n");
+        if (i != mtx->base.rows - 1) printf("\n");
     }
 
     printf("]\n");
 }
 
-void print_ccs_matrix(const CcsMatrix* mtx)
+void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
 {
     printf("elements:");
-    for (uint i = 0, l = 0; i < mtx->n_elements; ++i)
+    for (uint32_t i = 0, l = 0; i < mtx->n_elements; ++i)
     {
-        if (l < mtx->rows && mtx->elements_before[l + 1] <= i + 1)
+        if (l < mtx->base.rows && mtx->elements_before[l + 1] <= i + 1)
         {
             l += 1;
         }
         printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->elements[i + 1]);
     }
     printf("\nelement offsets:");
-    for (uint i = 0; i < mtx->rows; ++i)
+    for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         printf(" %u,", mtx->elements_before[i]);
     }
-    printf(" %u", mtx->elements_before[mtx->rows]);
+    printf(" %u", mtx->elements_before[mtx->base.rows]);
     printf("\nMatrix:\n[");
 
-    for (uint i = 0; i < mtx->rows; ++i)
+    for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         if (i != 0)
             printf(" [");
         else
             printf("[");
-        scalar_t x;
-        for (uint j = 0; j < mtx->columns - 1; ++j)
+        jmtx_scalar_t x;
+        for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
             matrix_ccs_get_element(mtx, i, j, &x);
             printf("%g ", x);
         }
-        matrix_ccs_get_element(mtx, i, mtx->columns - 1, &x);
+        matrix_ccs_get_element(mtx, i, mtx->base.cols - 1, &x);
         printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
-        if (i != mtx->rows - 1) printf("\n");
+        if (i != mtx->base.rows - 1) printf("\n");
     }
 
     printf("]\n");

@@ -4,10 +4,7 @@
 
 #ifndef MTXLIB_GAUSS_SEIDEL_ITERATION_H
 #define MTXLIB_GAUSS_SEIDEL_ITERATION_H
-#include "sparse_row_compressed.h"
-#ifdef MTX_MATRIX_CHECKS
-#include "errors.h"
-#endif
+#include "../matrices/sparse_row_compressed.h"
 
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -28,15 +25,15 @@
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
  * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_error pointer which receives the final error
+ * @param p_final_error pointer which receives the final error (may be null)
+ * @param p_error pointer to array of error evolution (may be null)
+ * @param allocator_callbacks pointer to allocation callbacks used internally by the function (may be null)
  * @return zero if successful
  */
-mtx_res_t gauss_seidel_crs(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
-        scalar_t* p_error);
-#ifdef MTX_ERROR_MESSAGES
-#define gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error) CALL_FUNCTION(gauss_seidel_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error))
-#endif
+jmtx_result gauss_seidel_crs(
+        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method) to solve the linear system Ax = y.
@@ -49,15 +46,15 @@ mtx_res_t gauss_seidel_crs(
  * the solution is considered found
  * @param n_max_iter maximum number of iterations to perform before giving up
  * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_error pointer which receives the final error
+ * @param p_final_error pointer which receives the final error (may be null)
+ * @param p_error pointer which receives the error evolution (may be null)
+ * @param allocator_callbacks pointer to allocation callbacks used internally by the function (may be null)
  * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
  * @return zero if successful
  */
-mtx_res_t gauss_seidel_crs_mt(
-        const CrsMatrix* mtx, const scalar_t* y, scalar_t* x, scalar_t convergence_dif, uint n_max_iter, uint* p_iter,
-        scalar_t* p_error, uint n_thrds);
-#ifdef MTX_ERROR_MESSAGES
-#define gauss_seidel_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds) CALL_FUNCTION(gauss_seidel_crs_mt(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, n_thrds))
-#endif
+jmtx_result gauss_seidel_crs_mt(
+        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 #endif //MTXLIB_GAUSS_SEIDEL_ITERATION_H

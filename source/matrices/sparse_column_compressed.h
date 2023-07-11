@@ -1,11 +1,12 @@
 //
 // Created by jan on 15.6.2022.
 //
+
 #ifndef MTXLIB_SPARSE_COLUMN_COMPRESSED_H
 #define MTXLIB_SPARSE_COLUMN_COMPRESSED_H
-#ifdef MTX_ERROR_MESSAGES
-#include "errors.h"
-#endif
+#include "matrix_base.h"
+
+//  TODO: check if refactoring and getting rid of calloc broke anything, due to memory no longer being zeroed before use
 
 //  IMPORTANT:
 //  These functions are not safe in the slightest. They perform zero checking at the moment (should probably be done as
@@ -32,20 +33,20 @@
 //  The same test code was run as for crs matrices
 
 
-#include "matrix_base.h"
 
-typedef struct struct_CCS_Matrix CcsMatrix;
+typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
 
-struct struct_CCS_Matrix
+struct jmtx_matrix_ccs_struct
 {
-    MATRIX_STRUCT_BASE
-    //  How many elements exist in the columns left, so that clumn i is from index elements_before[i] ot elements_before[i + 1]
-    uint* elements_before;
+    jmtx_matrix base;
+    //  How many elements exist in the columns left, so that column i is from index elements_before[i] ot elements_before[i + 1]
+    uint32_t* elements_before;
     //  Column indices corresponding with the individual elements
-    uint* indices;
+    uint32_t* indices;
     //  Values of elements
-    scalar_t* elements;
-    uint capacity;
+    jmtx_scalar_t* elements;
+    uint32_t capacity;
+    uint32_t n_elements;
 };
 
 #define matrix_ccs_memory_usage(mtx) (sizeof(mtx) + ((mtx).capacity + 1) * (sizeof(*(mtx).indices) + sizeof(*(mtx).elements))\
@@ -59,30 +60,23 @@ struct struct_CCS_Matrix
  * @param reserved_elements how many elements should the space be reserved for in the matrix intialliy
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_new(CcsMatrix* mtx, uint columns, uint rows, uint reserved_elements);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_new(mtx, columns, rows, reserved_elements) CALL_FUNCTION(matrix_ccs_new(mtx, columns, rows, reserved_elements))
-#endif
+jmtx_result matrix_ccs_new(
+        jmtx_matrix_ccs* mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
+        const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the ccs matrix and frees all of its memory
  * @param mtx pointer to memory where the matrix is stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_destroy(CcsMatrix* mtx);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_destroy(mtx) CALL_FUNCTION(matrix_ccs_destroy(mtx))
-#endif
+jmtx_result matrix_ccs_destroy(jmtx_matrix_ccs* mtx);
 
 /**
  * Frees up memory which the matrix is not currently using, which is was allocated in advance
  * @param mtx pointer to the memory where the matrix is stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_shrink(CcsMatrix* mtx);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_shrink(mtx) CALL_FUNCTION(matrix_ccs_shrink(mtx))
-#endif
+jmtx_result matrix_ccs_shrink(jmtx_matrix_ccs* mtx);
 
 /**
  * Sets the column of the matrix. This is the most efficient way to build the matrix, as building it this way causes
@@ -94,10 +88,7 @@ mtx_res_t matrix_ccs_shrink(CcsMatrix* mtx);
  * @param elements values of non-zero elements
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_set_col(CcsMatrix* mtx, uint col, uint n, const uint* indices, const scalar_t* elements);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_set_col(mtx, col, n, indices, elements) CALL_FUNCTION(matrix_ccs_set_col(mtx, col, n, indices, elements))
-#endif
+jmtx_result matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const jmtx_scalar_t* elements);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that column
@@ -108,10 +99,7 @@ mtx_res_t matrix_ccs_set_col(CcsMatrix* mtx, uint col, uint n, const uint* indic
  * @param p_elements pointer to values of elements
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_get_col(const CcsMatrix* mtx, uint col, uint* n, uint** p_indices, scalar_t** p_elements);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_get_col(mtx, col, n, p_indices, p_elements) CALL_FUNCTION(matrix_ccs_get_col(mtx, col, n, p_indices, p_elements))
-#endif
+jmtx_result matrix_ccs_get_col(const jmtx_matrix_ccs* mtx, uint32_t col, uint32_t* n, uint32_t** p_indices, jmtx_scalar_t** p_elements);
 
 /**
  * Multiplies a dense row vector x by the sparse matrix and stores the result at y
@@ -120,10 +108,7 @@ mtx_res_t matrix_ccs_get_col(const CcsMatrix* mtx, uint col, uint* n, uint** p_i
  * @param y pointer to vector where the result of multiplication is to be stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_vector_multiply(const CcsMatrix* mtx, const scalar_t* restrict x, scalar_t* restrict y);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_vector_multiply(mtx, x, y) CALL_FUNCTION(matrix_ccs_vector_multiply(mtx, x, y))
-#endif
+jmtx_result matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const jmtx_scalar_t* restrict x, jmtx_scalar_t* restrict y);
 
 /**
  * Sets a single element in the matrix. This is about as fast as setting the entire column of the matrix at once, if the
@@ -134,10 +119,7 @@ mtx_res_t matrix_ccs_vector_multiply(const CcsMatrix* mtx, const scalar_t* restr
  * @param x value to which the value is set
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_set_element(mtx, i, j, x) CALL_FUNCTION(matrix_ccs_set_element(mtx, i, j, x))
-#endif
+jmtx_result matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t x);
 
 /**
  * Returns a single element from the matrix.
@@ -147,10 +129,7 @@ mtx_res_t matrix_ccs_set_element(CcsMatrix* mtx, uint i, uint j, scalar_t x);
  * @param x pointer which receives the value
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_get_element(const CcsMatrix* mtx, uint i, uint j, scalar_t* x);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_get_element(mtx, i, j, x) CALL_FUNCTION(matrix_ccs_get_element(mtx, i, j, x))
-#endif
+jmtx_result matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t* x);
 
 /**
  * Checks if the matrix for errors and misplaced elements. Essentially checks if there is 0xDEADBEEF in the matrix
@@ -159,10 +138,7 @@ mtx_res_t matrix_ccs_get_element(const CcsMatrix* mtx, uint i, uint j, scalar_t*
  * are BEEF)
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_beef_check(const CcsMatrix* mtx, int* p_beef_status);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_beef_check(mtx, p_beef_status) CALL_FUNCTION(matrix_ccs_beef_check(mtx, p_beef_status))
-#endif
+jmtx_result matrix_ccs_beef_check(const jmtx_matrix_ccs* mtx, int* p_beef_status);
 
 /**
  * Applies a unary function on the sparse matrix, only on its stored entries, which can be modified. If the user given
@@ -172,20 +148,14 @@ mtx_res_t matrix_ccs_beef_check(const CcsMatrix* mtx, int* p_beef_status);
  * @param param optional parameter, which is passed to the unary_fn when called
  * @return zero if successful, if the user function returns non-zero, that value is returned instead
  */
-mtx_res_t matrix_ccs_apply_unary_fn(const CcsMatrix* mtx, int (*unary_fn)(uint i, uint j, scalar_t* p_element, void* param), void* param);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_apply_unary_fn(mtx, unary_fn, param) CALL_FUNCTION(matrix_ccs_apply_unary_fn(mtx, unary_fn, param))
-#endif
+jmtx_result matrix_ccs_apply_unary_fn(const jmtx_matrix_ccs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, jmtx_scalar_t* p_element, void* param), void* param);
 
 /**
  * Removes elements exactly equal to zero. If the element is indeed zero, it is compared to (scalar_t)0.0
  * @param mtx pointer to the memory where the matrix is stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_remove_zeros(CcsMatrix* mtx);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_remove_zeros(mtx) CALL_FUNCTION(matrix_ccs_remove_zeros(mtx))
-#endif
+jmtx_result matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx);
 
 /**
  * Removes elements which have absolute value less than specified value
@@ -193,10 +163,7 @@ mtx_res_t matrix_ccs_remove_zeros(CcsMatrix* mtx);
  * @param v value to which to compare it to
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_remove_bellow(CcsMatrix* mtx, scalar_t v);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_remove_bellow(mtx, v) CALL_FUNCTION(matrix_ccs_remove_bellow(mtx, v))
-#endif
+jmtx_result matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, jmtx_scalar_t v);
 
 
 
@@ -208,10 +175,7 @@ mtx_res_t matrix_ccs_remove_bellow(CcsMatrix* mtx, scalar_t v);
  * @param p_n pointer to integer which receives the number of elements in the column
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_elements_in_row(const CcsMatrix* mtx, uint col, uint* p_n);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_elements_in_row(mtx, row, p_n) CALL_FUNCTION(matrix_ccs_elements_in_row(mtx, row, p_n))
-#endif
+jmtx_result matrix_ccs_elements_in_row(const jmtx_matrix_ccs* mtx, uint32_t col, uint32_t* p_n);
 
 /**
  * Returns the values of elements in the matrix, along with what column of the matrix they were located in
@@ -222,10 +186,7 @@ mtx_res_t matrix_ccs_elements_in_row(const CcsMatrix* mtx, uint col, uint* p_n);
  * @param p_cols a buffer of at least n elements which receives the column indices of the column
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_get_row(const CcsMatrix* mtx, uint row, uint n, scalar_t* p_elements, uint* p_cols);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_get_row(mtx, row, n, p_elements, p_rows) CALL_FUNCTION(matrix_ccs_get_row(mtx, row, n, p_elements, p_rows))
-#endif
+jmtx_result matrix_ccs_get_row(const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t n, jmtx_scalar_t* p_elements, uint32_t* p_cols);
 
 /**
  * Creates a transpose of a matrix
@@ -233,10 +194,7 @@ mtx_res_t matrix_ccs_get_row(const CcsMatrix* mtx, uint row, uint n, scalar_t* p
  * @param out pointer to the memory where the output matrix will be stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_transpose(const CcsMatrix* restrict mtx, CcsMatrix* restrict out);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_transpose(mtx, out) CALL_FUNCTION(matrix_ccs_transpose(mtx, out))
-#endif
+jmtx_result matrix_ccs_transpose(const jmtx_matrix_ccs* restrict mtx, jmtx_matrix_ccs* restrict out);
 
 /**
  * Creates a copy of the matrix
@@ -244,8 +202,5 @@ mtx_res_t matrix_ccs_transpose(const CcsMatrix* restrict mtx, CcsMatrix* restric
  * @param out pointer to the memory where the output matrix will be stored
  * @return zero if successful
  */
-mtx_res_t matrix_ccs_copy(const CcsMatrix* restrict mtx, CcsMatrix* restrict out);
-#ifdef MTX_ERROR_MESSAGES
-#define matrix_ccs_copy(mtx, out) CALL_FUNCTION(matrix_ccs_copy(mtx, out))
-#endif
+jmtx_result matrix_ccs_copy(const jmtx_matrix_ccs* restrict mtx, jmtx_matrix_ccs* restrict out);
 #endif //MTXLIB_SPARSE_COLUMN_COMPRESSED_H
