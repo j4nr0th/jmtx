@@ -13,9 +13,9 @@ int main()
     jmtx_matrix_ccs mtx;
     const uint32_t n_rows = 16, n_cols = 16;
     jmtx_result mtx_res;
-    MATRIX_TEST_CALL(matrix_ccs_new(&mtx, n_rows, n_cols, 4, NULL));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_new(&mtx, n_rows, n_cols, 4, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+    mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     ASSERT(beef_status == 0x0000Beef);
 
@@ -25,7 +25,7 @@ int main()
         for (uint32_t col = 0; col < n_cols; ++col)
         {
             jmtx_scalar_t v;
-            mtx_res = matrix_ccs_get_element(&mtx, row, col, &v);
+            mtx_res = jmtx_matrix_ccs_get_element(&mtx, row, col, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == 0.0f);
 //            printf("%7g ", (double)v);
@@ -35,25 +35,25 @@ int main()
 
     jmtx_scalar_t v;
     //  Attempt to access any value outside of  matrix should return and error code
-    MATRIX_TEST_CALL(matrix_ccs_get_element(&mtx, n_rows, n_cols - 1, &v));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, n_rows, n_cols - 1, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_get_element(&mtx, n_rows - 1, n_cols, &v));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, n_rows - 1, n_cols, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_get_element(&mtx, n_rows, n_cols, &v));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, n_rows, n_cols, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_get_element(&mtx, 1241284124, 1212412, &v));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, 1241284124, 1212412, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_get_element(&mtx, 0, -1, &v));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, 0, -1, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_set_element(&mtx, n_rows, n_cols - 1, 6.9f));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_element(&mtx, n_rows, n_cols - 1, 6.9f));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_set_element(&mtx, n_rows - 1, n_cols, 420.0f));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_element(&mtx, n_rows - 1, n_cols, 420.0f));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_set_element(&mtx, n_rows, n_cols, 420.0f));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_element(&mtx, n_rows, n_cols, 420.0f));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_set_element(&mtx, 1241284124, 1212412, 420.0f));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_element(&mtx, 1241284124, 1212412, 420.0f));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
-    MATRIX_TEST_CALL(matrix_ccs_set_element(&mtx, 0, -1, 420.0f));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_element(&mtx, 0, -1, 420.0f));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
 
     //  Setting a whole row
@@ -67,9 +67,9 @@ int main()
             {
             0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
             };
-    MATRIX_TEST_CALL(matrix_ccs_set_col(&mtx, 3, 15, indices, some_values));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_set_col(&mtx, 3, 15, indices, some_values));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+    mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     ASSERT(beef_status == 0x0000Beef);
 
@@ -78,7 +78,7 @@ int main()
     {
         for (uint32_t col = 0; col < n_cols; ++col)
         {
-            mtx_res = matrix_ccs_get_element(&mtx, row, col, &v);
+            mtx_res = jmtx_matrix_ccs_get_element(&mtx, row, col, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             if (col != 3)
             {
@@ -107,16 +107,16 @@ int main()
     //  Set the diagonal to negative zeros
     for (uint32_t i = 0; i < n_rows && i < n_cols; ++i)
     {
-        mtx_res = matrix_ccs_set_element(&mtx, i, i, -0.0f);
+        mtx_res = jmtx_matrix_ccs_set_element(&mtx, i, i, -0.0f);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-        mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+        mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         ASSERT(beef_status == 0x0000Beef);
     }
 
-    MATRIX_TEST_CALL(matrix_ccs_remove_zeros(&mtx));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_remove_zeros(&mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+    mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     ASSERT(beef_status == 0x0000Beef);
 
@@ -125,7 +125,7 @@ int main()
     {
         for (uint32_t col = 0; col < n_cols; ++col)
         {
-            mtx_res = matrix_ccs_get_element(&mtx, row, col, &v);
+            mtx_res = jmtx_matrix_ccs_get_element(&mtx, row, col, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             //  No negative zeros!
             ASSERT(v != 0.0f || !signbit(v));
@@ -157,16 +157,16 @@ int main()
     for (uint32_t i = 0; i < 16; ++i)
     {
 //        print_ccs_matrix(&mtx);
-        mtx_res = matrix_ccs_set_element(&mtx, row_indices[i], col_indices[i], other_values[i]);
+        mtx_res = jmtx_matrix_ccs_set_element(&mtx, row_indices[i], col_indices[i], other_values[i]);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-        mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+        mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         ASSERT(beef_status == 0x0000Beef);
 
 //        print_ccs_matrix(&mtx);
         for (uint32_t j = 0; j <= i; ++j)
         {
-            mtx_res = matrix_ccs_get_element(&mtx, row_indices[j], col_indices[j], &v);
+            mtx_res = jmtx_matrix_ccs_get_element(&mtx, row_indices[j], col_indices[j], &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == other_values[j]);
         }
@@ -175,7 +175,7 @@ int main()
 
     for (uint32_t i = 0; i < 16; ++i)
     {
-        mtx_res = matrix_ccs_get_element(&mtx, row_indices[i], col_indices[i], &v);
+        mtx_res = jmtx_matrix_ccs_get_element(&mtx, row_indices[i], col_indices[i], &v);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         ASSERT(v == other_values[i]);
     }
@@ -183,15 +183,15 @@ int main()
     //  Some transpose action
     for (uint32_t i = 0; i < 16; ++i)
     {
-        mtx_res = matrix_ccs_set_element(&mtx, col_indices[i], row_indices[i], other_values[i]);
+        mtx_res = jmtx_matrix_ccs_set_element(&mtx, col_indices[i], row_indices[i], other_values[i]);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-        mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+        mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         ASSERT(beef_status == 0x0000Beef);
 
         for (uint32_t j = 0; j <= i; ++j)
         {
-            mtx_res = matrix_ccs_get_element(&mtx, col_indices[j], row_indices[j], &v);
+            mtx_res = jmtx_matrix_ccs_get_element(&mtx, col_indices[j], row_indices[j], &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == other_values[j]);
         }
@@ -200,22 +200,22 @@ int main()
 
     for (uint32_t i = 0; i < 16; ++i)
     {
-        mtx_res = matrix_ccs_get_element(&mtx, col_indices[i], row_indices[i], &v);
+        mtx_res = jmtx_matrix_ccs_get_element(&mtx, col_indices[i], row_indices[i], &v);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         ASSERT(v == other_values[i]);
     }
 
 
-    mtx_res = matrix_ccs_beef_check(&mtx, &beef_status);
+    mtx_res = jmtx_matrix_ccs_beef_check(&mtx, &beef_status);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     ASSERT(beef_status == 0x0000Beef);
-    printf("Called: matrix_ccs_beef_check -> %X\n", beef_status);
+    printf("Called: jmtx_matrix_ccs_beef_check -> %X\n", beef_status);
 
 
 //    print_ccs_matrix(&mtx);
 
 
-    MATRIX_TEST_CALL(matrix_ccs_destroy(&mtx));
+    MATRIX_TEST_CALL(jmtx_matrix_ccs_destroy(&mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }

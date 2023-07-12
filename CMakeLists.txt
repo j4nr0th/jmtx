@@ -71,4 +71,6 @@ add_test(NAME jacobi COMMAND jacobi_point_test)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_options(mtxlib PRIVATE -Wall -Wpedantic -Werror -Wextra)
+elseif(CMAKE_BUILD_TYPE STREQUAL Release)
+#    target_compile_definitions(mtxlib PRIVATE JMTX_NO_VERIFY_PARAMS=1)
 endif ()

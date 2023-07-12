@@ -2,8 +2,8 @@
 // Created by jan on 15.6.2022.
 //
 
-#ifndef MTXLIB_JACOBI_POINT_ITERATION_H
-#define MTXLIB_JACOBI_POINT_ITERATION_H
+#ifndef JMTX_JACOBI_POINT_ITERATION_H
+#define JMTX_JACOBI_POINT_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
 #include "../matrices/sparse_column_compressed.h"
 
@@ -32,7 +32,7 @@
  * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
  * @return zero if successful
  */
-jmtx_result jacobi_crs(
+jmtx_result jmtx_jacobi_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks);
@@ -57,7 +57,7 @@ jmtx_result jacobi_crs(
  * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
  * @return zero if successful
  */
-jmtx_result jacobi_relaxed_crs(
+jmtx_result jmtx_jacobi_relaxed_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t relaxation_factor,
         jmtx_scalar_t convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error,
         jmtx_scalar_t* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks);
@@ -81,10 +81,13 @@ jmtx_result jacobi_relaxed_crs(
  * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
  * @return zero if successful
  */
-jmtx_result jacobi_crs_mt(
+#ifdef __GNUC__
+__attribute__((warning("BROKEN, DO NOT USE (YET)")))
+#endif
+jmtx_result jmtx_jacobi_crs_mt(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 
-#endif //MTXLIB_JACOBI_POINT_ITERATION_H
+#endif //JMTX_JACOBI_POINT_ITERATION_H

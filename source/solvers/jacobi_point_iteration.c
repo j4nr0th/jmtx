@@ -9,11 +9,12 @@
 #include <assert.h>
 
 
-jmtx_result jacobi_crs(
+jmtx_result jmtx_jacobi_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
+#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
 //        REPORT_ERROR_MESSAGE("Matrix pointer was null");
@@ -43,6 +44,7 @@ jmtx_result jacobi_crs(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
+#endif
 
     if (!allocator_callbacks)
     {
@@ -65,7 +67,7 @@ jmtx_result jacobi_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         jmtx_scalar_t d;
-        mtx_res = matrix_crs_get_element(mtx, i, i, &d);
+        mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
         {
@@ -106,7 +108,7 @@ jmtx_result jacobi_crs(
             jmtx_scalar_t* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
-            matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = 0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -123,7 +125,7 @@ jmtx_result jacobi_crs(
         for (uint32_t i = 0; i < n; ++i)
         {
             jmtx_scalar_t val;
-            matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+            jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
             val -= y[i];
             err += val * val;
         }
@@ -179,7 +181,7 @@ static void* jacobi_crs_thread_fn(void* param)
             jmtx_scalar_t* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
-            matrix_crs_get_row(args.matrix, i, &n_elements, &index_ptr, &row_ptr);
+            jmtx_matrix_crs_get_row(args.matrix, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = (jmtx_scalar_t)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -219,7 +221,7 @@ static inline void print_vector(const jmtx_scalar_t* x, const uint32_t len)
     printf(" ]\n");
 }
 
-jmtx_result jacobi_crs_mt(
+jmtx_result jmtx_jacobi_crs_mt(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
@@ -260,7 +262,8 @@ jmtx_result jacobi_crs_mt(
 
     if (!n_thrds || n_thrds == 1)
     {
-        return jacobi_crs(mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, p_final_error, allocator_callbacks);
+        return jmtx_jacobi_crs(
+                mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, p_final_error, allocator_callbacks);
     }
 
     //  Length of x and y
@@ -272,7 +275,7 @@ jmtx_result jacobi_crs_mt(
     for (uint32_t i = 0; i < n; ++i)
     {
         jmtx_scalar_t d;
-        matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
 
@@ -394,11 +397,12 @@ jmtx_result jacobi_crs_mt(
     return n_iterations == n_max_iter ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jacobi_relaxed_crs(
+jmtx_result jmtx_jacobi_relaxed_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t relaxation_factor,
         jmtx_scalar_t convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error,
         jmtx_scalar_t* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks)
 {
+#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
 //        REPORT_ERROR_MESSAGE("Matrix pointer was null");
@@ -433,6 +437,7 @@ jmtx_result jacobi_relaxed_crs(
         //  Relaxation factor must be strictly larger than 0
         return JMTX_RESULT_BAD_PARAM;
     }
+#endif
 
     if (!allocator_callbacks)
     {
@@ -455,7 +460,7 @@ jmtx_result jacobi_relaxed_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         jmtx_scalar_t d;
-        mtx_res = matrix_crs_get_element(mtx, i, i, &d);
+        mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
         {
@@ -496,7 +501,7 @@ jmtx_result jacobi_relaxed_crs(
             jmtx_scalar_t* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
-            matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = 0;
 //            uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -515,7 +520,7 @@ jmtx_result jacobi_relaxed_crs(
         for (uint32_t i = 0; i < n; ++i)
         {
             jmtx_scalar_t val;
-            matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+            jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
             val -= y[i];
             err += val * val;
         }

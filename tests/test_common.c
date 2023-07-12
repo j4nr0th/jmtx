@@ -154,10 +154,10 @@ void print_crs_matrix(const jmtx_matrix_crs* mtx)
         jmtx_scalar_t x;
         for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
-            matrix_crs_get_element(mtx, i, j, &x);
+            jmtx_matrix_crs_get_element(mtx, i, j, &x);
             printf("%g ", x);
         }
-        matrix_crs_get_element(mtx, i, mtx->base.cols - 1, &x);
+        jmtx_matrix_crs_get_element(mtx, i, mtx->base.cols - 1, &x);
         printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
         if (i != mtx->base.rows - 1) printf("\n");
     }
@@ -193,10 +193,10 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
         jmtx_scalar_t x;
         for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
-            matrix_ccs_get_element(mtx, i, j, &x);
+            jmtx_matrix_ccs_get_element(mtx, i, j, &x);
             printf("%g ", x);
         }
-        matrix_ccs_get_element(mtx, i, mtx->base.cols - 1, &x);
+        jmtx_matrix_ccs_get_element(mtx, i, mtx->base.cols - 1, &x);
         printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
         if (i != mtx->base.rows - 1) printf("\n");
     }

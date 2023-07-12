@@ -1,5 +1,5 @@
-#ifndef MTXLIB_MATRIX_BASE_H
-#define MTXLIB_MATRIX_BASE_H
+#ifndef JMTX_MATRIX_BASE_H
+#define JMTX_MATRIX_BASE_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -67,4 +67,4 @@ struct jmtx_matrix_struct
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
 
-#endif // !MTXLIB_MATRIX_BASE_H
+#endif // !JMTX_MATRIX_BASE_H

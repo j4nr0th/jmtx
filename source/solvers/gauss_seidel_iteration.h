@@ -2,8 +2,8 @@
 // Created by jan on 16.6.2022.
 //
 
-#ifndef MTXLIB_GAUSS_SEIDEL_ITERATION_H
-#define MTXLIB_GAUSS_SEIDEL_ITERATION_H
+#ifndef JMTX_GAUSS_SEIDEL_ITERATION_H
+#define JMTX_GAUSS_SEIDEL_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
 
 /*
@@ -30,7 +30,7 @@
  * @param allocator_callbacks pointer to allocation callbacks used internally by the function (may be null)
  * @return zero if successful
  */
-jmtx_result gauss_seidel_crs(
+jmtx_result jmtx_gauss_seidel_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks);
@@ -52,9 +52,9 @@ jmtx_result gauss_seidel_crs(
  * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
  * @return zero if successful
  */
-jmtx_result gauss_seidel_crs_mt(
+jmtx_result jmtx_gauss_seidel_crs_mt(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
-#endif //MTXLIB_GAUSS_SEIDEL_ITERATION_H
+#endif //JMTX_GAUSS_SEIDEL_ITERATION_H

@@ -11,7 +11,7 @@
 
 
 
-jmtx_result gauss_seidel_crs(
+jmtx_result jmtx_gauss_seidel_crs(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks)
@@ -59,7 +59,7 @@ jmtx_result gauss_seidel_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         jmtx_scalar_t d;
-        matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
 
@@ -74,7 +74,7 @@ jmtx_result gauss_seidel_crs(
             jmtx_scalar_t* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
-            matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = (jmtx_scalar_t)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -96,7 +96,7 @@ jmtx_result gauss_seidel_crs(
         for (uint32_t i = 0; i < n; ++i)
         {
             jmtx_scalar_t val;
-            matrix_crs_vector_multiply_row(mtx, x, i, &val);
+            jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
             val -= y[i];
             err += val * val;
         }
@@ -170,7 +170,7 @@ static void* gauss_seidel_thrd_fn(void* param)
             jmtx_scalar_t* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
-            matrix_crs_get_row(args->matrix, i, &n_elements, &index_ptr, &row_ptr);
+            jmtx_matrix_crs_get_row(args->matrix, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = (jmtx_scalar_t)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -192,7 +192,7 @@ static void* gauss_seidel_thrd_fn(void* param)
         for (uint32_t i = begin; i < end; ++i)
         {
             jmtx_scalar_t val;
-            matrix_crs_vector_multiply_row(args->matrix, args->x, i, &val);
+            jmtx_matrix_crs_vector_multiply_row(args->matrix, args->x, i, &val);
             val -= args->y[i];
             err += val * val;
         }
@@ -222,7 +222,7 @@ static void* gauss_seidel_thrd_fn(void* param)
     return 0;
 }
 
-jmtx_result gauss_seidel_crs_mt(
+jmtx_result jmtx_gauss_seidel_crs_mt(
         const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
         uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
@@ -263,8 +263,8 @@ jmtx_result gauss_seidel_crs_mt(
 
     if (n_thrds < 2)
     {
-        const jmtx_result result = gauss_seidel_crs(
-                        mtx, y, x, convergence_dif, n_max_iter, p_iter, p_final_error, p_error, allocator_callbacks);
+        const jmtx_result result = jmtx_gauss_seidel_crs(
+                mtx, y, x, convergence_dif, n_max_iter, p_iter, p_final_error, p_error, allocator_callbacks);
         return result;
     }
 
@@ -277,7 +277,7 @@ jmtx_result gauss_seidel_crs_mt(
     for (uint32_t i = 0; i < n; ++i)
     {
         jmtx_scalar_t d;
-        matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
 

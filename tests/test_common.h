@@ -2,8 +2,8 @@
 // Created by jan on 15.6.2022.
 //
 
-#ifndef MTXLIB_TEST_COMMON_H
-#define MTXLIB_TEST_COMMON_H
+#ifndef JMTX_TEST_COMMON_H
+#define JMTX_TEST_COMMON_H
 #include <stdint.h>
 
 typedef union struct_fRNG_state fRNG;
@@ -45,4 +45,4 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx);
 #define ASSERT(x) if (!(x)) {fprintf(stderr, "Failed assertion \"" #x "\" on line %u, file %s\n", __LINE__, __FILE__); DBG_BREAK; exit(EXIT_FAILURE);} (void)0
 #define MATRIX_TEST_CALL(x) printf("Called:\t"#x" -> %s\n", jmtx_result_to_str((mtx_res = (x))))
 
-#endif //MTXLIB_TEST_COMMON_H
+#endif //JMTX_TEST_COMMON_H
