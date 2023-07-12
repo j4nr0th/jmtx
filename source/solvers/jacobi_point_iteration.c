@@ -56,6 +56,11 @@ jmtx_result jacobi_crs(
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     jmtx_result mtx_res;
+    jmtx_scalar_t* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
+    if (!div_factor)
+    {
+        return JMTX_RESULT_BAD_ALLOC;
+    }
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -69,6 +74,7 @@ jmtx_result jacobi_crs(
             return JMTX_RESULT_BAD_MATRIX;
         }
         x[i] = y[i] / d;
+        div_factor[i] = 1.0f / d;
     }
 
     //  Memory used to store result of the current iteration
@@ -77,6 +83,7 @@ jmtx_result jacobi_crs(
     {
 //        CALLOC_FAILED(n * sizeof*x);
 //        LEAVE_FUNCTION();
+        allocator_callbacks->free(allocator_callbacks->state, div_factor);
         return JMTX_RESULT_BAD_ALLOC;
     }
 
@@ -108,13 +115,9 @@ jmtx_result jacobi_crs(
                 {
                     res += row_ptr[j] * x0[index_ptr[j]];
                 }
-                else
-                {
-                    k = j;
-                }
             }
             //  Multiplication of vector x by D⁻¹
-            x1[i] = (y[i] - res) / row_ptr[k];
+            x1[i] = (y[i] - res) * div_factor[i];
         }
 
         for (uint32_t i = 0; i < n; ++i)
@@ -138,6 +141,7 @@ jmtx_result jacobi_crs(
         memcpy(x, auxiliary_x, sizeof*x * n);
     }
     allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
+    allocator_callbacks->free(allocator_callbacks->state, div_factor);
     if (p_iter) *p_iter = n_iterations;
     if (p_final_error) *p_final_error = err;
 //    LEAVE_FUNCTION();
@@ -412,11 +416,6 @@ jmtx_result jacobi_relaxed_crs(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (relaxation_factor <= 0.0f)
-    {
-        //  Can't solve it if you move nowhere >:(
-        return JMTX_RESULT_BAD_PARAM;
-    }
     if (!y)
     {
 //        REPORT_ERROR_MESSAGE("Vector y pointer was null");
@@ -428,6 +427,11 @@ jmtx_result jacobi_relaxed_crs(
 //        REPORT_ERROR_MESSAGE("Vector x pointer was null");
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
+    }
+    if (relaxation_factor <= 0.0f)
+    {
+        //  Relaxation factor must be strictly larger than 0
+        return JMTX_RESULT_BAD_PARAM;
     }
 
     if (!allocator_callbacks)
@@ -442,23 +446,11 @@ jmtx_result jacobi_relaxed_crs(
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     jmtx_result mtx_res;
-
-    //  Memory used to store result of the current iteration
-    jmtx_scalar_t* const x_aux = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
-    if (!x_aux)
+    jmtx_scalar_t* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
+    if (!div_factor)
     {
-//        CALLOC_FAILED(n * sizeof*x);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_scalar_t* const division_factors = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
-    if (!division_factors)
-    {
-        allocator_callbacks->free(allocator_callbacks->state, x_aux);
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-
-
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -472,12 +464,20 @@ jmtx_result jacobi_relaxed_crs(
             return JMTX_RESULT_BAD_MATRIX;
         }
         x[i] = y[i] / d;
-        division_factors[i] = relaxation_factor / d;
+        div_factor[i] = relaxation_factor / d;
     }
 
+    //  Memory used to store result of the current iteration
+    jmtx_scalar_t* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
+    if (!auxiliary_x)
+    {
+//        CALLOC_FAILED(n * sizeof*x);
+//        LEAVE_FUNCTION();
+        allocator_callbacks->free(allocator_callbacks->state, div_factor);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
 
-
-    jmtx_scalar_t* x0 = x_aux;
+    jmtx_scalar_t* x0 = auxiliary_x;
     jmtx_scalar_t* x1 = x;
     jmtx_scalar_t err;
     uint32_t n_iterations = 0;
@@ -485,7 +485,6 @@ jmtx_result jacobi_relaxed_crs(
     {
         err = 0.0f;
         {
-            //  Swap pointers
             jmtx_scalar_t* tmp = x1;
             x1 = x0;
             x0 = tmp;
@@ -499,20 +498,18 @@ jmtx_result jacobi_relaxed_crs(
             uint32_t n_elements;
             matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
             jmtx_scalar_t res = 0;
-            uint32_t k = 0;
+//            uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
-                if (i != index_ptr[j])
-                {
-                    res += row_ptr[j] * x0[index_ptr[j]];
-                }
-//                else
+                res += row_ptr[j] * x0[index_ptr[j]];
+//                if (index_ptr[j] == i)
 //                {
 //                    k = j;
 //                }
             }
-            //  Multiplication of vector x by ωD⁻¹
-            x1[i] = x0[i] + (y[i] - res) * division_factors[i];
+            //  Multiplication of vector x by D⁻¹
+//            x1[i] = x0[i] + relaxation_factor * (y[i] - res) / row_ptr[k];
+            x1[i] = x0[i] + (y[i] - res) * div_factor[i];
         }
 
         for (uint32_t i = 0; i < n; ++i)
@@ -531,12 +528,12 @@ jmtx_result jacobi_relaxed_crs(
     } while(err > convergence_dif & n_iterations < n_max_iter);
 
 
-    if (x1 == x_aux)
+    if (x1 == auxiliary_x)
     {
-        memcpy(x, x_aux, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof*x * n);
     }
-    allocator_callbacks->free(allocator_callbacks->state, division_factors);
-    allocator_callbacks->free(allocator_callbacks->state, x_aux);
+    allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
+    allocator_callbacks->free(allocator_callbacks->state, div_factor);
     if (p_iter) *p_iter = n_iterations;
     if (p_final_error) *p_final_error = err;
 //    LEAVE_FUNCTION();

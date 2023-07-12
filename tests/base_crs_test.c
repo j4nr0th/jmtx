@@ -7,16 +7,6 @@
 #include "test_common.h"
 #include "../source/matrices/sparse_row_compressed.h"
 
-#ifndef NDEBUG
-#   ifdef __GNUC__
-#       define DBG_BREAK __builtin_trap()
-#   endif
-#else
-#define DBG_BREAK (void)0
-#endif
-
-#define ASSERT(x) if (!(x)) {fprintf(stderr, "Failed assertion \"" #x "\" on line %u, file %s\n", __LINE__, __FILE__); DBG_BREAK; exit(EXIT_FAILURE);} (void)0
-#define MATRIX_TEST_CALL(x) printf("Called:\t"#x" -> %s\n", jmtx_result_to_str((mtx_res = (x))))
 int main()
 {
     int beef_status;

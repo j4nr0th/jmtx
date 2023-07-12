@@ -62,6 +62,13 @@ add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
 target_link_libraries(old_compare_demo PRIVATE mtxlib m)
 add_test(NAME old_compare COMMAND old_compare_demo)
 
+add_subdirectory(cplot)
+
+add_executable(jacobi_point_test tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
+target_include_directories(jacobi_point_test PRIVATE cplot/include)
+target_link_libraries(jacobi_point_test PRIVATE mtxlib m cplot)
+add_test(NAME jacobi COMMAND jacobi_point_test)
+
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_options(mtxlib PRIVATE -Wall -Wpedantic -Werror -Wextra)
 endif ()
