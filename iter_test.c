@@ -34,11 +34,11 @@ int main(int argc, char* argv[])
         printf("Setting the top BC\n");
         {
             const uint32_t index[1] = {0};
-            const jmtx_scalar_t v[1] = { 1};
+            const float v[1] = { 1};
             matrix_crs_build_row(&matrix, 0, 1, index, v);
         }
         printf("Setting the middle rows\n");
-        const jmtx_scalar_t values[3] = { -1 / (2 * DX) + (1 - VIS) / (DX * DX), 2 * (VIS - 1) / (DX * DX) - 1, 1 / (2 * DX) + (1 - VIS) / (DX * DX)};
+        const float values[3] = { -1 / (2 * DX) + (1 - VIS) / (DX * DX), 2 * (VIS - 1) / (DX * DX) - 1, 1 / (2 * DX) + (1 - VIS) / (DX * DX)};
         uint32_t indices[3] = {0, 1, 2};
 //            clock_t t0, t1, t2, t3;
 
@@ -53,22 +53,22 @@ int main(int argc, char* argv[])
         printf("Setting the bottom BC\n");
         {
             const uint32_t index[] = {dims - 1};
-            const jmtx_scalar_t v[] = { 1};
+            const float v[] = { 1};
             matrix_crs_build_row(&matrix, dims - 1, 1, index, v);
         }
 
 
         printf("Allocating memory for x\n");
-        jmtx_scalar_t* const x = calloc(dims * 2, sizeof*x);
+        float* const x = calloc(dims * 2, sizeof*x);
         if (!x)
         {
             perror("Could not allocate memory for vector x");
             exit(EXIT_FAILURE);
         }
-        jmtx_scalar_t* const x2 = x + dims;
+        float* const x2 = x + dims;
 
         printf("Allocating memory for y\n");
-        jmtx_scalar_t* const y = calloc(dims, sizeof*y);
+        float* const y = calloc(dims, sizeof*y);
         if (!y)
         {
             perror("Could not allocate memory for vector y");
@@ -80,11 +80,11 @@ int main(int argc, char* argv[])
         printf("Computing y\n");
         for (uint32_t i = 0; i < dims; ++i)
         {
-            y[i] = cosf((jmtx_scalar_t)i / (jmtx_scalar_t)(dims - 1) * 2 * (jmtx_scalar_t)M_PI);
+            y[i] = cosf((float)i / (float)(dims - 1) * 2 * (float)M_PI);
         }
 
         uint32_t n_iter;
-        jmtx_scalar_t error;
+        float error;
         printf("Solving for a problem of size %u\n", dims);
         struct timespec t0, t1, t2, t3;
 
@@ -92,16 +92,16 @@ int main(int argc, char* argv[])
         bicgstab_crs(&matrix, y, x, 1e-5f, 1000, &n_iter, &error, NULL, NULL);
         clock_gettime(CLOCK_MONOTONIC, &t1);
         matrix_crs_vector_multiply(&matrix, x, x2);
-        jmtx_scalar_t residual_magnitude = 0;
+        float residual_magnitude = 0;
         for (uint32_t i = 0; i < dims; ++i)
         {
-            jmtx_scalar_t residual = y[i] - x2[i];
+            float residual = y[i] - x2[i];
             residual_magnitude += residual * residual;
         }
         residual_magnitude = sqrtf(residual_magnitude);
 
         printf("Solution obtained with error %f after %u iterations (%g s)\n", error, n_iter, ((double)(t1.tv_sec - t0.tv_sec) + (double)(t1.tv_nsec - t0.tv_nsec) * 1e-9) );
-        printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (jmtx_scalar_t)dims);
+        printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (float)dims);
 
         clock_gettime(CLOCK_MONOTONIC, &t2);
         bicgstab_crs_mt(&matrix, y, x2, 1e-5f, 1000, &n_iter, &error, NULL, NULL, 8);
@@ -110,13 +110,13 @@ int main(int argc, char* argv[])
         residual_magnitude = 0;
         for (uint32_t i = 0; i < dims; ++i)
         {
-            jmtx_scalar_t residual = y[i] - x[i];
+            float residual = y[i] - x[i];
             residual_magnitude += residual * residual;
         }
         residual_magnitude = sqrtf(residual_magnitude);
 
         printf("Solution obtained with error %f after %u iterations (%g s)\n", error, n_iter, ((double)(t3.tv_sec - t2.tv_sec) + (double)(t3.tv_nsec - t2.tv_nsec) * 1e-9));
-        printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (jmtx_scalar_t)dims);
+        printf("Total residual magnitude %g\nAverage residual magnitude %g\n", (residual_magnitude), (residual_magnitude) / (float)dims);
 
 
 

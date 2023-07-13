@@ -33,8 +33,8 @@
  * @return zero if successful
  */
 jmtx_result jmtx_jacobi_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -58,9 +58,9 @@ jmtx_result jmtx_jacobi_crs(
  * @return zero if successful
  */
 jmtx_result jmtx_jacobi_relaxed_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t relaxation_factor,
-        jmtx_scalar_t convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error,
-        jmtx_scalar_t* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks);
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float relaxation_factor,
+        float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
+        float* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * @warning Currently broken for God knows why. Not in a hurry to fix it, since it is inferior
@@ -85,8 +85,8 @@ jmtx_result jmtx_jacobi_relaxed_crs(
 __attribute__((warning("BROKEN, DO NOT USE (YET)")))
 #endif
 jmtx_result jmtx_jacobi_crs_mt(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 

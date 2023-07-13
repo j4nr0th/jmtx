@@ -60,7 +60,7 @@ int main()
     for (uint32_t i = 1; i < steps; ++i)
     {
         uint32_t indices[2] = {i - 1, i};
-        jmtx_scalar_t values[2] = {- 1 / dx, 1 / dx - 1 };
+        float values[2] = {- 1 / dx, 1 / dx - 1 };
         MATRIX_TEST_CALL(jmtx_matrix_crs_set_row(&matrix, i, 2, indices, values));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
@@ -90,7 +90,7 @@ int main()
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_1);
     printf("Time needed for jmtx_jacobi_crs to solve the problem: %g ms\n", 1e3 * ts_difference(&ts_0, &ts_1));
 
-    const jmtx_scalar_t relax_factor = 1.0f;
+    const float relax_factor = 1.0f;
     printf("Using a relaxation factor of %g\n", relax_factor);
     MATRIX_TEST_CALL(jmtx_jacobi_relaxed_crs(
             &matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_relax, error_relaxed, &final_error, NULL));

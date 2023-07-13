@@ -30,7 +30,7 @@ static void print_matrix(const jmtx_matrix_ccs* mtx)
             printf(" [");
         else
             printf("[");
-        jmtx_scalar_t x;
+        float x;
         for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
             jmtx_matrix_ccs_get_element(mtx, i, j, &x);
@@ -46,7 +46,7 @@ static void print_matrix(const jmtx_matrix_ccs* mtx)
 
 #define BEEF_CHECK(mtx) jmtx_matrix_ccs_beef_check(&(mtx), &beef_status), assert(beef_status == 0xBEEF)
 
-static int make_the_values_funnier(uint32_t i, uint32_t j, jmtx_scalar_t* x, void* param)
+static int make_the_values_funnier(uint32_t i, uint32_t j, float* x, void* param)
 {
     *x += 1.0f;
     return 0;
@@ -75,17 +75,17 @@ int main()
     BEEF_CHECK(matrix);
 
     const uint32_t indices[3] = {1, 2, 4};
-    const jmtx_scalar_t values[3] = { 69, 420, 505};
+    const float values[3] = { 69, 420, 505};
     jmtx_matrix_ccs_set_col(&matrix, 2, 3, indices, values);
     BEEF_CHECK(matrix);
     const uint32_t indices2[3] = {0, 2};
-    const jmtx_scalar_t values2[3] = { 1, 20};
+    const float values2[3] = { 1, 20};
     jmtx_matrix_ccs_set_col(&matrix, 4, 2, indices2, values2);
     BEEF_CHECK(matrix);
     print_matrix(&matrix);
     jmtx_matrix_ccs_remove_bellow(&matrix, 5.0f);
     const uint32_t indices3[5] = {0, 10, 13, 15, 23};
-    const jmtx_scalar_t values3[5] = {-1.0f, 1.0f, -2.0f, 1.0f, 20};
+    const float values3[5] = {-1.0f, 1.0f, -2.0f, 1.0f, 20};
     jmtx_matrix_ccs_set_col(&matrix, 14, 5, indices3, values3);
     print_matrix(&matrix);
     jmtx_matrix_ccs_shrink(&matrix);
@@ -107,7 +107,7 @@ int main()
     {
         uint32_t n;
         uint32_t* ind;
-        jmtx_scalar_t* val;
+        float* val;
         jmtx_matrix_ccs_get_col(&matrix, 2, &n, &ind, &val);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -125,31 +125,31 @@ int main()
 
     {
         const uint32_t i[] = { 0 };
-        const jmtx_scalar_t v[] = { 1.0f };
+        const float v[] = { 1.0f };
         jmtx_matrix_ccs_set_col(&matrix_1, 0, 1, i, v);
     }
 
     {
         const uint32_t i[] = { 0, 1 };
-        const jmtx_scalar_t v[] = { 0.75f, 0.25f };
+        const float v[] = { 0.75f, 0.25f };
         jmtx_matrix_ccs_set_col(&matrix_1, 1, 2, i, v);
     }
 
     {
         const uint32_t i[] = { 1, 2, 3 };
-        const jmtx_scalar_t v[] = { 1, 2, 1};
+        const float v[] = { 1, 2, 1};
         jmtx_matrix_ccs_set_col(&matrix_1, 2, 3, i, v);
     }
 
     {
         const uint32_t i[] = { 3, 4 };
-        const jmtx_scalar_t v[] = { 0.75f, 0.25f };
+        const float v[] = { 0.75f, 0.25f };
         jmtx_matrix_ccs_set_col(&matrix_1, 3, 2, i, v);
     }
 
     {
         const uint32_t i[] = { 4 };
-        const jmtx_scalar_t v[] = {1};
+        const float v[] = {1};
         jmtx_matrix_ccs_set_col(&matrix_1, 4, 1, i, v);
     }
     jmtx_matrix_ccs_transpose(&matrix_1, &matrix_2);
@@ -168,7 +168,7 @@ int main()
     {
         for (uint32_t j = 0; j < 25; ++j)
         {
-            jmtx_scalar_t x1,x2;
+            float x1,x2;
             jmtx_matrix_ccs_get_element(&matrix, i, j, &x1);
             jmtx_matrix_ccs_get_element(&tmp, j, i, &x2);
             if (x1 != x2)
@@ -188,7 +188,7 @@ int main()
     {
         for (uint32_t j = 0; j < 25; ++j)
         {
-            jmtx_scalar_t x1,x2;
+            float x1,x2;
             jmtx_matrix_ccs_get_element(&matrix, i, j, &x1);
             jmtx_matrix_ccs_get_element(&tmp, i, j, &x2);
             if (x1 != x2)
@@ -207,8 +207,8 @@ int main()
 
 
 
-    const jmtx_scalar_t v1[25] = {1, 2, 3, 4, 5, [10] = 69.0f};
-    jmtx_scalar_t y[25];
+    const float v1[25] = {1, 2, 3, 4, 5, [10] = 69.0f};
+    float y[25];
 
     jmtx_matrix_ccs_vector_multiply(&matrix, v1, y);
     printf("x:");

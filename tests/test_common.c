@@ -151,7 +151,7 @@ void print_crs_matrix(const jmtx_matrix_crs* mtx)
             printf(" [");
         else
             printf("[");
-        jmtx_scalar_t x;
+        float x;
         for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
             jmtx_matrix_crs_get_element(mtx, i, j, &x);
@@ -190,7 +190,7 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
             printf(" [");
         else
             printf("[");
-        jmtx_scalar_t x;
+        float x;
         for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
         {
             jmtx_matrix_ccs_get_element(mtx, i, j, &x);

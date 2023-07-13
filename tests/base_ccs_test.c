@@ -24,7 +24,7 @@ int main()
     {
         for (uint32_t col = 0; col < n_cols; ++col)
         {
-            jmtx_scalar_t v;
+            float v;
             mtx_res = jmtx_matrix_ccs_get_element(&mtx, row, col, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == 0.0f);
@@ -33,7 +33,7 @@ int main()
 //        printf("\n");
     }
 
-    jmtx_scalar_t v;
+    float v;
     //  Attempt to access any value outside of  matrix should return and error code
     MATRIX_TEST_CALL(jmtx_matrix_ccs_get_element(&mtx, n_rows, n_cols - 1, &v));
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
@@ -57,7 +57,7 @@ int main()
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
 
     //  Setting a whole row
-    jmtx_scalar_t some_values[15] =
+    float some_values[15] =
             {
             1.23f, 123.0f, 4830.0f, 21.43f, 32414.92f,
             940.0f, 924.34f, 450.0f, 342.03f, 5.30f,
@@ -132,7 +132,7 @@ int main()
         }
     }
 
-    const jmtx_scalar_t other_values[16] =
+    const float other_values[16] =
             {
             124.756f, -123e5f, -1.35f, 31.092f,
             490.0231e-4f, 123.21f, -232e9f, +195.2f,

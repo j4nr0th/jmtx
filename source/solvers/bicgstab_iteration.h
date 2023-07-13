@@ -5,9 +5,6 @@
 #ifndef JMTX_BICGSTAB_ITERATION_H
 #define JMTX_BICGSTAB_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
-#ifdef MTX_ERROR_MESSAGES
-#include "errors.h"
-#endif
 
 
 /*
@@ -15,13 +12,13 @@
  */
 
 jmtx_result jmtx_bicgstab_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 jmtx_result jmtx_bicgstab_crs_mt(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 #endif //JMTX_BICGSTAB_ITERATION_H

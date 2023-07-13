@@ -11,8 +11,8 @@
 
 
 jmtx_result jmtx_bicgstab_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)
@@ -51,26 +51,26 @@ jmtx_result jmtx_bicgstab_crs(
     
     
     const uint32_t n = mtx->base.rows;
-    jmtx_scalar_t* const joint_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (n + n + n + n + n + n) * sizeof(*joint_buffer));
+    float* const joint_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (n + n + n + n + n + n) * sizeof(*joint_buffer));
     if (!joint_buffer)
     {
 //        CALLOC_FAILED((n + n + n + n + n + n) * sizeof(*joint_buffer));
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_scalar_t rho_new = 1, rho_old = 1, a = 1, omega_old = 1, omega_new = 1;
+    float rho_new = 1, rho_old = 1, a = 1, omega_old = 1, omega_new = 1;
 
-    jmtx_scalar_t* const p = joint_buffer;
-    jmtx_scalar_t* const v = joint_buffer + n;
-    jmtx_scalar_t* const r0 = joint_buffer + 2 * n;
-    jmtx_scalar_t* const r_new = joint_buffer + 3 * n;
-    jmtx_scalar_t* const s = joint_buffer + 4 * n;
-    jmtx_scalar_t* const t = joint_buffer + 5 * n;
+    float* const p = joint_buffer;
+    float* const v = joint_buffer + n;
+    float* const r0 = joint_buffer + 2 * n;
+    float* const r_new = joint_buffer + 3 * n;
+    float* const s = joint_buffer + 4 * n;
+    float* const t = joint_buffer + 5 * n;
 
-    memcpy(x, y, n * sizeof(jmtx_scalar_t));
+    memcpy(x, y, n * sizeof(float));
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
@@ -82,7 +82,7 @@ jmtx_result jmtx_bicgstab_crs(
     }
     memcpy(r_new, r0, sizeof*r0 * n);
 
-    jmtx_scalar_t err_rms;
+    float err_rms;
     uint32_t iter_count = 0;
     do
     {
@@ -94,13 +94,13 @@ jmtx_result jmtx_bicgstab_crs(
         {
             rho_new += r0[i] * r_new[i];
         }
-        const jmtx_scalar_t beta = rho_new / rho_old * a / omega_old;
+        const float beta = rho_new / rho_old * a / omega_old;
         for (uint32_t i = 0; i < n; ++i)
         {
             p[i] = r_new[i] + beta * (p[i] - omega_old * v[i]);
         }
         jmtx_matrix_crs_vector_multiply(mtx, p, v);
-        jmtx_scalar_t tmp = 0;
+        float tmp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
             tmp += r0[i] * v[i];
@@ -108,20 +108,20 @@ jmtx_result jmtx_bicgstab_crs(
         a = rho_new / tmp;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const jmtx_scalar_t dx = a * p[i];
+            const float dx = a * p[i];
 //            err_rms += dx * dx;
             x[i] = x[i] + dx;
         }
         err_rms = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
             val -= y[i];
             err_rms += val * val;
         }
 
-        err_rms = sqrtf(err_rms) / (jmtx_scalar_t)n;
+        err_rms = sqrtf(err_rms) / (float)n;
         if (p_error)
         {
             p_error[n] = err_rms;
@@ -142,19 +142,19 @@ jmtx_result jmtx_bicgstab_crs(
         omega_new /= tmp;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const jmtx_scalar_t new_x = x[i] + omega_new * s[i];
+            const float new_x = x[i] + omega_new * s[i];
             x[i] = new_x;
         }
         err_rms = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
             val -= y[i];
             err_rms += val * val;
         }
 
-        err_rms = sqrtf(err_rms) / (jmtx_scalar_t)n;
+        err_rms = sqrtf(err_rms) / (float)n;
 //        printf("RMS error on iteration %u is %g\n", iter_count, err_rms);
         if (p_error)
         {
@@ -180,20 +180,20 @@ jmtx_result jmtx_bicgstab_crs(
 struct bicgstab_crs_args
 {
     const jmtx_matrix_crs* mtx;
-    jmtx_scalar_t* x;
-    const jmtx_scalar_t* y;
-    jmtx_scalar_t* p_common;
-    jmtx_scalar_t* p_common2;
-    jmtx_scalar_t* p_err;
-    jmtx_scalar_t* p_error_evolution;
+    float* x;
+    const float* y;
+    float* p_common;
+    float* p_common2;
+    float* p_err;
+    float* p_error_evolution;
     uint32_t* p_iter;
     uint32_t max_iter;
-    jmtx_scalar_t req_error;
+    float req_error;
     uint32_t n;
     uint32_t id;
     uint32_t thrd_count;
     uint32_t* done;
-    jmtx_scalar_t* joint_buffer;
+    float* joint_buffer;
     pthread_barrier_t* barrier;
 };
 
@@ -201,15 +201,15 @@ static void* bicgstab_crs_thrd_fn(void* param)
 {
     const struct bicgstab_crs_args* args = param;
 //    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args->id, args->thrd_count);
-    jmtx_scalar_t* const x = args->x;
-    jmtx_scalar_t* const p = args->joint_buffer;
-    jmtx_scalar_t* const v = args->joint_buffer + args->n;
-    jmtx_scalar_t* const r0 = args->joint_buffer + 2 * args->n;
-    jmtx_scalar_t* const r_new = args->joint_buffer + 3 * args->n;
-    jmtx_scalar_t* const s = args->joint_buffer + 4 * args->n;
-    jmtx_scalar_t* const t = args->joint_buffer + 5 * args->n;
+    float* const x = args->x;
+    float* const p = args->joint_buffer;
+    float* const v = args->joint_buffer + args->n;
+    float* const r0 = args->joint_buffer + 2 * args->n;
+    float* const r_new = args->joint_buffer + 3 * args->n;
+    float* const s = args->joint_buffer + 4 * args->n;
+    float* const t = args->joint_buffer + 5 * args->n;
     uint32_t iter_count = 0;
-    jmtx_scalar_t err = 0;
+    float err = 0;
 
     const uint32_t complete_chunk = args->n / args->thrd_count;
     const uint32_t remaining_chunk = args->n % args->thrd_count;
@@ -225,7 +225,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
     }
     const uint32_t begin = begin_work;
     const uint32_t end = begin_work + work_chunk;
-    jmtx_scalar_t rho_new = 1, rho_old = 1, a = 1, omega_new = 1, omega_old = 1;
+    float rho_new = 1, rho_old = 1, a = 1, omega_new = 1, omega_old = 1;
 
     while (!*args->done && iter_count < args->max_iter)
     {
@@ -251,7 +251,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         }
 
 
-        const jmtx_scalar_t beta = rho_new / rho_old * a / omega_old;
+        const float beta = rho_new / rho_old * a / omega_old;
 
         for (uint32_t i = begin; i < end; ++i)
         {
@@ -262,7 +262,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         pthread_barrier_wait(args->barrier);
         for (uint32_t i = begin; i < end; ++i)
         {
-            jmtx_scalar_t val = 0, * elements;
+            float val = 0, * elements;
             uint32_t n, * indices;
 
             jmtx_matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
@@ -274,7 +274,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         }
 
         //  No barrier yet, because only values of v between begin and end are needed
-        jmtx_scalar_t mag = 0;
+        float mag = 0;
         for (uint32_t i = begin; i < end; ++i)
         {
             mag += r0[i] * v[i];
@@ -299,7 +299,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         err = 0;
         for (uint32_t i = begin; i < end; ++i)
         {
-            jmtx_scalar_t y0;
+            float y0;
             jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
             y0 -= args->y[i];
             err += y0 * y0;
@@ -312,7 +312,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         {
             err += args->p_common[i];
         }
-        err = sqrtf(err) / (jmtx_scalar_t)args->n;
+        err = sqrtf(err) / (float)args->n;
 
         if (args->p_error_evolution)
         {
@@ -327,11 +327,11 @@ static void* bicgstab_crs_thrd_fn(void* param)
 
         //  Barrier to perform matrix operation
         pthread_barrier_wait(args->barrier);
-        jmtx_scalar_t o = 0;
+        float o = 0;
         mag = 0;
         for (uint32_t i = begin; i < end; ++i)
         {
-            jmtx_scalar_t val = 0, * elements;
+            float val = 0, * elements;
             uint32_t n, * indices;
 
             jmtx_matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
@@ -366,7 +366,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         pthread_barrier_wait(args->barrier);
         for (uint32_t i = begin; i < end; ++i)
         {
-            jmtx_scalar_t y0;
+            float y0;
             jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
             y0 -= args->y[i];
             err += y0 * y0;
@@ -379,7 +379,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         {
             err += args->p_common2[i];
         }
-        err = sqrtf(err) / (jmtx_scalar_t)args->n;
+        err = sqrtf(err) / (float)args->n;
         if (args->p_error_evolution)
         {
             args->p_error_evolution[iter_count] = err;
@@ -410,8 +410,8 @@ static void* bicgstab_crs_thrd_fn(void* param)
 }
 
 jmtx_result jmtx_bicgstab_crs_mt(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
 {
 
@@ -465,7 +465,7 @@ jmtx_result jmtx_bicgstab_crs_mt(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_scalar_t* const common_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (2 * n_thrds) * sizeof*common_buffer);
+    float* const common_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (2 * n_thrds) * sizeof*common_buffer);
     if (!common_buffer)
     {
         allocator_callbacks->free(allocator_callbacks->state, threads);
@@ -484,7 +484,7 @@ jmtx_result jmtx_bicgstab_crs_mt(
     }
     pthread_barrier_t barrier;
     pthread_barrier_init(&barrier, NULL, n_thrds);
-    jmtx_scalar_t* const joint_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (n + n + n + n + n + n) * sizeof(*joint_buffer));
+    float* const joint_buffer = allocator_callbacks->alloc(allocator_callbacks->state, (n + n + n + n + n + n) * sizeof(*joint_buffer));
     if (!joint_buffer)
     {
         pthread_barrier_destroy(&barrier);
@@ -499,16 +499,16 @@ jmtx_result jmtx_bicgstab_crs_mt(
 
 //    scalar_t* const p = joint_buffer;
 //    scalar_t* const v = joint_buffer + n;
-    jmtx_scalar_t* const r0 = joint_buffer + 2 * n;
-    jmtx_scalar_t* const r_new = joint_buffer + 3 * n;
+    float* const r0 = joint_buffer + 2 * n;
+    float* const r_new = joint_buffer + 3 * n;
 //    scalar_t* const s = joint_buffer + 4 * n;
 //    scalar_t* const t = joint_buffer + 5 * n;
 
     //  Initial guess assumes that mtx is a diagonal matrix
-    memcpy(x, y, n * sizeof(jmtx_scalar_t));
+    memcpy(x, y, n * sizeof(float));
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
@@ -522,7 +522,7 @@ jmtx_result jmtx_bicgstab_crs_mt(
 
 
     uint32_t done = 0;
-    jmtx_scalar_t err_rms;
+    float err_rms;
     uint32_t iter_count = 0;
     for (uint32_t i = 0; i < n_thrds; ++i)
     {

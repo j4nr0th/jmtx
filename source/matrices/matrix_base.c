@@ -27,10 +27,11 @@ const char* jmtx_result_to_str(jmtx_result res)
 
 static const char* const jmtx_matrix_type_string_array[JMTX_TYPE_COUNT] =
         {
-                [JMTX_TYPE_NONE] = "Invalid", //  Invalid, here to force one of other values to be specified
+                [JMTX_TYPE_NONE] = "Invalid",                   //  Invalid, here to force one of other values to be specified
                 [JMTX_TYPE_CRS] = "Compressed-row sparse",      //  Compressed row sparse
-                [JMTX_TYPE_CCS] = "Compressed-column sparse",      //  Compressed column sparse
-                [JMTX_TYPE_DENSE] = "Dense/full",
+                [JMTX_TYPE_CCS] = "Compressed-column sparse",   //  Compressed column sparse
+                [JMTX_TYPE_DRM] = "Dense row-major",            //  Dense row-major
+                [JMTX_TYPE_DCM] = "Dense column-major",         //  Dense column-major
         };
 
 const char* jmtx_matrix_type_to_str(jmtx_matrix_type type)

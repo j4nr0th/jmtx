@@ -14,7 +14,7 @@
 
 #define FILL_VALUE 0xDEADBEEF
 
-static void beef_it_up(jmtx_scalar_t* ptr, size_t elements)
+static void beef_it_up(float* ptr, size_t elements)
 {
     if (elements < 2)
     {
@@ -38,7 +38,7 @@ static void beef_it_up(jmtx_scalar_t* ptr, size_t elements)
     //  Beefed
 }
 
-static int beef_check(const jmtx_scalar_t* ptr, size_t elements)
+static int beef_check(const float* ptr, size_t elements)
 {
     const uint32_t* const buffer = (const uint32_t*)ptr;
     int beef_count = 0;
@@ -94,7 +94,7 @@ jmtx_result jmtx_matrix_ccs_new(
     jmtx_result res = JMTX_RESULT_SUCCESS;
     uint32_t* elements_per_col = NULL;
     uint32_t* indices = NULL;
-    jmtx_scalar_t* p_elements = allocator_callbacks->alloc(allocator_callbacks->state, (1 + reserved_elements) * sizeof(*p_elements));
+    float* p_elements = allocator_callbacks->alloc(allocator_callbacks->state, (1 + reserved_elements) * sizeof(*p_elements));
     if (!p_elements)
     {
         res = JMTX_RESULT_BAD_ALLOC;
@@ -122,8 +122,8 @@ jmtx_result jmtx_matrix_ccs_new(
     memset(elements_per_col, 0, (columns + 1) *  sizeof(*elements_per_col));
 #ifndef JMTX_NO_VERIFY_PARAMS
     beef_it_up(p_elements + 1, reserved_elements);
-    static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "element and index sizes must be the same");
-    beef_it_up((jmtx_scalar_t*)indices + 1, reserved_elements);
+    static_assert(sizeof(float) == sizeof(uint32_t), "element and index sizes must be the same");
+    beef_it_up((float*)indices + 1, reserved_elements);
 #endif
     for (uint32_t i = 0; i < columns + 1; ++i)
     {
@@ -135,7 +135,7 @@ jmtx_result jmtx_matrix_ccs_new(
     mtx->base.rows = rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->base.get_element = (jmtx_result (*)(
-            jmtx_matrix*, jmtx_index_t, jmtx_index_t, jmtx_scalar_t*)) jmtx_matrix_ccs_get_element;
+            jmtx_matrix*, jmtx_index_t, jmtx_index_t, float*)) jmtx_matrix_ccs_get_element;
     mtx->indices = indices;
     mtx->elements = p_elements;
     mtx->capacity = reserved_elements;
@@ -195,7 +195,7 @@ jmtx_result jmtx_matrix_ccs_shrink(jmtx_matrix_ccs* mtx)
         return JMTX_RESULT_SUCCESS;
     }
     mtx->capacity = mtx->n_elements;
-    jmtx_scalar_t* element_new_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (mtx->n_elements + 1));
+    float* element_new_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (mtx->n_elements + 1));
     if (!element_new_ptr)
     {
         res = JMTX_RESULT_BAD_ALLOC;
@@ -217,7 +217,7 @@ jmtx_result jmtx_matrix_ccs_shrink(jmtx_matrix_ccs* mtx)
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const jmtx_scalar_t* elements)
+jmtx_result jmtx_matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const float* elements)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -263,7 +263,7 @@ jmtx_result jmtx_matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t
     const uint32_t required_capacity = (uint32_t)((int32_t)mtx->n_elements + new_elements);
     if (mtx->capacity < required_capacity)
     {
-        jmtx_scalar_t* new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (required_capacity + 1));
+        float* new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (required_capacity + 1));
         if (!new_element_ptr)
         {
             res = JMTX_RESULT_BAD_ALLOC;
@@ -303,7 +303,7 @@ end:
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const jmtx_scalar_t* restrict x, jmtx_scalar_t* restrict y)
+jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const float* restrict x, float* restrict y)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -336,8 +336,8 @@ jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const jm
     for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
         const uint32_t* indices = mtx->indices + mtx->elements_before[i];
-        const jmtx_scalar_t* col_ptr = mtx->elements + mtx->elements_before[i];
-        jmtx_scalar_t v = 0;
+        const float* col_ptr = mtx->elements + mtx->elements_before[i];
+        float v = 0;
         const uint32_t n_elements = mtx->elements_before[i + 1] - mtx->elements_before[i];
         for (uint32_t j = 0; j < n_elements; ++j)
         {
@@ -350,7 +350,7 @@ jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const jm
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t x)
+jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float x)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -414,7 +414,7 @@ jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32
         if (mtx->capacity == mtx->n_elements)
         {
             const uint32_t new_capacity = mtx->capacity + DEFAULT_RESERVED_ELEMENTS;
-            jmtx_scalar_t* const new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (new_capacity + 1));
+            float* const new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->elements, sizeof*mtx->elements * (new_capacity + 1));
             if (!new_element_ptr)
             {
                 res = JMTX_RESULT_BAD_ALLOC;
@@ -434,7 +434,7 @@ jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32
             }
             mtx->indices = new_index_ptr;
 #ifndef JMTX_NO_VERIFY_PARAMS
-            beef_it_up((jmtx_scalar_t *)(new_index_ptr + 1 + mtx->n_elements), new_capacity - mtx->capacity);
+            beef_it_up((float *)(new_index_ptr + 1 + mtx->n_elements), new_capacity - mtx->capacity);
 #endif
             mtx->capacity = new_capacity;
         }
@@ -464,7 +464,7 @@ end:
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t* x)
+jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* x)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -524,14 +524,14 @@ jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, 
     }
     else
     {
-        *x = (jmtx_scalar_t)0.0;
+        *x = (float)0.0;
     }
 
     //LEAVE_FUNCTION();
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_get_col(const jmtx_matrix_ccs* mtx, uint32_t col, uint32_t* n, uint32_t** p_indices, jmtx_scalar_t** p_elements)
+jmtx_result jmtx_matrix_ccs_get_col(const jmtx_matrix_ccs* mtx, uint32_t col, uint32_t* n, uint32_t** p_indices, float** p_elements)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -612,7 +612,7 @@ jmtx_result jmtx_matrix_ccs_beef_check(const jmtx_matrix_ccs* mtx, int* p_beef_s
     return 0;
 }
 
-jmtx_result jmtx_matrix_ccs_apply_unary_fn(const jmtx_matrix_ccs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, jmtx_scalar_t* p_element, void* param), void* param)
+jmtx_result jmtx_matrix_ccs_apply_unary_fn(const jmtx_matrix_ccs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, float* p_element, void* param), void* param)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
 
@@ -638,7 +638,7 @@ jmtx_result jmtx_matrix_ccs_apply_unary_fn(const jmtx_matrix_ccs* mtx, int (*una
     for (uint32_t j = 0; j < mtx->base.cols; ++j)
     {
         const uint32_t n_in_col = mtx->elements_before[j + 1] - mtx->elements_before[j];
-        jmtx_scalar_t* const p_elements = mtx->elements + mtx->elements_before[j];
+        float* const p_elements = mtx->elements + mtx->elements_before[j];
         const uint32_t* const p_indices = mtx->indices + mtx->elements_before[j];
         for (uint32_t i = 0; i < n_in_col; ++i)
         {
@@ -732,8 +732,8 @@ jmtx_result jmtx_matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx)
 #ifndef JMTX_NO_VERIFY_PARAMS
     //  Beef
     beef_it_up(mtx->elements + 1 + mtx->n_elements, original_zero_count);
-    static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
-    beef_it_up((jmtx_scalar_t*)(mtx->indices + 1 + mtx->n_elements), original_zero_count);
+    static_assert(sizeof(float) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
+    beef_it_up((float*)(mtx->indices + 1 + mtx->n_elements), original_zero_count);
 #endif
 
     mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, zero_indices);
@@ -741,7 +741,7 @@ jmtx_result jmtx_matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx)
     return 0;
 }
 
-jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, jmtx_scalar_t v)
+jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, float v)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -760,13 +760,13 @@ jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, jmtx_scalar_t v)
 
     //  AND-ing with 0x7FFFFFFF should remove the sign bit, allowing to use fast comparison of float's absolute values
     const uint32_t int_abs_v = ((*(uint32_t*)&v) & 0x7FFFFFFF);
-    const jmtx_scalar_t abs_v = *(jmtx_scalar_t*)&int_abs_v;
-    static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "Size of scalar and uint32_t must be the same for this to work");
+    const float abs_v = *(float*)&int_abs_v;
+    static_assert(sizeof(float) == sizeof(uint32_t), "Size of scalar and uint32_t must be the same for this to work");
     uint32_t zero_count, k, l;
     for (zero_count = 0, k = 0; k < mtx->n_elements; ++k)
     {
         const uint32_t element_abs = ((uint32_t*)mtx->elements)[k + 1] & 0x7FFFFFFF;
-        zero_count += (*(jmtx_scalar_t*)&element_abs < abs_v);
+        zero_count += (*(float*)&element_abs < abs_v);
     }
     if (!zero_count)
     {
@@ -785,7 +785,7 @@ jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, jmtx_scalar_t v)
     for (k = 0, l = 0; l < zero_count && k < mtx->n_elements; ++k)
     {
         const uint32_t element_abs = ((uint32_t*)mtx->elements)[k + 1] & 0x7FFFFFFF;
-        if (*(jmtx_scalar_t*)&element_abs < abs_v)
+        if (*(float*)&element_abs < abs_v)
         {
             zero_indices[l++] = k;
         }
@@ -825,8 +825,8 @@ jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, jmtx_scalar_t v)
 #ifndef JMTX_NO_VERIFY_PARAMS
     //  Beef
     beef_it_up(mtx->elements + 1 + mtx->n_elements, original_zero_count);
-    static_assert(sizeof(jmtx_scalar_t) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
-    beef_it_up((jmtx_scalar_t*)(mtx->indices + 1 + mtx->n_elements), original_zero_count);
+    static_assert(sizeof(float) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
+    beef_it_up((float*)(mtx->indices + 1 + mtx->n_elements), original_zero_count);
 #endif
 
 
@@ -904,7 +904,7 @@ jmtx_result jmtx_matrix_ccs_elements_in_row(const jmtx_matrix_ccs* mtx, uint32_t
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_get_row(const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t n, jmtx_scalar_t* p_elements, uint32_t* p_cols)
+jmtx_result jmtx_matrix_ccs_get_row(const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t n, float* p_elements, uint32_t* p_cols)
 {
 
 #ifndef JMTX_NO_VERIFY_PARAMS
@@ -1023,7 +1023,7 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* restrict mtx, jmtx_
         return JMTX_RESULT_BAD_ALLOC;
     }
     memset(new_indices, 0, (n_elements + 1) * sizeof*new_indices);
-    jmtx_scalar_t* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements + 1) * sizeof*new_elements);
+    float* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements + 1) * sizeof*new_elements);
     if (!new_elements)
     {
         mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, row_cum_counts);
@@ -1082,7 +1082,7 @@ jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* mtx, jmtx_matrix_ccs* ou
     }
 #endif
     
-    jmtx_scalar_t* const elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (1 + mtx->n_elements) * sizeof *elements);
+    float* const elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (1 + mtx->n_elements) * sizeof *elements);
     if (!elements)
     {
 //        CALLOC_FAILED((1 + mtx->n_elements) * sizeof *elements);
@@ -1141,7 +1141,7 @@ jmtx_result jmtx_matrix_ccs_zero_all_elements(jmtx_matrix_ccs* mtx)
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_set_all_elements(jmtx_matrix_ccs* mtx, jmtx_scalar_t x)
+jmtx_result jmtx_matrix_ccs_set_all_elements(jmtx_matrix_ccs* mtx, float x)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -1157,7 +1157,7 @@ jmtx_result jmtx_matrix_ccs_set_all_elements(jmtx_matrix_ccs* mtx, jmtx_scalar_t
         return JMTX_RESULT_WRONG_TYPE;
     }
 #endif
-    for (jmtx_scalar_t* ptr = mtx->elements + 1; ptr != mtx->elements + 1 + mtx->n_elements; ++ptr)
+    for (float* ptr = mtx->elements + 1; ptr != mtx->elements + 1 + mtx->n_elements; ++ptr)
     {
         *ptr = x;
     }

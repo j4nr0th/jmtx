@@ -12,8 +12,8 @@
 
 
 jmtx_result jmtx_gauss_seidel_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)
@@ -58,24 +58,24 @@ jmtx_result jmtx_gauss_seidel_crs(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
 
 
-    jmtx_scalar_t err;
+    float err;
     uint32_t n_iterations = 0;
     do
     {
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t* row_ptr;
+            float* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
-            jmtx_scalar_t res = (jmtx_scalar_t)0.0;
+            float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -88,19 +88,19 @@ jmtx_result jmtx_gauss_seidel_crs(
                     k = j;
                 }
             }
-            const jmtx_scalar_t new_x = (y[i] - res) / row_ptr[k];
+            const float new_x = (y[i] - res) / row_ptr[k];
             x[i] = new_x;
         }
 
         err = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
             val -= y[i];
             err += val * val;
         }
-        err = sqrtf(err) / (jmtx_scalar_t)n;
+        err = sqrtf(err) / (float)n;
         if (p_error)
         {
             p_error[n_iterations] = err;
@@ -120,17 +120,17 @@ jmtx_result jmtx_gauss_seidel_crs(
 struct gauss_seidel_crs_thread_param
 {
     const jmtx_matrix_crs* matrix;
-    const jmtx_scalar_t* y;
-    jmtx_scalar_t* x;
+    const float* y;
+    float* x;
     uint32_t* done;
     uint32_t n;
     uint32_t n_thrds;
-    jmtx_scalar_t converge_dif;
+    float converge_dif;
     uint32_t n_max_iter;
     pthread_barrier_t* work_barrier;
     atomic_flag* error_flag;
-    jmtx_scalar_t* p_errors;
-    jmtx_scalar_t* p_err_evol;
+    float* p_errors;
+    float* p_err_evol;
     uint32_t rounds_done;
     uint32_t id;
 };
@@ -144,7 +144,7 @@ static void* gauss_seidel_thrd_fn(void* param)
     pthread_barrier_wait(args->work_barrier);
     while (*args->done == 0)
     {
-        jmtx_scalar_t err;
+        float err;
         uint32_t begin, end, step;
         if (loop_type)
         {
@@ -167,11 +167,11 @@ static void* gauss_seidel_thrd_fn(void* param)
 
         for (uint32_t i = begin; i < end; i += step)
         {
-            jmtx_scalar_t* row_ptr;
+            float* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(args->matrix, i, &n_elements, &index_ptr, &row_ptr);
-            jmtx_scalar_t res = (jmtx_scalar_t)0.0;
+            float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -184,14 +184,14 @@ static void* gauss_seidel_thrd_fn(void* param)
                     k = j;
                 }
             }
-            const jmtx_scalar_t new_x = (args->y[i] - res) / row_ptr[k];
+            const float new_x = (args->y[i] - res) / row_ptr[k];
             args->x[i] = new_x;
         }
         pthread_barrier_wait(args->work_barrier);
         err = 0;
         for (uint32_t i = begin; i < end; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(args->matrix, args->x, i, &val);
             val -= args->y[i];
             err += val * val;
@@ -207,7 +207,7 @@ static void* gauss_seidel_thrd_fn(void* param)
             {
                 err += args->p_errors[i];
             }
-            err = sqrtf(err) / (jmtx_scalar_t)args->n;
+            err = sqrtf(err) / (float)args->n;
             if (args->p_err_evol)
             {
                 args->p_err_evol[args->rounds_done] = err;
@@ -223,8 +223,8 @@ static void* gauss_seidel_thrd_fn(void* param)
 }
 
 jmtx_result jmtx_gauss_seidel_crs_mt(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_final_error, jmtx_scalar_t* p_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
 {
     if (!mtx)
@@ -276,7 +276,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
@@ -290,7 +290,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtx_scalar_t* const errors = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*errors);
+    float* const errors = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*errors);
     if (!errors)
     {
         allocator_callbacks->free(allocator_callbacks->state, thrds);
@@ -309,7 +309,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
     }
 
     uint32_t happy = 0;
-    jmtx_scalar_t max_dif = 0.0f;
+    float max_dif = 0.0f;
     pthread_barrier_t work_barrier;
     pthread_barrier_init(&work_barrier, NULL, n_thrds);
     atomic_flag work_flag;

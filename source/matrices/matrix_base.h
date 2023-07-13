@@ -29,7 +29,6 @@ const char* jmtx_result_to_str(jmtx_result res);
 
 
 
-typedef float jmtx_scalar_t;
 typedef uint32_t jmtx_index_t;
 
 enum jmtx_matrix_type_enum
@@ -37,7 +36,8 @@ enum jmtx_matrix_type_enum
     JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
     JMTX_TYPE_CRS,      //  Compressed row sparse
     JMTX_TYPE_CCS,      //  Compressed column sparse
-    JMTX_TYPE_DENSE,
+    JMTX_TYPE_DRM,      //  Dense row-major
+    JMTX_TYPE_DCM,      //  Dense column-major
 
     JMTX_TYPE_COUNT,    //  Here just as upper bound of what the enum should be
 };
@@ -61,7 +61,7 @@ struct jmtx_matrix_struct
     uint32_t rows;
     uint32_t cols;
     jmtx_allocator_callbacks allocator_callbacks;
-    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, jmtx_scalar_t* p_out);
+    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, float* p_out);
     int (*has_element)(jmtx_index_t row, jmtx_index_t col);
 };
 

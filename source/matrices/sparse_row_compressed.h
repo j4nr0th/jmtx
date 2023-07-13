@@ -44,13 +44,11 @@ struct jmtx_matrix_crs_struct
     //  Column indices corresponding with the individual elements
     uint32_t* indices;
     //  Values of elements
-    jmtx_scalar_t* elements;
+    float* elements;
     uint32_t n_elements;
     uint32_t capacity;
 };
 
-#define jmtx_matrix_crs_memory_usage(mtx) (sizeof(mtx) + ((mtx).capacity + 1) * (sizeof(*(mtx).indices) + sizeof(*(mtx).elements))\
-+ sizeof(*(mtx).elements_before) * ((mtx).rows + 1))
 
 /**
  * Initializes a new Compressed Row Sparse matrix
@@ -88,7 +86,7 @@ jmtx_result jmtx_matrix_crs_shrink(jmtx_matrix_crs* mtx);
  * @param elements values of non-zero elements
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const jmtx_scalar_t* elements);
+jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* elements);
 
 /**
  * Version of jmtx_matrix_crs_set_row which does not touch the count of elements after the current row. This is useful when
@@ -101,7 +99,7 @@ jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t
  * @param elements values of non-zero elements
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const jmtx_scalar_t* elements);
+jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* elements);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -112,7 +110,7 @@ jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32
  * @param p_elements pointer to values of elements
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* n, uint32_t** p_indices, jmtx_scalar_t** p_elements);
+jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* n, uint32_t** p_indices, float** p_elements);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y
@@ -121,7 +119,7 @@ jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, ui
  * @param y pointer to vector where the result of multiplication is to be stored
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const jmtx_scalar_t* restrict x, jmtx_scalar_t* restrict y);
+jmtx_result jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const float* restrict x, float* restrict y);
 
 /**
  * Sets a single element in the matrix. This is about as fast as setting the entire row of the matrix at once, if the
@@ -132,7 +130,7 @@ jmtx_result jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const jm
  * @param x value to which the value is set
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_set_element(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t x);
+jmtx_result jmtx_matrix_crs_set_element(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float x);
 
 /**
  * Returns a single element from the matrix.
@@ -142,7 +140,7 @@ jmtx_result jmtx_matrix_crs_set_element(jmtx_matrix_crs* mtx, uint32_t i, uint32
  * @param x pointer which receives the value
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_get_element(const jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t* x);
+jmtx_result jmtx_matrix_crs_get_element(const jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float* x);
 
 /**
  * Adds a value to an element in the matrix when it exists or sets it to that value if it does not. This is about as
@@ -153,7 +151,7 @@ jmtx_result jmtx_matrix_crs_get_element(const jmtx_matrix_crs* mtx, uint32_t i, 
  * @param x value to which the value is to be added
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_add_to_element(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, jmtx_scalar_t x);
+jmtx_result jmtx_matrix_crs_add_to_element(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float x);
 
 /**
  * Checks if the matrix for errors and misplaced elements. Essentially checks if there is 0xDEADBEEF in the matrix
@@ -172,7 +170,7 @@ jmtx_result jmtx_matrix_crs_beef_check(const jmtx_matrix_crs* mtx, int* p_beef_s
  * @param param optional parameter, which is passed to the unary_fn when called
  * @return JMTX_RESULT_SUCCESS if successful, if the user function returns non-zero, that value is returned instead
  */
-jmtx_result jmtx_matrix_crs_apply_unary_fn(const jmtx_matrix_crs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, jmtx_scalar_t* p_element, void* param), void* param);
+jmtx_result jmtx_matrix_crs_apply_unary_fn(const jmtx_matrix_crs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, float* p_element, void* param), void* param);
 
 /**
  * Removes elements exactly equal to zero. If the element is indeed zero, it is compared to (scalar_t)0.0
@@ -187,7 +185,7 @@ jmtx_result jmtx_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx);
  * @param v value to which to compare it to
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_remove_bellow(jmtx_matrix_crs* mtx, jmtx_scalar_t v);
+jmtx_result jmtx_matrix_crs_remove_bellow(jmtx_matrix_crs* mtx, float v);
 
 /**
  * Zeros all elements within a matrix, but does not remove them in case they need to be reused
@@ -203,7 +201,7 @@ jmtx_result jmtx_matrix_crs_zero_all_elements(jmtx_matrix_crs* mtx);
  * @param x value to which to set to
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_set_all_elements(jmtx_matrix_crs* mtx, jmtx_scalar_t x);
+jmtx_result jmtx_matrix_crs_set_all_elements(jmtx_matrix_crs* mtx, float x);
 
 /**
  * Returns the number of elements in the column of the matrix
@@ -223,7 +221,7 @@ jmtx_result jmtx_matrix_crs_elements_in_column(const jmtx_matrix_crs* mtx, uint3
  * @param p_rows a buffer of at least n elements which receives the row indices of the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_get_column(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, jmtx_scalar_t* p_elements, uint32_t* p_rows);
+jmtx_result jmtx_matrix_crs_get_column(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, float* p_elements, uint32_t* p_rows);
 
 /**
  * Creates a transpose of a matrix
@@ -249,6 +247,6 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* restrict mtx, jmtx_matri
  * @param p_r pointer to the memory which receives the computed residual
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_vector_multiply_row(const jmtx_matrix_crs* mtx, const jmtx_scalar_t* x, uint32_t i, jmtx_scalar_t* p_r);
+jmtx_result jmtx_matrix_crs_vector_multiply_row(const jmtx_matrix_crs* mtx, const float* x, uint32_t i, float* p_r);
 
 #endif //JMTX_SPARSE_ROW_COMPRESSED_H

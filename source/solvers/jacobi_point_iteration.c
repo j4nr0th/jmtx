@@ -10,8 +10,8 @@
 
 
 jmtx_result jmtx_jacobi_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
@@ -58,7 +58,7 @@ jmtx_result jmtx_jacobi_crs(
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     jmtx_result mtx_res;
-    jmtx_scalar_t* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
+    float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
     if (!div_factor)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -66,7 +66,7 @@ jmtx_result jmtx_jacobi_crs(
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
@@ -80,7 +80,7 @@ jmtx_result jmtx_jacobi_crs(
     }
 
     //  Memory used to store result of the current iteration
-    jmtx_scalar_t* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
+    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
     if (!auxiliary_x)
     {
 //        CALLOC_FAILED(n * sizeof*x);
@@ -89,15 +89,15 @@ jmtx_result jmtx_jacobi_crs(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtx_scalar_t* x0 = auxiliary_x;
-    jmtx_scalar_t* x1 = x;
-    jmtx_scalar_t err;
+    float* x0 = auxiliary_x;
+    float* x1 = x;
+    float err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            jmtx_scalar_t* tmp = x1;
+            float* tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
@@ -105,11 +105,11 @@ jmtx_result jmtx_jacobi_crs(
         //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t* row_ptr;
+            float* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
-            jmtx_scalar_t res = 0;
+            float res = 0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -124,12 +124,12 @@ jmtx_result jmtx_jacobi_crs(
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
             val -= y[i];
             err += val * val;
         }
-        err = sqrtf(err) / (jmtx_scalar_t)n;
+        err = sqrtf(err) / (float)n;
         if (p_error)
         {
             p_error[n_iterations] = err;
@@ -153,14 +153,14 @@ jmtx_result jmtx_jacobi_crs(
 struct jacobi_crs_thread_param
 {
     const jmtx_matrix_crs* matrix;
-    const jmtx_scalar_t* y;
-    jmtx_scalar_t** x0, **x1;
+    const float* y;
+    float** x0, **x1;
     uint32_t* done;
     uint32_t n;
     uint32_t n_thrds;
     pthread_barrier_t* barrier;
-    jmtx_scalar_t* p_err;
-    jmtx_scalar_t* p_final_err;
+    float* p_err;
+    float* p_final_err;
     uint32_t id;
     _Atomic uint32_t* ready;
 };
@@ -172,17 +172,17 @@ static void* jacobi_crs_thread_fn(void* param)
 //    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args.id, args.n_thrds);
     while (!*args.done)
     {
-        jmtx_scalar_t residual_sum = 0.0f;
-        jmtx_scalar_t* const x0 = *args.x0;
-        jmtx_scalar_t* const x1 = *args.x1;
+        float residual_sum = 0.0f;
+        float* const x0 = *args.x0;
+        float* const x1 = *args.x1;
 
         for (uint32_t i = args.id; i < args.n; i += args.n_thrds)
         {
-            jmtx_scalar_t* row_ptr;
+            float* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(args.matrix, i, &n_elements, &index_ptr, &row_ptr);
-            jmtx_scalar_t res = (jmtx_scalar_t)0.0;
+            float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -197,9 +197,9 @@ static void* jacobi_crs_thread_fn(void* param)
             }
             x1[i] = (args.y[i] - res) / row_ptr[k];
             {
-                jmtx_scalar_t iter_dif = (x1[i] - x0[i]);
+                float iter_dif = (x1[i] - x0[i]);
                 uint32_t f_abs_d = *(uint32_t*)(&iter_dif)& 0x7FFFFFFF;
-                iter_dif = *(jmtx_scalar_t*)&f_abs_d;
+                iter_dif = *(float*)&f_abs_d;
                 residual_sum += iter_dif;
             }
         }
@@ -211,7 +211,7 @@ static void* jacobi_crs_thread_fn(void* param)
     return 0;
 }
 
-static inline void print_vector(const jmtx_scalar_t* x, const uint32_t len)
+static inline void print_vector(const float* x, const uint32_t len)
 {
     printf("\n[");
     for (uint32_t i = 0; i < len; ++i)
@@ -222,8 +222,8 @@ static inline void print_vector(const jmtx_scalar_t* x, const uint32_t len)
 }
 
 jmtx_result jmtx_jacobi_crs_mt(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error, jmtx_scalar_t* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
+        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
 {
     if (!mtx)
@@ -274,13 +274,13 @@ jmtx_result jmtx_jacobi_crs_mt(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         jmtx_matrix_crs_get_element(mtx, i, i, &d);
         x[i] /= d;
     }
 
     //  Memory used to store result of the current iteration
-    jmtx_scalar_t* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
+    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
     if (!auxiliary_x)
     {
 //        CALLOC_FAILED(n_thrds * sizeof*auxiliary_x);
@@ -296,7 +296,7 @@ jmtx_result jmtx_jacobi_crs_mt(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtx_scalar_t* const errors = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*errors);
+    float* const errors = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*errors);
     if (!errors)
     {
         allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
@@ -309,9 +309,9 @@ jmtx_result jmtx_jacobi_crs_mt(
     pthread_barrier_init(&barrier, NULL, n_thrds + 1);
 
     uint32_t happy = 0;
-    jmtx_scalar_t* x0 = x;
-    jmtx_scalar_t* x1 = auxiliary_x;
-    jmtx_scalar_t err;
+    float* x0 = x;
+    float* x1 = auxiliary_x;
+    float err;
     _Atomic uint32_t thrd_is_ready = 0;
     struct jacobi_crs_thread_param arg =
             {
@@ -353,7 +353,7 @@ jmtx_result jmtx_jacobi_crs_mt(
     {
         pthread_barrier_wait(&barrier);
         {
-            jmtx_scalar_t* tmp = x1;
+            float* tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
@@ -366,7 +366,7 @@ jmtx_result jmtx_jacobi_crs_mt(
         {
             err += errors[i];
         }
-        err /= (jmtx_scalar_t)n;
+        err /= (float)n;
         if (*p_error)
         {
             p_error[n_iterations] = err;
@@ -398,9 +398,9 @@ jmtx_result jmtx_jacobi_crs_mt(
 }
 
 jmtx_result jmtx_jacobi_relaxed_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_scalar_t* y, jmtx_scalar_t* x, jmtx_scalar_t relaxation_factor,
-        jmtx_scalar_t convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, jmtx_scalar_t* p_error,
-        jmtx_scalar_t* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks)
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float relaxation_factor,
+        float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
+        float* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -451,7 +451,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     jmtx_result mtx_res;
-    jmtx_scalar_t* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
+    float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
     if (!div_factor)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -459,7 +459,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        jmtx_scalar_t d;
+        float d;
         mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
@@ -473,7 +473,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     }
 
     //  Memory used to store result of the current iteration
-    jmtx_scalar_t* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
+    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
     if (!auxiliary_x)
     {
 //        CALLOC_FAILED(n * sizeof*x);
@@ -482,15 +482,15 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtx_scalar_t* x0 = auxiliary_x;
-    jmtx_scalar_t* x1 = x;
-    jmtx_scalar_t err;
+    float* x0 = auxiliary_x;
+    float* x1 = x;
+    float err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            jmtx_scalar_t* tmp = x1;
+            float* tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
@@ -498,11 +498,11 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t* row_ptr;
+            float* row_ptr;
             uint32_t* index_ptr;
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
-            jmtx_scalar_t res = 0;
+            float res = 0;
 //            uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -519,12 +519,12 @@ jmtx_result jmtx_jacobi_relaxed_crs(
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            jmtx_scalar_t val;
+            float val;
             jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
             val -= y[i];
             err += val * val;
         }
-        err = sqrtf(err) / (jmtx_scalar_t)n;
+        err = sqrtf(err) / (float)n;
         if (p_error)
         {
             p_error[n_iterations] = err;
