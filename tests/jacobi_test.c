@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include <cplot.h>
+//#include <cplot.h>
 #include <math.h>
 #include <time.h>
 #include "test_common.h"
