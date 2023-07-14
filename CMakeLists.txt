@@ -31,7 +31,7 @@ list(APPEND SOLVER_HEADER_FILES
 
 add_library(jmtx
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
-        ${SOLVER_SOURCE_FILE} ${SOLVER_HEADER_FILE}
+        ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
         source/matrices/dense_col_major.c source/matrices/dense_col_major.h)
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
