@@ -63,6 +63,7 @@ jmtx_result jmtx_jacobi_crs(
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
+    double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -77,7 +78,9 @@ jmtx_result jmtx_jacobi_crs(
         }
         x[i] = y[i] / d;
         div_factor[i] = 1.0f / d;
+        y_mag += y[i] * y[i];
     }
+    y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
     float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
@@ -110,7 +113,6 @@ jmtx_result jmtx_jacobi_crs(
             uint32_t n_elements;
             jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
             float res = 0;
-            uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
                 if (i != index_ptr[j])
@@ -129,13 +131,14 @@ jmtx_result jmtx_jacobi_crs(
             val -= y[i];
             err += val * val;
         }
-        err = sqrtf(err) / (float)n;
+        //  Have "err" as ratio between magnitude of y vector and magnitude of residual
+        err = sqrtf(err) / (float)y_mag;
         if (p_error)
         {
             p_error[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > convergence_dif & n_iterations < n_max_iter);
+    } while(err > convergence_dif && n_iterations < n_max_iter);
 
 
     if (x1 == auxiliary_x)
@@ -371,7 +374,7 @@ jmtx_result jmtx_jacobi_crs_mt(
         {
             p_error[n_iterations] = err;
         }
-        happy = !(err > convergence_dif & n_iterations < n_max_iter);
+        happy = !(err > convergence_dif && n_iterations < n_max_iter);
 //        print_vector(x0, n);
 //        print_vector(x1, n);
         pthread_barrier_wait(&barrier);
@@ -456,6 +459,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
+    double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -470,7 +474,9 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         }
         x[i] = y[i] / d;
         div_factor[i] = relaxation_factor / d;
+        y_mag += y[i] * y[i];
     }
+    y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
     float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
@@ -524,13 +530,13 @@ jmtx_result jmtx_jacobi_relaxed_crs(
             val -= y[i];
             err += val * val;
         }
-        err = sqrtf(err) / (float)n;
+        err = sqrtf(err) / (float)y_mag;
         if (p_error)
         {
             p_error[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > convergence_dif & n_iterations < n_max_iter);
+    } while(err > convergence_dif && n_iterations < n_max_iter);
 
 
     if (x1 == auxiliary_x)
