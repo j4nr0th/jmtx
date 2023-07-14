@@ -5,6 +5,12 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef __GNUC__
+#define JMTX_GCC_ONLY(x) x
+#else
+#define JMTX_GCC_ONLY(x)
+#endif
+
 
 enum jmtx_result_enum
 {
@@ -20,6 +26,8 @@ enum jmtx_result_enum
     JMTX_RESULT_NULL_PARAM,         //  Parameter was null
 
     JMTX_RESULT_BAD_MATRIX,         //  Matrix is fucked
+
+    JMTX_RESULT_UNARY_RETURN,       //  Unary function returned non-zero
 
     JMTX_RESULT_COUNT,
 };
@@ -64,6 +72,9 @@ struct jmtx_matrix_struct
     jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, float* p_out);
     int (*has_element)(jmtx_index_t row, jmtx_index_t col);
 };
+
+JMTX_GCC_ONLY(__attribute__((visibility("hidden"))))
+uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t* p_indices, uint32_t value);
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
 

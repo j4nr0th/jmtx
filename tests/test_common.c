@@ -6,6 +6,7 @@
 #include "../source/matrices/sparse_row_compressed.h"
 #include "../source/matrices/sparse_column_compressed.h"
 #include <stdio.h>
+#include "../source/matrices/sparse_row_compressed_internal.h"
 
 
 fRNG fRNG_create(uint64_t seed)
@@ -128,38 +129,33 @@ double fRNG_double_range(fRNG* p_rng, double min, double max)
 
 void print_crs_matrix(const jmtx_matrix_crs* mtx)
 {
-    printf("elements:");
-    for (uint32_t i = 0, l = 0; i < mtx->n_elements; ++i)
+    printf("Entries:");
+    for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
     {
-        if (l < mtx->base.rows && mtx->elements_before[l + 1] <= i + 1)
+        while (l < mtx->base.rows && mtx->end_of_row_offsets[l] <= i)
         {
             l += 1;
         }
-        printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->elements[i + 1]);
+        printf(" (%u, %u, %g)", l, mtx->indices[i], mtx->values[i]);
     }
-    printf("\nelement offsets:");
+    printf("\nEnd of row offsets:");
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        printf(" %u,", mtx->elements_before[i]);
+        printf(" %u,", mtx->end_of_row_offsets[i]);
     }
-    printf(" %u", mtx->elements_before[mtx->base.rows]);
-    printf("\nMatrix:\n[");
+    printf("\nMatrix:\n[\n");
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        if (i != 0)
-            printf(" [");
-        else
-            printf("[");
+        printf("\t[");
         float x;
-        for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
+        for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
             jmtx_matrix_crs_get_element(mtx, i, j, &x);
             printf("%g ", x);
         }
-        jmtx_matrix_crs_get_element(mtx, i, mtx->base.cols - 1, &x);
-        printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
-        if (i != mtx->base.rows - 1) printf("\n");
+        printf("] - %u", mtx->end_of_row_offsets[i] - (i ? mtx->end_of_row_offsets[i - 1] : 0));
+        printf("\n");
     }
 
     printf("]\n");

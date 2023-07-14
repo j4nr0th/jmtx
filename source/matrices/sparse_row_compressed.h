@@ -6,12 +6,6 @@
 #define JMTX_SPARSE_ROW_COMPRESSED_H
 #include "matrix_base.h"
 
-//  TODO: check if refactoring and getting rid of calloc broke anything, due to memory no longer being zeroed before use
-
-//  IMPORTANT:
-//  These functions are not safe in the slightest. They perform zero checking at the moment (should probably be done as
-//  with macros if _DEBUG is defined and/or NDEBUG is not defined
-
 //  Function testing 14.06.2022:
 //  - matrix_crs_new : DONE
 //  - matrix_crs_destroy : DONE
@@ -34,32 +28,21 @@
 //  - matrix_crs_transpose : DONE
 //  - matrix_crs_copy : DONE
 
-typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
+//  Function refactoring on 21.7.2023
 
-struct jmtx_matrix_crs_struct
-{
-    jmtx_matrix base;
-    //  How many elements exist in the rows above, so that row i is from index elements_before[i] ot elements_before[i + 1]
-    uint32_t* elements_before;
-    //  Column indices corresponding with the individual elements
-    uint32_t* indices;
-    //  Values of elements
-    float* elements;
-    uint32_t n_elements;
-    uint32_t capacity;
-};
+typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
 
 
 /**
  * Initializes a new Compressed Row Sparse matrix
- * @param mtx pointer to memory where the matrix should be initialized
+ * @param p_mtx address that receives the pointer to the matrix
  * @param columns number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
- * @param reserved_elements how many elements should the space be reserved for in the matrix intialliy
+ * @param reserved_elements how many elements should the space be reserved for in the matrix initially
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtx_matrix_crs_new(
-        jmtx_matrix_crs* mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
+        jmtx_matrix_crs** p_mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -185,7 +168,7 @@ jmtx_result jmtx_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx);
  * @param v value to which to compare it to
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_remove_bellow(jmtx_matrix_crs* mtx, float v);
+jmtx_result jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v);
 
 /**
  * Zeros all elements within a matrix, but does not remove them in case they need to be reused
@@ -221,23 +204,25 @@ jmtx_result jmtx_matrix_crs_elements_in_column(const jmtx_matrix_crs* mtx, uint3
  * @param p_rows a buffer of at least n elements which receives the row indices of the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_get_column(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, float* p_elements, uint32_t* p_rows);
+jmtx_result jmtx_matrix_crs_get_column(
+        const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, uint32_t* p_count, float* p_elements, uint32_t* p_rows);
 
 /**
  * Creates a transpose of a matrix
  * @param mtx pointer to the memory where the input matrix is stored
- * @param out pointer to the memory where the output matrix will be stored
+ * @param p_out address where the pointer to the output matrix will be returned
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_transpose(const jmtx_matrix_crs* restrict mtx, jmtx_matrix_crs* restrict out);
+jmtx_result jmtx_matrix_crs_transpose(
+        const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Creates a copy of the matrix
  * @param mtx pointer to the memory where the input matrix is stored
- * @param out pointer to the memory where the output matrix will be stored
+ * @param p_out address where the pointer to the output matrix will be returned
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* restrict mtx, jmtx_matrix_crs* restrict out);
+jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel

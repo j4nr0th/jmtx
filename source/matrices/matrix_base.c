@@ -14,6 +14,7 @@ static const char* const jmtx_result_string_array[JMTX_RESULT_COUNT] =
                 [JMTX_RESULT_BAD_PARAM] = "Parameter had an invalid value",          //  Parameter had a bad value
                 [JMTX_RESULT_NULL_PARAM] = "Parameter was null",         //  Parameter was null
                 [JMTX_RESULT_BAD_MATRIX] = "Matrix could not be handled by the iterative solver",   //  Matrix is fucked
+                [JMTX_RESULT_UNARY_RETURN] = "Unary function returned non-zero"
         };
 
 const char* jmtx_result_to_str(jmtx_result res)
@@ -88,3 +89,44 @@ const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS =
         .realloc = default_realloc,
         .state = (void*)funny_string,
         };
+
+uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t* p_indices, uint32_t value)
+{
+    uint32_t p = 0;
+    uint32_t n = n_indices;
+    uint32_t s = n - n / 2;
+    const uint32_t* c = p_indices;
+    while (s > 1)
+    {
+        if (c[p + s] > value)
+        {
+            n = s;
+        }
+        else
+        {
+            p += s;
+            n -= s;
+        }
+        s = n - n / 2;
+    }
+
+    if (s != 0)
+    {
+        if (p == n_indices - 1)
+        {
+            return p;
+        }
+        assert(s == 1);
+        if (c[p + s] > value)
+        {
+            return p;
+        }
+        else
+        {
+            return p + 1;
+        }
+    }
+
+
+    return p;
+}

@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "bicgstab_iteration.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 #include <pthread.h>
 #include <stdatomic.h>
 #include <assert.h>

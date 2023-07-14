@@ -3,6 +3,7 @@
 //
 
 #include "gauss_seidel_iteration.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 
 #include <pthread.h>
 #include <stdatomic.h>
@@ -107,7 +108,7 @@ jmtx_result jmtx_gauss_seidel_crs(
         }
 
         n_iterations += 1;
-    } while(err > convergence_dif & n_iterations < n_max_iter);
+    } while(err > convergence_dif && n_iterations < n_max_iter);
 
 
     if (p_iter) *p_iter = n_iterations;
@@ -349,8 +350,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
     }
 
 
-    uint32_t n_iterations = 0;
-    uint32_t done = 0;
+    uint32_t n_iterations;
 
     for (uint32_t i = 0; i < n_thrds; ++i)
     {

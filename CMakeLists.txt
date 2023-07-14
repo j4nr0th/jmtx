@@ -7,6 +7,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/sparse_row_compressed.c
         source/matrices/sparse_column_compressed.c
         source/matrices/dense_row_major.c
+        source/matrices/dense_col_major.c
         source/matrices/matrix_base.c
         )
 
@@ -14,8 +15,14 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         source/matrices/sparse_row_compressed.h
         source/matrices/sparse_column_compressed.h
         source/matrices/dense_row_major.h
+        source/matrices/dense_col_major.h
         source/matrices/matrix_base.h
         )
+
+list(APPEND INTERNAL_HEADER_FILES
+        source/matrices/sparse_row_compressed_internal.h)
+
+list(APPEND INTERNAL_SOURCE_FILES)
 
 list(APPEND SOLVER_SOURCE_FILES
         source/solvers/jacobi_point_iteration.c
@@ -32,7 +39,8 @@ list(APPEND SOLVER_HEADER_FILES
 add_library(jmtx
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
         ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
-        source/matrices/dense_col_major.c source/matrices/dense_col_major.h)
+        ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
+          )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
 #target_link_libraries(test_mtx m pthread)

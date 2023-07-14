@@ -55,7 +55,7 @@ int main()
     printf("Residual of vector multiplication: %g\n", residual);
 
 
-    jmtx_matrix_crs_transpose(&crs_matrix_1, &crs_matrix_2);
+    jmtx_matrix_crs_transpose(&crs_matrix_1, &crs_matrix_2, NULL);
     residual = 0.0f;
     for (uint32_t j = 0; j < TEST_MATRIX_MAJOR_DIM; ++j)
     {

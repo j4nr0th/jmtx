@@ -8,13 +8,13 @@
 static void print_matrix(const jmtx_matrix_crs* mtx)
 {
     printf("elements:");
-    for (uint32_t i = 0, l = 0; i < mtx->n_elements; ++i)
+    for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
     {
         if (l < mtx->base.rows && mtx->elements_before[l + 1] <= i + 1)
         {
             l += 1;
         }
-        printf(" (%u, %u, %+3.3f)", l, mtx->indices[i + 1], mtx->elements[i + 1]);
+        printf(" (%u, %u, %+3.3f)", l, mtx->indices[i + 1], mtx->values[i + 1]);
     }
     printf("\nelement offsets:");
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
@@ -83,7 +83,7 @@ int main()
     jmtx_matrix_crs_set_row(&matrix, 4, 2, indices2, values2);
     BEEF_CHECK(matrix);
     print_matrix(&matrix);
-    jmtx_matrix_crs_remove_bellow(&matrix, 5.0f);
+    jmtx_matrix_crs_remove_bellow_magnitude(&matrix, 5.0f);
     const uint32_t indices3[5] = {0, 10, 13, 15, 23};
     const float values3[5] = {-1.0f, 1.0f, -2.0f, 1.0f, 20};
     jmtx_matrix_crs_set_row(&matrix, 14, 5, indices3, values3);
@@ -152,7 +152,7 @@ int main()
         const float v[] = {1};
         jmtx_matrix_crs_set_row(&matrix_1, 4, 1, i, v);
     }
-    jmtx_matrix_crs_transpose(&matrix_1, &matrix_2);
+    jmtx_matrix_crs_transpose(&matrix_1, &matrix_2, NULL);
 
     printf("\n\nBREAK 2\n");
     print_matrix(&matrix_1);
@@ -161,7 +161,7 @@ int main()
     uint32_t err_count = 0;
 
     jmtx_matrix_crs tmp;
-    jmtx_matrix_crs_transpose(&matrix, &tmp);
+    jmtx_matrix_crs_transpose(&matrix, &tmp, NULL);
     for (uint32_t i = 0; i < 25; ++i)
     {
         for (uint32_t j = 0; j < 25; ++j)
