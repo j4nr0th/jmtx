@@ -71,6 +71,10 @@ add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
 target_link_libraries(old_compare_demo PRIVATE jmtx m)
 add_test(NAME old_compare COMMAND old_compare_demo)
 
+add_executable(add_crs_test tests/crs_addition_test.c tests/test_common.c)
+target_link_libraries(add_crs_test PRIVATE jmtx m)
+add_test(NAME addition_crs COMMAND add_crs_test)
+
 #add_subdirectory(cplot)
 
 add_executable(jacobi_point_test tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
