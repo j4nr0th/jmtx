@@ -47,7 +47,7 @@ int main()
             {
                 continue;
             }
-            mtx_res = jmtx_matrix_crs_add_to_element(mtx, i, j, v);
+            mtx_res = jmtx_matrix_crs_add_to_entry(mtx, i, j, v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             mtx_res = jmtx_matrix_crs_beef_check(mtx, &beef_status);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -64,7 +64,7 @@ int main()
         {
             float x = m1[j + i * 4];
             float v;
-            mtx_res = jmtx_matrix_crs_get_element(mtx, i, j, &v);
+            mtx_res = jmtx_matrix_crs_get_entry(mtx, i, j, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == x);
         }
@@ -80,7 +80,7 @@ int main()
             {
                 continue;
             }
-            mtx_res = jmtx_matrix_crs_add_to_element(mtx, i, j, v);
+            mtx_res = jmtx_matrix_crs_add_to_entry(mtx, i, j, v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             mtx_res = jmtx_matrix_crs_beef_check(mtx, &beef_status);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -97,7 +97,7 @@ int main()
         {
             float x = m1[j + i * 4] + m2[j + i * 4];
             float v;
-            mtx_res = jmtx_matrix_crs_get_element(mtx, i, j, &v);
+            mtx_res = jmtx_matrix_crs_get_entry(mtx, i, j, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == x);
         }
@@ -113,7 +113,7 @@ int main()
             {
                 continue;
             }
-            mtx_res = jmtx_matrix_crs_add_to_element(mtx, i, j, v);
+            mtx_res = jmtx_matrix_crs_add_to_entry(mtx, i, j, v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             mtx_res = jmtx_matrix_crs_beef_check(mtx, &beef_status);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -130,7 +130,49 @@ int main()
         {
             float x = m1[j + i * 4] + m2[j + i * 4] + m3[j + i * 4];
             float v;
-            mtx_res = jmtx_matrix_crs_get_element(mtx, i, j, &v);
+            mtx_res = jmtx_matrix_crs_get_entry(mtx, i, j, &v);
+            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+            ASSERT(v == x);
+        }
+    }
+
+    //  Removing 2nd column
+    MATRIX_TEST_CALL(jmtx_matrix_crs_remove_column(mtx, 1));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    printf("Matrix after removing 2nd column:\n");
+    print_crs_matrix(mtx);
+    printf("\n");
+
+    for (uint32_t i = 0; i < 4; ++i)
+    {
+        for (uint32_t j = 0; j < 3; ++j)
+        {
+            uint32_t c = j > 0 ? j + 1 : 0;
+            float x = m1[c + i * 4] + m2[c + i * 4] + m3[c + i * 4];
+            float v;
+            mtx_res = jmtx_matrix_crs_get_entry(mtx, i, j, &v);
+            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+            ASSERT(v == x);
+        }
+    }
+
+    //  Removing 1st row
+    MATRIX_TEST_CALL(jmtx_matrix_crs_remove_row(mtx, 0));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    printf("Matrix after removing 1st row:\n");
+    print_crs_matrix(mtx);
+    printf("\n");
+
+    for (uint32_t i = 1; i < 4; ++i)
+    {
+        for (uint32_t j = 0; j < 3; ++j)
+        {
+            uint32_t c = j > 0 ? j + 1 : 0;
+            float x = m1[c + i * 4] + m2[c + i * 4] + m3[c + i * 4];
+            float v;
+            mtx_res = jmtx_matrix_crs_get_entry(mtx, i - 1, j, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == x);
         }

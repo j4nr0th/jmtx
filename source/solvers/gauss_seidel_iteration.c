@@ -60,7 +60,7 @@ jmtx_result jmtx_gauss_seidel_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        jmtx_matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
         x[i] /= d;
     }
 
@@ -278,7 +278,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        jmtx_matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
         x[i] /= d;
     }
 

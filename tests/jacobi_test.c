@@ -50,63 +50,63 @@ int main()
         y_exact[i] = V / (1 + omega_0 * omega_0) * (omega_0 * sinf(omega_0 * x) - cosf(omega_0 * x) + expf(x));
     }
 
-    jmtx_matrix_crs matrix;
+    jmtx_matrix_crs* matrix;
     jmtx_result mtx_res;
 
     MATRIX_TEST_CALL(jmtx_matrix_crs_new(&matrix, steps, steps, 2 * steps, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtx_matrix_crs_set_element(&matrix, 0, 0, 1.0f));
+    MATRIX_TEST_CALL(jmtx_matrix_crs_set_entry(matrix, 0, 0, 1.0f));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     for (uint32_t i = 1; i < steps; ++i)
     {
         uint32_t indices[2] = {i - 1, i};
         float values[2] = {- 1 / dx, 1 / dx - 1 };
-        MATRIX_TEST_CALL(jmtx_matrix_crs_set_row(&matrix, i, 2, indices, values));
+        MATRIX_TEST_CALL(jmtx_matrix_crs_set_row(matrix, i, 2, indices, values));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
-//    print_crs_matrix(&matrix);
+//    print_crs_matrix(matrix);
 
     uint32_t iter_count, iter_relax;
     f_exact[0] = 0.0f;
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(&matrix, f_exact, y_approx10, 1e-4f, (iterations / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx10, 1e-4f, (iterations / 5), NULL, NULL, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(&matrix, f_exact, y_approx20, 1e-4f, (iterations * 2 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx20, 1e-4f, (iterations * 2 / 5), NULL, NULL, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(&matrix, f_exact, y_approx30, 1e-4f, (iterations * 3 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx30, 1e-4f, (iterations * 3 / 5), NULL, NULL, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(&matrix, f_exact, y_approx40, 1e-4f, (iterations * 4 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx40, 1e-4f, (iterations * 4 / 5), NULL, NULL, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
     printf("Using normal Jacobi iteration\n");
     MATRIX_TEST_CALL(
-            jmtx_jacobi_crs(&matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL));
+            jmtx_jacobi_crs(matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Afer %"PRIu32" iterations, the final error was %g\n", iter_count, final_error);
 
     struct timespec ts_0, ts_1;
     memset(y_approx, 0, sizeof(y_approx));
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_0);
-    jmtx_jacobi_crs(&matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
+    jmtx_jacobi_crs(matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_1);
     printf("Time needed for jmtx_jacobi_crs to solve the problem: %g ms\n", 1e3 * ts_difference(&ts_0, &ts_1));
 
     const float relax_factor = 1.0f;
     printf("Using a relaxation factor of %g\n", relax_factor);
     MATRIX_TEST_CALL(jmtx_jacobi_relaxed_crs(
-            &matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_relax, error_relaxed, &final_error, NULL));
+            matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_relax, error_relaxed, &final_error, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Afer %"PRIu32" iterations, the final error was %g\n", iter_count, final_error);
 
     memset(y_relax, 0, sizeof(y_relax));
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_0);
     jmtx_jacobi_relaxed_crs(
-            &matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
+            matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_1);
     printf("Time needed for jmtx_jacobi_relaxed_crs to solve the problem: %g ms\n", 1e3 * ts_difference(&ts_0, &ts_1));
 
 
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(&matrix));
+    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(matrix));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 #ifdef PLOT_RESULTS
     cplot_context* cplot_ctx = cplot_context_create();

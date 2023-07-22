@@ -59,7 +59,7 @@ add_executable(base_ccs_test tests/base_ccs_test.c tests/test_common.c)
 target_link_libraries(base_ccs_test jmtx m)
 add_test(NAME base_ccs COMMAND base_ccs_test)
 
-add_executable(old_crs_demo run_crs_tests.c)
+add_executable(old_crs_demo run_crs_tests.c tests/test_common.c)
 target_link_libraries(old_crs_demo PRIVATE jmtx m)
 add_test(NAME old_crs COMMAND old_crs_demo)
 

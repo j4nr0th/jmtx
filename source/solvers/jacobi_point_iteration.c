@@ -69,7 +69,7 @@ jmtx_result jmtx_jacobi_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
+        mtx_res = jmtx_matrix_crs_get_entry(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
         {
@@ -279,7 +279,7 @@ jmtx_result jmtx_jacobi_crs_mt(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        jmtx_matrix_crs_get_element(mtx, i, i, &d);
+        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
         x[i] /= d;
     }
 
@@ -465,7 +465,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        mtx_res = jmtx_matrix_crs_get_element(mtx, i, i, &d);
+        mtx_res = jmtx_matrix_crs_get_entry(mtx, i, i, &d);
         assert(mtx_res == JMTX_RESULT_SUCCESS);
         if (d == 0.0f)
         {
