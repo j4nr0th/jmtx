@@ -89,5 +89,9 @@ jmtx_result jmtx_jacobi_crs_mt(
         uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
+jmtx_result jmtx_jacobi_crs_parallel(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif, uint32_t max_itertations,
+        uint32_t* p_iteration_count, float* p_error_evolution, float* p_final_error, float* aux_vector1,
+        float* aux_vector2);
 
 #endif //JMTX_JACOBI_POINT_ITERATION_H

@@ -6,6 +6,7 @@
 #define JMTX_TEST_COMMON_H
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef union struct_fRNG_state fRNG;
 

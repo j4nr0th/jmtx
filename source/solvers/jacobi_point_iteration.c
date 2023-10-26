@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <assert.h>
 
+#include <omp.h>
 
 jmtx_result jmtx_jacobi_crs(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
@@ -215,15 +216,15 @@ static void* jacobi_crs_thread_fn(void* param)
     return 0;
 }
 
-static inline void print_vector(const float* x, const uint32_t len)
-{
-    printf("\n[");
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        printf(" %g", x[i]);
-    }
-    printf(" ]\n");
-}
+//static inline void print_vector(const float* x, const uint32_t len)
+//{
+//    printf("\n[");
+//    for (uint32_t i = 0; i < len; ++i)
+//    {
+//        printf(" %g", x[i]);
+//    }
+//    printf(" ]\n");
+//}
 
 jmtx_result jmtx_jacobi_crs_mt(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
@@ -550,4 +551,150 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     if (p_final_error) *p_final_error = err;
 //    LEAVE_FUNCTION();
     return n_iterations == n_max_iter ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+}
+
+
+jmtx_result jmtx_jacobi_crs_parallel(
+        const jmtx_matrix_crs* const mtx, const float* restrict const y, float* restrict const x, const float convergence_dif, const uint32_t max_itertations,
+        uint32_t* restrict const p_iteration_count, float* restrict const p_error_evolution, float* restrict const p_final_error, float* restrict const aux_vector1,
+        float* restrict const aux_vector2)
+{
+#ifndef JMTX_NO_VERIFY_PARAMS
+    if (!mtx)
+    {
+//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+//        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.rows != mtx->base.cols)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+//        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!y)
+    {
+//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
+//        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!x)
+    {
+//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+//        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vector1)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vector2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+#endif
+
+    //  Length of x and y
+    const uint32_t n = mtx->base.cols;
+//    jmtx_result mtx_res;
+    double y_mag = 0;
+    //  Initial guess by assuming that mtx is a diagonal matrix
+    int zero_diag = 0;
+#pragma omp parallel for shared(mtx, zero_diag, n, x, y, aux_vector1) reduction(+:y_mag) default(none)
+    for (uint32_t i = 0; i < n; ++i)
+    {
+        float d;
+        if (jmtx_matrix_crs_get_entry(mtx, i, i, &d) != JMTX_RESULT_SUCCESS || d == 0.0f)
+        {
+            //  Diagonal entry is zero!
+            //  Can't solve this one with Jacobi
+            zero_diag += 1;
+            //            return JMTX_RESULT_BAD_MATRIX;
+        }
+        x[i] = y[i] / d;
+        aux_vector1[i] = 1.0f / d;
+        const float mag = y[i] * y[i];
+#pragma omp atomic
+        y_mag += mag;
+    }
+    if (zero_diag != 0)
+    {
+        //  Either diagonal was zero, or matrix could not find the diagonal element
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    y_mag = sqrt(y_mag);
+    //  Memory used to store result of the current iteration
+    float* x0 = aux_vector2;
+    float* x1 = x;
+    float err = 0.0f;
+    uint32_t n_iterations = 0;
+#pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,\
+    convergence_dif, max_itertations, n)
+    {
+        do
+        {
+#pragma omp barrier
+#pragma omp master
+            {
+                err = 0.0f;
+                float* tmp = x1;
+                x1 = x0;
+                x0 = tmp;
+            }
+#pragma omp barrier
+
+            //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                float* row_ptr;
+                uint32_t* index_ptr;
+                uint32_t n_elements;
+                jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+                float res = 0;
+                for (uint32_t j = 0; j < n_elements; ++j)
+                {
+                    res += row_ptr[j] * x0[index_ptr[j]];
+                }
+                //  Multiplication of vector x by D⁻¹
+                x1[i] = x0[i] + (y[i] - res) * aux_vector1[i];
+            }
+
+#pragma omp for reduction(+:err) schedule(static)
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                float val;
+                jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+                val -= y[i];
+                err += val * val;
+            }
+
+
+#pragma omp master
+            {
+                err = sqrtf(err) / (float) y_mag;
+                if (p_error_evolution)
+                {
+                    p_error_evolution[n_iterations] = err;
+                }
+                n_iterations += 1;
+            }
+#pragma omp barrier
+        } while (err > convergence_dif && n_iterations < max_itertations);
+    }
+
+
+    if (x1 == aux_vector2)
+    {
+        memcpy(x, aux_vector2, sizeof*x * n);
+    }
+    if (p_iteration_count) *p_iteration_count = n_iterations;
+    if (p_final_error) *p_final_error = err;
+//    LEAVE_FUNCTION();
+    return n_iterations == max_itertations || !isnormal(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
