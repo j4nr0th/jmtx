@@ -2,8 +2,8 @@
 // Created by jan on 21.7.2023.
 //
 #include <stdio.h>
-#include "../source/matrices/sparse_row_compressed.h"
-#include "test_common.h"
+#include "../../source/matrices/sparse_row_compressed.h"
+#include "../test_common.h"
 
 int main()
 {

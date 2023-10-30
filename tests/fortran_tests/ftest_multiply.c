@@ -2,10 +2,10 @@
 // Created by jan on 29.9.2023.
 //
 #include <stdio.h>
-#include "test_common.h"
-#include "../source/f_exper/f_interface.h"
-#include "../source/matrices/sparse_row_compressed.h"
-#include "../source/matrices/sparse_row_compressed_internal.h"
+#include "../test_common.h"
+#include "../../source/f_exper/f_interface.h"
+#include "../../source/matrices/sparse_row_compressed.h"
+#include "../../source/matrices/sparse_row_compressed_internal.h"
 
 enum
 {

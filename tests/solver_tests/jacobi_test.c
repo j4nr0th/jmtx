@@ -8,10 +8,8 @@
 //#include <cplot.h>
 #include <math.h>
 #include <time.h>
-#include "test_common.h"
-#include "../source/solvers/jacobi_point_iteration.h"
-#include "../source/matrices/sparse_row_compressed_internal.h"
-#include "../source/f_exper/f_interface.h"
+#include "../test_common.h"
+#include "../../source/solvers/jacobi_point_iteration.h"
 
 static const float V = 10.0f;
 static const float omega_0 = 5.0f;
@@ -36,7 +34,6 @@ int main()
     static float y_approx40[steps] = {0};
     static float y_approx50[steps] = {0};
     static float y_approx60[steps] = {0};
-    static float y_approx_f[steps] = {0};
     static float f_exact[steps] = {0};
     static float error_evol[iterations] = {0};
     static float error_relaxed[iterations] = {0};
@@ -85,8 +82,6 @@ int main()
             jmtx_jacobi_crs(matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Afer %"PRIu32" iterations, the final error was %g\n", iter_count, final_error);
-
-    f_pt_jacobi((int32_t)matrix->n_entries, (int32_t)matrix->base.rows, (const int32_t*)matrix->end_of_row_offsets, (const int32_t*)matrix->indices, matrix->values, 1e-4f, iterations, y_approx_f, f_exact);
 
     struct timespec ts_0, ts_1;
     memset(y_approx, 0, sizeof(y_approx));

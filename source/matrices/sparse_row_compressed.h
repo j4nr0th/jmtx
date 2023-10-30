@@ -73,13 +73,13 @@ jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t
 /**
  * Version of jmtx_matrix_crs_set_row which does not touch the count of entries after the current row. This is useful when
  * building a new matrix, as it avoids unnecessary setting and resetting of these entries. Must be called for each row
- * in order to ensure that the matrix is properly built.
+ * in order to ensure that the matrix is properly built. Makes no checks on the input parameters
  * @param mtx pointer to the memory where the matrix is stored
  * @param row index of the row to set
  * @param n how many entries are in the row
  * @param indices column indices of the values, which has to be sorted from lowest to highest
  * @param values values of non-zero values
- * @return JMTX_RESULT_SUCCESS if successful
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values);
 
@@ -268,5 +268,16 @@ jmtx_result jmtx_matrix_crs_remove_row(jmtx_matrix_crs* mtx, uint32_t row);
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtx_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col);
+
+/**
+ * Combines k matrices of size N_i x M into a single Sum(N_i) x M matrix by vertically stacking them
+ * @param output receives pointer to the resulting matrix
+ * @param allocators memory allocators to use for the output matrix
+ * @param k number of the matrices
+ * @param matrix_list array of matrices to be joined together. Must have the same number of columns.
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_DIMS_MISMATCH if the number of columns is not the same for all
+ * input matrices, return value of jmtx_matrix_crs_new if that fails
+ */
+jmtx_result jmtx_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtx_matrix_crs** matrix_list);
 
 #endif //JMTX_SPARSE_ROW_COMPRESSED_H

@@ -1147,44 +1147,44 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p
 jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
 {
 //    CALL_FUNCTION(matrix_crs_build_row);
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (mtx->base.rows <= row)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-    if (mtx->base.cols < n)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns, but %u values were specified to be set in row %u", mtx->base.cols, n, row);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-    if (!indices)
-    {
-//        REPORT_ERROR_MESSAGE("Indices pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!values)
-    {
-//        REPORT_ERROR_MESSAGE("Elements pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
+//#ifndef JMTX_NO_VERIFY_PARAMS
+//    if (!mtx)
+//    {
+////        REPORT_ERROR_MESSAGE("Matrix pointer was null");
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//    if (mtx->base.type != JMTX_TYPE_CRS)
+//    {
+////        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_WRONG_TYPE;
+//    }
+//    if (mtx->base.rows <= row)
+//    {
+////        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+//    }
+//    if (mtx->base.cols < n)
+//    {
+////        REPORT_ERROR_MESSAGE("Matrix has %u columns, but %u values were specified to be set in row %u", mtx->base.cols, n, row);
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+//    }
+//    if (!indices)
+//    {
+////        REPORT_ERROR_MESSAGE("Indices pointer was null");
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//    if (!values)
+//    {
+////        REPORT_ERROR_MESSAGE("Elements pointer was null");
+////        LEAVE_FUNCTION();
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//#endif
 
     jmtx_result res = JMTX_RESULT_SUCCESS;
     const uint32_t required_capacity = (uint32_t)((int32_t)mtx->n_entries + (int32_t)n);
@@ -1521,5 +1521,54 @@ jmtx_result jmtx_matrix_crs_clear(jmtx_matrix_crs* mtx)
 #endif
     mtx->n_entries = 0;
     memset(mtx->end_of_row_offsets, 0, sizeof(*mtx->end_of_row_offsets) * mtx->base.rows);
+    return JMTX_RESULT_SUCCESS;
+}
+
+jmtx_result jmtx_matrix_crs_join_vertically(
+        jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned int k,
+        const jmtx_matrix_crs** matrix_list)
+{
+    const uint32_t col_count = matrix_list[0]->base.cols;
+    uint32_t n_rows = matrix_list[0]->base.rows;
+
+    uint32_t element_count = matrix_list[0]->n_entries;
+    //  First one is already accounted for, so no need to start at 0
+    for (unsigned i = 1; i < k; ++i)
+    {
+        const jmtx_matrix_crs* const e = matrix_list[i];
+        if (e->base.cols != col_count)
+        {
+            return JMTX_RESULT_DIMS_MISMATCH;
+        }
+        n_rows += e->base.rows;
+        element_count += e->n_entries;
+    }
+
+    jmtx_matrix_crs* out;
+    jmtx_result res = jmtx_matrix_crs_new(&out, col_count, n_rows, element_count, allocators);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        return res;
+    }
+
+    uint32_t pos = 0;
+    for (unsigned i = 0; i < k; ++i)
+    {
+        const jmtx_matrix_crs* const mtx = matrix_list[i];
+        unsigned j;
+        for (j = 0; j < mtx->base.rows; ++j)
+        {
+            uint32_t* indices;
+            float* values;
+            const uint32_t n = crs_get_row_entries(mtx, j, &indices, &values);
+            //  All memory for this should be allocated in advance, so no need to check the return value
+            const jmtx_result r1 = jmtx_matrix_crs_build_row(out, pos + j, n, indices, values);
+            assert(r1 == JMTX_RESULT_SUCCESS); (void)r1;
+        }
+        pos += j;
+    }
+    assert(pos == n_rows);
+
+    *output = out;
     return JMTX_RESULT_SUCCESS;
 }

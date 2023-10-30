@@ -67,11 +67,11 @@ endif ()
 
 enable_testing()
 
-add_executable(base_crs_test tests/base_crs_test.c tests/test_common.c)
+add_executable(base_crs_test tests/matrix_ops_tests/base_crs_test.c tests/test_common.c)
 target_link_libraries(base_crs_test jmtx m)
 add_test(NAME base_crs COMMAND base_crs_test)
 
-add_executable(base_ccs_test tests/base_ccs_test.c tests/test_common.c)
+add_executable(base_ccs_test tests/matrix_ops_tests/base_ccs_test.c tests/test_common.c)
 target_link_libraries(base_ccs_test jmtx m)
 add_test(NAME base_ccs COMMAND base_ccs_test)
 
@@ -87,24 +87,24 @@ add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
 target_link_libraries(old_compare_demo PRIVATE jmtx m)
 add_test(NAME old_compare COMMAND old_compare_demo)
 
-add_executable(add_crs_test tests/crs_addition_test.c tests/test_common.c
-        tests/ftest_multiply.c)
+add_executable(add_crs_test tests/matrix_ops_tests/crs_addition_test.c tests/test_common.c
+        tests/fortran_tests/ftest_multiply.c)
 target_link_libraries(add_crs_test PRIVATE jmtx m)
 add_test(NAME addition_crs COMMAND add_crs_test)
 
 #add_subdirectory(cplot)
 
-add_executable(jacobi_point_test tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
+add_executable(jacobi_point_test tests/solver_tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
 #target_include_directories(jacobi_point_test PRIVATE cplot/include)
 target_link_libraries(jacobi_point_test PRIVATE jmtx m
         #cplot
         )
 add_test(NAME jacobi COMMAND jacobi_point_test)
 
-add_executable(test_fotran tests/ftest_multiply.c tests/test_common.c tests/test_common.h source/f_exper/f_interface.h)
+add_executable(test_fotran tests/fortran_tests/ftest_multiply.c tests/test_common.c tests/test_common.h source/f_exper/f_interface.h)
 target_link_libraries(test_fotran PRIVATE jmtx m)
 
-add_executable(fjacobi_point_test tests/fjacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
+add_executable(fjacobi_point_test tests/fortran_tests/fjacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
 #target_include_directories(jacobi_point_test PRIVATE cplot/include)
 target_link_libraries(fjacobi_point_test PRIVATE jmtx m
         #cplot
@@ -116,12 +116,18 @@ elseif(CMAKE_BUILD_TYPE STREQUAL Release)
 #    target_compile_definitions(jmtx PRIVATE JMTX_NO_VERIFY_PARAMS=1)
 endif ()
 
-add_executable(omp_jacobi_test tests/omp_jacobi_test.c tests/test_common.c)
+add_executable(omp_jacobi_test tests/solver_tests/omp_jacobi_test.c tests/test_common.c)
 target_link_libraries(omp_jacobi_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_jacobi_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_jacobi_test PRIVATE -fopenmp)
 
-add_executable(omp_gauss_test tests/omp_gauss_test.c tests/test_common.c)
+add_executable(omp_gauss_test tests/solver_tests/omp_gauss_test.c tests/test_common.c)
 target_link_libraries(omp_gauss_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_gauss_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_gauss_test PRIVATE -fopenmp)
+
+add_executable(omp_build_test tests/matrix_ops_tests/omp_build_test.c tests/test_common.c)
+target_link_libraries(omp_build_test PRIVATE jmtx gomp)
+target_compile_definitions(omp_build_test PRIVATE JMTX_OPENMP)
+target_compile_options(omp_build_test PRIVATE -fopenmp)
+

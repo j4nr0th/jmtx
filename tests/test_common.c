@@ -152,7 +152,7 @@ void print_crs_matrix(const jmtx_matrix_crs* mtx)
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
             jmtx_matrix_crs_get_entry(mtx, i, j, &x);
-            printf("%g ", x);
+            printf("% 5g ", x);
         }
         printf("] - %u", mtx->end_of_row_offsets[i] - (i ? mtx->end_of_row_offsets[i - 1] : 0));
         printf("\n");

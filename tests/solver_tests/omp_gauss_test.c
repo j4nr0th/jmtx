@@ -2,8 +2,9 @@
 // Created by jan on 22.10.2023.
 //
 #include <omp.h>
-#include "test_common.h"
-#include "../source/solvers/jacobi_point_iteration.h"
+#include <inttypes.h>
+#include "../test_common.h"
+#include "../../source/solvers/gauss_seidel_iteration.h"
 
 enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (1 << 20)};
 
@@ -17,7 +18,7 @@ int main()
     float exact_solution[PROBLEM_DIMS]; // exact solution of u
     float forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all elements are 1)
     float iterative_solution[PROBLEM_DIMS] = {0};
-    float aux_v1[PROBLEM_DIMS], aux_v2[PROBLEM_DIMS];
+    float aux_v1[PROBLEM_DIMS];
 
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
@@ -59,7 +60,8 @@ int main()
     uint32_t iterations = 0;
     float final_err;
     const double t0 = omp_get_wtime();
-    mtx_res = jmtx_jacobi_crs_parallel(mtx, forcing_vector, iterative_solution + 1, 1e-4f, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1, aux_v2);
+    mtx_res = jmtx_gauss_seidel_crs_parallel(
+            mtx, forcing_vector, iterative_solution + 1, 1e-4f, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
