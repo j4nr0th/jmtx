@@ -371,3 +371,102 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
 }
 
 
+
+jmtx_result jmtx_gauss_seidel_crs_parallel(
+        const jmtx_matrix_crs* const mtx, const float* const restrict y, float* const restrict x, float convergence_dif, uint32_t n_max_iter,
+        uint32_t* p_final_iterations, float* p_error_evolution, float* p_final_error, float* const restrict aux_vector)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (mtx->base.cols != mtx->base.rows)
+    {
+        //  Only doing square matrices
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (!y)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!x)
+    {
+//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
+//        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vector)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    //  Length of x and y
+    const uint32_t n = mtx->base.cols;
+    float err;
+    uint32_t n_iterations = 0;
+
+    float mag_y = 0;
+
+#pragma omp parallel default(none) shared(n, err, n_iterations, x, y, mtx, aux_vector, convergence_dif, p_error_evolution, n_max_iter, mag_y)
+    {
+#pragma omp for reduction(+:mag_y) schedule(static)
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            float d;
+            jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+            aux_vector[i] = 1.0f/d;
+            mag_y += y[i] * y[i];
+        }
+
+#pragma omp single
+        {
+            mag_y = sqrtf(mag_y);
+            err = 0;
+        }
+
+        do
+        {
+//#pragma omp barrier
+
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                x[i] = x[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i)) * aux_vector[i];
+            }
+
+#pragma omp master
+            {
+                err = 0;
+            }
+#pragma omp barrier
+
+#pragma omp for reduction(+:err) schedule(static)
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                float val;
+                val = jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i) - y[i];
+                err += val * val;
+            }
+
+#pragma omp master
+            {
+                err = sqrtf(err) / mag_y;
+                if (p_error_evolution)
+                {
+                    p_error_evolution[n_iterations] = err;
+                }
+
+                n_iterations += 1;
+            }
+#pragma omp barrier
+        } while(err > convergence_dif && n_iterations < n_max_iter);
+    }
+
+    if (p_final_iterations) *p_final_iterations = n_iterations;
+    if (p_final_error) *p_final_error = err;
+    return n_iterations == n_max_iter || !isfinite(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+}

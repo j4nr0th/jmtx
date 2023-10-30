@@ -120,3 +120,8 @@ add_executable(omp_jacobi_test tests/omp_jacobi_test.c tests/test_common.c)
 target_link_libraries(omp_jacobi_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_jacobi_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_jacobi_test PRIVATE -fopenmp)
+
+add_executable(omp_gauss_test tests/omp_gauss_test.c tests/test_common.c)
+target_link_libraries(omp_gauss_test PRIVATE jmtx gomp)
+target_compile_definitions(omp_gauss_test PRIVATE JMTX_OPENMP)
+target_compile_options(omp_gauss_test PRIVATE -fopenmp)

@@ -562,8 +562,6 @@ jmtx_result jmtx_jacobi_crs_parallel(
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -573,20 +571,14 @@ jmtx_result jmtx_jacobi_crs_parallel(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!aux_vector1)
@@ -601,7 +593,6 @@ jmtx_result jmtx_jacobi_crs_parallel(
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-//    jmtx_result mtx_res;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     int zero_diag = 0;
@@ -616,7 +607,7 @@ jmtx_result jmtx_jacobi_crs_parallel(
             zero_diag += 1;
             //            return JMTX_RESULT_BAD_MATRIX;
         }
-        x[i] = y[i] / d;
+//        x[i] = y[i] / d;  Leave setting up the initial guess to others
         aux_vector1[i] = 1.0f / d;
         const float mag = y[i] * y[i];
 #pragma omp atomic
@@ -652,25 +643,13 @@ jmtx_result jmtx_jacobi_crs_parallel(
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                float* row_ptr;
-                uint32_t* index_ptr;
-                uint32_t n_elements;
-                jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
-                float res = 0;
-                for (uint32_t j = 0; j < n_elements; ++j)
-                {
-                    res += row_ptr[j] * x0[index_ptr[j]];
-                }
-                //  Multiplication of vector x by D⁻¹
-                x1[i] = x0[i] + (y[i] - res) * aux_vector1[i];
+                x1[i] = x0[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x0, i)) * aux_vector1[i];
             }
 
 #pragma omp for reduction(+:err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                float val;
-                jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
-                val -= y[i];
+                const float val = jmtx_matrix_crs_vector_multiply_row_raw(mtx, x1, i) - y[i];
                 err += val * val;
             }
 
@@ -696,5 +675,5 @@ jmtx_result jmtx_jacobi_crs_parallel(
     if (p_iteration_count) *p_iteration_count = n_iterations;
     if (p_final_error) *p_final_error = err;
 //    LEAVE_FUNCTION();
-    return n_iterations == max_itertations || !isnormal(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+    return n_iterations == max_itertations || !isfinite(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }

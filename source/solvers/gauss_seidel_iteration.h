@@ -57,4 +57,24 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
         uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
+/**
+ * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)
+ * to solve the linear system Ax = y. Uses modified version when running in parallel, randomly reading and writing
+ * updated values, which (in best case) give same behaviour as Gauss-Seidel, but in worst case lead to behaviour as
+ * expected by Point Jacobi.
+ * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
+ * @param y pointer to the memory where the vector y is stored
+ * @param x pointer to the memory where the solution vector x will be stored
+ * @param convergence_dif when the ratio ||Ax|| / ||y|| is less than this value, iterations stop
+ * @param n_max_iter maximum number of iterations to perform before giving up
+ * @param p_final_iterations pointer which if not null receives the number of iterations that were performed
+ * @param p_final_error pointer which receives the final error (may be null)
+ * @param p_error_evolution pointer to array of error evolution (may be null)
+ * @param aux_vector memory the size of vectors x and y to use as additional memory
+ * @return zero if successful
+ */
+jmtx_result jmtx_gauss_seidel_crs_parallel(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif, uint32_t n_max_iter,
+        uint32_t* p_final_iterations, float* p_error_evolution, float* p_final_error, float* aux_vector);
+
 #endif //JMTX_GAUSS_SEIDEL_ITERATION_H
