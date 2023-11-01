@@ -6,6 +6,7 @@ static const char* const jmtx_result_string_array[JMTX_RESULT_COUNT] =
         {
                 [JMTX_RESULT_SUCCESS] = "Success",    //  All is good
                 [JMTX_RESULT_NOT_CONVERGED] = "Iteration did not converge within the given time",      //  Iteration didn't converge
+                [JMTX_RESULT_STAGNATED] = "Improvement between operations was too low", //  Iteration slowed down
                 [JMTX_RESULT_BAD_ALLOC] = "Memory allocation did not succeed",          //  memory allocator being a cunt
                 [JMTX_RESULT_BAD_THREAD] = "Thread creation failed",         //  Couldn't create a thread
                 [JMTX_RESULT_WRONG_TYPE] = "Wrong matrix type was passed",         //  Matrix has the wrong storage type (e.g.: ccs instead of crs)
@@ -14,7 +15,7 @@ static const char* const jmtx_result_string_array[JMTX_RESULT_COUNT] =
                 [JMTX_RESULT_BAD_PARAM] = "Parameter had an invalid value",          //  Parameter had a bad value
                 [JMTX_RESULT_NULL_PARAM] = "Parameter was null",         //  Parameter was null
                 [JMTX_RESULT_BAD_MATRIX] = "Matrix could not be handled by the iterative solver",   //  Matrix is fucked
-                [JMTX_RESULT_UNARY_RETURN] = "Unary function returned non-zero"
+                [JMTX_RESULT_UNARY_RETURN] = "Unary function returned non-zero",
         };
 
 const char* jmtx_result_to_str(jmtx_result res)

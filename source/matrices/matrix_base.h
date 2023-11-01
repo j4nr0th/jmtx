@@ -17,6 +17,7 @@ enum jmtx_result_enum
     JMTX_RESULT_SUCCESS         = 0,    //  All is good
 
     JMTX_RESULT_NOT_CONVERGED,      //  Iteration didn't converge
+    JMTX_RESULT_STAGNATED,          //  Iterations stagnated
     JMTX_RESULT_BAD_ALLOC,          //  memory allocator being a cunt
     JMTX_RESULT_BAD_THREAD,         //  Couldn't create a thread
     JMTX_RESULT_WRONG_TYPE,         //  Matrix has the wrong storage type (e.g.: ccs instead of crs)

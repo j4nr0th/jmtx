@@ -47,7 +47,9 @@ add_library(jmtx
         ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
         ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
         ${FORTRAN_SOURCE_FILES}
-          )
+        source/solvers/conjugate_gradient_iteration.c
+        source/solvers/conjugate_gradient_iteration.h
+)
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
 #target_link_libraries(test_mtx m pthread)
@@ -130,4 +132,9 @@ add_executable(omp_build_test tests/matrix_ops_tests/omp_build_test.c tests/test
 target_link_libraries(omp_build_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_build_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_build_test PRIVATE -fopenmp)
+
+add_executable(omp_cg_test tests/solver_tests/omp_cg_test.c tests/test_common.c)
+target_link_libraries(omp_cg_test PRIVATE jmtx gomp)
+target_compile_definitions(omp_cg_test PRIVATE JMTX_OPENMP)
+target_compile_options(omp_cg_test PRIVATE -fopenmp)
 
