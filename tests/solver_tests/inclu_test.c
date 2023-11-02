@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include "../test_common.h"
 #include "../../source/solvers/incomplete_lu_decomposition.h"
+#include "../../source/matrices/sparse_multiplication.h"
 
 enum
 {
-    PROBLEM_SIZE_X = 4, PROBLEM_SIZE_Y = 4,
+    PROBLEM_SIZE_X = 5, PROBLEM_SIZE_Y = 5,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
@@ -105,7 +106,7 @@ int main()
     uint32_t n_iterations;
     float final_error;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(mtx, &lower, &upper, 1e-4f, 2, &final_error, &n_iterations, NULL));
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(mtx, &lower, &upper, 1e-4f, 32, &final_error, &n_iterations, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
@@ -118,7 +119,15 @@ int main()
     printf("Decomposed upper triangular matrix:\n");
     print_ccs_matrix(upper);
 
+    printf("Product of the incomplete decomposition:\n");
+    jmtx_matrix_crs* recon = NULL;
+    MATRIX_TEST_CALL(jmtx_matrix_multiply_crs(lower, upper, &recon, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    print_crs_matrix(recon);
 
+
+    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(recon));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(lower));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtx_matrix_ccs_destroy(upper));

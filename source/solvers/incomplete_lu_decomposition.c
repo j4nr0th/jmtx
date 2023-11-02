@@ -14,7 +14,6 @@ jmtx_result jmtx_incomplete_lu_crs(
         jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
         float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    (void) convergence;
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -177,10 +176,6 @@ jmtx_result jmtx_incomplete_lu_crs(
             goto failed;
         }
     }
-    allocator_callbacks->free(allocator_callbacks->state, column_values);
-    allocator_callbacks->free(allocator_callbacks->state, column_indices);
-    column_values = NULL;
-    column_indices = NULL;
     //  Begin to iteratively refine the matrix entries
     //  In this section it is fine to modify entries in the matrix without synchronizing access, since the entries 
     //  always get updated in-place, meaning that there is no moving of memory, just overwriting the same spot. 
@@ -192,27 +187,28 @@ jmtx_result jmtx_incomplete_lu_crs(
     while (iteration_count < max_iterations)
     {
         max_relative_change = 0;
-        //  Loop over every row of A and update it
-        for (int p = 0; p < (int)n; ++p)
+        //  Loop over every row/column pair of A and update it
+        for (uint32_t p = 0; p < n; ++p)
         {
             //  Update the p-th row of L
-
-            for (int m = 0; m < p; ++m)
+            uint32_t n_items;
+            uint32_t* positions;
+            float* values;
+            jmtx_matrix_crs_get_row(a, p, &n_items, &positions, &values);
+            for (uint32_t r = 0; r < n_items && (int)positions[r] < (int)p; ++r)
             {
+                const uint32_t m = positions[r];
                 float v = 0;
-                float va = 0;
-                jmtx_matrix_crs_get_entry(a, p, m, &va);
-                if (va == 0.0f)
-                {
-                    continue;
-                }
+                float va = values[r];
+                assert(va != 0.0f);
+
                 uint32_t l_row_count, u_col_count;
                 uint32_t* l_col_indices, * u_row_indices;
                 float* l_val, *u_val;
                 jmtx_matrix_crs_get_row(l, p, &l_row_count, &l_col_indices, &l_val);
                 jmtx_matrix_ccs_get_col(u, m, &u_col_count, &u_row_indices, &u_val);
-                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && (int)l_col_indices[k_l] < m &&
-                        (int)u_row_indices[k_u] < m;)
+                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && l_col_indices[k_l] < m &&
+                        u_row_indices[k_u] < m;)
                 {
                     if (l_col_indices[k_l] == u_row_indices[k_u])
                     {
@@ -230,32 +226,37 @@ jmtx_result jmtx_incomplete_lu_crs(
                         k_u += 1;
                     }
                 }
-                assert((int)u_row_indices[u_col_count - 1] == m);
-                v = (v - va) / u_val[u_col_count - 1];
+                assert(u_row_indices[u_col_count - 1] == m);
+                v = (va - v) / u_val[u_col_count - 1];
                 const float relative_change = fabsf((v - va) / va);
                 if (relative_change > max_relative_change)
                 {
                     max_relative_change = relative_change;
                 }
+#ifndef NDEBUG
+                float v1;
+                jmtx_matrix_crs_get_entry(l, p, m, &v1);
+                assert(v1 != 0.0f);
+#endif
                 jmtx_matrix_crs_set_entry(l, p, m, v);
             }
 
-            for (int m = 0; m < p + 1; ++m)
+            //  Update the p-th column of U
+            jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, &n_items, column_values, column_indices);
+            for (uint32_t r = 0; r < n_items && column_indices[r] < p + 1; ++r)
             {
+                const uint32_t m = column_indices[r];
                 float v = 0;
-                float va = 0;
+                float va = column_values[r];
+                assert(va != 0.0f);
                 uint32_t l_row_count, u_col_count;
                 uint32_t* l_col_indices, * u_row_indices;
                 float* l_val, *u_val;
-                jmtx_matrix_crs_get_entry(a, m, p, &va);
-                if (va == 0.0f)
-                {
-                    continue;
-                }
+                assert(va != 0.0f);
                 jmtx_matrix_crs_get_row(l, m, &l_row_count, &l_col_indices, &l_val);
                 jmtx_matrix_ccs_get_col(u, p, &u_col_count, &u_row_indices, &u_val);
-                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && (int)l_col_indices[k_l] < m &&
-                        (int)u_row_indices[k_u] < m;)
+                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && l_col_indices[k_l] < m &&
+                        u_row_indices[k_u] < m;)
                 {
                     if (l_col_indices[k_l] == u_row_indices[k_u])
                     {
@@ -273,12 +274,17 @@ jmtx_result jmtx_incomplete_lu_crs(
                         k_u += 1;
                     }
                 }
-                v = (v - va);
+                v = (va - v);
                 const float relative_change = fabsf((v - va) / va);
                 if (relative_change > max_relative_change)
                 {
                     max_relative_change = relative_change;
                 }
+#ifndef NDEBUG
+                float v1;
+                jmtx_matrix_ccs_get_entry(u, m, p, &v1);
+                assert(v1 != 0.0f);
+#endif
                 jmtx_matrix_ccs_set_entry(u, m, p, v);
             }
         }
@@ -291,6 +297,10 @@ jmtx_result jmtx_incomplete_lu_crs(
         }
         iteration_count += 1;
     }
+    allocator_callbacks->free(allocator_callbacks->state, column_values);
+    allocator_callbacks->free(allocator_callbacks->state, column_indices);
+    column_values = NULL;
+    column_indices = NULL;
 
     *p_u = u;
     *p_l = l;
