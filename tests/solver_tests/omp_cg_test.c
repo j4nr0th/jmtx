@@ -6,7 +6,7 @@
 #include "../test_common.h"
 #include "../../source/solvers/conjugate_gradient_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS};
+enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 4};
 
 int main()
 {
@@ -60,18 +60,25 @@ int main()
         ASSERT(mtx_res == (jmtx_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
 //    print_crs_matrix(mtx);
-    uint32_t iterations = 0;
+    uint32_t iterations = 0, total_iterations = 0;
     float final_err;
-    const double t0 = omp_get_wtime();
-    mtx_res = jmtx_conjugate_gradient_crs_parallel(
-            mtx, forcing_vector, iterative_solution + 1, 1e-4f, 1e-6f, 0, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1, aux_v2, aux_v3);
-    const double t1 = omp_get_wtime();
-    printf("Solution took %g seconds for a problem of size %d (outcome: %s)\n", t1 - t0, PROBLEM_DIMS,
-           jmtx_result_to_str(mtx_res));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
+    double total_time = 0;
+    for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
+    {
+        const double t0 = omp_get_wtime();
+        mtx_res = jmtx_conjugate_gradient_crs_parallel(
+                mtx, forcing_vector, iterative_solution + 1, 1e-4f, 1e-6f, 1, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1, aux_v2, aux_v3);
+        const double t1 = omp_get_wtime();
+        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, iterations, PROBLEM_DIMS,
+               jmtx_result_to_str(mtx_res), final_err);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
+        total_iterations += iterations;
+        total_time += t1 - t0;
+    }
+
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
-    printf("Iterative solution had final residual ratio of %g after %u iterations\n", final_err, iterations);
+    printf("Iterative solution had final residual ratio of %g after %u iterations\n", final_err, total_iterations);
 
 //    for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
 //    {

@@ -201,7 +201,8 @@ int main()
     }
 
     jmtx_matrix_crs* joined;
-    MATRIX_TEST_CALL(jmtx_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS, mtx_array));
+    MATRIX_TEST_CALL(jmtx_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS,
+                                                     (const jmtx_matrix_crs**) mtx_array));
     const double t1_par_inner = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 

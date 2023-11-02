@@ -6,7 +6,7 @@
 #include "../test_common.h"
 #include "../../source/solvers/gauss_seidel_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (1 << 20)};
+enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (1 << 14)};
 
 int main()
 {

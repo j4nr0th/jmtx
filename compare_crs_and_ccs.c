@@ -19,7 +19,7 @@ int main()
     jmtx_matrix_crs* crs_matrix_1;
     jmtx_matrix_crs* crs_matrix_2;
     jmtx_matrix_crs_new(&crs_matrix_1, TEST_MATRIX_MINOR_DIM, TEST_MATRIX_MAJOR_DIM, 0, NULL);
-    jmtx_matrix_ccs ccs_matrix_1;
+    jmtx_matrix_ccs* ccs_matrix_1;
 //    jmtx_matrix_ccs ccs_matrix_2;
     jmtx_matrix_ccs_new(&ccs_matrix_1, TEST_MATRIX_MAJOR_DIM, TEST_MATRIX_MINOR_DIM, 0, NULL);
 
@@ -35,17 +35,17 @@ int main()
             ind[j] = j + (TEST_MATRIX_MINOR_DIM - n_elements) / 2;
         }
         jmtx_matrix_crs_set_row(crs_matrix_1, i, n_elements, ind, val);
-        jmtx_matrix_ccs_set_col(&ccs_matrix_1, i, n_elements, ind, val);
+        jmtx_matrix_ccs_set_col(ccs_matrix_1, i, n_elements, ind, val);
     }
 
 //    print_crs_matrix(crs_matrix_1);
 //    print_ccs_matrix(&ccs_matrix_1);
 
     jmtx_matrix_crs_shrink(crs_matrix_1);
-    jmtx_matrix_ccs_shrink(&ccs_matrix_1);
+    jmtx_matrix_ccs_shrink(ccs_matrix_1);
 
     jmtx_matrix_crs_vector_multiply(crs_matrix_1, X, Y_crs);
-    jmtx_matrix_ccs_vector_multiply(&ccs_matrix_1, X, Y_ccs);
+    jmtx_matrix_ccs_vector_multiply(ccs_matrix_1, X, Y_ccs);
 
     float residual = 0.0f;
     for (uint32_t i = 0; i < TEST_MATRIX_MAJOR_DIM; ++i)
@@ -63,7 +63,7 @@ int main()
         {
             float x1, x2;
             jmtx_matrix_crs_get_entry(crs_matrix_2, i, j, &x1);
-            jmtx_matrix_ccs_get_element(&ccs_matrix_1, i, j, &x2);
+            jmtx_matrix_ccs_get_element(ccs_matrix_1, i, j, &x2);
             residual += fabsf(x1 - x2);
         }
     }
@@ -73,7 +73,7 @@ int main()
 
     jmtx_matrix_crs_destroy(crs_matrix_2);
     jmtx_matrix_crs_destroy(crs_matrix_1);
-    jmtx_matrix_ccs_destroy(&ccs_matrix_1);
+    jmtx_matrix_ccs_destroy(ccs_matrix_1);
     return 0;
 }
 

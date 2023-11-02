@@ -7,6 +7,7 @@
 #include "../source/matrices/sparse_column_compressed.h"
 #include <stdio.h>
 #include "../source/matrices/sparse_row_compressed_internal.h"
+#include "../source/matrices/sparse_column_compressed_internal.h"
 
 
 fRNG fRNG_create(uint64_t seed)

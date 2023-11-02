@@ -6,8 +6,6 @@
 #define JMTX_SPARSE_COLUMN_COMPRESSED_H
 #include "matrix_base.h"
 
-//  TODO: check if refactoring and getting rid of calloc broke anything, due to memory no longer being zeroed before use
-
 //  IMPORTANT:
 //  These functions are not safe in the slightest. They perform zero checking at the moment (should probably be done as
 //  with macros if _DEBUG is defined and/or NDEBUG is not defined
@@ -36,19 +34,6 @@
 
 typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
 
-struct jmtx_matrix_ccs_struct
-{
-    jmtx_matrix base;
-    //  How many elements exist in the columns left, so that column i is from index elements_before[i] ot elements_before[i + 1]
-    uint32_t* elements_before;
-    //  Column indices corresponding with the individual elements
-    uint32_t* indices;
-    //  Values of elements
-    float* elements;
-    uint32_t capacity;
-    uint32_t n_elements;
-};
-
 /**
  * Initializes a new Compressed Column Sparse matrix
  * @param mtx pointer to memory where the matrix should be initialized
@@ -58,7 +43,7 @@ struct jmtx_matrix_ccs_struct
  * @return zero if successful
  */
 jmtx_result jmtx_matrix_ccs_new(
-        jmtx_matrix_ccs* mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
+        jmtx_matrix_ccs** mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -204,7 +189,8 @@ jmtx_result jmtx_matrix_ccs_get_row(const jmtx_matrix_ccs* mtx, uint32_t row, ui
  * @param out pointer to the memory where the output matrix will be stored
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* restrict mtx, jmtx_matrix_ccs* restrict out);
+jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* mtx, jmtx_matrix_ccs** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Creates a copy of the matrix
@@ -212,5 +198,5 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* restrict mtx, jmtx_
  * @param out pointer to the memory where the output matrix will be stored
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* restrict mtx, jmtx_matrix_ccs* restrict out);
+jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* restrict mtx, jmtx_matrix_ccs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
 #endif //JMTX_SPARSE_COLUMN_COMPRESSED_H

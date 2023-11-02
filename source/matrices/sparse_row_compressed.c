@@ -609,7 +609,6 @@ jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, ui
         return JMTX_RESULT_NULL_PARAM;
     }
 #endif
-
     jmtx_result res = JMTX_RESULT_SUCCESS;
     uint32_t* row_indices;
     float* row_values;
@@ -1058,7 +1057,9 @@ jmtx_result jmtx_matrix_crs_transpose(
     out->end_of_row_offsets = column_cum_counts;
     out->values = new_values;
     out->indices = new_indices;
+    out->n_entries = n_elements;
     out->capacity = n_elements;
+    out->base = mtx->base;
     out->base.rows = new_rows;
     out->base.cols = new_cols;
     out->base.allocator_callbacks = *allocator_callbacks;

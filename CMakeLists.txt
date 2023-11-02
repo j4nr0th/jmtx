@@ -49,6 +49,8 @@ add_library(jmtx
         ${FORTRAN_SOURCE_FILES}
         source/solvers/conjugate_gradient_iteration.c
         source/solvers/conjugate_gradient_iteration.h
+        source/solvers/incomplete_lu_decomposition.c
+        source/solvers/incomplete_lu_decomposition.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -81,7 +83,7 @@ add_executable(old_crs_demo run_crs_tests.c tests/test_common.c)
 target_link_libraries(old_crs_demo PRIVATE jmtx m)
 add_test(NAME old_crs COMMAND old_crs_demo)
 
-add_executable(old_ccs_demo run_ccs_tests.c)
+add_executable(old_ccs_demo run_ccs_tests.c tests/test_common.c)
 target_link_libraries(old_ccs_demo PRIVATE jmtx m)
 add_test(NAME old_ccs COMMAND old_ccs_demo)
 
@@ -89,8 +91,7 @@ add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
 target_link_libraries(old_compare_demo PRIVATE jmtx m)
 add_test(NAME old_compare COMMAND old_compare_demo)
 
-add_executable(add_crs_test tests/matrix_ops_tests/crs_addition_test.c tests/test_common.c
-        tests/fortran_tests/ftest_multiply.c)
+add_executable(add_crs_test tests/matrix_ops_tests/crs_addition_test.c tests/test_common.c)
 target_link_libraries(add_crs_test PRIVATE jmtx m)
 add_test(NAME addition_crs COMMAND add_crs_test)
 
@@ -122,19 +123,23 @@ add_executable(omp_jacobi_test tests/solver_tests/omp_jacobi_test.c tests/test_c
 target_link_libraries(omp_jacobi_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_jacobi_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_jacobi_test PRIVATE -fopenmp)
+add_test(NAME omp_jacobi COMMAND omp_jacobi_test)
 
 add_executable(omp_gauss_test tests/solver_tests/omp_gauss_test.c tests/test_common.c)
 target_link_libraries(omp_gauss_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_gauss_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_gauss_test PRIVATE -fopenmp)
+add_test(NAME omp_gauss COMMAND omp_gauss_test)
 
 add_executable(omp_build_test tests/matrix_ops_tests/omp_build_test.c tests/test_common.c)
 target_link_libraries(omp_build_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_build_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_build_test PRIVATE -fopenmp)
+add_test(NAME omp_build COMMAND omp_build_test)
 
 add_executable(omp_cg_test tests/solver_tests/omp_cg_test.c tests/test_common.c)
 target_link_libraries(omp_cg_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_cg_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_cg_test PRIVATE -fopenmp)
+add_test(NAME omp_cg COMMAND omp_cg_test)
 
