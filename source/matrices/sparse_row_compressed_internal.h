@@ -8,11 +8,11 @@
 struct jmtx_matrix_crs_struct
 {
     jmtx_matrix base;
-    //  end_of_row_offsets[i] has the number of elements are there before the end of the row i
+    //  end_of_row_offsets[i] has the number of values are there before the end of the row i
     uint32_t* end_of_row_offsets;
-    //  Column indices corresponding with the individual elements
+    //  Column indices corresponding with the individual values
     uint32_t* indices;
-    //  Values of elements
+    //  Values of values
     float* values;
     uint32_t n_entries;
     uint32_t capacity;

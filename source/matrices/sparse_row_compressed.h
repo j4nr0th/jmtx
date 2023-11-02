@@ -87,9 +87,9 @@ jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32
  * Returns the pointers to arrays of column indices and element values for that row
  * @param mtx pointer to the memory where the matrix is stored
  * @param row index of the row to get
- * @param n pointer which receives the number of elements in the row
- * @param p_indices pointer to column indices of elements
- * @param p_elements pointer to values of elements
+ * @param n pointer which receives the number of values in the row
+ * @param p_indices pointer to column indices of values
+ * @param p_elements pointer to values of values
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* n, uint32_t** p_indices, float** p_elements);
@@ -148,7 +148,7 @@ jmtx_result jmtx_matrix_crs_beef_check(const jmtx_matrix_crs* mtx, int* p_beef_s
  * Applies a unary function on the sparse matrix, only on its stored entries, which can be modified. If the user given
  * user function returns a non-zero value, that value is returned from the function and the iteration is stopped
  * @param mtx pointer to the memory where the matrix is stored
- * @param unary_fn user given function that is to be applied on the elements
+ * @param unary_fn user given function that is to be applied on the values
  * @param param optional parameter, which is passed to the unary_fn when called
  * @return JMTX_RESULT_SUCCESS if successful, if the user function returns non-zero, that value is returned instead
  */
@@ -205,9 +205,9 @@ jmtx_result jmtx_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t 
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
- * @param n number of elements in the column to be extracted
- * @param p_values a buffer of at least n elements which receives the values of the column
- * @param p_rows a buffer of at least n elements which receives the row indices of the column
+ * @param n number of values in the column to be extracted
+ * @param p_values a buffer of at least n values which receives the values of the column
+ * @param p_rows a buffer of at least n values which receives the row indices of the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtx_matrix_crs_get_col(

@@ -16,7 +16,7 @@ int main()
     //  Problem to solve is d^2/dx^2 (u) = 1, with u(0) = 0 and u(1) = 0, on x in (0, 1)
     //  Exact solution is u(x) = x * (x - 1) / 2
     float exact_solution[PROBLEM_DIMS]; // exact solution of u
-    float forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all elements are 1)
+    float forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all values are 1)
     float iterative_solution[PROBLEM_DIMS] = {0};
     float aux_v1[PROBLEM_DIMS];
 

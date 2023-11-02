@@ -8,13 +8,13 @@
 struct jmtx_matrix_ccs_struct
 {
     jmtx_matrix base;
-    //  How many elements exist in the columns left, so that column i is from index elements_before[i] ot elements_before[i + 1]
-    uint32_t* elements_before;
-    //  Column indices corresponding with the individual elements
+    //  How many values exist in the columns left, so that column i is from index end_of_column_offsets[i] ot end_of_column_offsets[i + 1]
+    uint32_t* end_of_column_offsets;
+    //  Column indices corresponding with the individual values
     uint32_t* indices;
-    //  Values of elements
-    float* elements;
+    //  Values of values
+    float* values;
     uint32_t capacity;
-    uint32_t n_elements;
+    uint32_t n_entries;
 };
 #endif //JMTX_SPARSE_COLUMN_COMPRESSED_INTERNAL_H

@@ -164,21 +164,21 @@ void print_crs_matrix(const jmtx_matrix_crs* mtx)
 
 void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
 {
-    printf("elements:");
-    for (uint32_t i = 0, l = 0; i < mtx->n_elements; ++i)
+    printf("values:");
+    for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
     {
-        if (l < mtx->base.rows && mtx->elements_before[l + 1] <= i + 1)
+        if (l < mtx->base.rows && mtx->end_of_column_offsets[l + 1] <= i + 1)
         {
             l += 1;
         }
-        printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->elements[i + 1]);
+        printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->values[i + 1]);
     }
     printf("\nelement offsets:");
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        printf(" %u,", mtx->elements_before[i]);
+        printf(" %u,", mtx->end_of_column_offsets[i]);
     }
-    printf(" %u", mtx->elements_before[mtx->base.rows]);
+    printf(" %u", mtx->end_of_column_offsets[mtx->base.rows]);
     printf("\nMatrix:\n[");
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
@@ -194,7 +194,7 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
             printf("%g ", x);
         }
         jmtx_matrix_ccs_get_element(mtx, i, mtx->base.cols - 1, &x);
-        printf("%g] - %u", x, mtx->elements_before[i + 1] - mtx->elements_before[i]);
+        printf("%g] - %u", x, mtx->end_of_column_offsets[i + 1] - mtx->end_of_column_offsets[i]);
         if (i != mtx->base.rows - 1) printf("\n");
     }
 

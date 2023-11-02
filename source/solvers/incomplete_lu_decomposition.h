@@ -17,7 +17,7 @@
  */
 
 jmtx_result jmtx_incomplete_lu_crs(jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_crs** p_u, float stagnation,
-                                   uint32_t max_iterations, jmtx_allocator_callbacks* allocator_callbacks);
+                                   uint32_t max_iterations, const jmtx_allocator_callbacks* allocator_callbacks);
 
 
 

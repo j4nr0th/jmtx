@@ -39,11 +39,11 @@ typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
  * @param mtx pointer to memory where the matrix should be initialized
  * @param columns number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
- * @param reserved_elements how many elements should the space be reserved for in the matrix intialliy
+ * @param reserved_entries how many values should the space be reserved for in the matrix intialliy
  * @return zero if successful
  */
 jmtx_result jmtx_matrix_ccs_new(
-        jmtx_matrix_ccs** mtx, uint32_t columns, uint32_t rows, uint32_t reserved_elements,
+        jmtx_matrix_ccs** mtx, uint32_t columns, uint32_t rows, uint32_t reserved_entries,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -65,26 +65,39 @@ jmtx_result jmtx_matrix_ccs_shrink(jmtx_matrix_ccs* mtx);
  * minimum amount of memory allocation.
  * @param mtx pointer to the memory where the matrix is stored
  * @param col index of the column to set
- * @param n how many elements are in the column
- * @param indices column indices of the elements, which has to be sorted from lowest to highest
- * @param elements values of non-zero elements
+ * @param n how many values are in the column
+ * @param indices column indices of the values, which has to be sorted from lowest to highest
+ * @param values values of non-zero values
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const float* elements);
+jmtx_result jmtx_matrix_ccs_set_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const float* values);
+
+/**
+ * Version of jmtx_matrix_ccs_set_col which does not touch the count of entries after the current column. This is useful
+ * when building a new matrix, as it avoids unnecessary setting and resetting of these entries. Must be called for each
+ * column in order to ensure that the matrix is properly built. Makes no checks on the input parameters
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param col index of the column to set
+ * @param n how many entries are in the column
+ * @param indices row indices of the values, which has to be sorted from lowest to highest
+ * @param values values of non-zero values
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
+ */
+jmtx_result jmtx_matrix_ccs_build_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const float* values);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that column
  * @param mtx pointer to the memory where the matrix is stored
  * @param col index of the column to get
- * @param n pointer which receives the number of elements in the column
- * @param p_indices pointer to column indices of elements
- * @param p_elements pointer to values of elements
+ * @param n pointer which receives the number of values in the column
+ * @param p_indices pointer to column indices of values
+ * @param p_elements pointer to values of values
  * @return zero if successful
  */
 jmtx_result jmtx_matrix_ccs_get_col(const jmtx_matrix_ccs* mtx, uint32_t col, uint32_t* n, uint32_t** p_indices, float** p_elements);
 
 /**
- * Multiplies a dense row vector x by the sparse matrix and stores the result at y
+ * Multiplies a dense <b>row</b> vector x by the sparse matrix and stores the result at y
  * @param mtx pointer to the memory where the matrix is stored
  * @param x pointer to vector to be multiplied
  * @param y pointer to vector where the result of multiplication is to be stored
@@ -98,23 +111,23 @@ jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const fl
  * @param mtx pointer to the memory where the matrix is stored
  * @param i row index
  * @param j column index
- * @param x value to which the value is set
+ * @param value value to which the value is set
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float x);
+jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Returns a single element from the matrix.
  * @param mtx pointer to the memory where the matrix is stored
  * @param i row index
  * @param j column index
- * @param x pointer which receives the value
+ * @param p_value pointer which receives the value
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* x);
+jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* p_value);
 
 /**
- * Checks if the matrix for errors and misplaced elements. Essentially checks if there is 0xDEADBEEF in the matrix
+ * Checks if the matrix for errors and misplaced values. Essentially checks if there is 0xDEADBEEF in the matrix
  * @param mtx pointer to the memory where the matrix is stored
  * @param p_beef_status pointer which receives the value of the beef_status (high 4 bytes is the beef count, low 4 bytes
  * are BEEF)
@@ -126,21 +139,21 @@ jmtx_result jmtx_matrix_ccs_beef_check(const jmtx_matrix_ccs* mtx, int* p_beef_s
  * Applies a unary function on the sparse matrix, only on its stored entries, which can be modified. If the user given
  * user function returns a non-zero value, that value is returned from the function and the iteration is stopped
  * @param mtx pointer to the memory where the matrix is stored
- * @param unary_fn user given function that is to be applied on the elements
+ * @param unary_fn user given function that is to be applied on the values
  * @param param optional parameter, which is passed to the unary_fn when called
  * @return zero if successful, if the user function returns non-zero, that value is returned instead
  */
 jmtx_result jmtx_matrix_ccs_apply_unary_fn(const jmtx_matrix_ccs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, float* p_element, void* param), void* param);
 
 /**
- * Removes elements exactly equal to zero. If the element is indeed zero, it is compared to (scalar_t)0.0
+ * Removes values exactly equal to zero. If the element is indeed zero, it is compared to (scalar_t)0.0
  * @param mtx pointer to the memory where the matrix is stored
  * @return zero if successful
  */
 jmtx_result jmtx_matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx);
 
 /**
- * Removes elements which have absolute value less than specified value
+ * Removes values which have absolute value less than specified value
  * @param mtx pointer to the memory where the matrix is stored
  * @param v value to which to compare it to
  * @return zero if successful
@@ -148,7 +161,7 @@ jmtx_result jmtx_matrix_ccs_remove_zeros(jmtx_matrix_ccs* mtx);
 jmtx_result jmtx_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, float v);
 
 /**
- * Zeros all elements within a matrix, but does not remove them in case they need to be reused
+ * Zeros all values within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  * @return JMTX_RESULT_SUCCESS if successful
  */
@@ -164,24 +177,25 @@ jmtx_result jmtx_matrix_ccs_zero_all_elements(jmtx_matrix_ccs* mtx);
 jmtx_result jmtx_matrix_ccs_set_all_elements(jmtx_matrix_ccs* mtx, float x);
 
 /**
- * Returns the number of elements in the column of the matrix
+ * Returns the number of values in the column of the matrix
  * @param mtx pointer to the memory where the matrix is stored
  * @param row column index of the matrix to look at
- * @param p_n pointer to integer which receives the number of elements in the column
+ * @param p_n pointer to integer which receives the number of values in the column
  * @return zero if successful
  */
 jmtx_result jmtx_matrix_ccs_elements_in_row(const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t* p_n);
 
 /**
- * Returns the values of elements in the matrix, along with what column of the matrix they were located in
+ * Returns the values of values in the matrix, along with what column of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param row column index of the matrix to look at
- * @param n number of elements in the column to be extracted
- * @param p_elements a buffer of at least n elements which receives the values of the column
- * @param p_cols a buffer of at least n elements which receives the column indices of the column
+ * @param n number of values in the column to be extracted
+ * @param p_values a buffer of at least n values which receives the values of the column
+ * @param p_count a buffer of at least n values which receives the column indices of the column
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_get_row(const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t n, float* p_elements, uint32_t* p_cols);
+jmtx_result jmtx_matrix_ccs_get_row(
+        const jmtx_matrix_ccs* mtx, uint32_t row, uint32_t n, float* p_values, uint32_t* p_count, uint32_t* p_columns);
 
 /**
  * Creates a transpose of a matrix
