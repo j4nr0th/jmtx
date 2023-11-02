@@ -399,7 +399,7 @@ jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const fl
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float value)
+jmtx_result jmtx_matrix_ccs_set_entry(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float value)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -458,7 +458,7 @@ jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32
     return res;
 }
 
-jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* p_value)
+jmtx_result jmtx_matrix_ccs_get_entry(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* p_value)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)

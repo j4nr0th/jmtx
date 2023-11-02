@@ -114,7 +114,7 @@ jmtx_result jmtx_matrix_ccs_vector_multiply(const jmtx_matrix_ccs* mtx, const fl
  * @param value value to which the value is set
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float value);
+jmtx_result jmtx_matrix_ccs_set_entry(jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Returns a single element from the matrix.
@@ -124,7 +124,7 @@ jmtx_result jmtx_matrix_ccs_set_element(jmtx_matrix_ccs* mtx, uint32_t i, uint32
  * @param p_value pointer which receives the value
  * @return zero if successful
  */
-jmtx_result jmtx_matrix_ccs_get_element(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* p_value);
+jmtx_result jmtx_matrix_ccs_get_entry(const jmtx_matrix_ccs* mtx, uint32_t i, uint32_t j, float* p_value);
 
 /**
  * Checks if the matrix for errors and misplaced values. Essentially checks if there is 0xDEADBEEF in the matrix

@@ -6,9 +6,7 @@
 #include "sparse_row_compressed.h"
 #include "sparse_row_compressed_internal.h"
 
-#define DEFAULT_RESERVED_ELEMENTS 64
-
-#define FILL_VALUE 0xDEADBEEF
+enum{DEFAULT_RESERVED_ELEMENTS = 64, FILL_VALUE = 0xDEADBEEF};
 
 static void beef_it_up(float* ptr, size_t elements)
 {
@@ -96,7 +94,7 @@ static jmtx_result crs_insert_entry_at(jmtx_matrix_crs* mtx, uint32_t row, uint3
         }
         mtx->indices = new_indices;
 
-#if !defined(JMTX_NO_VERIFY_PARAMS) || !defined(NDEBUG)
+#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
         //  Beef it up!
         beef_it_up(new_values + mtx->capacity, new_capacity - mtx->capacity);
         beef_it_up((float*)(new_indices + mtx->capacity), new_capacity - mtx->capacity);
@@ -207,7 +205,7 @@ jmtx_result jmtx_matrix_crs_new(
     }
     memset(offsets, 0, (rows) * sizeof(*offsets));
 
-#if defined(JMTX_NO_VERIFY_PARAMS) || !defined(NDEBUG)
+#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
     beef_it_up(values, reserved_entries);
     static_assert(sizeof(float) == sizeof(uint32_t), "element and index sizes must be the same");
     beef_it_up((float*)indices, reserved_entries);

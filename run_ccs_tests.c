@@ -56,14 +56,14 @@ int main()
 
 
     uint32_t funny = 0;
-    jmtx_matrix_ccs_set_element(matrix, 1, 9, -100);
-    jmtx_matrix_ccs_set_element(matrix, 6, 9, -200);
-    jmtx_matrix_ccs_set_element(matrix, 2, 24, -300);
+    jmtx_matrix_ccs_set_entry(matrix, 1, 9, -100);
+    jmtx_matrix_ccs_set_entry(matrix, 6, 9, -200);
+    jmtx_matrix_ccs_set_entry(matrix, 2, 24, -300);
     jmtx_matrix_ccs_apply_unary_fn(matrix, make_the_values_funnier, &funny);
-    jmtx_matrix_ccs_set_element(matrix, 2, 9, -400);
+    jmtx_matrix_ccs_set_entry(matrix, 2, 9, -400);
     jmtx_matrix_ccs_shrink(matrix);
-    jmtx_matrix_ccs_set_element(matrix, 2, 1, -400);
-    jmtx_matrix_ccs_set_element(matrix, 20, 1, -400);
+    jmtx_matrix_ccs_set_entry(matrix, 2, 1, -400);
+    jmtx_matrix_ccs_set_entry(matrix, 20, 1, -400);
     printf("\n\nBREAK 1\n");
     print_ccs_matrix(matrix);
     printf("Column 2 is:\n");
@@ -132,13 +132,13 @@ int main()
         for (uint32_t j = 0; j < 25; ++j)
         {
             float x1,x2;
-            jmtx_matrix_ccs_get_element(matrix, i, j, &x1);
-            jmtx_matrix_ccs_get_element(tmp, j, i, &x2);
+            jmtx_matrix_ccs_get_entry(matrix, i, j, &x1);
+            jmtx_matrix_ccs_get_entry(tmp, j, i, &x2);
             if (x1 != x2)
             {
                 err_count += 1;
-                jmtx_matrix_ccs_get_element(matrix, i, j, &x1);
-                jmtx_matrix_ccs_get_element(tmp, j, i, &x2);
+                jmtx_matrix_ccs_get_entry(matrix, i, j, &x1);
+                jmtx_matrix_ccs_get_entry(tmp, j, i, &x2);
             }
         }
     }
@@ -152,8 +152,8 @@ int main()
         for (uint32_t j = 0; j < 25; ++j)
         {
             float x1,x2;
-            jmtx_matrix_ccs_get_element(matrix, i, j, &x1);
-            jmtx_matrix_ccs_get_element(tmp, i, j, &x2);
+            jmtx_matrix_ccs_get_entry(matrix, i, j, &x1);
+            jmtx_matrix_ccs_get_entry(tmp, i, j, &x2);
             if (x1 != x2)
             {
                 err_count += 1;

@@ -63,7 +63,7 @@ int main()
         {
             float x1, x2;
             jmtx_matrix_crs_get_entry(crs_matrix_2, i, j, &x1);
-            jmtx_matrix_ccs_get_element(ccs_matrix_1, i, j, &x2);
+            jmtx_matrix_ccs_get_entry(ccs_matrix_1, i, j, &x2);
             residual += fabsf(x1 - x2);
         }
     }

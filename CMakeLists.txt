@@ -51,6 +51,8 @@ add_library(jmtx
         source/solvers/conjugate_gradient_iteration.h
         source/solvers/incomplete_lu_decomposition.c
         source/solvers/incomplete_lu_decomposition.h
+        source/matrices/sparse_conversion.c
+        source/matrices/sparse_conversion.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -145,4 +147,9 @@ target_link_libraries(omp_cg_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_cg_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_cg_test PRIVATE -fopenmp)
 add_test(NAME omp_cg COMMAND omp_cg_test)
+
+add_executable(incomplete_lu_test tests/solver_tests/inclu_test.c tests/test_common.c)
+target_link_libraries(incomplete_lu_test PRIVATE jmtx gomp)
+target_compile_definitions(incomplete_lu_test PRIVATE JMTX_OPENMP)
+target_compile_options(incomplete_lu_test PRIVATE -fopenmp)
 

@@ -2,15 +2,19 @@
 // Created by jan on 2.11.2023.
 //
 
+#include <assert.h>
+#include <math.h>
 #include "incomplete_lu_decomposition.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/sparse_column_compressed.h"
+#include "../matrices/sparse_column_compressed_internal.h"
+#include "../matrices/sparse_conversion.h"
+#include "../../tests/test_common.h"
 
 jmtx_result jmtx_incomplete_lu_crs(
-        jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_crs** p_u, float stagnation, uint32_t max_iterations,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+        jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
+        float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    (void) stagnation;
+    (void) convergence;
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -45,30 +49,43 @@ jmtx_result jmtx_incomplete_lu_crs(
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t max_entries = a->n_entries;
     const uint32_t n = a->base.rows;
-    jmtx_result res = JMTX_RESULT_SUCCESS;
-    uint32_t max_elements_in_column = 0;
+    jmtx_result res;
+    uint32_t max_elements_in_direction = 0;
     jmtx_matrix_crs* l = NULL;
     jmtx_matrix_ccs* u = NULL;
     for (uint32_t i = 0; i < n; ++i)
     {
-        uint32_t n_col;
-        res = jmtx_matrix_crs_entries_in_col(a, i, &n_col);
+        uint32_t n_dim;
+        res = jmtx_matrix_crs_entries_in_col(a, i, &n_dim);
         if (res != JMTX_RESULT_SUCCESS)
         {
             return res;
         }
-        if (n_col > max_elements_in_column)
+        if (n_dim > max_elements_in_direction)
         {
-            max_elements_in_column = n_col;
+            max_elements_in_direction = n_dim;
+        }
+        uint32_t* unused_idx;
+        float* unused_val;
+        n_dim = 0;
+        res = jmtx_matrix_crs_get_row(a, i, &n_dim, &unused_idx, &unused_val);
+        if (res != JMTX_RESULT_SUCCESS)
+        {
+            return res;
+        }
+        n_dim += 1;
+        if (n_dim > max_elements_in_direction)
+        {
+            max_elements_in_direction = n_dim;
         }
     }
 
-    uint32_t* const column_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*column_indices) * max_elements_in_column);
+    uint32_t* column_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*column_indices) * max_elements_in_direction);
     if (!column_indices)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    float* const column_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*column_values) * max_elements_in_column);
+    float* column_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*column_values) * max_elements_in_direction);
     if (!column_values)
     {
         allocator_callbacks->free(allocator_callbacks->state, column_indices);
@@ -110,7 +127,7 @@ jmtx_result jmtx_incomplete_lu_crs(
         }
         //  Find where the diagonal is located (if it is there)
         uint32_t pos = jmtx_internal_find_last_leq_value(c, indices, i);
-        if (pos != i)
+        if (indices[pos] != i)
         {
             //  There's no diagonal, meaning that LU decomposition can't be done (without pivoting, but fuck that)
             res = JMTX_RESULT_BAD_MATRIX;
@@ -118,8 +135,13 @@ jmtx_result jmtx_incomplete_lu_crs(
             allocator_callbacks->free(allocator_callbacks->state, column_indices);
             goto failed;
         }
+        memcpy(column_values, values, sizeof(*values) * c);
+        memcpy(column_indices, indices, sizeof(*indices) * c);
+        column_values[pos] = 1.0f;
+        column_indices[pos] = i;
+        pos += 1;
         //  Values bellow the diagonal go to L
-        res = jmtx_matrix_crs_build_row(l, i, pos, indices, values);
+        res = jmtx_matrix_crs_build_row(l, i, pos, column_indices, column_values);
         if (res != JMTX_RESULT_SUCCESS)
         {
             allocator_callbacks->free(allocator_callbacks->state, column_values);
@@ -128,7 +150,7 @@ jmtx_result jmtx_incomplete_lu_crs(
         }
 
         //  Get column values from the matrix A
-        res = jmtx_matrix_crs_get_col(a, i, max_elements_in_column, &c, column_values, column_indices);
+        res = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, &c, column_values, column_indices);
         if (res != JMTX_RESULT_SUCCESS)
         {
             allocator_callbacks->free(allocator_callbacks->state, column_values);
@@ -138,7 +160,7 @@ jmtx_result jmtx_incomplete_lu_crs(
 
         //  Put the column in the matrix U
         pos = jmtx_internal_find_last_leq_value(c, column_indices, i);
-        if (pos != i)
+        if (indices[pos] != i)
         {
             //  There's no diagonal, meaning that LU decomposition can't be done (without pivoting, but fuck that)
             res = JMTX_RESULT_BAD_MATRIX;
@@ -147,37 +169,134 @@ jmtx_result jmtx_incomplete_lu_crs(
             goto failed;
         }
         //  Values above the diagonal go to U
-        res = jmtx_matrix_ccs_build_col(u, i, pos, indices, values);
+        res = jmtx_matrix_ccs_build_col(u, i, pos + 1, indices, values);
         if (res != JMTX_RESULT_SUCCESS)
         {
             allocator_callbacks->free(allocator_callbacks->state, column_values);
             allocator_callbacks->free(allocator_callbacks->state, column_indices);
             goto failed;
         }
-
     }
-
-    
+    allocator_callbacks->free(allocator_callbacks->state, column_values);
+    allocator_callbacks->free(allocator_callbacks->state, column_indices);
+    column_values = NULL;
+    column_indices = NULL;
     //  Begin to iteratively refine the matrix entries
     //  In this section it is fine to modify entries in the matrix without synchronizing access, since the entries 
     //  always get updated in-place, meaning that there is no moving of memory, just overwriting the same spot. 
     //  If the code is serial, the iterations would be like Gauss-Seidel, if it were completely parallel, with 
     //  all calculations ending at the same time, it would act like point Jacobi.
     uint32_t iteration_count = 0;
+    float max_relative_change = 0;
+    int converged = 0;
     while (iteration_count < max_iterations)
     {
+        max_relative_change = 0;
         //  Loop over every row of A and update it
-        for (uint32_t p = 0; p < n; ++p)
+        for (int p = 0; p < (int)n; ++p)
         {
-            // Column access is slower than row access, so it is best to fetch a column of U once
+            //  Update the p-th row of L
+
+            for (int m = 0; m < p; ++m)
+            {
+                float v = 0;
+                float va = 0;
+                jmtx_matrix_crs_get_entry(a, p, m, &va);
+                if (va == 0.0f)
+                {
+                    continue;
+                }
+                uint32_t l_row_count, u_col_count;
+                uint32_t* l_col_indices, * u_row_indices;
+                float* l_val, *u_val;
+                jmtx_matrix_crs_get_row(l, p, &l_row_count, &l_col_indices, &l_val);
+                jmtx_matrix_ccs_get_col(u, m, &u_col_count, &u_row_indices, &u_val);
+                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && (int)l_col_indices[k_l] < m &&
+                        (int)u_row_indices[k_u] < m;)
+                {
+                    if (l_col_indices[k_l] == u_row_indices[k_u])
+                    {
+                        v += l_val[k_l] * u_val[k_u];
+                        k_l += 1;
+                        k_u += 1;
+                    }
+                    else if (l_col_indices[k_l] < u_row_indices[k_u])
+                    {
+                        k_l += 1;
+                    }
+                    else
+                    {
+                        // (l_col_indices[k_l] < u_row_indices[k_u])
+                        k_u += 1;
+                    }
+                }
+                assert((int)u_row_indices[u_col_count - 1] == m);
+                v = (v - va) / u_val[u_col_count - 1];
+                const float relative_change = fabsf((v - va) / va);
+                if (relative_change > max_relative_change)
+                {
+                    max_relative_change = relative_change;
+                }
+                jmtx_matrix_crs_set_entry(l, p, m, v);
+            }
+
+            for (int m = 0; m < p + 1; ++m)
+            {
+                float v = 0;
+                float va = 0;
+                uint32_t l_row_count, u_col_count;
+                uint32_t* l_col_indices, * u_row_indices;
+                float* l_val, *u_val;
+                jmtx_matrix_crs_get_entry(a, m, p, &va);
+                if (va == 0.0f)
+                {
+                    continue;
+                }
+                jmtx_matrix_crs_get_row(l, m, &l_row_count, &l_col_indices, &l_val);
+                jmtx_matrix_ccs_get_col(u, p, &u_col_count, &u_row_indices, &u_val);
+                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && (int)l_col_indices[k_l] < m &&
+                        (int)u_row_indices[k_u] < m;)
+                {
+                    if (l_col_indices[k_l] == u_row_indices[k_u])
+                    {
+                        v += l_val[k_l] * u_val[k_u];
+                        k_l += 1;
+                        k_u += 1;
+                    }
+                    else if (l_col_indices[k_l] < u_row_indices[k_u])
+                    {
+                        k_l += 1;
+                    }
+                    else
+                    {
+                        // (l_col_indices[k_l] < u_row_indices[k_u])
+                        k_u += 1;
+                    }
+                }
+                v = (v - va);
+                const float relative_change = fabsf((v - va) / va);
+                if (relative_change > max_relative_change)
+                {
+                    max_relative_change = relative_change;
+                }
+                jmtx_matrix_ccs_set_entry(u, m, p, v);
+            }
         }
 
         //  Check convergence
+        if (convergence > max_relative_change)
+        {
+            converged = 1;
+            break;
+        }
         iteration_count += 1;
     }
 
-
-    return JMTX_RESULT_SUCCESS;
+    *p_u = u;
+    *p_l = l;
+    *p_last_iteration = iteration_count;
+    *final_max_change = max_relative_change;
+    return converged ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 
 
 failed:

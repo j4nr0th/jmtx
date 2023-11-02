@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "../source/matrices/sparse_row_compressed_internal.h"
 #include "../source/matrices/sparse_column_compressed_internal.h"
+#include <inttypes.h>
 
 
 fRNG fRNG_create(uint64_t seed)
@@ -167,36 +168,38 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
     printf("values:");
     for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
     {
-        if (l < mtx->base.rows && mtx->end_of_column_offsets[l + 1] <= i + 1)
+        if (l < mtx->base.rows && mtx->end_of_column_offsets[l] <= i)
         {
             l += 1;
         }
-        printf(" (%u, %u, %g)", l, mtx->indices[i + 1], mtx->values[i + 1]);
+        printf(" (%u, %u, %g)", l, mtx->indices[i], mtx->values[i]);
     }
     printf("\nelement offsets:");
-    for (uint32_t i = 0; i < mtx->base.rows; ++i)
+    for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
         printf(" %u,", mtx->end_of_column_offsets[i]);
     }
-    printf(" %u", mtx->end_of_column_offsets[mtx->base.rows]);
-    printf("\nMatrix:\n[");
+    printf("\nMatrix:\n[\n");
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        if (i != 0)
-            printf(" [");
-        else
-            printf("[");
+        printf("\t[");
         float x;
-        for (uint32_t j = 0; j < mtx->base.cols - 1; ++j)
+        for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            jmtx_matrix_ccs_get_element(mtx, i, j, &x);
-            printf("%g ", x);
+            jmtx_matrix_ccs_get_entry(mtx, i, j, &x);
+            printf("% 5g ", x);
         }
-        jmtx_matrix_ccs_get_element(mtx, i, mtx->base.cols - 1, &x);
-        printf("%g] - %u", x, mtx->end_of_column_offsets[i + 1] - mtx->end_of_column_offsets[i]);
-        if (i != mtx->base.rows - 1) printf("\n");
+        uint32_t n_row = 0;
+        jmtx_matrix_ccs_elements_in_row(mtx, i, &n_row);
+        printf("] - %u", n_row);
+        printf("\n");
+    }
+    printf("\t ");
+    for (uint32_t i = 0; i < mtx->base.cols; ++i)
+    {
+        printf("%5"PRIu32" ", (i == 0 ? mtx->end_of_column_offsets[0] : mtx->end_of_column_offsets[i] - mtx->end_of_column_offsets[i - 1]));
     }
 
-    printf("]\n");
+    printf("\n]\n");
 }
