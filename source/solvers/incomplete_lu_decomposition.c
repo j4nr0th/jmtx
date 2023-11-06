@@ -195,28 +195,34 @@ jmtx_result jmtx_incomplete_lu_crs(
             uint32_t* positions;
             float* values;
             jmtx_matrix_crs_get_row(a, p, &n_items, &positions, &values);
-            for (uint32_t r = 0; r < n_items && (int)positions[r] < (int)p; ++r)
+            uint32_t out_items;
+            uint32_t* out_positions;
+            float* out_values;
+            jmtx_matrix_crs_get_row(l, p, &out_items, &out_positions, &out_values);
+            //  Loop over elements of L which can be updated
+            for (uint32_t r = 0, k = 0; r < n_items && (int)positions[r] < (int)p; ++r, ++k)
             {
                 const uint32_t m = positions[r];
+                assert(out_positions[k] == m);
                 float v = 0;
                 float va = values[r];
                 assert(va != 0.0f);
 
-                uint32_t l_row_count, u_col_count;
-                uint32_t* l_col_indices, * u_row_indices;
-                float* l_val, *u_val;
-                jmtx_matrix_crs_get_row(l, p, &l_row_count, &l_col_indices, &l_val);
+                uint32_t  u_col_count;
+                uint32_t* u_row_indices;
+                float *u_val;
+                //  Compute the product of row p of matrix L and column m of matrix U to update the entry L_pm
                 jmtx_matrix_ccs_get_col(u, m, &u_col_count, &u_row_indices, &u_val);
-                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && l_col_indices[k_l] < m &&
+                for (uint32_t k_l = 0, k_u = 0; k_l < out_items && k_u < u_col_count && out_positions[k_l] < m &&
                         u_row_indices[k_u] < m;)
                 {
-                    if (l_col_indices[k_l] == u_row_indices[k_u])
+                    if (out_positions[k_l] == u_row_indices[k_u])
                     {
-                        v += l_val[k_l] * u_val[k_u];
+                        v += out_values[k_l] * u_val[k_u];
                         k_l += 1;
                         k_u += 1;
                     }
-                    else if (l_col_indices[k_l] < u_row_indices[k_u])
+                    else if (out_positions[k_l] < u_row_indices[k_u])
                     {
                         k_l += 1;
                     }
@@ -228,7 +234,7 @@ jmtx_result jmtx_incomplete_lu_crs(
                 }
                 assert(u_row_indices[u_col_count - 1] == m);
                 v = (va - v) / u_val[u_col_count - 1];
-                const float relative_change = fabsf((v - va) / va);
+                const float relative_change = fabsf((v - out_values[k]) / out_values[k]);
                 if (relative_change > max_relative_change)
                 {
                     max_relative_change = relative_change;
@@ -238,33 +244,36 @@ jmtx_result jmtx_incomplete_lu_crs(
                 jmtx_matrix_crs_get_entry(l, p, m, &v1);
                 assert(v1 != 0.0f);
 #endif
-                jmtx_matrix_crs_set_entry(l, p, m, v);
+//                jmtx_matrix_crs_set_entry(l, p, m, v);
+                out_values[k] = v;
             }
 
             //  Update the p-th column of U
             jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, &n_items, column_values, column_indices);
-            for (uint32_t r = 0; r < n_items && column_indices[r] < p + 1; ++r)
+            jmtx_matrix_ccs_get_col(u, p, &out_items, &out_positions, &out_values);
+            //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
+            for (uint32_t r = 0, k = 0; r < n_items && column_indices[r] < p + 1; ++r, ++k)
             {
                 const uint32_t m = column_indices[r];
+                assert(out_positions[k] == m);
                 float v = 0;
                 float va = column_values[r];
                 assert(va != 0.0f);
-                uint32_t l_row_count, u_col_count;
-                uint32_t* l_col_indices, * u_row_indices;
-                float* l_val, *u_val;
+                uint32_t l_row_count;
+                uint32_t* l_col_indices;
+                float* l_val;
                 assert(va != 0.0f);
                 jmtx_matrix_crs_get_row(l, m, &l_row_count, &l_col_indices, &l_val);
-                jmtx_matrix_ccs_get_col(u, p, &u_col_count, &u_row_indices, &u_val);
-                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < u_col_count && l_col_indices[k_l] < m &&
-                        u_row_indices[k_u] < m;)
+                for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < out_items && l_col_indices[k_l] < m &&
+                        out_positions[k_u] < m;)
                 {
-                    if (l_col_indices[k_l] == u_row_indices[k_u])
+                    if (l_col_indices[k_l] == out_positions[k_u])
                     {
-                        v += l_val[k_l] * u_val[k_u];
+                        v += l_val[k_l] * out_values[k_u];
                         k_l += 1;
                         k_u += 1;
                     }
-                    else if (l_col_indices[k_l] < u_row_indices[k_u])
+                    else if (l_col_indices[k_l] < out_positions[k_u])
                     {
                         k_l += 1;
                     }
@@ -275,7 +284,7 @@ jmtx_result jmtx_incomplete_lu_crs(
                     }
                 }
                 v = (va - v);
-                const float relative_change = fabsf((v - va) / va);
+                const float relative_change = fabsf((v - out_values[k]) / out_values[k]);
                 if (relative_change > max_relative_change)
                 {
                     max_relative_change = relative_change;
@@ -285,7 +294,8 @@ jmtx_result jmtx_incomplete_lu_crs(
                 jmtx_matrix_ccs_get_entry(u, m, p, &v1);
                 assert(v1 != 0.0f);
 #endif
-                jmtx_matrix_ccs_set_entry(u, m, p, v);
+//                jmtx_matrix_ccs_set_entry(u, m, p, v);
+                out_values[k] = v;
             }
         }
 
