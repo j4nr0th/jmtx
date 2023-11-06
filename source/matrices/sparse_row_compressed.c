@@ -1204,6 +1204,7 @@ jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32
             goto end;
         }
         mtx->indices = new_indices_ptr;
+        mtx->capacity = required_capacity;
     }
 
     const uint32_t offset = row ? mtx->end_of_row_offsets[row - 1] : 0;

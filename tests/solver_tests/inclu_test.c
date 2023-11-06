@@ -6,6 +6,10 @@
 #include "../test_common.h"
 #include "../../source/solvers/incomplete_lu_decomposition.h"
 #include "../../source/matrices/sparse_multiplication.h"
+#include "../../source/solvers/lu_solving.h"
+#include "../../source/matrices/sparse_conversion.h"
+
+#include <math.h>
 
 enum
 {
@@ -39,7 +43,7 @@ int main()
     const float rdy2 = 1.0f / (dy * dy);
     const float rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ? 5 * PROBLEM_INTERNAL_PTS : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     const double t0_serial = omp_get_wtime();
@@ -99,7 +103,6 @@ int main()
     const double t1_serial = omp_get_wtime();
 
     printf("Serial construction of a %d by %d matrix took %g seconds\n", PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, t1_serial - t0_serial);
-    print_crs_matrix(mtx);
 
     jmtx_matrix_crs* lower = NULL;
     jmtx_matrix_ccs* upper = NULL;
@@ -113,21 +116,57 @@ int main()
     printf("Decomposition took %g seconds for %u iterations, with final error of %g and the result: %s\n", t1_decomp -
     t0_decomp, n_iterations, final_error, jmtx_result_to_str(mtx_res));
 
-    printf("Decomposed lower triangular matrix:\n");
-    print_crs_matrix(lower);
+    float* const initial_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*initial_vector));
+    ASSERT(initial_vector != NULL);
 
-    printf("Decomposed upper triangular matrix:\n");
-    print_ccs_matrix(upper);
+    float* const forcing_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*forcing_vector));
+    ASSERT(forcing_vector != NULL);
 
-    printf("Product of the incomplete decomposition:\n");
-    jmtx_matrix_crs* recon = NULL;
-    MATRIX_TEST_CALL(jmtx_matrix_multiply_crs(lower, upper, &recon, NULL));
+    float* const approximate_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*approximate_vector));
+    ASSERT(approximate_vector != NULL);
+
+    float mag_y = 0;
+    for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
+    {
+        for (unsigned j = 0; j < INTERNAL_SIZE_X; ++j)
+        {
+            initial_vector[i * INTERNAL_SIZE_X + j] = ((float)(i + 1) * dx) + ((float)(j + 1) * dy);
+            mag_y += initial_vector[i * INTERNAL_SIZE_X + j] * initial_vector[i * INTERNAL_SIZE_X + j];
+        }
+    }
+
+    MATRIX_TEST_CALL(jmtx_matrix_crs_vector_multiply(mtx, initial_vector, forcing_vector));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_crs_matrix(recon);
 
-
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(recon));
+    jmtx_matrix_crs* upper_crs;
+    MATRIX_TEST_CALL(jmtx_convert_ccs_to_crs(upper, &upper_crs, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    jmtx_lu_solve(lower, upper_crs, forcing_vector, approximate_vector);
+
+    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(upper_crs));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    printf("Comparison of approximate solution vs real solution:\n");
+    float rms_err = 0;
+    float residual = 0;
+    for (unsigned i = 0; i < PROBLEM_INTERNAL_PTS; ++i)
+    {
+        forcing_vector[i] -= jmtx_matrix_crs_vector_multiply_row_raw(mtx, approximate_vector, i);
+        const float err = (initial_vector[i] - approximate_vector[i]) / initial_vector[i];
+        rms_err += err * err;
+        printf("Element %u, real: %g, approx: %g, err: %g, residual: %g\n", i, initial_vector[i], approximate_vector[i],
+               err, forcing_vector[i]);
+        residual += forcing_vector[i] * forcing_vector[i];
+    }
+    rms_err = sqrtf(rms_err / PROBLEM_INTERNAL_PTS);
+    residual = sqrtf(residual);
+    printf("RMS Error: %g, residual/forcing: %g/%g = %g\n", rms_err, residual, mag_y, residual/mag_y);
+
+    free(approximate_vector);
+    free(forcing_vector);
+    free(initial_vector);
+
     MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(lower));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtx_matrix_ccs_destroy(upper));

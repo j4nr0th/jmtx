@@ -55,6 +55,8 @@ add_library(jmtx
         source/matrices/sparse_conversion.h
         source/matrices/sparse_multiplication.c
         source/matrices/sparse_multiplication.h
+        source/solvers/lu_solving.c
+        source/solvers/lu_solving.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)

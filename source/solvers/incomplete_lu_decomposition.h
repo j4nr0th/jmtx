@@ -15,9 +15,53 @@
  * For a symmetric SPD matrix, an incomplete Cholesky factorization is used instead, which exploits the symmetry of the
  * matrix to give the decomposition in the form of C'^T C' = A, where C' has the same sparsity pattern as the top of
  * the matrix A.
+ *
+ * @param a matrix to decompose
+ * @param p_l pointer which receives the resulting L' CRS matrix
+ * @param p_u pointer which receives the resulting U' CCS matrix
+ * @param convergence Stopping criterion to find if more iterations are needed. This is done based on the fraction
+ * between the change of an element and its magnitude. When the largest value of that fraction falls bellow this value,
+ * iterations stop
+ * @param max_iterations Maximum number of iterations to do.
+ * @param final_max_change Pointer which receives the largest value of the stopping criterion on the last iteration.
+ * @param p_last_iteration Pointer which receives the number of the last iteration.
+ * @param allocator_callbacks Pointer to allocators to use for allocating L', U', and auxiliary memory. If NULL, malloc
+ * and free are used.
+ * @return JMTX_RESULT_SUCCESS if successfully converged in to tolerance in under max iterations,
+ * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
+ * other jmtx_result values on other failures.
  */
-
 jmtx_result jmtx_incomplete_lu_crs(
+        jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
+        float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
+
+/**
+ * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
+ * L' + U' has the same sparsity as the starting matrix. This decomposition can be used as a preconditioner or directly.
+ *
+ * For a symmetric SPD matrix, an incomplete Cholesky factorization is used instead, which exploits the symmetry of the
+ * matrix to give the decomposition in the form of C'^T C' = A, where C' has the same sparsity pattern as the top of
+ * the matrix A.
+ *
+ * Parallel version of the function, which is parallelized. Best case it performs as serial version, behaving like Gauss
+ * Seidel, worst case, it becomes the same as if point Jacobi iterations were done instead.
+ *
+ * @param a matrix to decompose
+ * @param p_l pointer which receives the resulting L' CRS matrix
+ * @param p_u pointer which receives the resulting U' CCS matrix
+ * @param convergence Stopping criterion to find if more iterations are needed. This is done based on the fraction
+ * between the change of an element and its magnitude. When the largest value of that fraction falls bellow this value,
+ * iterations stop
+ * @param max_iterations Maximum number of iterations to do.
+ * @param final_max_change Pointer which receives the largest value of the stopping criterion on the last iteration.
+ * @param p_last_iteration Pointer which receives the number of the last iteration.
+ * @param allocator_callbacks Pointer to allocators to use for allocating L', U', and auxiliary memory. Must be
+ * thread-safe. If NULL, malloc and free are used.
+ * @return JMTX_RESULT_SUCCESS if successfully converged in to tolerance in under max iterations,
+ * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
+ * other jmtx_result values on other failures.
+ */
+jmtx_result jmtx_incomplete_lu_crs_parallel(
         jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
         float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
 

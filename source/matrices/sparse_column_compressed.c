@@ -1002,6 +1002,8 @@ jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* mtx, jmtx_matrix_ccs** p
     this->values = elements;
     this->indices = indices;
     this->end_of_column_offsets = cum_sum;
+    this->capacity = mtx->n_entries;
+    this->n_entries = this->n_entries;
     *p_out = this;
     return JMTX_RESULT_SUCCESS;
 }
@@ -1061,6 +1063,7 @@ jmtx_matrix_ccs_build_col(jmtx_matrix_ccs* mtx, uint32_t col, uint32_t n, const 
             return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->indices = new_indices_ptr;
+        mtx->capacity = required_capacity;
     }
 
     const uint32_t offset = col ? mtx->end_of_column_offsets[col - 1] : 0;
