@@ -4,8 +4,6 @@
 
 #ifndef JMTX_SPARSE_ROW_COMPRESSED_H
 #define JMTX_SPARSE_ROW_COMPRESSED_H
-
-#include <stdint-gcc.h>
 #include "matrix_base.h"
 /**
  * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
@@ -57,6 +55,8 @@ typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
  * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
  * @param reserved_entries how many entries should the space be reserved for in the matrix initially
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_crs_new(
@@ -236,6 +236,8 @@ jmtx_matrix_crs_get_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, fl
  * Creates a transpose of a matrix
  * @param mtx pointer to the memory where the input matrix is stored
  * @param p_out address where the pointer to the output matrix will be returned
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_crs_transpose(
@@ -245,6 +247,8 @@ jmtx_result jmtx_matrix_crs_transpose(
  * Creates a copy of the matrix
  * @param mtx pointer to the memory where the input matrix is stored
  * @param p_out address where the pointer to the output matrix will be returned
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);

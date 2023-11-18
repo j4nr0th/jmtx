@@ -150,11 +150,10 @@ void print_crs_matrix(const jmtx_matrix_crs* mtx)
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         printf("\t[");
-        float x;
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            x = jmtx_matrix_crs_get_entry(mtx, i, j);
-            printf("% 10g ", x);
+            const float x = jmtx_matrix_crs_get_entry(mtx, i, j);
+            printf("%10g ", x);
         }
         printf("] - %u", mtx->end_of_row_offsets[i] - (i ? mtx->end_of_row_offsets[i - 1] : 0));
         printf("\n");
@@ -184,14 +183,12 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         printf("\t[");
-        float x;
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            jmtx_matrix_ccs_get_entry(mtx, i, j, &x);
-            printf("% 10g ", x);
+            const float x = jmtx_matrix_ccs_get_entry(mtx, i, j);
+            printf("%10g ", x);
         }
-        uint32_t n_row = 0;
-        jmtx_matrix_ccs_elements_in_row(mtx, i, &n_row);
+        const uint32_t n_row = jmtx_matrix_ccs_elements_in_row(mtx, i);
         printf("] - %u", n_row);
         printf("\n");
     }

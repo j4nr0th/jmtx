@@ -189,7 +189,7 @@ jmtx_result jmtx_incomplete_lu_crs(
                 uint32_t* u_row_indices;
                 float *u_val;
                 //  Compute the product of row p of matrix L and column m of matrix U to update the entry L_pm
-                jmtx_matrix_ccs_get_col(u, m, &u_col_count, &u_row_indices, &u_val);
+                u_col_count = jmtx_matrix_ccs_get_col(u, m, &u_row_indices, &u_val);
                 for (uint32_t k_l = 0, k_u = 0; k_l < out_items && k_u < u_col_count && out_positions[k_l] < m &&
                         u_row_indices[k_u] < m;)
                 {
@@ -226,7 +226,7 @@ jmtx_result jmtx_incomplete_lu_crs(
 
             //  Update the p-th column of U
             n_items = jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, column_values, column_indices);
-            jmtx_matrix_ccs_get_col(u, p, &out_items, &out_positions, &out_values);
+            out_items = jmtx_matrix_ccs_get_col(u, p, &out_positions, &out_values);
             //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
             for (uint32_t r = 0, k = 0; r < n_items && column_indices[r] < p + 1; ++r, ++k)
             {
@@ -265,8 +265,7 @@ jmtx_result jmtx_incomplete_lu_crs(
                     max_relative_change = relative_change;
                 }
 #ifndef NDEBUG
-                float v1;
-                jmtx_matrix_ccs_get_entry(u, m, p, &v1);
+                float v1 = jmtx_matrix_ccs_get_entry(u, m, p);
                 assert(v1 != 0.0f);
 #endif
 //                jmtx_matrix_ccs_set_entry(u, m, p, v);
@@ -511,7 +510,7 @@ max_iterations, allocator_callbacks, a, l, u, n, convergence, converged, any_fai
                         uint32_t* u_row_indices;
                         float* u_val;
                         //  Compute the product of row p of matrix L and column m of matrix U to update the entry L_pm
-                        jmtx_matrix_ccs_get_col(u, m, &u_col_count, &u_row_indices, &u_val);
+                        u_col_count = jmtx_matrix_ccs_get_col(u, m, &u_row_indices, &u_val);
                         for (uint32_t k_l = 0, k_u = 0; k_l < out_items && k_u < u_col_count && out_positions[k_l] < m &&
                                                         u_row_indices[k_u] < m;)
                         {
@@ -542,7 +541,7 @@ max_iterations, allocator_callbacks, a, l, u, n, convergence, converged, any_fai
 
                     //  Update the p-th column of U
                     n_items =  jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, col_val, col_idx);
-                    jmtx_matrix_ccs_get_col(u, p, &out_items, &out_positions, &out_values);
+                    out_items = jmtx_matrix_ccs_get_col(u, p, &out_positions, &out_values);
                     //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
                     for (uint32_t r = 0, k = 0; r < n_items && col_idx[r] < p + 1; ++r, ++k)
                     {

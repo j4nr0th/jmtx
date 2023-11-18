@@ -12,6 +12,7 @@
 #include <math.h>
 #include "inttypes.h"
 #include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../source/matrices/sparse_column_compressed_safe.h"
 
 enum
 {
@@ -155,7 +156,7 @@ int main()
 
     MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", n_iterations, final_error);
+    printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", n_iterations, (double)final_error);
 
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(upper_crs));
@@ -184,7 +185,7 @@ int main()
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(lower));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtx_matrix_ccs_destroy(upper));
+    MATRIX_TEST_CALL(jmtxs_matrix_ccs_destroy(upper));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx));

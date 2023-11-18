@@ -84,7 +84,7 @@ jmtx_result jmtx_matrix_multiply_crs(
         n_a = jmtx_matrix_crs_get_row(a, i, &i_a, &v_a);
         for (uint32_t j = 0; j < c_out; ++j)
         {
-            jmtx_matrix_ccs_get_col(b, j, &n_b, &i_b, &v_b);
+            n_b = jmtx_matrix_ccs_get_col(b, j, &i_b, &v_b);
             float v = 0;
             for (uint32_t k_a = 0, k_b = 0; k_a < n_a && k_b < n_b;)
             {
@@ -220,7 +220,7 @@ jmtx_result jmtx_matrix_multiply_ccs(
         uint32_t n_a, n_b;
         uint32_t* i_a, *i_b;
         float* v_a, *v_b;
-        jmtx_matrix_ccs_get_col(b, j, &n_b, &i_b, &v_b);
+        n_b = jmtx_matrix_ccs_get_col(b, j, &i_b, &v_b);
         for (uint32_t i = 0; i < r_out; ++i)
         {
             n_a = jmtx_matrix_crs_get_row(a, i, &i_a, &v_a);

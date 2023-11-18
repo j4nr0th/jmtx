@@ -156,4 +156,5 @@ add_executable(incomplete_lu_test tests/solver_tests/inclu_test.c tests/test_com
 target_link_libraries(incomplete_lu_test PRIVATE jmtx gomp)
 target_compile_definitions(incomplete_lu_test PRIVATE JMTX_OPENMP)
 target_compile_options(incomplete_lu_test PRIVATE -fopenmp)
+add_test(NAME solve_ilu COMMAND incomplete_lu_test)
 
