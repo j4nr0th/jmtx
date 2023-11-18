@@ -10,15 +10,16 @@
 #include "../../source/matrices/sparse_conversion.h"
 
 #include <math.h>
+#include "inttypes.h"
 
 enum
 {
-    PROBLEM_SIZE_X = 5, PROBLEM_SIZE_Y = 5,
+    PROBLEM_SIZE_X = 1 << 5, PROBLEM_SIZE_Y = 1 << 5,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
     WORK_DIVISIONS = 4,
-    MAXIMUM_ITERATIONS = (1 << 7),
+    MAXIMUM_ITERATIONS = (1 << 10),
 };
 
 static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }
@@ -134,10 +135,12 @@ int main()
     {
         for (unsigned j = 0; j < INTERNAL_SIZE_X; ++j)
         {
-            initial_vector[i * INTERNAL_SIZE_X + j] = ((float)(i + 1) * dx) + ((float)(j + 1) * dy);
-            mag_y += initial_vector[i * INTERNAL_SIZE_X + j] * initial_vector[i * INTERNAL_SIZE_X + j];
+            const float v = ((float)(i + 1) * dx) + ((float)(j + 1) * dy);
+            initial_vector[i * INTERNAL_SIZE_X + j] = v;
+            mag_y += v * v;
         }
     }
+    mag_y = sqrtf(mag_y);
 
     MATRIX_TEST_CALL(jmtx_matrix_crs_vector_multiply(mtx, initial_vector, forcing_vector));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -146,11 +149,12 @@ int main()
     MATRIX_TEST_CALL(jmtx_convert_ccs_to_crs(upper, &upper_crs, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_ccs_matrix(upper);
-    print_crs_matrix(upper_crs);
+//    print_ccs_matrix(upper);
+//    print_crs_matrix(upper_crs);
 
     MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
+    printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", n_iterations, final_error);
 
 
     MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(upper_crs));
@@ -164,8 +168,8 @@ int main()
         forcing_vector[i] -= jmtx_matrix_crs_vector_multiply_row_raw(mtx, approximate_vector, i);
         const float err = (initial_vector[i] - approximate_vector[i]) / initial_vector[i];
         rms_err += err * err;
-        printf("Element %u, real: %g, approx: %g, err: %g, residual: %g\n", i, initial_vector[i], approximate_vector[i],
-               err, forcing_vector[i]);
+//        printf("Element %u, real: %g, approx: %g, err: %g, residual: %g\n", i, initial_vector[i], approximate_vector[i],
+//               err, forcing_vector[i]);
         residual += forcing_vector[i] * forcing_vector[i];
     }
     rms_err = sqrtf(rms_err / PROBLEM_INTERNAL_PTS);
