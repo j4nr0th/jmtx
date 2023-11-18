@@ -18,6 +18,7 @@ enum
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
     WORK_DIVISIONS = 4,
+    MAXIMUM_ITERATIONS = (1 << 7),
 };
 
 static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }
@@ -125,6 +126,9 @@ int main()
     float* const approximate_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*approximate_vector));
     ASSERT(approximate_vector != NULL);
 
+    float* const auxiliary_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*auxiliary_vector));
+    ASSERT(auxiliary_vector != NULL);
+
     float mag_y = 0;
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
     {
@@ -142,7 +146,12 @@ int main()
     MATRIX_TEST_CALL(jmtx_convert_ccs_to_crs(upper, &upper_crs, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    jmtx_lu_solve(lower, upper_crs, forcing_vector, approximate_vector);
+    print_ccs_matrix(upper);
+    print_crs_matrix(upper_crs);
+
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
 
     MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(upper_crs));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -163,6 +172,7 @@ int main()
     residual = sqrtf(residual);
     printf("RMS Error: %g, residual/forcing: %g/%g = %g\n", rms_err, residual, mag_y, residual/mag_y);
 
+    free(auxiliary_vector);
     free(approximate_vector);
     free(forcing_vector);
     free(initial_vector);

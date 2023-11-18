@@ -888,21 +888,21 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* mtx, jmtx_matrix_cc
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    uint32_t* const row_cum_counts = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (new_cols + 1) * sizeof(*row_cum_counts));
+    uint32_t* const row_cum_counts = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (new_cols) * sizeof(*row_cum_counts));
     if (!row_cum_counts)
     {
         allocator_callbacks->free(allocator_callbacks->state, out);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    uint32_t* const new_indices = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements + 1) * sizeof(*new_indices));
+    uint32_t* const new_indices = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements) * sizeof(*new_indices));
     if (!new_indices)
     {
         mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, row_cum_counts);
         allocator_callbacks->free(allocator_callbacks->state, out);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    memset(new_indices, 0, (n_elements + 1) * sizeof*new_indices);
-    float* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements + 1) * sizeof*new_elements);
+    memset(new_indices, 0, (n_elements) * sizeof*new_indices);
+    float* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements) * sizeof*new_elements);
     if (!new_elements)
     {
         mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, row_cum_counts);
@@ -911,9 +911,9 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* mtx, jmtx_matrix_cc
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    *row_cum_counts = 1;
+    *row_cum_counts = 0;
 
-    for (uint32_t j = 0, n = 0, p = 1; j < mtx->base.rows; ++j)
+    for (uint32_t j = 0, n = 0, p = 0; j < mtx->base.rows; ++j)
     {
         n = 0;
         //  This MUST NOT fail, since the parameters are all within the bounds
@@ -926,7 +926,7 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* mtx, jmtx_matrix_cc
         assert(c == n);
         (void) res;
         p += n;
-        row_cum_counts[j + 1] = row_cum_counts[j] + n;
+        row_cum_counts[j] = (j > 0 ? row_cum_counts[j - 1] : 0) + n;
     }
 
     out->end_of_column_offsets = row_cum_counts;
