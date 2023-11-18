@@ -7,8 +7,6 @@
 #include <assert.h>
 
 
-#define BEEF_CHECK(mtx) jmtx_matrix_crs_beef_check((mtx), &beef_status), assert(beef_status == 0xBEEF)
-
 static int make_the_values_funnier(uint32_t i, uint32_t j, float* x, void* param)
 {
     *x += 1.0f;
@@ -32,19 +30,18 @@ static int make_the_values_funnier(uint32_t i, uint32_t j, float* x, void* param
 
 int main()
 {
-    int beef_status;
     jmtx_matrix_crs* matrix;
     jmtx_matrix_crs_new(&matrix, 25, 25, 2, NULL);
-    BEEF_CHECK(matrix);
+
 
     const uint32_t indices[3] = {1, 2, 4};
     const float values[3] = { 69, 420, 505};
     jmtx_matrix_crs_set_row(matrix, 2, 3, indices, values);
-    BEEF_CHECK(matrix);
+
     const uint32_t indices2[3] = {0, 2};
     const float values2[3] = { 1, 20};
     jmtx_matrix_crs_set_row(matrix, 4, 2, indices2, values2);
-    BEEF_CHECK(matrix);
+
     print_crs_matrix(matrix);
     jmtx_matrix_crs_remove_bellow_magnitude(matrix, 5.0f);
     const uint32_t indices3[5] = {0, 10, 13, 15, 23};
@@ -52,7 +49,6 @@ int main()
     jmtx_matrix_crs_set_row(matrix, 14, 5, indices3, values3);
     print_crs_matrix(matrix);
     jmtx_matrix_crs_shrink(matrix);
-    BEEF_CHECK(matrix);
 
 
     uint32_t funny = 0;
@@ -71,7 +67,7 @@ int main()
         uint32_t n;
         uint32_t* ind;
         float* val;
-        jmtx_matrix_crs_get_row(matrix, 2, &n, &ind, &val);
+        n = jmtx_matrix_crs_get_row(matrix, 2, &ind, &val);
         for (uint32_t i = 0; i < n; ++i)
         {
             printf(" (%u, %g)", ind[i], val[i]);
@@ -79,7 +75,7 @@ int main()
         printf("\n");
     }
     jmtx_matrix_crs_remove_zeros(matrix);
-    BEEF_CHECK(matrix);
+
     print_crs_matrix(matrix);
     jmtx_matrix_crs* matrix_1;
     jmtx_matrix_crs* matrix_2;
@@ -130,8 +126,8 @@ int main()
         for (uint32_t j = 0; j < 25; ++j)
         {
             float x1,x2;
-            jmtx_matrix_crs_get_entry(matrix, i, j, &x1);
-            jmtx_matrix_crs_get_entry(tmp, j, i, &x2);
+            x1 = jmtx_matrix_crs_get_entry(matrix, i, j);
+            x2 = jmtx_matrix_crs_get_entry(tmp, j, i);
             if (x1 != x2)
             {
                 err_count += 1;
@@ -148,8 +144,8 @@ int main()
         for (uint32_t j = 0; j < 25; ++j)
         {
             float x1,x2;
-            jmtx_matrix_crs_get_entry(matrix, i, j, &x1);
-            jmtx_matrix_crs_get_entry(tmp, i, j, &x2);
+            x1 = jmtx_matrix_crs_get_entry(matrix, i, j);
+            x2 = jmtx_matrix_crs_get_entry(tmp, i, j);
             if (x1 != x2)
             {
                 err_count += 1;
@@ -182,11 +178,9 @@ int main()
         printf(" %g", y[i]);
     }
 
-    BEEF_CHECK(matrix);
     printf("\nHello world!\n");
 //    printf("Matrix is currently using %zu bytes of memory\n", jmtx_matrix_crs_memory_usage(matrix));
     jmtx_matrix_crs_destroy(matrix);
-    printf("Beef status: %x\n", beef_status);
     printf("Long double size: %zu bytes\n", sizeof(long double));
     return 0;
 }

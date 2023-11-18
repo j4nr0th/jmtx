@@ -59,7 +59,6 @@ jmtx_result jmtx_jacobi_crs(
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    jmtx_result mtx_res;
     float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
     if (!div_factor)
     {
@@ -69,9 +68,7 @@ jmtx_result jmtx_jacobi_crs(
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        mtx_res = jmtx_matrix_crs_get_entry(mtx, i, i, &d);
-        assert(mtx_res == JMTX_RESULT_SUCCESS);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         if (d == 0.0f)
         {
             //  Diagonal entry is zero!
@@ -112,8 +109,7 @@ jmtx_result jmtx_jacobi_crs(
         {
             float* row_ptr;
             uint32_t* index_ptr;
-            uint32_t n_elements;
-            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtx_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
             float res = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -128,8 +124,7 @@ jmtx_result jmtx_jacobi_crs(
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            float val;
-            jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+            float val = jmtx_matrix_crs_vector_multiply_row(mtx, x1, i);
             val -= y[i];
             err += val * val;
         }
@@ -185,8 +180,7 @@ static void* jacobi_crs_thread_fn(void* param)
         {
             float* row_ptr;
             uint32_t* index_ptr;
-            uint32_t n_elements;
-            jmtx_matrix_crs_get_row(args.matrix, i, &n_elements, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtx_matrix_crs_get_row(args.matrix, i, &index_ptr, &row_ptr);
             float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -279,8 +273,7 @@ jmtx_result jmtx_jacobi_crs_mt(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         x[i] /= d;
     }
 
@@ -455,7 +448,6 @@ jmtx_result jmtx_jacobi_relaxed_crs(
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    jmtx_result mtx_res;
     float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
     if (!div_factor)
     {
@@ -465,9 +457,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        mtx_res = jmtx_matrix_crs_get_entry(mtx, i, i, &d);
-        assert(mtx_res == JMTX_RESULT_SUCCESS);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         if (d == 0.0f)
         {
             //  Diagonal entry is zero!
@@ -508,8 +498,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         {
             float* row_ptr;
             uint32_t* index_ptr;
-            uint32_t n_elements;
-            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtx_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
             float res = 0;
 //            uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -527,8 +516,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            float val;
-            jmtx_matrix_crs_vector_multiply_row(mtx, x1, i, &val);
+            float val = jmtx_matrix_crs_vector_multiply_row(mtx, x1, i);
             val -= y[i];
             err += val * val;
         }
@@ -600,7 +588,7 @@ jmtx_result jmtx_jacobi_crs_parallel(
     for (uint32_t i = 0; i < n; ++i)
     {
         float d;
-        if (jmtx_matrix_crs_get_entry(mtx, i, i, &d) != JMTX_RESULT_SUCCESS || d == 0.0f)
+        if ((d = jmtx_matrix_crs_get_entry(mtx, i, i)) == 0.0f)
         {
             //  Diagonal entry is zero!
             //  Can't solve this one with Jacobi
@@ -643,13 +631,13 @@ jmtx_result jmtx_jacobi_crs_parallel(
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x1[i] = x0[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x0, i)) * aux_vector1[i];
+                x1[i] = x0[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
             }
 
 #pragma omp for reduction(+:err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const float val = jmtx_matrix_crs_vector_multiply_row_raw(mtx, x1, i) - y[i];
+                const float val = jmtx_matrix_crs_vector_multiply_row(mtx, x1, i) - y[i];
                 err += val * val;
             }
 

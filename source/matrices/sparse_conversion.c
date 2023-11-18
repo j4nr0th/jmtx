@@ -27,8 +27,6 @@ jmtx_result jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs* in, jmtx_
 
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CCS;
-    in->base.get_element = (jmtx_result (*)(
-            jmtx_matrix*, jmtx_index_t, jmtx_index_t, float*)) jmtx_matrix_ccs_get_entry;
     *p_out = (jmtx_matrix_ccs*)in;
 
     return JMTX_RESULT_SUCCESS;
@@ -53,8 +51,6 @@ jmtx_result jmtx_convert_ccs_to_crs_inplace_transpose(jmtx_matrix_ccs* in, jmtx_
 
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CRS;
-    in->base.get_element = (jmtx_result (*)(
-            jmtx_matrix*, jmtx_index_t, jmtx_index_t, float*)) jmtx_matrix_crs_get_entry;
     *p_out = (jmtx_matrix_crs*)in;
 
     return JMTX_RESULT_SUCCESS;

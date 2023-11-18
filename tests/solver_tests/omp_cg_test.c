@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include "../test_common.h"
 #include "../../source/solvers/conjugate_gradient_iteration.h"
+#include "../../source/matrices/sparse_row_compressed_safe.h"
 
 enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 4};
 
@@ -40,7 +41,7 @@ int main()
         forcing_vector[i] = 1.0f * dx * dx;
     }
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     {
@@ -50,14 +51,14 @@ int main()
         const float values2[2] = {1.0f, -2.0f};
         forcing_vector[0] += -0.0f;
         forcing_vector[PROBLEM_DIMS - 1] += -0.0f;
-        ASSERT(mtx_res == (jmtx_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
-        ASSERT(mtx_res == (jmtx_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
+        ASSERT(mtx_res == (jmtxs_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
+        ASSERT(mtx_res == (jmtxs_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
     }
     for (unsigned i = 1; i < PROBLEM_DIMS - 3; ++i)
     {
         const uint32_t indices[3] = {i - 1, i, i + 1};
         const float values[3] = { 1.0f, -2.0f, 1.0f };
-        ASSERT(mtx_res == (jmtx_matrix_crs_set_row(mtx, i, 3, indices, values)));
+        ASSERT(mtx_res == (jmtxs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
 //    print_crs_matrix(mtx);
     uint32_t iterations = 0, total_iterations = 0;
@@ -85,7 +86,7 @@ int main()
 //        const float x = (float)i / (float)(PROBLEM_DIMS - 1);
 //        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
 //    }
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(mtx));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }

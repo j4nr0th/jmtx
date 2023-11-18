@@ -64,7 +64,7 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
     {
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
+            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
@@ -87,7 +87,7 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
             pAp_dp = 0;
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtx_matrix_crs_vector_multiply_row_raw(mtx, p, i);
+                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -122,7 +122,7 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
                 new_rk_dp = 0;
                 for (unsigned i = 0; i < n; ++i)
                 {
-                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
+                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
                     new_rk_dp += r[i] * r[i];
                 }
             }
@@ -246,7 +246,7 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, con
 #pragma omp for
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
+            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
@@ -270,7 +270,7 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, con
 #pragma omp for reduction(+:pAp_dp)
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtx_matrix_crs_vector_multiply_row_raw(mtx, p, i);
+                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -309,7 +309,7 @@ computing_residual_directly:
 #pragma omp for reduction(+:new_rk_dp)
                 for (unsigned i = 0; i < n; ++i)
                 {
-                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
+                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
                     new_rk_dp += r[i] * r[i];
                 }
             }

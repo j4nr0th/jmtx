@@ -6,6 +6,7 @@
 #include "../../source/f_exper/f_interface.h"
 #include "../../source/matrices/sparse_row_compressed.h"
 #include "../../source/matrices/sparse_row_compressed_internal.h"
+#include "../../source/matrices/sparse_row_compressed_safe.h"
 
 enum
 {
@@ -47,7 +48,7 @@ int main()
     jmtx_matrix_crs* mtx;
     jmtx_result mtx_res;
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&mtx, MTX_DIMS, MTX_DIMS, N_MTX_ELM, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, MTX_DIMS, MTX_DIMS, N_MTX_ELM, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     const uint32_t col_indices[N_MTX_ELM] =
@@ -78,7 +79,7 @@ int main()
 
     for (unsigned i = 0; i < N_MTX_ELM; ++i)
     {
-        MATRIX_TEST_CALL(jmtx_matrix_crs_set_entry(mtx, row_indices[i], col_indices[i], values[i]));
+        MATRIX_TEST_CALL(jmtxs_matrix_crs_set_entry(mtx, row_indices[i], col_indices[i], values[i]));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 
@@ -96,11 +97,11 @@ int main()
     ASSERT(a == 1);
     for (unsigned i = 0; i < MTX_DIMS; ++i)
     {
-        ASSERT(vec_out[i] == jmtx_matrix_crs_vector_multiply_row_raw(mtx, vec_in, i));
+        ASSERT(vec_out[i] == jmtx_matrix_crs_vector_multiply_row(mtx, vec_in, i));
     }
 
 
-    jmtx_matrix_crs_destroy(mtx);
+    jmtxs_matrix_crs_destroy(mtx);
     return 0;
 }
 

@@ -54,24 +54,14 @@ jmtx_result jmtx_incomplete_lu_crs(
     jmtx_matrix_ccs* u = NULL;
     for (uint32_t i = 0; i < n; ++i)
     {
-        uint32_t n_dim;
-        res = jmtx_matrix_crs_entries_in_col(a, i, &n_dim);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            return res;
-        }
+        uint32_t n_dim = jmtx_matrix_crs_entries_in_col(a, i);
         if (n_dim > max_elements_in_direction)
         {
             max_elements_in_direction = n_dim;
         }
         uint32_t* unused_idx;
         float* unused_val;
-        n_dim = 0;
-        res = jmtx_matrix_crs_get_row(a, i, &n_dim, &unused_idx, &unused_val);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            return res;
-        }
+        n_dim = jmtx_matrix_crs_get_row(a, i, &unused_idx, &unused_val);
         n_dim += 1;
         if (n_dim > max_elements_in_direction)
         {
@@ -117,13 +107,8 @@ jmtx_result jmtx_incomplete_lu_crs(
         uint32_t* indices;
         float* values;
         //  Get a row from A
-        res = jmtx_matrix_crs_get_row(a, i, &c, &indices, &values);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            allocator_callbacks->free(allocator_callbacks->state, column_values);
-            allocator_callbacks->free(allocator_callbacks->state, column_indices);
-            goto failed;
-        }
+        c = jmtx_matrix_crs_get_row(a, i, &indices, &values);
+
         //  Find where the diagonal is located (if it is there)
         uint32_t pos = jmtx_internal_find_last_leq_value(c, indices, i);
         if (indices[pos] != i)
@@ -149,13 +134,7 @@ jmtx_result jmtx_incomplete_lu_crs(
         }
 
         //  Get column values from the matrix A
-        res = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, &c, column_values, column_indices);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            allocator_callbacks->free(allocator_callbacks->state, column_values);
-            allocator_callbacks->free(allocator_callbacks->state, column_indices);
-            goto failed;
-        }
+        c = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, column_values, column_indices);
 
         //  Put the column in the matrix U
         pos = jmtx_internal_find_last_leq_value(c, column_indices, i);
@@ -191,14 +170,12 @@ jmtx_result jmtx_incomplete_lu_crs(
         for (uint32_t p = 0; p < n; ++p)
         {
             //  Update the p-th row of L
-            uint32_t n_items;
             uint32_t* positions;
             float* values;
-            jmtx_matrix_crs_get_row(a, p, &n_items, &positions, &values);
-            uint32_t out_items;
+            uint32_t n_items = jmtx_matrix_crs_get_row(a, p, &positions, &values);
             uint32_t* out_positions;
             float* out_values;
-            jmtx_matrix_crs_get_row(l, p, &out_items, &out_positions, &out_values);
+            uint32_t out_items = jmtx_matrix_crs_get_row(l, p, &out_positions, &out_values);
             //  Loop over elements of L which can be updated
             for (uint32_t r = 0, k = 0; r < n_items && (int)positions[r] < (int)p; ++r, ++k)
             {
@@ -240,8 +217,7 @@ jmtx_result jmtx_incomplete_lu_crs(
                     max_relative_change = relative_change;
                 }
 #ifndef NDEBUG
-                float v1;
-                jmtx_matrix_crs_get_entry(l, p, m, &v1);
+                float v1 = jmtx_matrix_crs_get_entry(l, p, m);
                 assert(v1 != 0.0f);
 #endif
 //                jmtx_matrix_crs_set_entry(l, p, m, v);
@@ -249,7 +225,7 @@ jmtx_result jmtx_incomplete_lu_crs(
             }
 
             //  Update the p-th column of U
-            jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, &n_items, column_values, column_indices);
+            n_items = jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, column_values, column_indices);
             jmtx_matrix_ccs_get_col(u, p, &out_items, &out_positions, &out_values);
             //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
             for (uint32_t r = 0, k = 0; r < n_items && column_indices[r] < p + 1; ++r, ++k)
@@ -259,11 +235,10 @@ jmtx_result jmtx_incomplete_lu_crs(
                 float v = 0;
                 float va = column_values[r];
                 assert(va != 0.0f);
-                uint32_t l_row_count;
                 uint32_t* l_col_indices;
                 float* l_val;
                 assert(va != 0.0f);
-                jmtx_matrix_crs_get_row(l, m, &l_row_count, &l_col_indices, &l_val);
+                uint32_t l_row_count = jmtx_matrix_crs_get_row(l, m, &l_col_indices, &l_val);
                 for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < out_items && l_col_indices[k_l] < m &&
                         out_positions[k_u] < m;)
                 {
@@ -375,12 +350,7 @@ jmtx_result jmtx_incomplete_lu_crs_parallel(
     jmtx_matrix_ccs* u = NULL;
     for (uint32_t i = 0; i < n; ++i)
     {
-        uint32_t n_dim;
-        res = jmtx_matrix_crs_entries_in_col(a, i, &n_dim);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            return res;
-        }
+        uint32_t n_dim = jmtx_matrix_crs_entries_in_col(a, i);
         if (n_dim > max_elements_in_direction)
         {
             max_elements_in_direction = n_dim;
@@ -388,11 +358,8 @@ jmtx_result jmtx_incomplete_lu_crs_parallel(
         uint32_t* unused_idx;
         float* unused_val;
         n_dim = 0;
-        res = jmtx_matrix_crs_get_row(a, i, &n_dim, &unused_idx, &unused_val);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            return res;
-        }
+        n_dim = jmtx_matrix_crs_get_row(a, i, &unused_idx, &unused_val);
+
         n_dim += 1;
         if (n_dim > max_elements_in_direction)
         {
@@ -438,13 +405,8 @@ jmtx_result jmtx_incomplete_lu_crs_parallel(
         uint32_t* indices;
         float* values;
         //  Get a row from A
-        res = jmtx_matrix_crs_get_row(a, i, &c, &indices, &values);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            allocator_callbacks->free(allocator_callbacks->state, column_values);
-            allocator_callbacks->free(allocator_callbacks->state, column_indices);
-            goto failed;
-        }
+        c = jmtx_matrix_crs_get_row(a, i, &indices, &values);
+
         //  Find where the diagonal is located (if it is there)
         uint32_t pos = jmtx_internal_find_last_leq_value(c, indices, i);
         if (indices[pos] != i)
@@ -470,13 +432,7 @@ jmtx_result jmtx_incomplete_lu_crs_parallel(
         }
 
         //  Get column values from the matrix A
-        res = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, &c, column_values, column_indices);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            allocator_callbacks->free(allocator_callbacks->state, column_values);
-            allocator_callbacks->free(allocator_callbacks->state, column_indices);
-            goto failed;
-        }
+        c = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, column_values, column_indices);
 
         //  Put the column in the matrix U
         pos = jmtx_internal_find_last_leq_value(c, column_indices, i);
@@ -539,11 +495,11 @@ max_iterations, allocator_callbacks, a, l, u, n, convergence, converged, any_fai
                     uint32_t n_items;
                     uint32_t* positions;
                     float* values;
-                    jmtx_matrix_crs_get_row(a, p, &n_items, &positions, &values);
+                    n_items = jmtx_matrix_crs_get_row(a, p, &positions, &values);
                     uint32_t out_items;
                     uint32_t* out_positions;
                     float* out_values;
-                    jmtx_matrix_crs_get_row(l, p, &out_items, &out_positions, &out_values);
+                    out_items = jmtx_matrix_crs_get_row(l, p, &out_positions, &out_values);
                     //  Loop over elements of L which can be updated
                     for (uint32_t r = 0, k = 0; r < n_items && (int) positions[r] < (int) p; ++r, ++k)
                     {
@@ -585,7 +541,7 @@ max_iterations, allocator_callbacks, a, l, u, n, convergence, converged, any_fai
                     }
 
                     //  Update the p-th column of U
-                    jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, &n_items, col_val, col_idx);
+                    n_items =  jmtx_matrix_crs_get_col(a, p, max_elements_in_direction, col_val, col_idx);
                     jmtx_matrix_ccs_get_col(u, p, &out_items, &out_positions, &out_values);
                     //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
                     for (uint32_t r = 0, k = 0; r < n_items && col_idx[r] < p + 1; ++r, ++k)
@@ -596,7 +552,7 @@ max_iterations, allocator_callbacks, a, l, u, n, convergence, converged, any_fai
                         uint32_t l_row_count;
                         uint32_t* l_col_indices;
                         float* l_val;
-                        jmtx_matrix_crs_get_row(l, m, &l_row_count, &l_col_indices, &l_val);
+                        l_row_count = jmtx_matrix_crs_get_row(l, m, &l_col_indices, &l_val);
                         for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < out_items && l_col_indices[k_l] < m &&
                                                         out_positions[k_u] < m;)
                         {

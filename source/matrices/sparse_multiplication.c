@@ -81,7 +81,7 @@ jmtx_result jmtx_matrix_multiply_crs(
         uint32_t n_a, n_b;
         uint32_t* i_a, *i_b;
         float* v_a, *v_b;
-        jmtx_matrix_crs_get_row(a, i, &n_a, &i_a, &v_a);
+        n_a = jmtx_matrix_crs_get_row(a, i, &i_a, &v_a);
         for (uint32_t j = 0; j < c_out; ++j)
         {
             jmtx_matrix_ccs_get_col(b, j, &n_b, &i_b, &v_b);
@@ -197,7 +197,7 @@ jmtx_result jmtx_matrix_multiply_ccs(
     uint32_t capacity = 1 + a->n_entries / a->base.rows > 1 + b->n_entries / b->base.cols ?
                         a->n_entries / a->base.rows :
                         b->n_entries / b->base.cols;
-    uint32_t count = 0;
+    uint32_t count;
     uint32_t* indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*indices) * capacity);
     if (!indices)
     {
@@ -223,7 +223,7 @@ jmtx_result jmtx_matrix_multiply_ccs(
         jmtx_matrix_ccs_get_col(b, j, &n_b, &i_b, &v_b);
         for (uint32_t i = 0; i < r_out; ++i)
         {
-            jmtx_matrix_crs_get_row(a, i, &n_a, &i_a, &v_a);
+            n_a = jmtx_matrix_crs_get_row(a, i, &i_a, &v_a);
             float v = 0;
             for (uint32_t k_a = 0, k_b = 0; k_a < n_a && k_b < n_b;)
             {

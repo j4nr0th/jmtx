@@ -70,8 +70,8 @@ struct jmtx_matrix_struct
     uint32_t rows;
     uint32_t cols;
     jmtx_allocator_callbacks allocator_callbacks;
-    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, float* p_out);
-    int (*has_element)(jmtx_index_t row, jmtx_index_t col);
+//    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, float* p_out);
+//    int (*has_element)(jmtx_index_t row, jmtx_index_t col);
 };
 
 JMTX_GCC_ONLY(__attribute__((visibility("hidden"))))

@@ -16,10 +16,9 @@ void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const flo
     //  First is the forward substitution for L v = y
     for (uint32_t i = 1; i < n; ++i)
     {
-        uint32_t count;
         uint32_t* indices;
         float* values;
-        jmtx_matrix_crs_get_row(l, i, &count, &indices, &values);
+        uint32_t count = jmtx_matrix_crs_get_row(l, i, &indices, &values);
         assert(indices[count - 1] == (uint32_t)i);
 
         float v = 0;
@@ -33,10 +32,9 @@ void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const flo
     //  Then the backward substitution for U x = v
     for (int32_t i = (int32_t)n - 1; i >= 0; --i)
     {
-        uint32_t count;
         uint32_t* indices;
         float* values;
-        jmtx_matrix_crs_get_row(u, i, &count, &indices, &values);
+        uint32_t count = jmtx_matrix_crs_get_row(u, i, &indices, &values);
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
@@ -55,10 +53,9 @@ void jmtx_lu_solve_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, f
     //  First is the forward substitution for L v = y
     for (uint32_t i = 1; i < n; ++i)
     {
-        uint32_t count;
         uint32_t* indices;
         float* values;
-        jmtx_matrix_crs_get_row(l, i, &count, &indices, &values);
+        uint32_t count = jmtx_matrix_crs_get_row(l, i, &indices, &values);
         assert(indices[count - 1] == (uint32_t)i);
 
         float v = 0;
@@ -72,10 +69,9 @@ void jmtx_lu_solve_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, f
     //  Then the backward substitution for U x = v
     for (int32_t i = (int32_t)n - 1; i >= 0; --i)
     {
-        uint32_t count;
         uint32_t* indices;
         float* values;
-        jmtx_matrix_crs_get_row(u, i, &count, &indices, &values);
+        uint32_t count = jmtx_matrix_crs_get_row(u, i, &indices, &values);
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
@@ -92,7 +88,7 @@ static inline void compute_residual(const uint32_t n, const jmtx_matrix_crs* mtx
 {
     for (uint32_t i = 0; i < n; ++i)
     {
-        r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
+        r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
     }
 }
 

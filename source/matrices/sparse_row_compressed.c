@@ -3,45 +3,11 @@
 //
 
 #include <assert.h>
+#include <math.h>
 #include "sparse_row_compressed.h"
 #include "sparse_row_compressed_internal.h"
 
-enum{DEFAULT_RESERVED_ELEMENTS = 64, FILL_VALUE = 0xDEADBEEF};
-
-static void beef_it_up(float* ptr, size_t elements)
-{
-    if (elements < 2)
-    {
-        const uint32_t BeefBuffer2[2] = {0xDEADBEEF, 0xDEADBEEF};
-        memcpy(ptr, BeefBuffer2, elements * sizeof(*ptr));
-    }
-
-    while (elements & 0x3)
-    {
-        *(uint32_t*)ptr = 0xDEADBEEF;
-        --elements;
-        ++ptr;
-    }
-
-    for (uint32_t i = 0; i < elements / 4; ++i)
-    {
-        *((uint32_t*)(ptr + i)) = 0xDEADBEEF;
-    }
-    memcpy(ptr + elements / 4, ptr, elements / 4 * sizeof(*ptr));
-    memcpy(ptr + elements / 2, ptr, elements / 2 * sizeof(*ptr));
-    //  Beefed
-}
-
-static int beef_check(const float* ptr, size_t elements)
-{
-    const uint32_t* const buffer = (const uint32_t*)ptr;
-    int beef_count = 0;
-    for (uint32_t i = 0; i < elements; ++i)
-    {
-        beef_count += (buffer[i] == 0xDEADBEEF);
-    }
-    return beef_count;
-}
+enum{DEFAULT_RESERVED_ELEMENTS = 64};
 
 static uint32_t crs_get_row_entries(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t** pp_indices, float** pp_values)
 {
@@ -69,7 +35,7 @@ static uint32_t crs_get_row_entries(const jmtx_matrix_crs* mtx, uint32_t row, ui
  * @param position what is the position in the row
  * @param value what is the value of the entry
  * @param index the index of the entry
- * @return
+ * @return JMTX_RESULT_BAD_ALLOC on allocation failure
  */
 static jmtx_result crs_insert_entry_at(jmtx_matrix_crs* mtx, uint32_t row, uint32_t position, float value, uint32_t index)
 {
@@ -93,12 +59,6 @@ static jmtx_result crs_insert_entry_at(jmtx_matrix_crs* mtx, uint32_t row, uint3
             return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->indices = new_indices;
-
-#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
-        //  Beef it up!
-        beef_it_up(new_values + mtx->capacity, new_capacity - mtx->capacity);
-        beef_it_up((float*)(new_indices + mtx->capacity), new_capacity - mtx->capacity);
-#endif
         mtx->capacity = new_capacity;
     }
 
@@ -129,32 +89,6 @@ jmtx_result jmtx_matrix_crs_new(
         jmtx_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!p_mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!rows)
-    {
-//        REPORT_ERROR_MESSAGE("Number of rows was 0");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_PARAM;
-    }
-    if (!cols)
-    {
-//        REPORT_ERROR_MESSAGE("Number of columns was 0");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_PARAM;
-    }
-    if (reserved_entries > cols * rows)
-    {
-//        REPORT_ERROR_MESSAGE("Number of reserved values (%u) exceeds product of columns (%u) by rows (%u)", reserved_entries, rows, columns);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_PARAM;
-    }
-#endif
     if (reserved_entries == 0)
     {
         reserved_entries = DEFAULT_RESERVED_ELEMENTS;
@@ -164,10 +98,7 @@ jmtx_result jmtx_matrix_crs_new(
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
-    }
+
     jmtx_result mtx_res = 0;
     uint32_t* offsets = NULL;
     uint32_t* indices = NULL;
@@ -181,35 +112,30 @@ jmtx_result jmtx_matrix_crs_new(
     float* values = allocator_callbacks->alloc(allocator_callbacks->state, (reserved_entries) * sizeof(*values));
     if (!values)
     {
-        mtx_res = JMTX_RESULT_BAD_ALLOC;
-//        CALLOC_FAILED((1 + reserved_entries) * sizeof*p_elements);
-        goto fail1;
+        allocator_callbacks->free(allocator_callbacks->state, mtx);
+        return JMTX_RESULT_BAD_ALLOC;
     }
     memset(values, 0, (reserved_entries) * sizeof(*values));
 
     indices = allocator_callbacks->alloc(allocator_callbacks->state, (reserved_entries) * sizeof(*indices));
     if (!indices)
     {
-        mtx_res = JMTX_RESULT_BAD_ALLOC;
-//        CALLOC_FAILED((1 + reserved_entries) * sizeof*indices);
-        goto fail2;
+        allocator_callbacks->free(allocator_callbacks->state, indices);
+        allocator_callbacks->free(allocator_callbacks->state, mtx);
+        return JMTX_RESULT_BAD_ALLOC;
     }
     memset(indices, 0, (reserved_entries) * sizeof(*indices));
 
     offsets = allocator_callbacks->alloc(allocator_callbacks->state, (rows) * sizeof(*offsets));
     if (!offsets)
     {
-        mtx_res = JMTX_RESULT_BAD_ALLOC;
-//        CALLOC_FAILED((columns + 1) * sizeof*offsets);
-        goto fail3;
+        allocator_callbacks->free(allocator_callbacks->state, offsets);
+        allocator_callbacks->free(allocator_callbacks->state, indices);
+        allocator_callbacks->free(allocator_callbacks->state, mtx);
+        return JMTX_RESULT_BAD_ALLOC;
     }
     memset(offsets, 0, (rows) * sizeof(*offsets));
 
-#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
-    beef_it_up(values, reserved_entries);
-    static_assert(sizeof(float) == sizeof(uint32_t), "element and index sizes must be the same");
-    beef_it_up((float*)indices, reserved_entries);
-#endif
     memset(mtx, 0, sizeof*mtx);
     mtx->base.cols = cols;
     mtx->base.type = JMTX_TYPE_CRS;
@@ -221,128 +147,101 @@ jmtx_result jmtx_matrix_crs_new(
     mtx->n_entries = 0;
     mtx->end_of_row_offsets = offsets;
     *p_mtx = mtx;
-//    LEAVE_FUNCTION();
-    return mtx_res;
-    fail3: allocator_callbacks->free(allocator_callbacks->state, indices);
-    fail2: allocator_callbacks->free(allocator_callbacks->state, offsets);
-    fail1: allocator_callbacks->free(allocator_callbacks->state, values);
-    allocator_callbacks->free(allocator_callbacks->state, mtx);
-//    LEAVE_FUNCTION();
+
     return mtx_res;
 }
 
-jmtx_result jmtx_matrix_crs_destroy(jmtx_matrix_crs* mtx)
+jmtx_result jmtxs_matrix_crs_new(
+        jmtx_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
+        const jmtx_allocator_callbacks* allocator_callbacks)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+    if (!p_mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!rows)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    if (!cols)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    if (reserved_entries > cols * rows)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+
+    return jmtx_matrix_crs_new(p_mtx, cols, rows, reserved_entries, allocator_callbacks);
+}
+
+void jmtx_matrix_crs_destroy(jmtx_matrix_crs* mtx)
+{
+    jmtx_allocator_callbacks allocator = mtx->base.allocator_callbacks;
+    allocator.free(allocator.state, mtx->indices);
+    allocator.free(allocator.state, mtx->end_of_row_offsets);
+    allocator.free(allocator.state, mtx->values);
+    allocator.free(allocator.state, mtx);
+}
+
+jmtx_result jmtxs_matrix_crs_destroy(jmtx_matrix_crs* mtx)
+{
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-#endif
-    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->indices);
-    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->end_of_row_offsets);
-    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->values);
-    mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx);
-//    LEAVE_FUNCTION();
+    jmtx_matrix_crs_destroy(mtx);
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_crs_shrink(jmtx_matrix_crs* mtx)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-//    CALL_FUNCTION(matrix_crs_shrink);
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-#endif
-    jmtx_result res = JMTX_RESULT_SUCCESS;
-
     if (mtx->n_entries == mtx->capacity)
     {
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_SUCCESS;
     }
 
     float* element_new_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->values, sizeof*mtx->values * (mtx->n_entries));
     if (!element_new_ptr)
     {
-        res = JMTX_RESULT_BAD_ALLOC;
-//        REALLOC_FAILED(sizeof*mtx->values * (mtx->n_entries));
-        goto end;
+        return JMTX_RESULT_BAD_ALLOC;
     }
     mtx->values = element_new_ptr;
     uint32_t* new_indices_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->indices, sizeof*mtx->indices * (mtx->n_entries));
     if (!new_indices_ptr)
     {
-        res = JMTX_RESULT_BAD_ALLOC;
-//        REALLOC_FAILED(sizeof*mtx->indices * (mtx->n_entries));
-        goto end;
+        return JMTX_RESULT_BAD_ALLOC;
     }
     mtx->indices = new_indices_ptr;
     mtx->capacity = mtx->n_entries;
-end:
-//    LEAVE_FUNCTION();
-    return res;
+
+    return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
+jmtx_result jmtxs_matrix_crs_shrink(jmtx_matrix_crs* mtx)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-//    CALL_FUNCTION(matrix_crs_set_row);
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (mtx->base.rows <= row)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-    if (mtx->base.cols < n)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns, but %u values were specified to be set in row %u", mtx->base.cols, n, row);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-    if (!indices)
-    {
-//        REPORT_ERROR_MESSAGE("Indices pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!values)
-    {
-//        REPORT_ERROR_MESSAGE("Elements pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
+    return jmtx_matrix_crs_shrink(mtx);
+}
+
+jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
+{
+
     jmtx_result res = JMTX_RESULT_SUCCESS;
     const uint32_t beginning_offset = row ? mtx->end_of_row_offsets[row - 1] : 0;
     const int32_t new_elements = (int32_t)n - (int32_t)(mtx->end_of_row_offsets[row] - beginning_offset);
@@ -352,17 +251,13 @@ jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t
         float* new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->values, sizeof*(mtx->values) * (required_capacity + 1));
         if (!new_element_ptr)
         {
-            res = JMTX_RESULT_BAD_ALLOC;
-//            REALLOC_FAILED(sizeof*mtx->values * (required_capacity + 1));
-            goto end;
+            return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->values = new_element_ptr;
         uint32_t* new_indices_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->indices, sizeof*(mtx->indices) * (required_capacity + 1));
         if (!new_indices_ptr)
         {
-            res = JMTX_RESULT_BAD_ALLOC;
-//            REALLOC_FAILED(sizeof*mtx->indices * (required_capacity + 1));
-            goto end;
+            return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->indices = new_indices_ptr;
         mtx->capacity = required_capacity;
@@ -392,44 +287,61 @@ jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t
         memcpy(mtx->values + beginning_offset, values, sizeof*values * n);
         memcpy(mtx->indices + beginning_offset, indices, sizeof*indices * n);
     }
-end:
-//    LEAVE_FUNCTION();
+
     return res;
 }
 
-jmtx_result jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const float* restrict x, float* restrict y)
+jmtx_result jmtxs_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
 {
-//    CALL_FUNCTION(matrix_crs_vector_multiply);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!x)
+    if (mtx->base.rows <= row)
     {
-//        REPORT_ERROR_MESSAGE("Vector x was null");
-//        LEAVE_FUNCTION();
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    if (mtx->base.cols < n)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    if (!indices)
+    {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!y)
+    if (!values)
     {
-//        REPORT_ERROR_MESSAGE("Vector y was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
+    if (n != 0)
+    {
+        if (indices[0] >= mtx->base.cols)
+        {
+            return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        }
+        if (!isfinite(values[0]))
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+        for (uint32_t i = 1; i < n; ++i)
+        {
+            if (indices[i - 1] >= indices[i] || !isfinite(values[i]))
+            {
+                return JMTX_RESULT_BAD_PARAM;
+            }
+        }
+    }
+    return jmtx_matrix_crs_set_row(mtx, row, n, indices, values);
+}
 
 
-    jmtx_result res = JMTX_RESULT_SUCCESS;
-
+void jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const float* restrict x, float* restrict y)
+{
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         uint32_t* indices;
@@ -443,40 +355,32 @@ jmtx_result jmtx_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const fl
         }
         y[i] = v;
     }
-
-    return res;
 }
 
-jmtx_result jmtx_matrix_crs_set_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float value)
+jmtx_result jmtxs_matrix_crs_vector_multiply(const jmtx_matrix_crs* mtx, const float* restrict x, float* restrict y)
 {
-//    CALL_FUNCTION(matrix_crs_set_element);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (j >= mtx->base.cols)
+    if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->base.cols, j);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        return JMTX_RESULT_NULL_PARAM;
     }
-    if (i >= mtx->base.rows)
+    if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->base.rows, i);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+    jmtx_matrix_crs_vector_multiply(mtx, x, y);
+    return JMTX_RESULT_SUCCESS;
+}
 
+jmtx_result jmtx_matrix_crs_set_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float value)
+{
     jmtx_result res;
     uint32_t* row_indices;
     float* row_values;
@@ -515,37 +419,33 @@ jmtx_result jmtx_matrix_crs_set_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t
     return res;
 }
 
-jmtx_result jmtx_matrix_crs_get_entry(const jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float* p_value)
+jmtx_result jmtxs_matrix_crs_set_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float value)
 {
-//    CALL_FUNCTION(matrix_crs_get_element);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (j >= mtx->base.cols)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->base.cols, j);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
     if (i >= mtx->base.rows)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->base.rows, i);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-#endif
+    if (!isfinite(value))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtx_matrix_crs_set_entry(mtx, i, j, value);
+}
 
-    jmtx_result res = JMTX_RESULT_SUCCESS;
+float jmtx_matrix_crs_get_entry(const jmtx_matrix_crs* mtx, uint32_t i, uint32_t j)
+{
     uint32_t* row_indices;
     float* row_values;
     const uint32_t n_row_elements = crs_get_row_entries(mtx, i, &row_indices, &row_values);
@@ -556,121 +456,138 @@ jmtx_result jmtx_matrix_crs_get_entry(const jmtx_matrix_crs* mtx, uint32_t i, ui
         const uint32_t possible = jmtx_internal_find_last_leq_value(n_row_elements, row_indices, j);
         if (row_indices[possible] == j)
         {
-            *p_value = row_values[possible];
-            return JMTX_RESULT_SUCCESS;
+            return row_values[possible];
         }
     }
-    *p_value = 0;
-//    LEAVE_FUNCTION();
-    return res;
+
+    return 0.0f;
 }
 
-jmtx_result jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* n, uint32_t** p_indices, float** p_elements)
+jmtx_result jmtxs_matrix_crs_get_entry(const jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float* p_value)
 {
-//    CALL_FUNCTION(matrix_crs_get_element);
-
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (j >= mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    if (i >= mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    *p_value = jmtx_matrix_crs_get_entry(mtx, i, j);
+
+    return JMTX_RESULT_SUCCESS;
+}
+
+uint32_t jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t** p_indices, float** p_elements)
+{
+    return crs_get_row_entries(mtx, row, p_indices, p_elements);
+}
+
+jmtx_result jmtxs_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* n, uint32_t** p_indices, float** p_elements)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (row >= mtx->base.rows)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->base.rows, row);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
     if (!n)
     {
-//        REPORT_ERROR_MESSAGE("Count pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!p_indices)
     {
-//        REPORT_ERROR_MESSAGE("Index pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!p_elements)
     {
-//        REPORT_ERROR_MESSAGE("Element pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
-    jmtx_result res = JMTX_RESULT_SUCCESS;
-    uint32_t* row_indices;
-    float* row_values;
-    const uint32_t n_row_elements = crs_get_row_entries(mtx, row, &row_indices, &row_values);
-    *p_indices = row_indices;
-    *p_elements = row_values;
-    *n = n_row_elements;
-    //    LEAVE_FUNCTION();
-    return res;
+    *n = jmtx_matrix_crs_get_row(mtx, row, p_indices, p_elements);
+    return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_beef_check(const jmtx_matrix_crs* mtx, int* p_beef_status)
+uint32_t jmtx_matrix_crs_count_values(const jmtx_matrix_crs* mtx, float v)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+    uint32_t r = 0;
+    for (uint32_t i = 0; i < mtx->n_entries; ++i)
+    {
+        if (v == mtx->values[i])
+        {
+            r += 1;
+        }
+    }
+    return r;
+}
+
+jmtx_result jmtxs_matrix_crs_count_values(const jmtx_matrix_crs* mtx, float v, uint32_t* p_count)
+{
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!p_beef_status)
+    if (!p_count)
     {
-//        REPORT_ERROR_MESSAGE("Beef status pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-#endif
 
-    const int beef_status = beef_check(mtx->values, mtx->n_entries) + beef_check((void*)mtx->indices, mtx->n_entries);
-    *p_beef_status = (beef_status << 16) | 0x0000Beef;
-//    LEAVE_FUNCTION();
-    return 0;
+    *p_count = jmtx_matrix_crs_count_values(mtx, v);
+    return JMTX_RESULT_SUCCESS;
 }
+
+uint32_t jmtx_matrix_crs_count_indices(const jmtx_matrix_crs* mtx, uint32_t v)
+{
+    uint32_t r = 0;
+    for (uint32_t i = 0; i < mtx->n_entries; ++i)
+    {
+        if (v == mtx->indices[i])
+        {
+            r += 1;
+        }
+    }
+    return r;
+}
+
+jmtx_result jmtxs_matrix_crs_count_indices(const jmtx_matrix_crs* mtx, uint32_t v, uint32_t* p_count)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!p_count)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+
+    *p_count = jmtx_matrix_crs_count_indices(mtx, v);
+    return JMTX_RESULT_SUCCESS;
+}
+
 
 jmtx_result jmtx_matrix_crs_apply_unary_fn(const jmtx_matrix_crs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, float* p_value, void* param), void* param)
 {
-//    CALL_FUNCTION(matrix_crs_apply_unary_fn);
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!unary_fn)
-    {
-//        REPORT_ERROR_MESSAGE("Unary function pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
-
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
         float* p_elements;
@@ -680,32 +597,34 @@ jmtx_result jmtx_matrix_crs_apply_unary_fn(const jmtx_matrix_crs* mtx, int (*una
         {
             if ((unary_fn(i, p_indices[j], p_elements + j, param)))
             {
-//                LEAVE_FUNCTION();
+
                 return JMTX_RESULT_UNARY_RETURN;
             }
         }
     }
-//    LEAVE_FUNCTION();
+
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
+jmtx_result jmtxs_matrix_crs_apply_unary_fn(const jmtx_matrix_crs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, float* p_value, void* param), void* param)
 {
-//    CALL_FUNCTION(matrix_crs_remove_zeros);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-#endif
+    if (!unary_fn)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    return jmtx_matrix_crs_apply_unary_fn(mtx, unary_fn, param);
+}
+
+void jmtx_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
+{
     //  Update offsets
     uint32_t p, c = 0, r = 0;
     while (mtx->end_of_row_offsets[r] == 0)
@@ -757,14 +676,21 @@ jmtx_result jmtx_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
         }
     }
 
-
-    //  Beef
     mtx->n_entries -= c;
-#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
-    beef_it_up(mtx->values + mtx->n_entries, c);
-    static_assert(sizeof(float) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
-    beef_it_up((float*)(mtx->indices + mtx->n_entries), c);
-#endif
+}
+
+jmtx_result jmtxs_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+
+    jmtx_matrix_crs_remove_zeros(mtx);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -779,23 +705,8 @@ static inline bool is_bellow_magnitude(float x, float mag)
     return u_x < u_mag;
 }
 
-jmtx_result jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
+void jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
 {
-//    CALL_FUNCTION(matrix_crs_remove_zeros);
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-#endif
     //  Update offsets
     uint32_t p, c = 0, r = 0;
     while (mtx->end_of_row_offsets[r] == 0)
@@ -845,47 +756,30 @@ jmtx_result jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float 
         p0 -= 1;
     }
 
-
-    //  Beef
     mtx->n_entries -= c;
-#if !(defined(JMTX_NO_VERIFY_PARAMS) || defined(NDEBUG))
-    beef_it_up(mtx->values + mtx->n_entries, c);
-    static_assert(sizeof(float) == sizeof(uint32_t), "Size of index and scalar must be the same for beef");
-    beef_it_up((float*)(mtx->indices + mtx->n_entries), c);
-#endif
-//    LEAVE_FUNCTION();
-    return 0;
 }
 
-jmtx_result jmtx_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t* p_n)
+jmtx_result jmtxs_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (col >= mtx->base.cols)
+    if (!isfinite(v))
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->base.cols, col);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        return JMTX_RESULT_BAD_PARAM;
     }
-    if (!p_n)
-    {
-//        REPORT_ERROR_MESSAGE("Count pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
 
+    jmtx_matrix_crs_remove_bellow_magnitude(mtx, v);
+    return JMTX_RESULT_SUCCESS;
+}
+
+uint32_t jmtx_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t col)
+{
     uint32_t element_count = 0;
     for (uint32_t row = 0; row < mtx->base.rows && (!row || (mtx->end_of_row_offsets[row - 1] != mtx->n_entries)); ++row)
     {
@@ -901,45 +795,34 @@ jmtx_result jmtx_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t 
             }
         }
     }
-    *p_n = element_count;
-    return JMTX_RESULT_SUCCESS;
+    return element_count;
 }
 
-jmtx_result jmtx_matrix_crs_get_col(
-        const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, uint32_t* p_count, float* p_values, uint32_t* p_rows)
+jmtx_result jmtxs_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t* p_n)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (col >= mtx->base.cols)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->base.cols, col);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-    if (!p_values)
+    if (!p_n)
     {
-//        REPORT_ERROR_MESSAGE("Element pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!p_rows)
-    {
-//        REPORT_ERROR_MESSAGE("Rows pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
+    *p_n = jmtx_matrix_crs_entries_in_col(mtx, col);
+    return JMTX_RESULT_SUCCESS;
+}
+
+uint32_t
+jmtx_matrix_crs_get_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, float* p_values, uint32_t* p_rows)
+{
     uint32_t k = 0;
     for (uint32_t row = 0; k < n && row < mtx->base.rows && (!row || (mtx->end_of_row_offsets[row - 1] != mtx->n_entries)); ++row)
     {
@@ -957,46 +840,44 @@ jmtx_result jmtx_matrix_crs_get_col(
             }
         }
     }
-    if (p_count)
+    return k;
+}
+
+jmtx_result jmtxs_matrix_crs_get_col(
+        const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, uint32_t* p_count, float* p_values, uint32_t* p_rows)
+{
+    if (!mtx)
     {
-        *p_count = k;
+        return JMTX_RESULT_NULL_PARAM;
     }
-//    LEAVE_FUNCTION();
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (col >= mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    if (!p_values)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!p_rows)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    *p_count = jmtx_matrix_crs_get_col(mtx, col, n, p_values, p_rows);
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_crs_transpose(
         const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-//    CALL_FUNCTION(matrix_crs_transpose);
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Input matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Input matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!p_out)
-    {
-//        REPORT_ERROR_MESSAGE("Output matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-#endif
     if (!allocator_callbacks)
     {
         allocator_callbacks = &mtx->base.allocator_callbacks;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
-    }
+
     const uint32_t n_elements = mtx->n_entries;
     const uint32_t new_rows = mtx->base.cols;
     const uint32_t new_cols = mtx->base.rows;
@@ -1010,8 +891,6 @@ jmtx_result jmtx_matrix_crs_transpose(
     uint32_t* const column_cum_counts = allocator_callbacks->alloc(allocator_callbacks->state, (new_rows) * sizeof(*column_cum_counts));
     if (!column_cum_counts)
     {
-//        CALLOC_FAILED((new_rows + 1) * sizeof*column_cum_counts);
-//        LEAVE_FUNCTION();
         allocator_callbacks->free(allocator_callbacks->state, out);
         return JMTX_RESULT_BAD_ALLOC;
     }
@@ -1020,8 +899,6 @@ jmtx_result jmtx_matrix_crs_transpose(
     {
         allocator_callbacks->free(allocator_callbacks->state, out);
         allocator_callbacks->free(allocator_callbacks->state, column_cum_counts);
-//        CALLOC_FAILED((n_entries + 1) * sizeof*new_indices);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
     memset(new_indices, 0, (n_elements) * sizeof*new_indices);
@@ -1031,8 +908,6 @@ jmtx_result jmtx_matrix_crs_transpose(
         allocator_callbacks->free(allocator_callbacks->state, out);
         allocator_callbacks->free(allocator_callbacks->state, column_cum_counts);
         allocator_callbacks->free(allocator_callbacks->state, new_indices);
-//        CALLOC_FAILED((n_entries + 1) * sizeof*new_elements);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
 
@@ -1040,12 +915,9 @@ jmtx_result jmtx_matrix_crs_transpose(
 
     for (uint32_t j = 0, n, p = 0; j < mtx->base.cols; ++j)
     {
-        //  This MUST NOT fail, since the parameters are all within the correct bounds, which is the only way it can fail
-        jmtx_result res = jmtx_matrix_crs_entries_in_col(mtx, j, &n);
-        assert(res == JMTX_RESULT_SUCCESS);
+        n = jmtx_matrix_crs_entries_in_col(mtx, j);
+        (void) jmtx_matrix_crs_get_col(mtx, j, n, new_values + p, new_indices + p);
 
-        res = jmtx_matrix_crs_get_col(mtx, j, n, NULL, new_values + p, new_indices + p);
-        assert(res == JMTX_RESULT_SUCCESS);
         p += n;
         column_cum_counts[j] = (j != 0 ? column_cum_counts[j - 1] : 0) + n;
     }
@@ -1061,40 +933,37 @@ jmtx_result jmtx_matrix_crs_transpose(
     out->base.cols = new_cols;
     out->base.allocator_callbacks = *allocator_callbacks;
     *p_out = out;
-    //    LEAVE_FUNCTION();
+
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxs_matrix_crs_transpose(
+        const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-//    CALL_FUNCTION(matrix_crs_copy);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Input matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Input matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!p_out)
     {
-//        REPORT_ERROR_MESSAGE("Output matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtx_matrix_crs_transpose(mtx, p_out, allocator_callbacks);
+}
+
+jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
+{
     if (!allocator_callbacks)
     {
         allocator_callbacks = &mtx->base.allocator_callbacks;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
     }
     jmtx_matrix_crs* const out = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*out));
     if (!out)
@@ -1105,8 +974,6 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p
     if (!elements)
     {
         allocator_callbacks->free(allocator_callbacks->state, out);
-//        CALLOC_FAILED((1 + mtx->n_entries) * sizeof *values);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
     uint32_t* const indices = allocator_callbacks->alloc(allocator_callbacks->state, (mtx->n_entries) * sizeof *indices);
@@ -1114,8 +981,6 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p
     {
         allocator_callbacks->free(allocator_callbacks->state, out);
         allocator_callbacks->free(allocator_callbacks->state, elements);
-//        CALLOC_FAILED((1 + mtx->n_entries) * sizeof *indices);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
     uint32_t* const cum_sum = allocator_callbacks->alloc(allocator_callbacks->state, (mtx->base.rows) * sizeof *cum_sum);
@@ -1124,8 +989,6 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p
         allocator_callbacks->free(allocator_callbacks->state, out);
         allocator_callbacks->free(allocator_callbacks->state, indices);
         allocator_callbacks->free(allocator_callbacks->state, elements);
-//        CALLOC_FAILED((1 + mtx->base.rows) * sizeof *cum_sum);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_ALLOC;
     }
 
@@ -1142,48 +1005,29 @@ jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p
     return JMTX_RESULT_SUCCESS;
 }
 
+jmtx_result jmtxs_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtx_matrix_crs_copy(mtx, p_out, allocator_callbacks);
+}
+
 jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
 {
-//    CALL_FUNCTION(matrix_crs_build_row);
-//#ifndef JMTX_NO_VERIFY_PARAMS
-//    if (!mtx)
-//    {
-////        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_NULL_PARAM;
-//    }
-//    if (mtx->base.type != JMTX_TYPE_CRS)
-//    {
-////        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_WRONG_TYPE;
-//    }
-//    if (mtx->base.rows <= row)
-//    {
-////        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-//    }
-//    if (mtx->base.cols < n)
-//    {
-////        REPORT_ERROR_MESSAGE("Matrix has %u columns, but %u values were specified to be set in row %u", mtx->base.cols, n, row);
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-//    }
-//    if (!indices)
-//    {
-////        REPORT_ERROR_MESSAGE("Indices pointer was null");
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_NULL_PARAM;
-//    }
-//    if (!values)
-//    {
-////        REPORT_ERROR_MESSAGE("Elements pointer was null");
-////        LEAVE_FUNCTION();
-//        return JMTX_RESULT_NULL_PARAM;
-//    }
-//#endif
-
     jmtx_result res = JMTX_RESULT_SUCCESS;
     const uint32_t required_capacity = (uint32_t)((int32_t)mtx->n_entries + (int32_t)n);
     if (mtx->capacity < required_capacity)
@@ -1191,17 +1035,13 @@ jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32
         float* new_element_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->values, sizeof*mtx->values * (required_capacity + 1));
         if (!new_element_ptr)
         {
-            res = JMTX_RESULT_BAD_ALLOC;
-//            REALLOC_FAILED(sizeof*mtx->values * (required_capacity + 1));
-            goto end;
+            return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->values = new_element_ptr;
         uint32_t* new_indices_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->indices, sizeof*mtx->indices * (required_capacity + 1));
         if (!new_indices_ptr)
         {
-            res = JMTX_RESULT_BAD_ALLOC;
-//            REALLOC_FAILED(sizeof*mtx->indices * (required_capacity + 1));
-            goto end;
+            return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->indices = new_indices_ptr;
         mtx->capacity = required_capacity;
@@ -1213,12 +1053,11 @@ jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32
 
     mtx->end_of_row_offsets[row] = n + offset;
     mtx->n_entries += n;
-end:
-//    LEAVE_FUNCTION();
+
     return res;
 }
 
-float jmtx_matrix_crs_vector_multiply_row_raw(const jmtx_matrix_crs* mtx, const float* x, uint32_t i)
+float jmtx_matrix_crs_vector_multiply_row(const jmtx_matrix_crs* mtx, const float* x, uint32_t i)
 {
     uint32_t* indices;
     float* values;
@@ -1231,77 +1070,35 @@ float jmtx_matrix_crs_vector_multiply_row_raw(const jmtx_matrix_crs* mtx, const 
     return v;
 }
 
-jmtx_result jmtx_matrix_crs_vector_multiply_row(const jmtx_matrix_crs* mtx, const float* x, uint32_t i, float* p_r)
+jmtx_result jmtxs_matrix_crs_vector_multiply_row(const jmtx_matrix_crs* mtx, const float* restrict x, uint32_t i, float* restrict p_r)
 {
-//    CALL_FUNCTION(matrix_crs_vector_multiply_row);
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (i >= mtx->base.rows)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->base.rows, i);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
     if (!p_r)
     {
-//        REPORT_ERROR_MESSAGE("Result pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
-    *p_r = jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i);
-//    LEAVE_FUNCTION();
+    *p_r = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_crs_add_to_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float value)
 {
-//    CALL_FUNCTION(matrix_crs_set_element);
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (j >= mtx->base.cols)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u columns but column %u was requested", mtx->base.cols, j);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-    if (i >= mtx->base.rows)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows but row %u was requested", mtx->base.rows, i);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-#endif
-
     jmtx_result res;
     uint32_t* row_indices;
     float* row_values;
@@ -1340,8 +1137,35 @@ jmtx_result jmtx_matrix_crs_add_to_entry(jmtx_matrix_crs* mtx, uint32_t i, uint3
     return res;
 }
 
-jmtx_result jmtx_matrix_crs_zero_all_entries(jmtx_matrix_crs* mtx)
+jmtx_result jmtxs_matrix_crs_add_to_entry(jmtx_matrix_crs* mtx, uint32_t i, uint32_t j, float value)
 {
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (j >= mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    if (i >= mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    return jmtx_matrix_crs_add_to_entry(mtx, i, j, value);
+}
+
+void jmtx_matrix_crs_zero_all_entries(const jmtx_matrix_crs* mtx)
+{
+    memset(mtx->values, 0, sizeof(*mtx->values) * mtx->n_entries);
+}
+
+jmtx_result jmtxs_matrix_crs_zero_all_entries(const jmtx_matrix_crs* mtx)
+{
+
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
@@ -1356,60 +1180,35 @@ jmtx_result jmtx_matrix_crs_zero_all_entries(jmtx_matrix_crs* mtx)
         return JMTX_RESULT_WRONG_TYPE;
     }
 #endif
-    memset(mtx->values, 0, sizeof(*mtx->values) * mtx->n_entries);
-
+    jmtx_matrix_crs_zero_all_entries(mtx);
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_set_all_entries(jmtx_matrix_crs* mtx, float x)
+void jmtx_matrix_crs_set_all_entries(const jmtx_matrix_crs* mtx, float x)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-#endif
     for (float* ptr = mtx->values; ptr != mtx->values + mtx->n_entries; ++ptr)
     {
         *ptr = x;
     }
-
-    return JMTX_RESULT_SUCCESS;
-
 }
 
-jmtx_result jmtx_matrix_crs_remove_row(jmtx_matrix_crs* mtx, uint32_t row)
+jmtx_result jmtxs_matrix_crs_set_all_entries(jmtx_matrix_crs* mtx, float x)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-//    CALL_FUNCTION(jmtx_matrix_crs_remove_row);
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (mtx->base.rows <= row)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
-    }
-#endif
-    jmtx_result res = JMTX_RESULT_SUCCESS;
+    jmtx_matrix_crs_set_all_entries(mtx, x);
+
+    return JMTX_RESULT_SUCCESS;
+}
+
+void jmtx_matrix_crs_remove_row(jmtx_matrix_crs* mtx, uint32_t row)
+{
     uint32_t* row_indices;
     float* row_values;
     const uint32_t removed_entry_count = crs_get_row_entries(mtx, row, &row_indices, &row_values);
@@ -1432,34 +1231,28 @@ jmtx_result jmtx_matrix_crs_remove_row(jmtx_matrix_crs* mtx, uint32_t row)
         mtx->n_entries -= removed_entry_count;
     }
     mtx->base.rows -= 1;
-//    LEAVE_FUNCTION();
-    return res;
 }
 
-jmtx_result jmtx_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col)
+jmtx_result jmtxs_matrix_crs_remove_row(jmtx_matrix_crs* mtx, uint32_t row)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-//    CALL_FUNCTION(jmtx_matrix_crs_remove_row);
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (mtx->base.cols <= col)
+    if (mtx->base.rows <= row)
     {
-//        REPORT_ERROR_MESSAGE("Matrix has %u rows, but row %u was requested", mtx->base.rows, row);
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-#endif
-    jmtx_result res = JMTX_RESULT_SUCCESS;
+    jmtx_matrix_crs_remove_row(mtx, row);
+    return JMTX_RESULT_SUCCESS;
+}
+
+void jmtx_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col)
+{
     //  i: tracks the current element to check
     //  j: how many values to be removed were found
     //  r: what row we are currently in
@@ -1497,29 +1290,43 @@ jmtx_result jmtx_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col)
     assert(r == mtx->base.rows);
     mtx->n_entries -= j;
     mtx->base.cols -= 1;
-//    LEAVE_FUNCTION();
-    return res;
 }
 
-jmtx_result jmtx_matrix_crs_clear(jmtx_matrix_crs* mtx)
+jmtx_result jmtxs_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
-//    CALL_FUNCTION(jmtx_matrix_crs_remove_row);
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-#endif
+    if (mtx->base.cols <= col)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    jmtx_matrix_crs_remove_column(mtx, col);
+    return JMTX_RESULT_SUCCESS;
+}
+
+void jmtx_matrix_crs_clear(jmtx_matrix_crs* mtx)
+{
     mtx->n_entries = 0;
     memset(mtx->end_of_row_offsets, 0, sizeof(*mtx->end_of_row_offsets) * mtx->base.rows);
+}
+
+jmtx_result jmtxs_matrix_crs_clear(jmtx_matrix_crs* mtx)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    jmtx_matrix_crs_clear(mtx);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -1570,4 +1377,42 @@ jmtx_result jmtx_matrix_crs_join_vertically(
 
     *output = out;
     return JMTX_RESULT_SUCCESS;
+}
+
+jmtx_result jmtxs_matrix_crs_join_vertically(
+        jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned int k,
+        const jmtx_matrix_crs** matrix_list)
+{
+    if (!output)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!matrix_list)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (allocators && (!allocators->alloc || !allocators->free || !allocators->realloc))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+
+    const uint32_t col_count = matrix_list[0]->base.cols;
+    for (const jmtx_matrix_crs** pmtx = matrix_list; pmtx != matrix_list + k; ++pmtx)
+    {
+        const jmtx_matrix_crs* mtx = *pmtx;
+        if (!mtx)
+        {
+            return JMTX_RESULT_NULL_PARAM;
+        }
+        if (mtx->base.type != JMTX_TYPE_CRS)
+        {
+            return JMTX_RESULT_WRONG_TYPE;
+        }
+        if (mtx->base.cols != col_count)
+        {
+            return JMTX_RESULT_DIMS_MISMATCH;
+        }
+    }
+    
+    return jmtx_matrix_crs_join_vertically(output, allocators, k, matrix_list);
 }

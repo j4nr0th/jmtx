@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "../../source/matrices/sparse_row_compressed.h"
+#include "../../source/matrices/sparse_row_compressed_safe.h"
 
 enum
 {
@@ -75,7 +76,7 @@ static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsig
 //                );
 //        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 //        int beef_stat;
-//        ASSERT(mtx_res == jmtx_matrix_crs_beef_check(mtx, &beef_stat));
+//        ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
 //        ASSERT(beef_stat == 0xBeef);
 
         if ((j += 1) == INTERNAL_SIZE_X)
@@ -102,7 +103,7 @@ int main()
     const float rdy2 = 1.0f / (dy * dy);
     const float rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     const double t0_serial = omp_get_wtime();
@@ -157,7 +158,7 @@ int main()
 //                    );
 //            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 //            int beef_stat;
-//            ASSERT(mtx_res == jmtx_matrix_crs_beef_check(mtx, &beef_stat));
+//            ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
 //            ASSERT(beef_stat == 0xBeef);
         }
     }
@@ -185,7 +186,7 @@ int main()
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
-        MATRIX_TEST_CALL(jmtx_matrix_crs_new(mtx_array + i, PROBLEM_INTERNAL_PTS, (sizes[i + 1] - sizes[i]), 5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i]) ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]), NULL));
+        MATRIX_TEST_CALL(jmtxs_matrix_crs_new(mtx_array + i, PROBLEM_INTERNAL_PTS, (sizes[i + 1] - sizes[i]), 5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i]) ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]), NULL));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 
@@ -201,7 +202,7 @@ int main()
     }
 
     jmtx_matrix_crs* joined;
-    MATRIX_TEST_CALL(jmtx_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS,
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS,
                                                      (const jmtx_matrix_crs**) mtx_array));
     const double t1_par_inner = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -209,7 +210,7 @@ int main()
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
-        MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(mtx_array[i]));
+        MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx_array[i]));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 
@@ -227,15 +228,15 @@ int main()
         for (unsigned j = 0; j < PROBLEM_INTERNAL_PTS; ++j)
         {
             float v_serial, v_joined;
-            ASSERT(jmtx_matrix_crs_get_entry(mtx, i, j, &v_serial) == JMTX_RESULT_SUCCESS);
-            ASSERT(jmtx_matrix_crs_get_entry(joined, i, j, &v_joined) == JMTX_RESULT_SUCCESS);
+            ASSERT(jmtxs_matrix_crs_get_entry(mtx, i, j, &v_serial) == JMTX_RESULT_SUCCESS);
+            ASSERT(jmtxs_matrix_crs_get_entry(joined, i, j, &v_joined) == JMTX_RESULT_SUCCESS);
             ASSERT(v_serial == v_joined);
         }
     }
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(joined));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(joined));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(mtx));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }

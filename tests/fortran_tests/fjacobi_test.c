@@ -12,6 +12,7 @@
 #include "../../source/solvers/jacobi_point_iteration.h"
 #include "../../source/matrices/sparse_row_compressed_internal.h"
 #include "../../source/f_exper/f_interface.h"
+#include "../../source/matrices/sparse_row_compressed_safe.h"
 
 static const float V = 10.0f;
 static const float omega_0 = 5.0f;
@@ -56,15 +57,15 @@ int main()
     jmtx_matrix_crs* matrix;
     jmtx_result mtx_res;
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_new(&matrix, steps, steps, 2 * steps, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&matrix, steps, steps, 2 * steps, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtx_matrix_crs_set_entry(matrix, 0, 0, 1.0f));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_set_entry(matrix, 0, 0, 1.0f));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     for (uint32_t i = 1; i < steps; ++i)
     {
         uint32_t indices[2] = {i - 1, i};
         float values[2] = {- 1 / dx, 1 / dx - 1 };
-        MATRIX_TEST_CALL(jmtx_matrix_crs_set_row(matrix, i, 2, indices, values));
+        MATRIX_TEST_CALL(jmtxs_matrix_crs_set_row(matrix, i, 2, indices, values));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 //    print_crs_matrix(matrix);
@@ -111,7 +112,7 @@ int main()
 
 
 
-    MATRIX_TEST_CALL(jmtx_matrix_crs_destroy(matrix));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(matrix));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 #ifdef PLOT_RESULTS
     cplot_context* cplot_ctx = cplot_context_create();

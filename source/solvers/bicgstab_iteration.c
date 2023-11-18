@@ -71,8 +71,7 @@ jmtx_result jmtx_bicgstab_crs(
     memcpy(x, y, n * sizeof(float));
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         x[i] /= d;
     }
 
@@ -116,8 +115,7 @@ jmtx_result jmtx_bicgstab_crs(
         err_rms = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            float val;
-            jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
+            float val = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
             val -= y[i];
             err_rms += val * val;
         }
@@ -149,8 +147,7 @@ jmtx_result jmtx_bicgstab_crs(
         err_rms = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            float val;
-            jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
+            float val = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
             val -= y[i];
             err_rms += val * val;
         }
@@ -264,9 +261,8 @@ static void* bicgstab_crs_thrd_fn(void* param)
         for (uint32_t i = begin; i < end; ++i)
         {
             float val = 0, * elements;
-            uint32_t n, * indices;
-
-            jmtx_matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
+            uint32_t* indices;
+            uint32_t n =jmtx_matrix_crs_get_row(args->mtx, i, &indices, &elements);
             for (uint32_t j = 0; j < n; ++j)
             {
                 val += elements[j] * p[indices[j]];
@@ -300,8 +296,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         err = 0;
         for (uint32_t i = begin; i < end; ++i)
         {
-            float y0;
-            jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
+            float y0 = jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i);
             y0 -= args->y[i];
             err += y0 * y0;
         }
@@ -333,9 +328,8 @@ static void* bicgstab_crs_thrd_fn(void* param)
         for (uint32_t i = begin; i < end; ++i)
         {
             float val = 0, * elements;
-            uint32_t n, * indices;
-
-            jmtx_matrix_crs_get_row(args->mtx, i, &n, &indices, &elements);
+            uint32_t* indices;
+            uint32_t n = jmtx_matrix_crs_get_row(args->mtx, i, &indices, &elements);
             for (uint32_t j = 0; j < n; ++j)
             {
                 val += elements[j] * s[indices[j]];
@@ -367,8 +361,7 @@ static void* bicgstab_crs_thrd_fn(void* param)
         pthread_barrier_wait(args->barrier);
         for (uint32_t i = begin; i < end; ++i)
         {
-            float y0;
-            jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i, &y0);
+            float y0 = jmtx_matrix_crs_vector_multiply_row(args->mtx, x, i);
             y0 -= args->y[i];
             err += y0 * y0;
         }
@@ -509,8 +502,7 @@ jmtx_result jmtx_bicgstab_crs_mt(
     memcpy(x, y, n * sizeof(float));
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         x[i] /= d;
     }
 

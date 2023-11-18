@@ -59,8 +59,7 @@ jmtx_result jmtx_gauss_seidel_crs(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         x[i] /= d;
     }
 
@@ -74,8 +73,7 @@ jmtx_result jmtx_gauss_seidel_crs(
         {
             float* row_ptr;
             uint32_t* index_ptr;
-            uint32_t n_elements;
-            jmtx_matrix_crs_get_row(mtx, i, &n_elements, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtx_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
             float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -97,7 +95,7 @@ jmtx_result jmtx_gauss_seidel_crs(
         for (uint32_t i = 0; i < n; ++i)
         {
             float val;
-            jmtx_matrix_crs_vector_multiply_row(mtx, x, i, &val);
+            val = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
             val -= y[i];
             err += val * val;
         }
@@ -170,8 +168,7 @@ static void* gauss_seidel_thrd_fn(void* param)
         {
             float* row_ptr;
             uint32_t* index_ptr;
-            uint32_t n_elements;
-            jmtx_matrix_crs_get_row(args->matrix, i, &n_elements, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtx_matrix_crs_get_row(args->matrix, i, &index_ptr, &row_ptr);
             float res = (float)0.0;
             uint32_t k = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -193,7 +190,7 @@ static void* gauss_seidel_thrd_fn(void* param)
         for (uint32_t i = begin; i < end; ++i)
         {
             float val;
-            jmtx_matrix_crs_vector_multiply_row(args->matrix, args->x, i, &val);
+            val = jmtx_matrix_crs_vector_multiply_row(args->matrix, args->x, i);
             val -= args->y[i];
             err += val * val;
         }
@@ -277,8 +274,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
     //  Improve the guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d;
-        jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
         x[i] /= d;
     }
 
@@ -416,8 +412,7 @@ jmtx_result jmtx_gauss_seidel_crs_parallel(
 #pragma omp for reduction(+:mag_y) schedule(static)
         for (uint32_t i = 0; i < n; ++i)
         {
-            float d;
-            jmtx_matrix_crs_get_entry(mtx, i, i, &d);
+            float d = jmtx_matrix_crs_get_entry(mtx, i, i);
             aux_vector[i] = 1.0f/d;
             mag_y += y[i] * y[i];
         }
@@ -435,7 +430,7 @@ jmtx_result jmtx_gauss_seidel_crs_parallel(
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x[i] = x[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i)) * aux_vector[i];
+                x[i] = x[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i)) * aux_vector[i];
             }
 
 #pragma omp master
@@ -448,7 +443,7 @@ jmtx_result jmtx_gauss_seidel_crs_parallel(
             for (uint32_t i = 0; i < n; ++i)
             {
                 float val;
-                val = jmtx_matrix_crs_vector_multiply_row_raw(mtx, x, i) - y[i];
+                val = jmtx_matrix_crs_vector_multiply_row(mtx, x, i) - y[i];
                 err += val * val;
             }
 

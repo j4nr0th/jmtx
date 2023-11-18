@@ -995,8 +995,8 @@ jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* mtx, jmtx_matrix_ccs** p
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    memcpy(elements + 1, mtx->values + 1, sizeof* elements * mtx->n_entries);
-    memcpy(indices + 1, mtx->indices + 1, sizeof* indices * mtx->n_entries);
+    memcpy(elements, mtx->values, sizeof* elements * mtx->n_entries);
+    memcpy(indices, mtx->indices, sizeof* indices * mtx->n_entries);
     memcpy(cum_sum, mtx->end_of_column_offsets, sizeof* cum_sum * (mtx->base.cols));
     this->base = mtx->base;
     this->values = elements;
