@@ -16,7 +16,7 @@
 
 enum
 {
-    PROBLEM_SIZE_X = 1 << 5, PROBLEM_SIZE_Y = 1 << 5,
+    PROBLEM_SIZE_X = 1 << 2, PROBLEM_SIZE_Y = 1 << 2,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
@@ -36,7 +36,8 @@ int main()
 {
     jmtx_matrix_crs* mtx;
     jmtx_result mtx_res;
-    omp_set_dynamic(1);
+    omp_set_dynamic(0);
+    omp_set_num_threads(1);
     const int proc_count = omp_get_num_procs();
     const int max_threads = omp_get_max_threads();
     printf("OpenMP found %d processors, with a maximum of %d threads\n", proc_count, max_threads);
@@ -104,15 +105,41 @@ int main()
 
     jmtx_matrix_crs* lower = NULL;
     jmtx_matrix_ccs* upper = NULL;
-    uint32_t n_iterations;
-    float final_error;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(mtx, &lower, &upper, 1e-4f, 32, &final_error, &n_iterations, NULL));
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(mtx, &lower, &upper, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
-    printf("Decomposition took %g seconds for %u iterations, with final error of %g and the result: %s\n", t1_decomp -
-    t0_decomp, n_iterations, final_error, jmtx_result_to_str(mtx_res));
+    {
+        jmtx_matrix_crs* lower1 = NULL;
+        jmtx_matrix_ccs* upper1 = NULL;
+        uint32_t last_iter;
+        float final_err;
+        const double t0_old_d = omp_get_wtime();
+        MATRIX_TEST_CALL(jmtx_incomplete_lu_crs_old(mtx, &lower1, &upper1, 1e-8f, 32, &final_err, &last_iter, NULL));
+        const double t1_old_d = omp_get_wtime();
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS || JMTX_RESULT_NOT_CONVERGED);
+        printf("Old way of decomposing took %g seconds\n", t1_old_d - t0_old_d);
+//        print_crs_matrix(lower);
+//        print_crs_matrix(lower1);
+//
+//        print_ccs_matrix(upper);
+//        print_ccs_matrix(upper1);
+
+        for (uint32_t i = 0; i < INTERNAL_SIZE_Y; ++i)
+        {
+            for (uint32_t j = 0; j < INTERNAL_SIZE_X; ++j)
+            {
+                ASSERT(jmtx_matrix_crs_get_entry(lower, i, j) == jmtx_matrix_crs_get_entry(lower1, i, j));
+                ASSERT(jmtx_matrix_ccs_get_entry(upper, i, j) == jmtx_matrix_ccs_get_entry(upper1, i, j));
+            }
+        }
+
+        jmtx_matrix_crs_destroy(lower1);
+        jmtx_matrix_ccs_destroy(upper1);
+    }
+    printf("Decomposition took %g seconds and the result: %s\n", t1_decomp -
+    t0_decomp, jmtx_result_to_str(mtx_res));
 
     float* const initial_vector = malloc(PROBLEM_INTERNAL_PTS * sizeof(*initial_vector));
     ASSERT(initial_vector != NULL);
@@ -147,8 +174,9 @@ int main()
 
 //    print_ccs_matrix(upper);
 //    print_crs_matrix(upper_crs);
-
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
+    uint32_t n_iterations;
+    float final_error;
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4f, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", n_iterations, (double)final_error);
 

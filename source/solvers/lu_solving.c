@@ -142,10 +142,8 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
 
     jmtx_matrix_crs* lower;
     jmtx_matrix_ccs* upper_ccs;
-    float final_error;
-    uint32_t n_iterations;
     jmtx_result res = jmtx_incomplete_lu_crs(
-            mtx, &lower, &upper_ccs, 1e-4f, 32, &final_error, &n_iterations, allocator_callbacks);
+            mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -275,7 +273,6 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
 
     *p_final_error = err;
     *p_iter = n_iter;
-    *p_final_error = err;
 
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
@@ -320,86 +317,73 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
 
     const uint32_t n = mtx->base.rows;
     float* const r = aux_vec;
-    uint32_t n_iter = 0;
-
+    compute_residual(n, mtx, x, y, r);
     float residual2 = 0;
     float mag_y2 = 0;
-    float err;
-#pragma omp parallel default(none) shared(n, mtx, x, r, residual2, mag_y2, y, err, convergence_dif, p_final_error, p_error, p_iter, aux_vec, l, u, n_max_iter, n_iter)
+    for (uint32_t i = 0; i < n; ++i)
     {
+        residual2 += r[i] * r[i];
+        mag_y2 = y[i] * y[i];
+    }
+
+    float err = sqrtf(residual2/mag_y2);
+    if (err < convergence_dif)
+    {
+        //  Converged prior to any iteration
+        *p_final_error = err;
+        if (p_error)
+        {
+            *p_error = err;
+        }
+        if (p_iter)
+        {
+            *p_iter = 0;
+        }
+        return JMTX_RESULT_SUCCESS;
+    }
+
+
+
+    //  Now begin iterations with x^{k + 1} = x^{k} + U'^{-1} L'^{-1} A x^{k}
+    float* x1 = aux_vec;
+    float* x2 = x;
+    const float stop_mag2 = mag_y2 * (convergence_dif * convergence_dif);
+    uint32_t n_iter = 0;
+
+
+    for (n_iter = 0; n_iter < n_max_iter && stop_mag2 < residual2; ++n_iter)
+    {
+        {
+            float* tmp = x2;
+            x2 = x1;
+            x1 = tmp;
+        }
+
+
+        jmtx_lu_solve_inplace(l, u, r);
+
         for (uint32_t i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            x[i] += r[i];
+        }
+
+        compute_residual(n, mtx, x, y, r);
+
+        residual2 = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
             residual2 += r[i] * r[i];
-            mag_y2 = y[i] * y[i];
         }
 
-        if (residual2/mag_y2 < convergence_dif * convergence_dif)
+        if (p_error)
         {
-#pragma omp master
-            {
-                err = sqrtf(residual2/mag_y2);
-                //  Converged prior to any iteration
-                *p_final_error = err;
-                if (p_error)
-                {
-                    *p_error = err;
-                }
-                if (p_iter)
-                {
-                    *p_iter = 0;
-                }
-            }
-        }
-        else
-        {
-            //  Now begin iterations with x^{k + 1} = x^{k} + U'^{-1} L'^{-1} A x^{k}
-            float* x1 = aux_vec;
-            float* x2 = x;
-            const float stop_mag2 = mag_y2 * (convergence_dif * convergence_dif);
-            while (n_iter < n_max_iter && stop_mag2 < residual2)
-            {
-#pragma omp single
-                {
-                    float* tmp = x2;
-                    x2 = x1;
-                    x1 = tmp;
-                    jmtx_lu_solve_inplace(l, u, r);
-                }
-
-#pragma omp for
-                for (uint32_t i = 0; i < n; ++i)
-                {
-                    x[i] += r[i];
-                }
-
-#pragma omp for
-                for (uint32_t i = 0; i < n; ++i)
-                {
-                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
-                }
-
-#pragma omp for reduction(+:residual2)
-                for (uint32_t i = 0; i < n; ++i)
-                {
-                    residual2 += r[i] * r[i];
-                }
-#pragma omp single
-                {
-                    if (p_error)
-                    {
-                        p_error[n_iter] = sqrtf(residual2 / mag_y2);
-                    }
-                    n_iter += 1;
-                }
-            }
+            p_error[n_iter] = sqrtf(residual2 / mag_y2);
         }
     }
     err = sqrtf(residual2 / mag_y2);
 
     *p_final_error = err;
     *p_iter = n_iter;
-    *p_final_error = err;
 
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
@@ -454,10 +438,8 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
 
     jmtx_matrix_crs* lower;
     jmtx_matrix_ccs* upper_ccs;
-    float final_error;
-    uint32_t n_iterations;
     jmtx_result res = jmtx_incomplete_lu_crs(
-            mtx, &lower, &upper_ccs, 1e-4f, 32, &final_error, &n_iterations, allocator_callbacks);
+            mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;

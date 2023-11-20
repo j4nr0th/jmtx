@@ -32,8 +32,8 @@
  * other jmtx_result values on other failures.
  */
 jmtx_result jmtx_incomplete_lu_crs(
-        const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
-        float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
+        const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
+        const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
@@ -65,6 +65,10 @@ jmtx_result jmtx_incomplete_lu_crs_parallel(
         jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
         float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
 
+
+jmtx_result jmtx_incomplete_lu_crs_old(
+        const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
+        float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
 
 
 #endif //JMTX_INCOMPLETE_LU_DECOMPOSITION_H

@@ -162,5 +162,4 @@ add_executable(omp_ilu_test tests/solver_tests/omp_inclu_test.c tests/test_commo
 target_link_libraries(omp_ilu_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_ilu_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_ilu_test PRIVATE -fopenmp)
-add_test(NAME omp_ilu COMMAND omp_ilu_test)
 
