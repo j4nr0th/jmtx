@@ -85,15 +85,15 @@ add_executable(base_ccs_test tests/matrix_ops_tests/base_ccs_test.c tests/test_c
 target_link_libraries(base_ccs_test jmtx m)
 add_test(NAME base_ccs COMMAND base_ccs_test)
 
-add_executable(old_crs_demo run_crs_tests.c tests/test_common.c)
+add_executable(old_crs_demo tests/really_old_tests/run_crs_tests.c tests/test_common.c)
 target_link_libraries(old_crs_demo PRIVATE jmtx m)
 add_test(NAME old_crs COMMAND old_crs_demo)
 
-add_executable(old_ccs_demo run_ccs_tests.c tests/test_common.c)
+add_executable(old_ccs_demo tests/really_old_tests/run_ccs_tests.c tests/test_common.c)
 target_link_libraries(old_ccs_demo PRIVATE jmtx m)
 add_test(NAME old_ccs COMMAND old_ccs_demo)
 
-add_executable(old_compare_demo compare_crs_and_ccs.c tests/test_common.c)
+add_executable(old_compare_demo tests/really_old_tests/compare_crs_and_ccs.c tests/test_common.c)
 target_link_libraries(old_compare_demo PRIVATE jmtx m)
 add_test(NAME old_compare COMMAND old_compare_demo)
 
@@ -157,4 +157,10 @@ target_link_libraries(incomplete_lu_test PRIVATE jmtx gomp)
 target_compile_definitions(incomplete_lu_test PRIVATE JMTX_OPENMP)
 target_compile_options(incomplete_lu_test PRIVATE -fopenmp)
 add_test(NAME solve_ilu COMMAND incomplete_lu_test)
+
+add_executable(omp_ilu_test tests/solver_tests/omp_inclu_test.c tests/test_common.c)
+target_link_libraries(omp_ilu_test PRIVATE jmtx gomp)
+target_compile_definitions(omp_ilu_test PRIVATE JMTX_OPENMP)
+target_compile_options(omp_ilu_test PRIVATE -fopenmp)
+add_test(NAME omp_ilu COMMAND omp_ilu_test)
 
