@@ -60,6 +60,8 @@ add_library(jmtx
         ${FORTRAN_SOURCE_FILES}
         include/jmtx/common.h
         include/jmtx/solvers/solver_base.h
+        include/jmtx/solvers/incomplete_cholesky_decomposition.h
+        source/solvers/incomplete_cholesky_decomposition.c
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -166,3 +168,8 @@ target_link_libraries(omp_ilu_test PRIVATE jmtx gomp)
 target_compile_definitions(omp_ilu_test PRIVATE JMTX_OPENMP)
 target_compile_options(omp_ilu_test PRIVATE -fopenmp)
 
+add_executable(icho_test tests/solver_tests/incho_test.c tests/test_common.c)
+target_link_libraries(icho_test PRIVATE jmtx gomp)
+target_compile_definitions(icho_test PRIVATE JMTX_OPENMP)
+target_compile_options(icho_test PRIVATE -fopenmp)
+add_test(NAME solve_icho COMMAND icho_test)

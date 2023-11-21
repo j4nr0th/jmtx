@@ -14,7 +14,7 @@ struct jmtx_matrix_ccs_struct
     uint32_t* indices;
     //  Values of values
     float* values;
-    uint32_t capacity;
     uint32_t n_entries;
+    uint32_t capacity;
 };
 #endif //JMTX_SPARSE_COLUMN_COMPRESSED_INTERNAL_H

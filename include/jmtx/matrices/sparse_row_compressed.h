@@ -289,4 +289,10 @@ void jmtx_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col);
  */
 jmtx_result jmtx_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtx_matrix_crs* matrix_list[static k]);
 
+jmtx_result jmtx_matrix_crs_new_like(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out,
+                                     const jmtx_allocator_callbacks* allocator_callbacks, const float* p_val);
+
+jmtx_result jmtxs_matrix_crs_new_like(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks, const float* p_val);
+
 #endif //JMTX_SPARSE_ROW_COMPRESSED_H

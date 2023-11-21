@@ -1378,6 +1378,96 @@ jmtx_result jmtx_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx
     return JMTX_RESULT_SUCCESS;
 }
 
+jmtx_result jmtx_matrix_crs_new_like(
+        const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks,
+        const float* p_val)
+{
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &mtx->base.allocator_callbacks;
+    }
+    jmtx_matrix_crs* const out = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*out));
+    if (!out)
+    {
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    float* const elements = allocator_callbacks->alloc(allocator_callbacks->state, (mtx->n_entries) * sizeof (*elements));
+    if (!elements)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, out);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    uint32_t* const indices = allocator_callbacks->alloc(allocator_callbacks->state, (mtx->n_entries) * sizeof *indices);
+    if (!indices)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, out);
+        allocator_callbacks->free(allocator_callbacks->state, elements);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    uint32_t* const cum_sum = allocator_callbacks->alloc(allocator_callbacks->state, (mtx->base.rows) * sizeof *cum_sum);
+    if (!cum_sum)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, out);
+        allocator_callbacks->free(allocator_callbacks->state, indices);
+        allocator_callbacks->free(allocator_callbacks->state, elements);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+
+    if (p_val)
+    {
+        const float v = *p_val;
+        if (v == 0)
+        {
+            memset(elements, 0, sizeof* elements * mtx->n_entries);
+        }
+        else
+        {
+            for (uint32_t i = 0; i < mtx->n_entries; ++i)
+            {
+                elements[i] = v;
+            }
+        }
+    }
+
+    memcpy(indices, mtx->indices, sizeof* indices * mtx->n_entries);
+    memcpy(cum_sum, mtx->end_of_row_offsets, sizeof* cum_sum * (mtx->base.rows));
+    memcpy(out, mtx, sizeof *out);
+    out->values = elements;
+    out->indices = indices;
+    out->end_of_row_offsets = cum_sum;
+    out->base = mtx->base;
+    out->base.allocator_callbacks = *allocator_callbacks;
+    *p_out = out;
+    return JMTX_RESULT_SUCCESS;
+}
+
+jmtx_result jmtxs_matrix_crs_new_like(
+        const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks,
+        const float* p_val)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    if (p_val && !isfinite(*p_val))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtx_matrix_crs_new_like(mtx, p_out, allocator_callbacks, p_val);
+}
+
 jmtx_result jmtxs_matrix_crs_join_vertically(
         jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned int k,
         const jmtx_matrix_crs** matrix_list)

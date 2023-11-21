@@ -108,7 +108,7 @@ jmtx_result jmtx_matrix_multiply_crs(
             {
                 if (count == capacity)
                 {
-                    const uint32_t new_capacity = capacity;
+                    const uint32_t new_capacity = capacity << 1;
                     float* const new_v = allocator_callbacks->realloc(allocator_callbacks->state, values, sizeof(*values) * new_capacity);
                     if (!new_v)
                     {

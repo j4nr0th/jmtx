@@ -17,5 +17,4 @@ struct jmtx_matrix_crs_struct
     uint32_t n_entries;
     uint32_t capacity;
 };
-
 #endif //JMTX_SPARSE_ROW_COMPRESSED_INTERNAL_H

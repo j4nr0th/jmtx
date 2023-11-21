@@ -27,6 +27,7 @@ jmtx_result jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs* in, jmtx_
 
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CCS;
+
     *p_out = (jmtx_matrix_ccs*)in;
 
     return JMTX_RESULT_SUCCESS;
