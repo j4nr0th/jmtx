@@ -2,17 +2,16 @@
 // Created by jan on 30.10.2023.
 //
 
-#include "conjugate_gradient_iteration.h"
+#include "../../include/jmtx/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../include/jmtx/solvers/solver_base.h"
 #include <math.h>
 #include <stdio.h>
 
-jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                        const float tolerance, const float stagnation,
-                                        const uint32_t recalculation_interval, const uint32_t max_iterations,
-                                        uint32_t* p_final_iteration, float* restrict err_evolution,
-                                        float* final_error, float* restrict aux_vec1, float* restrict aux_vec2,
-                                        float* restrict aux_vec3)
+jmtx_result jmtx_conjugate_gradient_crs(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, const float stagnation,
+        const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -41,6 +40,14 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!aux_vec2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec3)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -138,12 +145,12 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
             }
 
             err = sqrtf(new_rk_dp) / mag_y;
-            if (err_evolution)
+            if (args->opt_error_evolution)
             {
-                err_evolution[n_iterations] = err;
+                args->opt_error_evolution[n_iterations] = err;
             }
 
-            if (err < tolerance)
+            if (err < args->in_convergence_criterion)
             {
                 //  Make sure the residual was computed directly
                 if (update_residual == 0)
@@ -175,22 +182,20 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
                 stagnated = 0;
             }
             prev_err = err;
-        } while(n_iterations < max_iterations && stagnated == 0);
+        } while(n_iterations < args->in_max_iterations && stagnated == 0);
     }
 
 
-    *final_error = err;
-    *p_final_iteration = n_iterations;
+    args->out_last_error = err;
+    args->out_last_iteration = n_iterations;
     if (stagnated) return JMTX_RESULT_STAGNATED;
-    return err < tolerance ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
+    return err < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                                 const float tolerance, const float stagnation,
-                                                 const uint32_t recalculation_interval, const uint32_t max_iterations,
-                                                 uint32_t* p_final_iteration, float* restrict err_evolution,
-                                                 float* final_error, float* restrict aux_vec1, float* restrict aux_vec2,
-                                                 float* restrict aux_vec3)
+jmtx_result jmtx_conjugate_gradient_crs_parallel(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, const float stagnation,
+        const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -222,6 +227,14 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, con
     {
         return JMTX_RESULT_NULL_PARAM;
     }
+    if (!aux_vec3)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
 #endif
 
     const uint32_t n = mtx->base.rows;
@@ -229,8 +242,8 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, con
     float* const p = aux_vec2;
     float* const Ap = aux_vec3;
     uint32_t n_iterations = 0, n_since_calc = 0;
-    float alpha, beta;
-    int update_residual, stagnated = 0;
+    float alpha = 0, beta = 0;
+    int update_residual = 1, stagnated = 0;
 
     float rk_dp = 0;
     float pAp_dp = 0;
@@ -238,7 +251,9 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, con
     float new_rk_dp = 0;
     float mag_y = 0;
     float prev_err = 0;
-
+    float* const err_evolution = args->opt_error_evolution;
+    const float tolerance = args->in_convergence_criterion;
+    const uint32_t max_iterations = args->in_max_iterations;
 #pragma omp parallel default(none) shared(n, rk_dp, r, mtx, p, Ap, alpha, update_residual, n_iterations, err, x, y,\
                                           err_evolution, tolerance, beta, max_iterations, pAp_dp, new_rk_dp, mag_y,\
                                           stagnation, prev_err, stagnated, recalculation_interval, n_since_calc)
@@ -379,8 +394,8 @@ computing_residual_directly:
         } while(n_iterations < max_iterations && stagnated == 0);
     }
 
-    *final_error = err;
-    *p_final_iteration = n_iterations;
+    args->out_last_error = err;
+    args->out_last_iteration = n_iterations;
     if (stagnated) return JMTX_RESULT_STAGNATED;
     return err < tolerance ? JMTX_RESULT_SUCCESS: JMTX_RESULT_NOT_CONVERGED;
 }

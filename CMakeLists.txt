@@ -11,31 +11,42 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/dense_row_major.c
         source/matrices/dense_col_major.c
         source/matrices/matrix_base.c
+        source/matrices/sparse_conversion.c
+        source/matrices/sparse_multiplication.c
         )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
-        source/matrices/sparse_row_compressed.h
-        source/matrices/sparse_column_compressed.h
-        source/matrices/dense_row_major.h
-        source/matrices/dense_col_major.h
-        source/matrices/matrix_base.h
+        include/jmtx/matrices/sparse_row_compressed.h
+        include/jmtx/matrices/sparse_column_compressed.h
+        include/jmtx/matrices/dense_row_major.h
+        include/jmtx/matrices/dense_col_major.h
+        include/jmtx/matrices/matrix_base.h
+        include/jmtx/matrices/sparse_conversion.h
+        include/jmtx/matrices/sparse_multiplication.h
         )
 
 list(APPEND INTERNAL_HEADER_FILES
-        source/matrices/sparse_row_compressed_internal.h)
+        source/matrices/sparse_row_compressed_internal.h
+        source/matrices/sparse_column_compressed_internal.h)
 
-list(APPEND INTERNAL_SOURCE_FILES)
+list(APPEND INTERNAL_SOURCE_FILES )
 
 list(APPEND SOLVER_SOURCE_FILES
         source/solvers/jacobi_point_iteration.c
         source/solvers/gauss_seidel_iteration.c
         source/solvers/bicgstab_iteration.c
+        source/solvers/conjugate_gradient_iteration.c
+        source/solvers/incomplete_lu_decomposition.c
+        source/solvers/lu_solving.c
         )
 
 list(APPEND SOLVER_HEADER_FILES
-        source/solvers/jacobi_point_iteration.h
-        source/solvers/gauss_seidel_iteration.h
+        include/jmtx/solvers/jacobi_point_iteration.h
+        include/jmtx/solvers/gauss_seidel_iteration.h
         source/solvers/bicgstab_iteration.h
+        include/jmtx/solvers/conjugate_gradient_iteration.h
+        include/jmtx/solvers/incomplete_lu_decomposition.h
+        include/jmtx/solvers/lu_solving.h
         )
 
 list(APPEND FORTRAN_SOURCE_FILES
@@ -47,16 +58,8 @@ add_library(jmtx
         ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
         ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
         ${FORTRAN_SOURCE_FILES}
-        source/solvers/conjugate_gradient_iteration.c
-        source/solvers/conjugate_gradient_iteration.h
-        source/solvers/incomplete_lu_decomposition.c
-        source/solvers/incomplete_lu_decomposition.h
-        source/matrices/sparse_conversion.c
-        source/matrices/sparse_conversion.h
-        source/matrices/sparse_multiplication.c
-        source/matrices/sparse_multiplication.h
-        source/solvers/lu_solving.c
-        source/solvers/lu_solving.h
+        include/jmtx/common.h
+        include/jmtx/solvers/solver_base.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -69,7 +72,7 @@ target_compile_options(jmtx PRIVATE -march=native)
 option(JMTX_USE_OPENMP "Use OpenMP for parallel functions" ON)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(jmtx PRIVATE -fopenmp)
+    target_compile_options(jmtx PRIVATE -fopenmp -fanalyzer)
 endif ()
 if (JMTX_USE_OPENMP)
     target_compile_definitions(jmtx PRIVATE JMTX_OPENMP)

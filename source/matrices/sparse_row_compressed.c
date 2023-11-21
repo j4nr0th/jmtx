@@ -4,12 +4,12 @@
 
 #include <assert.h>
 #include <math.h>
-#include "sparse_row_compressed.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
 #include "sparse_row_compressed_internal.h"
 
 enum{DEFAULT_RESERVED_ELEMENTS = 64};
 
-static uint32_t crs_get_row_entries(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t** pp_indices, float** pp_values)
+static uint32_t crs_get_row_entries(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* pp_indices[1], float* pp_values[1])
 {
     uint32_t offset, len;
     if (row == 0)
@@ -239,7 +239,7 @@ jmtx_result jmtxs_matrix_crs_shrink(jmtx_matrix_crs* mtx)
     return jmtx_matrix_crs_shrink(mtx);
 }
 
-jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
+jmtx_result jmtx_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const float values[static n])
 {
 
     jmtx_result res = JMTX_RESULT_SUCCESS;
@@ -486,7 +486,7 @@ jmtx_result jmtxs_matrix_crs_get_entry(const jmtx_matrix_crs* mtx, uint32_t i, u
     return JMTX_RESULT_SUCCESS;
 }
 
-uint32_t jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t** p_indices, float** p_elements)
+uint32_t jmtx_matrix_crs_get_row(const jmtx_matrix_crs* mtx, uint32_t row, uint32_t* p_indices[1], float* p_elements[1])
 {
     return crs_get_row_entries(mtx, row, p_indices, p_elements);
 }
@@ -821,7 +821,7 @@ jmtx_result jmtxs_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t
 }
 
 uint32_t
-jmtx_matrix_crs_get_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, float* p_values, uint32_t* p_rows)
+jmtx_matrix_crs_get_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, float p_values[n], uint32_t p_rows[n])
 {
     uint32_t k = 0;
     for (uint32_t row = 0; k < n && row < mtx->base.rows && (!row || (mtx->end_of_row_offsets[row - 1] != mtx->n_entries)); ++row)
@@ -1026,7 +1026,7 @@ jmtx_result jmtxs_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** 
     return jmtx_matrix_crs_copy(mtx, p_out, allocator_callbacks);
 }
 
-jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t* indices, const float* values)
+jmtx_result jmtx_matrix_crs_build_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const float values[static n])
 {
     jmtx_result res = JMTX_RESULT_SUCCESS;
     const uint32_t required_capacity = (uint32_t)((int32_t)mtx->n_entries + (int32_t)n);
@@ -1330,9 +1330,8 @@ jmtx_result jmtxs_matrix_crs_clear(jmtx_matrix_crs* mtx)
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_join_vertically(
-        jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned int k,
-        const jmtx_matrix_crs** matrix_list)
+jmtx_result jmtx_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators,
+                                            unsigned k, const jmtx_matrix_crs* matrix_list[static k])
 {
     const uint32_t col_count = matrix_list[0]->base.cols;
     uint32_t n_rows = matrix_list[0]->base.rows;

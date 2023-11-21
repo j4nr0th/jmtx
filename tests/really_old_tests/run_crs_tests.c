@@ -1,10 +1,9 @@
 //
 // Created by jan on 14.6.2022.
 //
-#include "source/matrices/sparse_row_compressed.h"
-#include "tests/test_common.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#include "../test_common.h"
 #include <stdio.h>
-#include <assert.h>
 
 
 static int make_the_values_funnier(uint32_t i, uint32_t j, float* x, void* param)

@@ -6,6 +6,7 @@
 #define JMTX_JACOBI_POINT_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
 #include "../matrices/sparse_column_compressed.h"
+#include "solver_base.h"
 
 /*
  * Jacobi Point Iteration is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -33,9 +34,8 @@
  * @return zero if successful
  */
 jmtx_result jmtx_jacobi_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
+        jmtx_solver_arguments* args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -58,40 +58,11 @@ jmtx_result jmtx_jacobi_crs(
  * @return zero if successful
  */
 jmtx_result jmtx_jacobi_relaxed_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float relaxation_factor,
-        float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
-        float* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks);
-
-/**
- * @warning Currently broken for God knows why. Not in a hurry to fix it, since it is inferior
- *
- * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
- * to solve the linear system Ax = y
- *
- * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
- * @param y pointer to the memory where the vector y is stored
- * @param x pointer to the memory where the solution vector x will be stored
- * @param convergence_dif when the largest value of change per iteration for an element in x is less than this,
- * the solution is considered found
- * @param n_max_iter maximum number of iterations to perform before giving up
- * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_error pointer which receives the evolution of error (may be null)
- * @param p_final_error pointer which receives the final error
- * @param allocator_callbacks allocator callbacks used for internal memory allocations (may be null)
- * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
- * @return zero if successful
- */
-#ifdef __GNUC__
-__attribute__((warning("BROKEN, DO NOT USE (YET)")))
-#endif
-jmtx_result jmtx_jacobi_crs_mt(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
-        const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
+        float* restrict aux_vec2, jmtx_solver_arguments* args);
 
 jmtx_result jmtx_jacobi_crs_parallel(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif, uint32_t max_itertations,
-        uint32_t* p_iteration_count, float* p_error_evolution, float* p_final_error, float* aux_vector1,
-        float* aux_vector2);
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector1, float* restrict aux_vector2,
+        jmtx_solver_arguments* args);
 
 #endif //JMTX_JACOBI_POINT_ITERATION_H

@@ -1,15 +1,11 @@
 #ifndef JMTX_MATRIX_BASE_H
 #define JMTX_MATRIX_BASE_H
 
+#include "../common.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 
-#ifdef __GNUC__
-#define JMTX_GCC_ONLY(x) x
-#else
-#define JMTX_GCC_ONLY(x)
-#endif
 
 
 enum jmtx_result_enum
@@ -43,6 +39,7 @@ typedef uint32_t jmtx_index_t;
 enum jmtx_matrix_type_enum
 {
     JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
+
     JMTX_TYPE_CRS,      //  Compressed row sparse
     JMTX_TYPE_CCS,      //  Compressed column sparse
     JMTX_TYPE_DRM,      //  Dense row-major
@@ -70,12 +67,10 @@ struct jmtx_matrix_struct
     uint32_t rows;
     uint32_t cols;
     jmtx_allocator_callbacks allocator_callbacks;
-//    jmtx_result (*get_element)(jmtx_matrix* mtx, jmtx_index_t row, jmtx_index_t col, float* p_out);
-//    int (*has_element)(jmtx_index_t row, jmtx_index_t col);
 };
 
-JMTX_GCC_ONLY(__attribute__((visibility("hidden"))))
-uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t* p_indices, uint32_t value);
+JMTX_INTERNAL_FUNCTION
+uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t p_indices[static n_indices], uint32_t value);
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
 

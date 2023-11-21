@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../source/solvers/conjugate_gradient_iteration.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/solvers/conjugate_gradient_iteration.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
 enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 4};
 
@@ -61,25 +61,29 @@ int main()
         ASSERT(mtx_res == (jmtxs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
 //    print_crs_matrix(mtx);
-    uint32_t iterations = 0, total_iterations = 0;
-    float final_err;
+    uint32_t total_iterations = 0;
     double total_time = 0;
+    jmtx_solver_arguments solver_arguments =
+            {
+            .in_convergence_criterion = 1e-4f,
+            .in_max_iterations = MAX_ITERATIONS,
+            };
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
         mtx_res = jmtx_conjugate_gradient_crs_parallel(
-                mtx, forcing_vector, iterative_solution + 1, 1e-4f, 1e-6f, 1, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1, aux_v2, aux_v3);
+                mtx, forcing_vector, iterative_solution + 1, 1e-6f, 1, aux_v1, aux_v2, aux_v3, &solver_arguments);
         const double t1 = omp_get_wtime();
-        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, iterations, PROBLEM_DIMS,
-               jmtx_result_to_str(mtx_res), final_err);
+        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
+               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
-        total_iterations += iterations;
+        total_iterations += solver_arguments.out_last_iteration;
         total_time += t1 - t0;
     }
 
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
-    printf("Iterative solution had final residual ratio of %g after %u iterations\n", final_err, total_iterations);
+    printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, total_iterations);
 
 //    for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
 //    {

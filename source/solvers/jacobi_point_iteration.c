@@ -2,7 +2,7 @@
 // Created by jan on 15.6.2022.
 //
 
-#include "jacobi_point_iteration.h"
+#include "../../include/jmtx/solvers/jacobi_point_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
 #include <math.h>
 #include <stdio.h>
@@ -12,9 +12,8 @@
 #include <omp.h>
 
 jmtx_result jmtx_jacobi_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
+        jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -46,24 +45,25 @@ jmtx_result jmtx_jacobi_crs(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec1)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
 #endif
 
-    if (!allocator_callbacks)
-    {
-        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
-    }
+
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
-    if (!div_factor)
-    {
-        return JMTX_RESULT_BAD_ALLOC;
-    }
+    float* const div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -82,14 +82,7 @@ jmtx_result jmtx_jacobi_crs(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
-    if (!auxiliary_x)
-    {
-//        CALLOC_FAILED(n * sizeof*x);
-//        LEAVE_FUNCTION();
-        allocator_callbacks->free(allocator_callbacks->state, div_factor);
-        return JMTX_RESULT_BAD_ALLOC;
-    }
+    float* const auxiliary_x = aux_vec2;
 
     float* x0 = auxiliary_x;
     float* x1 = x;
@@ -130,275 +123,28 @@ jmtx_result jmtx_jacobi_crs(
         }
         //  Have "err" as ratio between magnitude of y vector and magnitude of residual
         err = sqrtf(err) / (float)y_mag;
-        if (p_error)
+        if (args->opt_error_evolution)
         {
-            p_error[n_iterations] = err;
+            args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > convergence_dif && n_iterations < n_max_iter);
+    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
 
     if (x1 == auxiliary_x)
     {
         memcpy(x, auxiliary_x, sizeof*x * n);
     }
-    allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-    allocator_callbacks->free(allocator_callbacks->state, div_factor);
-    if (p_iter) *p_iter = n_iterations;
-    if (p_final_error) *p_final_error = err;
+
+    args->out_last_error = err;
+    args->out_last_iteration = n_iterations;
 //    LEAVE_FUNCTION();
-    return n_iterations == n_max_iter ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
-}
-
-struct jacobi_crs_thread_param
-{
-    const jmtx_matrix_crs* matrix;
-    const float* y;
-    float** x0, **x1;
-    uint32_t* done;
-    uint32_t n;
-    uint32_t n_thrds;
-    pthread_barrier_t* barrier;
-    float* p_err;
-    float* p_final_err;
-    uint32_t id;
-    _Atomic uint32_t* ready;
-};
-
-static void* jacobi_crs_thread_fn(void* param)
-{
-    struct jacobi_crs_thread_param args = *(struct jacobi_crs_thread_param*)param;
-    *args.ready = 1;
-//    THREAD_BEGIN("Worker %s (%d/%d)", __func__, args.id, args.n_thrds);
-    while (!*args.done)
-    {
-        float residual_sum = 0.0f;
-        float* const x0 = *args.x0;
-        float* const x1 = *args.x1;
-
-        for (uint32_t i = args.id; i < args.n; i += args.n_thrds)
-        {
-            float* row_ptr;
-            uint32_t* index_ptr;
-            uint32_t n_elements = jmtx_matrix_crs_get_row(args.matrix, i, &index_ptr, &row_ptr);
-            float res = (float)0.0;
-            uint32_t k = 0;
-            for (uint32_t j = 0; j < n_elements; ++j)
-            {
-                if (i != index_ptr[j])
-                {
-                    res += row_ptr[j] * x0[index_ptr[j]];
-                }
-                else
-                {
-                    k = j;
-                }
-            }
-            x1[i] = (args.y[i] - res) / row_ptr[k];
-            {
-                float iter_dif = (x1[i] - x0[i]);
-                uint32_t f_abs_d = *(uint32_t*)(&iter_dif)& 0x7FFFFFFF;
-                iter_dif = *(float*)&f_abs_d;
-                residual_sum += iter_dif;
-            }
-        }
-        *args.p_err = residual_sum;
-        pthread_barrier_wait(args.barrier);
-        pthread_barrier_wait(args.barrier);
-    }
-//    THREAD_END;
-    return 0;
-}
-
-//static inline void print_vector(const float* x, const uint32_t len)
-//{
-//    printf("\n[");
-//    for (uint32_t i = 0; i < len; ++i)
-//    {
-//        printf(" %g", x[i]);
-//    }
-//    printf(" ]\n");
-//}
-
-jmtx_result jmtx_jacobi_crs_mt(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
-        const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds)
-{
-    if (!mtx)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (mtx->base.type != JMTX_TYPE_CRS)
-    {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!y)
-    {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!x)
-    {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
-    if (!allocator_callbacks)
-    {
-        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->realloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
-    }
-
-    if (!n_thrds || n_thrds == 1)
-    {
-        return jmtx_jacobi_crs(
-                mtx, y, x, convergence_dif, n_max_iter, p_iter, p_error, p_final_error, allocator_callbacks);
-    }
-
-    //  Length of x and y
-    const uint32_t n = mtx->base.cols;
-
-    //  Initial guess of x is just y, which would be the case if matrix is just I
-    memcpy(x, y, n * sizeof *x);
-    //  Improve the guess by assuming that mtx is a diagonal matrix
-    for (uint32_t i = 0; i < n; ++i)
-    {
-        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
-        x[i] /= d;
-    }
-
-    //  Memory used to store result of the current iteration
-    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
-    if (!auxiliary_x)
-    {
-//        CALLOC_FAILED(n_thrds * sizeof*auxiliary_x);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-    pthread_t* const thrds = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*thrds);
-    if (!thrds)
-    {
-        allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-//        CALLOC_FAILED(n_thrds * sizeof*thrds);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-
-    float* const errors = allocator_callbacks->alloc(allocator_callbacks->state, n_thrds * sizeof*errors);
-    if (!errors)
-    {
-        allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-        allocator_callbacks->free(allocator_callbacks->state, thrds);
-//        CALLOC_FAILED(n_thrds * sizeof*errors);
-//        LEAVE_FUNCTION();
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-    pthread_barrier_t barrier;
-    pthread_barrier_init(&barrier, NULL, n_thrds + 1);
-
-    uint32_t happy = 0;
-    float* x0 = x;
-    float* x1 = auxiliary_x;
-    float err;
-    _Atomic uint32_t thrd_is_ready = 0;
-    struct jacobi_crs_thread_param arg =
-            {
-            .barrier = &barrier,
-            .matrix = mtx,
-            .n = n,
-            .done = &happy,
-            .x0 = &x0,
-            .x1 = &x1,
-            .y = y,
-            .n_thrds = n_thrds,
-            .ready = &thrd_is_ready,
-            .p_err = p_error,
-            .p_final_err = p_final_error
-            };
-
-    for (uint32_t i = 0; i < n_thrds; ++i)
-    {
-        arg.id = i;
-        arg.p_err = errors + i;
-        if (pthread_create(thrds + i, NULL, jacobi_crs_thread_fn, &arg) != 0)
-        {
-            happy = 1;
-            for (uint32_t j = 0; j < i; ++j)
-                pthread_cancel(thrds[j]);
-            allocator_callbacks->free(allocator_callbacks->state, errors);
-            pthread_barrier_destroy(&barrier);
-            allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-            allocator_callbacks->free(allocator_callbacks->state, thrds);
-//            REPORT_ERROR_MESSAGE("Could not create a new worker thread (%d out of %d), reason: %s", i + 1, n_thrds,
-//                                 strerror(errno));
-            return JMTX_RESULT_BAD_THREAD;
-        }
-    }
-
-
-    uint32_t n_iterations = 0;
-    do
-    {
-        pthread_barrier_wait(&barrier);
-        {
-            float* tmp = x1;
-            x1 = x0;
-            x0 = tmp;
-        }
-
-        err = 0;
-
-//        print_vector(errors, n_thrds);
-//        max_dif = errors[0];
-        for (uint32_t i = 0; i < n_thrds; ++i)
-        {
-            err += errors[i];
-        }
-        err /= (float)n;
-        if (*p_error)
-        {
-            p_error[n_iterations] = err;
-        }
-        happy = !(err > convergence_dif && n_iterations < n_max_iter);
-//        print_vector(x0, n);
-//        print_vector(x1, n);
-        pthread_barrier_wait(&barrier);
-        n_iterations += 1;
-    } while(!happy);
-
-    for (uint32_t i = 0; i < n_thrds; ++i)
-    {
-        pthread_join(thrds[i], NULL);
-    }
-    pthread_barrier_destroy(&barrier);
-
-    if (x0 == auxiliary_x)
-    {
-        memcpy(x, auxiliary_x, sizeof*x * n);
-    }
-    allocator_callbacks->free(allocator_callbacks->state, errors);
-    allocator_callbacks->free(allocator_callbacks->state, thrds);
-    allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-    if (n_iterations) *p_iter = n_iterations;
-    if (p_final_error) *p_final_error = err;
-//    LEAVE_FUNCTION();
-    return n_iterations == n_max_iter ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+    return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_jacobi_relaxed_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float relaxation_factor,
-        float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
-        float* p_final_error, const jmtx_allocator_callbacks* allocator_callbacks)
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
+        float* restrict aux_vec2, jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -435,24 +181,24 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         //  Relaxation factor must be strictly larger than 0
         return JMTX_RESULT_BAD_PARAM;
     }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec1)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
 #endif
 
-    if (!allocator_callbacks)
-    {
-        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_BAD_PARAM;
-    }
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    float* div_factor = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*div_factor) * n);
-    if (!div_factor)
-    {
-        return JMTX_RESULT_BAD_ALLOC;
-    }
+    float* div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -471,14 +217,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    float* const auxiliary_x = allocator_callbacks->alloc(allocator_callbacks->state, n * sizeof*x);
-    if (!auxiliary_x)
-    {
-//        CALLOC_FAILED(n * sizeof*x);
-//        LEAVE_FUNCTION();
-        allocator_callbacks->free(allocator_callbacks->state, div_factor);
-        return JMTX_RESULT_BAD_ALLOC;
-    }
+    float* const auxiliary_x = aux_vec2;
 
     float* x0 = auxiliary_x;
     float* x1 = x;
@@ -521,31 +260,29 @@ jmtx_result jmtx_jacobi_relaxed_crs(
             err += val * val;
         }
         err = sqrtf(err) / (float)y_mag;
-        if (p_error)
+        if (args->opt_error_evolution)
         {
-            p_error[n_iterations] = err;
+            args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > convergence_dif && n_iterations < n_max_iter);
+    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
 
     if (x1 == auxiliary_x)
     {
         memcpy(x, auxiliary_x, sizeof*x * n);
     }
-    allocator_callbacks->free(allocator_callbacks->state, auxiliary_x);
-    allocator_callbacks->free(allocator_callbacks->state, div_factor);
-    if (p_iter) *p_iter = n_iterations;
-    if (p_final_error) *p_final_error = err;
+
+    args->out_last_iteration = n_iterations;
+    args->out_last_error = err;
 //    LEAVE_FUNCTION();
-    return n_iterations == n_max_iter ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+    return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
 
 
 jmtx_result jmtx_jacobi_crs_parallel(
-        const jmtx_matrix_crs* const mtx, const float* restrict const y, float* restrict const x, const float convergence_dif, const uint32_t max_itertations,
-        uint32_t* restrict const p_iteration_count, float* restrict const p_error_evolution, float* restrict const p_final_error, float* restrict const aux_vector1,
-        float* restrict const aux_vector2)
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector1, float* restrict aux_vector2,
+        jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -574,6 +311,10 @@ jmtx_result jmtx_jacobi_crs_parallel(
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!aux_vector2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -612,8 +353,11 @@ jmtx_result jmtx_jacobi_crs_parallel(
     float* x1 = x;
     float err = 0.0f;
     uint32_t n_iterations = 0;
+    float* const p_error_evolution = args->opt_error_evolution;
+    const float convergence_dif = args->in_convergence_criterion;
+    const uint32_t max_iterations = args->in_max_iterations;
 #pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,\
-    convergence_dif, max_itertations, n)
+    convergence_dif, max_iterations, n)
     {
         do
         {
@@ -645,14 +389,14 @@ jmtx_result jmtx_jacobi_crs_parallel(
 #pragma omp master
             {
                 err = sqrtf(err) / (float) y_mag;
-                if (p_error_evolution)
+                if (p_error_evolution != NULL)
                 {
                     p_error_evolution[n_iterations] = err;
                 }
                 n_iterations += 1;
             }
 #pragma omp barrier
-        } while (err > convergence_dif && n_iterations < max_itertations);
+        } while (err > convergence_dif && n_iterations < max_iterations);
     }
 
 
@@ -660,8 +404,8 @@ jmtx_result jmtx_jacobi_crs_parallel(
     {
         memcpy(x, aux_vector2, sizeof*x * n);
     }
-    if (p_iteration_count) *p_iteration_count = n_iterations;
-    if (p_final_error) *p_final_error = err;
+    args->out_last_iteration = n_iterations;
+    args->out_last_error = err;
 //    LEAVE_FUNCTION();
-    return n_iterations == max_itertations || !isfinite(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
+    return n_iterations == max_iterations || !isfinite(err) ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }

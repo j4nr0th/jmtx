@@ -3,7 +3,7 @@
 //
 
 #include <assert.h>
-#include "sparse_conversion.h"
+#include "../../include/jmtx/matrices/sparse_conversion.h"
 #include "sparse_row_compressed_internal.h"
 #include "sparse_column_compressed_internal.h"
 

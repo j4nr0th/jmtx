@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include <math.h>
-#include "sparse_column_compressed.h"
+#include "../../include/jmtx/matrices/sparse_column_compressed.h"
 #include "sparse_column_compressed_internal.h"
 //
 // Created by jan on 13.6.2022.

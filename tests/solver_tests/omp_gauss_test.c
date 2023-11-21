@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../source/solvers/gauss_seidel_iteration.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/solvers/gauss_seidel_iteration.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
 enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (1 << 14)};
 
@@ -58,17 +58,20 @@ int main()
         ASSERT(mtx_res == (jmtxs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
 //    print_crs_matrix(mtx);
-    uint32_t iterations = 0;
-    float final_err;
+    jmtx_solver_arguments solver_arguments =
+            {
+            .in_max_iterations = MAX_ITERATIONS,
+            .in_convergence_criterion = 1e-4f,
+            };
     const double t0 = omp_get_wtime();
     mtx_res = jmtx_gauss_seidel_crs_parallel(
-            mtx, forcing_vector, iterative_solution + 1, 1e-4f, MAX_ITERATIONS, &iterations, NULL, &final_err, aux_v1);
+            mtx, forcing_vector, iterative_solution + 1, aux_v1, &solver_arguments);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
-    printf("Iterative solution had final residual ratio of %g after %u iterations\n", final_err, iterations);
+    printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, solver_arguments.out_last_iteration);
     const float dx = 1.0f / (float)(PROBLEM_DIMS - 1);
 #pragma omp parallel for default(none) shared(iterative_solution) shared(dx)
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)

@@ -4,7 +4,7 @@
 
 #ifndef JMTX_BICGSTAB_ITERATION_H
 #define JMTX_BICGSTAB_ITERATION_H
-#include "../matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
 
 
 /*

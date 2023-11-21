@@ -4,15 +4,15 @@
 #include <omp.h>
 #include <stdio.h>
 #include "../test_common.h"
-#include "../../source/solvers/incomplete_lu_decomposition.h"
-#include "../../source/matrices/sparse_multiplication.h"
-#include "../../source/solvers/lu_solving.h"
-#include "../../source/matrices/sparse_conversion.h"
+#include "../../include/jmtx/solvers/incomplete_lu_decomposition.h"
+#include "../../include/jmtx/matrices/sparse_multiplication.h"
+#include "../../include/jmtx/solvers/lu_solving.h"
+#include "../../include/jmtx/matrices/sparse_conversion.h"
 
 #include <math.h>
 #include "inttypes.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
-#include "../../source/matrices/sparse_column_compressed_safe.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/matrices/sparse_column_compressed_safe.h"
 
 enum
 {
@@ -172,13 +172,15 @@ int main()
     MATRIX_TEST_CALL(jmtx_convert_ccs_to_crs(upper, &upper_crs, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//    print_ccs_matrix(upper);
-//    print_crs_matrix(upper_crs);
-    uint32_t n_iterations;
-    float final_error;
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, 1e-4f, MAXIMUM_ITERATIONS, &n_iterations, NULL, &final_error));
+    jmtx_solver_arguments solve_args =
+            {
+            .in_max_iterations = MAXIMUM_ITERATIONS,
+            .in_convergence_criterion = 1e-4f,
+            };
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
+            mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, &solve_args));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", n_iterations, (double)final_error);
+    printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", solve_args.out_last_iteration, (double)solve_args.out_last_error);
 
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(upper_crs));

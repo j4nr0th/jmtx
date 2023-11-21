@@ -4,10 +4,10 @@
 
 #include <assert.h>
 #include <math.h>
-#include "lu_solving.h"
+#include "../../include/jmtx/solvers/lu_solving.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#include "incomplete_lu_decomposition.h"
-#include "../matrices/sparse_conversion.h"
+#include "../../include/jmtx/solvers/incomplete_lu_decomposition.h"
+#include "../../include/jmtx/matrices/sparse_conversion.h"
 
 void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y, float* restrict x)
 {
@@ -93,8 +93,7 @@ static inline void compute_residual(const uint32_t n, const jmtx_matrix_crs* mtx
 }
 
 jmtx_result jmtx_incomplete_lu_decomposition_solve(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
@@ -125,6 +124,10 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
     {
 //        REPORT_ERROR_MESSAGE("Vector x pointer was null");
 //        LEAVE_FUNCTION();
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
+    {
         return JMTX_RESULT_NULL_PARAM;
     }
 #endif
@@ -159,7 +162,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
     jmtx_matrix_ccs_destroy(upper_ccs);
     upper_ccs = NULL;
 
-    res = jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper, y, x, aux_vec, convergence_dif, n_max_iter, p_iter, p_error, p_final_error);
+    res = jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper, y, x, aux_vec, NULL);
 
     jmtx_matrix_crs_destroy(upper);
     jmtx_matrix_crs_destroy(lower);
@@ -170,8 +173,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
 
 jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
-        float* aux_vec, float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
-        float* p_final_error)
+        float* aux_vec, jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -203,6 +205,10 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
 #endif
 
 
@@ -218,18 +224,17 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
     }
 
     float err = sqrtf(residual2/mag_y2);
+    const float convergence_dif = args->in_convergence_criterion;
+    const uint32_t n_max_iter = args->in_max_iterations;
     if (err < convergence_dif)
     {
         //  Converged prior to any iteration
-        *p_final_error = err;
-        if (p_error)
+        args->out_last_error = err;
+        if (args->opt_error_evolution)
         {
-            *p_error = err;
+            *args->opt_error_evolution = err;
         }
-        if (p_iter)
-        {
-            *p_iter = 0;
-        }
+        args->out_last_iteration = 0;
         return JMTX_RESULT_SUCCESS;
     }
 
@@ -264,23 +269,22 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
             residual2 += r[i] * r[i];
         }
 
-        if (p_error)
+        if (args->opt_error_evolution)
         {
-            p_error[n_iter] = sqrtf(residual2 / mag_y2);
+            args->opt_error_evolution[n_iter] = sqrtf(residual2 / mag_y2);
         }
     }
     err = sqrtf(residual2 / mag_y2);
 
-    *p_final_error = err;
-    *p_iter = n_iter;
+    args->out_last_error = err;
+    args->out_last_iteration = n_iter;
 
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
 jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
-        float* aux_vec, float convergence_dif, uint32_t n_max_iter, uint32_t* p_iter, float* p_error,
-        float* p_final_error)
+        float* aux_vec, jmtx_solver_arguments* args)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
@@ -327,18 +331,18 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
     }
 
     float err = sqrtf(residual2/mag_y2);
+    const float convergence_dif = args->in_convergence_criterion;
+    const uint32_t n_max_iter = args->in_max_iterations;
     if (err < convergence_dif)
     {
         //  Converged prior to any iteration
-        *p_final_error = err;
-        if (p_error)
+        args->out_last_error = err;
+        if (args->opt_error_evolution)
         {
-            *p_error = err;
+            *args->opt_error_evolution = err;
         }
-        if (p_iter)
-        {
-            *p_iter = 0;
-        }
+
+        args->out_last_iteration = 0;
         return JMTX_RESULT_SUCCESS;
     }
 
@@ -375,22 +379,21 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
             residual2 += r[i] * r[i];
         }
 
-        if (p_error)
+        if (args->opt_error_evolution)
         {
-            p_error[n_iter] = sqrtf(residual2 / mag_y2);
+            args->opt_error_evolution[n_iter] = sqrtf(residual2 / mag_y2);
         }
     }
     err = sqrtf(residual2 / mag_y2);
 
-    *p_final_error = err;
-    *p_iter = n_iter;
+    args->out_last_error = err;
+    args->out_last_iteration = n_iter;
 
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
 jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_error, float* p_final_error,
+        const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
 #ifndef JMTX_NO_VERIFY_PARAMS
@@ -455,7 +458,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
     jmtx_matrix_ccs_destroy(upper_ccs);
     upper_ccs = NULL;
 
-    res = jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper, y, x, aux_vec, convergence_dif, n_max_iter, p_iter, p_error, p_final_error);
+    res = jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper, y, x, aux_vec, args);
 
     jmtx_matrix_crs_destroy(upper);
     jmtx_matrix_crs_destroy(lower);

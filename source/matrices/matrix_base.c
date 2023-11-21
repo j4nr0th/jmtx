@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "matrix_base.h"
+#include "../../include/jmtx/matrices/matrix_base.h"
 
 static const char* const jmtx_result_string_array[JMTX_RESULT_COUNT] =
         {
@@ -45,27 +45,18 @@ const char* jmtx_matrix_type_to_str(jmtx_matrix_type type)
     return "Unknown";
 }
 
-#ifndef NDEBUG
-static void BEEF_FILL(void* restrict const ptr, const size_t size)
-{
-    for (uint32_t* p = ptr; ((uintptr_t)p) < ((uintptr_t)ptr) + size; ++p)
-    {
-        *p = 0xDeadBeef;
-    }
-    memset((uint8_t*)ptr + (size - (size & 3)), 0, size & 3);
-}
-
-#else
-#define BEEF_FILL(ptr, size) (void)0
-#endif
-
 static const char* const funny_string = "Why are FEM engineers bad at deadlifting?\nTheir problem is in their weak form!\n";
 
 static void* default_alloc(void* state, uint64_t size)
 {
     assert(state == funny_string);
     void* const ptr = malloc(size);
-    if (ptr) BEEF_FILL(ptr, size);
+#ifndef NDEBUG
+    if (ptr)
+    {
+        memset(ptr, 0xCC, size);
+    }
+#endif
     return ptr;
 }
 
@@ -91,7 +82,7 @@ const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS =
         .state = (void*)funny_string,
         };
 
-uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t* p_indices, uint32_t value)
+uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t p_indices[static n_indices], uint32_t value)
 {
     uint32_t p = 0;
     uint32_t n = n_indices;

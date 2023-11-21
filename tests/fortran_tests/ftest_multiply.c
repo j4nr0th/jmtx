@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include "../test_common.h"
 #include "../../source/f_exper/f_interface.h"
-#include "../../source/matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
 #include "../../source/matrices/sparse_row_compressed_internal.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
 enum
 {
@@ -101,7 +101,7 @@ int main()
     }
 
 
-    jmtxs_matrix_crs_destroy(mtx);
+    (void)jmtxs_matrix_crs_destroy(mtx);
     return 0;
 }
 

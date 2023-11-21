@@ -5,6 +5,7 @@
 #ifndef JMTX_CONJUGATE_GRADIENT_ITERATION_H
 #define JMTX_CONJUGATE_GRADIENT_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
+#include "solver_base.h"
 
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
@@ -29,12 +30,10 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                        float tolerance, float stagnation,
-                                        uint32_t recalculation_interval, uint32_t max_iterations,
-                                        uint32_t* p_final_iteration, float* restrict err_evolution,
-                                        float* final_error, float* restrict aux_vec1, float* restrict aux_vec2,
-                                        float* restrict aux_vec3);
+jmtx_result jmtx_conjugate_gradient_crs(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, const float stagnation,
+        const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 
 /**
@@ -61,11 +60,9 @@ jmtx_result jmtx_conjugate_gradient_crs(const jmtx_matrix_crs* mtx, const float*
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtx_conjugate_gradient_crs_parallel(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                                 float tolerance, float stagnation,
-                                                 uint32_t recalculation_interval, uint32_t max_iterations,
-                                                 uint32_t* p_final_iteration, float* restrict err_evolution,
-                                                 float* final_error, float* restrict aux_vec1, float* restrict aux_vec2,
-                                                 float* restrict aux_vec3);
+jmtx_result jmtx_conjugate_gradient_crs_parallel(
+        const jmtx_matrix_crs* mtx, const float* y, float* x, const float stagnation,
+        const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 #endif //JMTX_CONJUGATE_GRADIENT_ITERATION_H

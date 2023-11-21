@@ -2,7 +2,7 @@
 // Created by jan on 2.11.2023.
 //
 
-#include "sparse_multiplication.h"
+#include "../../include/jmtx/matrices/sparse_multiplication.h"
 #include "sparse_column_compressed_internal.h"
 #include "sparse_row_compressed_internal.h"
 

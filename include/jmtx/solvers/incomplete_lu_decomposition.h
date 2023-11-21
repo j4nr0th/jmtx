@@ -7,6 +7,7 @@
 
 #include "../matrices/sparse_row_compressed.h"
 #include "../matrices/sparse_column_compressed.h"
+#include "solver_base.h"
 
 /**
  * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
@@ -62,8 +63,8 @@ jmtx_result jmtx_incomplete_lu_crs(
  * other jmtx_result values on other failures.
  */
 jmtx_result jmtx_incomplete_lu_crs_parallel(
-        jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u, float convergence, uint32_t max_iterations,
-        float* final_max_change, uint32_t* p_last_iteration, const jmtx_allocator_callbacks* allocator_callbacks);
+        jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
+        const jmtx_allocator_callbacks* allocator_callbacks, jmtx_solver_arguments* args);
 
 
 jmtx_result jmtx_incomplete_lu_crs_old(

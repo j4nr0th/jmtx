@@ -1,13 +1,13 @@
 //
 // Created by jan on 15.6.2022.
 //
-#include "source/matrices/sparse_column_compressed.h"
-#include "source/matrices/sparse_column_compressed_internal.h"
-#include "tests/test_common.h"
+#include "../../include/jmtx/matrices/sparse_column_compressed.h"
+#include "../../source/matrices/sparse_column_compressed_internal.h"
+#include "../test_common.h"
 #include <stdio.h>
 #include <assert.h>
 
-#include "source/matrices/sparse_column_compressed_safe.h"
+#include "../../include/jmtx/matrices/sparse_column_compressed_safe.h"
 
 static int make_the_values_funnier(uint32_t i, uint32_t j, float* x, void* param)
 {

@@ -2,7 +2,7 @@
 // Created by jan on 13.7.2023.
 //
 
-#include "dense_row_major.h"
+#include "../../include/jmtx/matrices/dense_row_major.h"
 
 jmtx_result jmtx_matrix_drm_new(
         jmtx_matrix_drm** p_out, uint32_t rows, uint32_t cols, int zero,

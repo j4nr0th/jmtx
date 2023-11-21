@@ -5,6 +5,7 @@
 #ifndef JMTX_GAUSS_SEIDEL_ITERATION_H
 #define JMTX_GAUSS_SEIDEL_ITERATION_H
 #include "../matrices/sparse_row_compressed.h"
+#include "solver_base.h"
 
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -30,32 +31,8 @@
  * @param allocator_callbacks pointer to allocation callbacks used internally by the function (may be null)
  * @return zero if successful
  */
-jmtx_result jmtx_gauss_seidel_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtx_gauss_seidel_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, jmtx_solver_arguments* args);
 
-/**
- * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method) to solve the linear system Ax = y.
- * For working in parallel, the Gauss-Seidel line variation is employed. This gives slightly lower convergence, but
- * allows for multiple threads to work in parallel
- * @param mtx pointer to the memory where matrix A is stored as a compressed row sparse matrix
- * @param y pointer to the memory where the vector y is stored
- * @param x pointer to the memory where the solution vector x will be stored
- * @param convergence_dif when the largest value of change per iteration for an element in x is less than this,
- * the solution is considered found
- * @param n_max_iter maximum number of iterations to perform before giving up
- * @param p_iter pointer which if not null receives the number of iterations that were performed
- * @param p_final_error pointer which receives the final error (may be null)
- * @param p_error pointer which receives the error evolution (may be null)
- * @param allocator_callbacks pointer to allocation callbacks used internally by the function (may be null)
- * @param n_thrds the number of threads to use for this (if left as 0, the default number is selected)
- * @return zero if successful
- */
-jmtx_result jmtx_gauss_seidel_crs_mt(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif,
-        uint32_t n_max_iter, uint32_t* p_iter, float* p_final_error, float* p_error,
-        const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)
@@ -74,7 +51,7 @@ jmtx_result jmtx_gauss_seidel_crs_mt(
  * @return zero if successful
  */
 jmtx_result jmtx_gauss_seidel_crs_parallel(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float convergence_dif, uint32_t n_max_iter,
-        uint32_t* p_final_iterations, float* p_error_evolution, float* p_final_error, float* aux_vector);
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector,
+        jmtx_solver_arguments* args);
 
 #endif //JMTX_GAUSS_SEIDEL_ITERATION_H

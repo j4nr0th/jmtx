@@ -1,11 +1,11 @@
 //
 // Created by jan on 16.6.2022.
 //
-#include "source/matrices/sparse_row_compressed.h"
-#include "source/solvers/jacobi_point_iteration.h"
-#include "tests/test_common.h"
-#include "source/solvers/gauss_seidel_iteration.h"
-#include "source/solvers/bicgstab_iteration.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/solvers/jacobi_point_iteration.h"
+#include "../test_common.h"
+#include "../../include/jmtx/solvers/gauss_seidel_iteration.h"
+#include "../../source/solvers/bicgstab_iteration.h"
 #include <stdio.h>
 #include <math.h>
 #include <float.h>

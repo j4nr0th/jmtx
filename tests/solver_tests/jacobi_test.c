@@ -9,8 +9,8 @@
 #include <math.h>
 #include <time.h>
 #include "../test_common.h"
-#include "../../source/solvers/jacobi_point_iteration.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/solvers/jacobi_point_iteration.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
 static const float V = 10.0f;
 static const float omega_0 = 5.0f;
@@ -26,6 +26,8 @@ static double ts_difference(const struct timespec* t_begin, const struct timespe
 int main()
 {
     static float x_values[steps] = {0};
+    static float x_aux1[steps] = {0};
+    static float x_aux2[steps] = {0};
     static float y_exact[steps] = {0};
     static float y_approx[steps] = {0};
     static float y_relax[steps] = {0};
@@ -38,7 +40,6 @@ int main()
     static float f_exact[steps] = {0};
     static float error_evol[iterations] = {0};
     static float error_relaxed[iterations] = {0};
-    static float final_error;
 
 
     const float dx = 1.0f / (float)(steps - 1);
@@ -67,41 +68,45 @@ int main()
     }
 //    print_crs_matrix(matrix);
 
-    uint32_t iter_count, iter_relax;
+    jmtx_solver_arguments solver_arguments =
+            {
+                    .in_max_iterations = 1 << 10,
+                    .in_convergence_criterion = 1e-4f,
+            };
     f_exact[0] = 0.0f;
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx10, 1e-4f, (iterations / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx10, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx20, 1e-4f, (iterations * 2 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx20, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx30, 1e-4f, (iterations * 3 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx30, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx40, 1e-4f, (iterations * 4 / 5), NULL, NULL, NULL, NULL));
+    MATRIX_TEST_CALL(jmtx_jacobi_crs(matrix, f_exact, y_approx40, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
     printf("Using normal Jacobi iteration\n");
     MATRIX_TEST_CALL(
-            jmtx_jacobi_crs(matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL));
+            jmtx_jacobi_crs(matrix, f_exact, y_approx, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    printf("Afer %"PRIu32" iterations, the final error was %g\n", iter_count, final_error);
+    printf("Afer %"PRIu32" iterations, the final error was %g\n", solver_arguments.out_last_iteration, solver_arguments.out_last_error);
 
     struct timespec ts_0, ts_1;
     memset(y_approx, 0, sizeof(y_approx));
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_0);
-    jmtx_jacobi_crs(matrix, f_exact, y_approx, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
+    jmtx_jacobi_crs(matrix, f_exact, y_approx, x_aux1, x_aux2, &solver_arguments);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_1);
     printf("Time needed for jmtx_jacobi_crs to solve the problem: %g ms\n", 1e3 * ts_difference(&ts_0, &ts_1));
 
     const float relax_factor = 1.0f;
     printf("Using a relaxation factor of %g\n", relax_factor);
     MATRIX_TEST_CALL(jmtx_jacobi_relaxed_crs(
-            matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_relax, error_relaxed, &final_error, NULL));
+            matrix, f_exact, y_relax, relax_factor, x_aux1, x_aux2, &solver_arguments));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
-    printf("Afer %"PRIu32" iterations, the final error was %g\n", iter_count, final_error);
+    printf("Afer %"PRIu32" iterations, the final error was %g\n", solver_arguments.out_last_iteration, solver_arguments.out_last_error);
 
     memset(y_relax, 0, sizeof(y_relax));
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_0);
     jmtx_jacobi_relaxed_crs(
-            matrix, f_exact, y_relax, relax_factor, 1e-4f, iterations, &iter_count, error_evol, &final_error, NULL);
+            matrix, f_exact, y_relax, relax_factor, x_aux1, x_aux2, &solver_arguments);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts_1);
     printf("Time needed for jmtx_jacobi_relaxed_crs to solve the problem: %g ms\n", 1e3 * ts_difference(&ts_0, &ts_1));
 

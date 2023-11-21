@@ -4,7 +4,7 @@
 
 #ifndef JMTX_SPARSE_ROW_COMPRESSED_INTERNAL_H
 #define JMTX_SPARSE_ROW_COMPRESSED_INTERNAL_H
-#include "sparse_row_compressed.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
 struct jmtx_matrix_crs_struct
 {
     jmtx_matrix base;

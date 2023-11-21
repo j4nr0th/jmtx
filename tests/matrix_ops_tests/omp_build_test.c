@@ -6,8 +6,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "../../source/matrices/sparse_row_compressed.h"
-#include "../../source/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
 enum
 {
