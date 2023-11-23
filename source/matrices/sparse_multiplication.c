@@ -56,8 +56,8 @@ jmtx_result jmtx_matrix_multiply_crs(
     }
 
     uint32_t capacity = 1 + a->n_entries / a->base.rows > 1 + b->n_entries / b->base.cols ?
-                               a->n_entries / a->base.rows :
-                               b->n_entries / b->base.cols;
+                              1 + a->n_entries / a->base.rows :
+                              1 + b->n_entries / b->base.cols;
     uint32_t count = 0;
     uint32_t* indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*indices) * capacity);
     if (!indices)
@@ -96,12 +96,12 @@ jmtx_result jmtx_matrix_multiply_crs(
                 }
                 else if (i_a[k_a] < i_b[k_b])
                 {
-                    k_b += 1;
+                    k_a += 1;
                 }
                 else
                 {
                     //i_a[k_a] > i_b[k_b]
-                    k_a += 1;
+                    k_b += 1;
                 }
             }
             if (v != 0)
@@ -282,4 +282,57 @@ jmtx_result jmtx_matrix_multiply_ccs(
     allocator_callbacks->free(allocator_callbacks->state, indices);
     *p_out = out;
     return JMTX_RESULT_SUCCESS;
+}
+
+
+float jmtx_matrix_multiply_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const float v_a[const static n_a],
+                                          uint32_t n_b, const uint32_t i_b[const static n_b], const float v_b[const static n_b])
+{
+    float v = 0;
+    uint32_t ia = 0, ib = 0;
+    while (ia < n_a && ib < n_b)
+    {
+        if (i_a[ia] == i_b[ib])
+        {
+            v += v_a[ia] * v_b[ib];
+            ia += 1;
+            ib += 1;
+        }
+        else if (i_a[ia] < i_b[ib])
+        {
+            ia += 1;
+        }
+        else //if (i_a[ia] > i_b[ib])
+        {
+            ib += 1;
+        }
+    }
+    return v;
+}
+
+float jmtx_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
+                                                const uint32_t i_a[static n_a], const float v_a[static max_a],
+                                                uint32_t n_b, const uint32_t i_b[static n_b],
+                                                const float v_b[static max_b])
+{
+    float v = 0;
+    uint32_t ia = 0, ib = 0;
+    while (ia < n_a && ib < n_b && i_a[ia] < max_a && i_b[ib] < max_b)
+    {
+        if (i_a[ia] == i_b[ib])
+        {
+            v += v_a[ia] * v_b[ib];
+            i_a += 1;
+            i_b += 1;
+        }
+        else if (i_a[ia] < i_b[ib])
+        {
+            i_a += 1;
+        }
+        else //if (i_a[ia] > i_b[ib])
+        {
+            i_b += 1;
+        }
+    }
+    return v;
 }

@@ -62,11 +62,13 @@ add_library(jmtx
         include/jmtx/solvers/solver_base.h
         include/jmtx/solvers/incomplete_cholesky_decomposition.h
         source/solvers/incomplete_cholesky_decomposition.c
+        include/jmtx/solvers/cholesky_solving.h
+        source/solvers/cholesky_solving.c
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
 #target_link_libraries(test_mtx m pthread)
-target_link_libraries(jmtx pthread jdm m)
+target_link_libraries(jmtx gomp jdm m)
 
 #target_compile_definitions(test_mtx PRIVATE MTX_ERROR_MESSAGES MTX_MATRIX_CHECKS)
 target_compile_options(jmtx PRIVATE -march=native)
@@ -173,3 +175,15 @@ target_link_libraries(icho_test PRIVATE jmtx gomp)
 target_compile_definitions(icho_test PRIVATE JMTX_OPENMP)
 target_compile_options(icho_test PRIVATE -fopenmp)
 add_test(NAME solve_icho COMMAND icho_test)
+
+add_executable(icpcg_test tests/solver_tests/icpcg_test.c tests/test_common.c)
+target_link_libraries(icpcg_test PRIVATE jmtx gomp)
+target_compile_definitions(icpcg_test PRIVATE JMTX_OPENMP)
+target_compile_options(icpcg_test PRIVATE -fopenmp)
+add_test(NAME test_icpcg COMMAND icpcg_test)
+
+add_executable(lu_solve_test tests/matrix_ops_tests/lu_solve_test.c tests/test_common.c)
+target_link_libraries(lu_solve_test PRIVATE jmtx gomp)
+target_compile_definitions(lu_solve_test PRIVATE JMTX_OPENMP)
+target_compile_options(lu_solve_test PRIVATE -fopenmp)
+add_test(NAME lu_solve_test COMMAND lu_solve_test)

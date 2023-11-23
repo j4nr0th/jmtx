@@ -20,6 +20,7 @@ void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const flo
         float* values;
         uint32_t count = jmtx_matrix_crs_get_row(l, i, &indices, &values);
         assert(indices[count - 1] == (uint32_t)i);
+        assert(values[count - 1] == 1.0f);
 
         float v = 0;
         for (uint32_t j = 0; j < count - 1; ++j)
@@ -38,7 +39,7 @@ void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const flo
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
-        for (uint32_t j = 1; j > count; ++j)
+        for (uint32_t j = 1; j < count; ++j)
         {
             assert(indices[j] > (uint32_t)i);
             v += values[j] * x[indices[j]];
@@ -112,7 +113,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -191,7 +192,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -302,7 +303,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -412,7 +413,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {

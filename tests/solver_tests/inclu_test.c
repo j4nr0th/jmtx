@@ -21,7 +21,7 @@ enum
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
     WORK_DIVISIONS = 4,
-    MAXIMUM_ITERATIONS = (1 << 10),
+    MAXIMUM_ITERATIONS = (PROBLEM_INTERNAL_PTS),
 };
 
 static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }

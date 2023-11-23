@@ -31,7 +31,7 @@ jmtx_result jmtx_jacobi_crs(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -162,7 +162,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -296,7 +296,7 @@ jmtx_result jmtx_jacobi_crs_parallel(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {

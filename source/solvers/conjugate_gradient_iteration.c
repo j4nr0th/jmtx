@@ -7,6 +7,7 @@
 #include "../../include/jmtx/solvers/solver_base.h"
 #include <math.h>
 #include <stdio.h>
+#include "../../include/jmtx/solvers/cholesky_solving.h"
 
 jmtx_result jmtx_conjugate_gradient_crs(
         const jmtx_matrix_crs* mtx, const float* y, float* x, const float stagnation,
@@ -25,7 +26,7 @@ jmtx_result jmtx_conjugate_gradient_crs(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -209,7 +210,7 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-        return JMTX_RESULT_NULL_PARAM;
+        return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
@@ -398,4 +399,239 @@ computing_residual_directly:
     args->out_last_iteration = n_iterations;
     if (stagnated) return JMTX_RESULT_STAGNATED;
     return err < tolerance ? JMTX_RESULT_SUCCESS: JMTX_RESULT_NOT_CONVERGED;
+}
+
+jmtx_result jmtx_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
+        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* cho, const jmtx_matrix_crs* cho_t, const float* restrict y,
+        float* restrict x, float stagnation, uint32_t recalculation_interval, float* restrict aux_vec1,
+        float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, jmtx_solver_arguments* args)
+{
+#ifndef JMTX_NO_VERIFY_PARAMS
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!cho)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!cho_t)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.rows != mtx->base.cols)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (mtx->base.rows != cho->base.rows)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (cho->base.rows != cho->base.cols)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (mtx->base.rows != cho_t->base.rows)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (cho_t->base.rows != cho_t->base.cols)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (mtx->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (cho->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (cho_t->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!y)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!x)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec1)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec3)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec4)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+#endif
+
+    const uint32_t n = mtx->base.rows;
+    float* const r = aux_vec1;
+    float* const p = aux_vec2;
+    float* const Ap = aux_vec3;
+    float* const z = aux_vec4;
+    uint32_t n_iterations = 0, n_since_calc = 0;
+    float alpha, beta;
+    int update_residual = 0, stagnated = 0;
+
+    float rk_dp = 0;
+    float rkzk_dp = 0;
+    float mag_y = 0;
+    float prev_err = 0;
+    float pAp_dp = 0;
+    float new_rkzk_dp = 0;
+    const float stop_criterion = mag_y * (args->in_convergence_criterion * args->in_convergence_criterion);
+    float stagnation_criterion;
+    float err = 0;
+
+    {
+        //  Compute initial residual
+        for (unsigned i = 0; i < n; ++i)
+        {
+            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+        }
+        //  Compute initial z
+        jmtx_cholesky_solve(cho, cho_t, r, z);
+
+        rk_dp = 0;
+        mag_y = 0;
+        for (unsigned i = 0; i < n; ++i)
+        {
+            p[i] = z[i];
+            rk_dp += r[i] * r[i];
+            rkzk_dp += r[i] * z[i];
+            mag_y += y[i] * y[i];
+        }
+        stagnation_criterion = stagnation * sqrtf(mag_y);
+
+        do
+        {
+
+            //  Compute Ap
+            pAp_dp = 0;
+            for (unsigned i = 0; i < n; ++i)
+            {
+                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
+                pAp_dp += p[i] * Ap[i];
+            }
+
+            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
+            //  go forward anymore
+
+            alpha = rkzk_dp / pAp_dp;
+            if ((n_since_calc += 1) == recalculation_interval)
+            {
+                n_since_calc = 0;
+                update_residual = 1;
+            }
+            else
+            {
+                update_residual = 0;
+            }
+            rk_dp = 0;
+
+
+            //  Update guess of x
+            for (unsigned i = 0; i < n; ++i)
+            {
+                x[i] += alpha * p[i];
+            }
+
+            //  Update guess of r
+            if (update_residual)
+            {
+                computing_residual_directly:
+                //  Compute it directly
+                rk_dp = 0;
+                for (unsigned i = 0; i < n; ++i)
+                {
+                    r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+                    rk_dp += r[i] * r[i];
+                }
+            }
+            else
+            {
+                //  Update it implicitly
+                rk_dp = 0;
+                for (unsigned i = 0; i < n; ++i)
+                {
+                    r[i] = r[i] - alpha * Ap[i];
+                    rk_dp += r[i] * r[i];
+                }
+            }
+
+            err = sqrtf(rk_dp / mag_y);
+            if (args->opt_error_evolution)
+            {
+                args->opt_error_evolution[n_iterations] = err;
+            }
+
+            if (rk_dp < stop_criterion)
+            {
+                //  Make sure the residual was computed directly
+                if (update_residual == 0)
+                {
+                    update_residual = 1;
+                    rk_dp = 0;
+                    goto computing_residual_directly;
+                }
+                //  Error is low enough to stop
+                break;
+            }
+
+            jmtx_cholesky_solve(cho, cho_t, r, z);
+
+            new_rkzk_dp = 0;
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                new_rkzk_dp += r[i] * z[i];
+            }
+
+            beta = new_rkzk_dp / rkzk_dp;
+            rkzk_dp = new_rkzk_dp;
+
+            for (unsigned i = 0; i < n; ++i)
+            {
+                p[i] = z[i] + beta * p[i];
+            }
+
+            n_iterations += 1;
+            if (fabsf(prev_err - err) < stagnation_criterion)
+            {
+                stagnated = 1;
+            }
+            else
+            {
+                stagnated = 0;
+            }
+            prev_err = rk_dp;
+        } while(n_iterations < args->in_max_iterations && stagnated == 0);
+    }
+
+
+    args->out_last_error = sqrtf(rk_dp / mag_y);
+    args->out_last_iteration = n_iterations;
+    if (stagnated) return JMTX_RESULT_STAGNATED;
+    return args->out_last_error < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }

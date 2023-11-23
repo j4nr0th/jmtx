@@ -569,7 +569,7 @@ jmtx_result jmtxs_matrix_ccs_count_indices(const jmtx_matrix_ccs* mtx, uint32_t 
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTX_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
