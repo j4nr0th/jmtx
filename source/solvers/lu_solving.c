@@ -76,7 +76,7 @@ void jmtx_lu_solve_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, f
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
-        for (uint32_t j = 1; j > count; ++j)
+        for (uint32_t j = 1; j < count; ++j)
         {
             assert(indices[j] > (uint32_t)i);
             v += values[j] * x[indices[j]];
