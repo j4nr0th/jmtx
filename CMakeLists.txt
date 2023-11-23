@@ -64,6 +64,8 @@ add_library(jmtx
         source/solvers/incomplete_cholesky_decomposition.c
         include/jmtx/solvers/cholesky_solving.h
         source/solvers/cholesky_solving.c
+        source/matrices/basic_io.c
+        source/matrices/basic_io.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -187,3 +189,7 @@ target_link_libraries(lu_solve_test PRIVATE jmtx gomp)
 target_compile_definitions(lu_solve_test PRIVATE JMTX_OPENMP)
 target_compile_options(lu_solve_test PRIVATE -fopenmp)
 add_test(NAME lu_solve_test COMMAND lu_solve_test)
+
+add_executable(base_io_test tests/matrix_ops_tests/io_test.c tests/test_common.c)
+target_link_libraries(base_io_test PRIVATE jmtx)
+add_test(NAME base_io_test COMMAND base_io_test)

@@ -26,6 +26,8 @@ enum jmtx_result_enum
 
     JMTX_RESULT_UNARY_RETURN,       //  Unary function returned non-zero
 
+    JMTX_RESULT_NO_FILE,            //  Could not open file for writing
+
     JMTX_RESULT_COUNT,
 };
 typedef enum jmtx_result_enum jmtx_result;
