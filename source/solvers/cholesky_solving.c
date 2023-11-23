@@ -47,7 +47,7 @@ void jmtx_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, co
     }
 }
 
-void jmtx_lu_solve_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, float* restrict x)
+void jmtx_cholesky_solve_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, float* restrict x)
 {
     const uint32_t n = c->base.cols;
     //  First is the forward substitution for C v = y
