@@ -161,7 +161,7 @@ jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs* mtx, const c
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        for (uint32_t j = 0, k = 0; j < mtx->base.cols; ++j)
+        for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
             fprintf(f_out, "%+.8e\t", jmtx_matrix_ccs_get_entry(mtx, i, j));
         }
