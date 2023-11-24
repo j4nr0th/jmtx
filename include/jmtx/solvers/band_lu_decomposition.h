@@ -4,7 +4,7 @@
 
 #ifndef JMTX_BAND_LU_DECOMPOSITION_H
 #define JMTX_BAND_LU_DECOMPOSITION_H
-#include "../../include/jmtx/matrices/band_row_major.h"
+#include "../matrices/band_row_major.h"
 
 /**
  * Uses relations for LU decomposition to compute the full decomposition for the A, such that LU = A. For banded

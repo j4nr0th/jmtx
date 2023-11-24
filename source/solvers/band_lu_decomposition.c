@@ -3,8 +3,9 @@
 //
 
 #include <assert.h>
-#include "band_lu_decomposition.h"
+#include "../../include/jmtx/solvers/band_lu_decomposition.h"
 #include "../matrices/band_row_major_internal.h"
+
 
 jmtx_result jmtx_band_lu_decomposition_brm(
         const jmtx_matrix_brm* a, jmtx_matrix_brm** p_l, jmtx_matrix_brm** p_u,
@@ -55,8 +56,6 @@ jmtx_result jmtx_band_lu_decomposition_brm(
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    float* const build_vals = p_values + max_entries;
-    memset(p_values, 0xCC, sizeof(*p_values) * 2 * max_entries);    //TODO: remove
 
     res = jmtx_matrix_brm_new(&l, n, n, 0, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
@@ -76,50 +75,66 @@ jmtx_result jmtx_band_lu_decomposition_brm(
 
     for (uint_fast32_t i = 0; i < n; ++i)
     {
-        uint_fast32_t c;
-        float* values;
-        //  Get a row from A
-        c = jmtx_matrix_brm_get_row(a, i, &values);
-        uint_fast32_t j;
-        uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(a, i);
-        float* lv = NULL;
-        float* uv = p_values;
-        uint_fast32_t lc = jmtx_matrix_brm_get_row(l, i, &lv);
-        uint_fast32_t uc;
-        for (j = first; j < i; ++j)
+        uint_fast32_t first_l = jmtx_matrix_brm_first_pos_in_row(l, i);
+        float* lwr_elements = NULL;
+        uint_fast32_t count_lwr = jmtx_matrix_brm_get_row(l, i, &lwr_elements);
+        assert(count_lwr == i - first_l + 1);
+        uint_fast32_t k = 0;
+        float* a_elements;
+        (void)jmtx_matrix_brm_get_row(a, i, &a_elements);
+        float* const upr_elements = p_values + max_entries;
+        for (uint_fast32_t pl = first_l; pl < count_lwr - 1; ++pl)
         {
-            uc = jmtx_matrix_brm_get_col(u, j, uv);
+            const uint_fast32_t count_upr = jmtx_matrix_brm_get_col(u, pl, upr_elements);
             float v = 0;
-            uint_fast32_t k;
-            for (k = 0; k < j - first; ++k)
+            jmtx_matrix_brm_first_pos_in_col(u, pl);
+            uint_fast32_t len;
+            if (count_lwr < count_upr)
             {
-                v += lv[k] * uv[k];
+                len = count_lwr;
             }
-            assert(uv[k] == jmtx_matrix_brm_get_entry(u, j, j));
-            lv[j - first] = (values[j - first] - v) / uv[k];
-        }
-        lv[j - first] = 1.0f;
-        memset(p_values, 0xCC, sizeof(*p_values) * 2 * max_entries);    //TODO: remove
+            else// if (count_lwr >= count_upr)
+            {
+                len = count_upr;
+            }
+            for (uint_fast32_t j = 0; j < len - 1; ++j)
+            {
+                v += lwr_elements[j] * upr_elements[j];
+            }
 
-        c = jmtx_matrix_brm_get_col(a, i, p_values);
-        first = jmtx_matrix_brm_first_pos_in_col(u, i);
-        uv = build_vals;
-        for (j = first; j <= i; ++j)
-        {
-            float v = 0;
-            lc = jmtx_matrix_brm_get_row(l, j, &lv);
-            uint_fast32_t k;
-            for (k = j; k < i; ++k)
-            {
-                v += lv[k - j] * uv[k - j];
-            }
-            uv[k - j] = p_values[k - j] - v;
+            lwr_elements[k] = (a_elements[k] - v) / upr_elements[count_upr - 1];
+            k += 1;
         }
-        jmtx_matrix_brm_set_col(u, i, build_vals);
-        memset(p_values, 0xCC, sizeof(*p_values) * 2 * max_entries);    //TODO: remove
-        (void)lc;
-        (void)uc;
-        (void)c;
+        lwr_elements[k++] = 1.0f;
+
+        const uint_fast32_t first_u = jmtx_matrix_brm_first_pos_in_col(u, i);
+        const uint_fast32_t count_upr = jmtx_matrix_brm_get_col(u, i, p_values);
+        k = 0;
+        (void)jmtx_matrix_brm_get_col(a, i, p_values);
+        a_elements = p_values;
+        for (uint_fast32_t pu = first_u; pu < count_upr; ++pu)
+        {
+            count_lwr = jmtx_matrix_brm_get_row(l, pu, &lwr_elements);
+            float v = 0;
+            jmtx_matrix_brm_first_pos_in_row(l, pu);
+            uint_fast32_t len;
+            if (count_lwr < count_upr)
+            {
+                len = count_lwr;
+            }
+            else// if (count_lwr >= count_upr)
+            {
+                len = count_upr;
+            }
+            for (uint_fast32_t j = 0; j < len - 1; ++j)
+            {
+                v += lwr_elements[j] * upr_elements[j ];
+            }
+
+            upr_elements[k] = (a_elements[k] - v);
+            k += 1;
+        }
+        jmtx_matrix_brm_set_col(u, i, upr_elements);
     }
 
     allocator_callbacks->free(allocator_callbacks->state, p_values);

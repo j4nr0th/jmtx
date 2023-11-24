@@ -3,6 +3,7 @@
 //
 #include "../test_common.h"
 #include "../../include/jmtx/solvers/lu_solving.h"
+#include "../../include/jmtx/solvers/band_lu_decomposition.h"
 #include "../../include/jmtx/matrices/band_row_major_safe.h"
 #include "../../include/jmtx/matrices/sparse_conversion.h"
 #include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
@@ -192,7 +193,28 @@ int main()
     print_crs_matrix(multiplied);
     print_brm_matrix(combined_brm);
 
-    
+
+    jmtx_matrix_brm* du,* dl;
+    MATRIX_TEST_CALL(jmtx_band_lu_decomposition_brm(combined_brm, &dl, &du, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    print_crs_matrix(upper);
+    print_brm_matrix(du);
+    print_crs_matrix(lower);
+    print_brm_matrix(dl);
+
+    for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
+    {
+        for (unsigned j = 0; j < PROBLEM_SIZE; ++j)
+        {
+            ASSERT(are_close(jmtx_matrix_brm_get_entry(du, i, j), jmtx_matrix_brm_get_entry(upper_brm, i, j), default_r_tol, default_r_tol));
+            ASSERT(are_close(jmtx_matrix_brm_get_entry(dl, i, j), jmtx_matrix_brm_get_entry(lower_brm, i, j), default_r_tol, default_r_tol));
+        }
+    }
+
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(dl));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(du));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
 
     const float x_exact[PROBLEM_SIZE] = {1.0f, -2.0f, 3.0f, -4.0f, 5.0f};

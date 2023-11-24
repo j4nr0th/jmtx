@@ -434,33 +434,30 @@ jmtx_matrix_brm_get_col(const jmtx_matrix_brm* mtx, uint32_t col, float values[]
     {
         first_row = col - mtx->upper_bandwidth;
     }
-    uint_fast32_t last_row;
-    if (col > mtx->base.rows - 1 - mtx->upper_bandwidth)
+    uint_fast32_t last_row = last_row = col + 1 + mtx->lower_bandwidth;
+//    if (col > mtx->base.rows - 1 - mtx->upper_bandwidth)
+//    {
+//        last_row = mtx->base.rows;
+//    }
+//    else
+//    {
+//        last_row = col + 1 + mtx->lower_bandwidth;
+//    }
+    if (last_row > mtx->base.rows)
     {
         last_row = mtx->base.rows;
     }
-    else
+
+    uint_fast32_t row;
+    uint_fast32_t j, i;
+    const uint_fast32_t max = brm_row_offset(mtx, mtx->base.rows);
+    for (row = first_row, j = 0; row < last_row; ++row)
     {
-        last_row = col + 1 + mtx->lower_bandwidth;
+        i = brm_row_offset(mtx, row) + (col - jmtx_matrix_brm_first_pos_in_row(mtx, row));
+        values[j++] = mtx->values[i];
+        assert(i < max);
     }
 
-    uint_fast32_t row = first_row;
-    uint_fast32_t j = 0, i;
-    for (i = brm_row_offset(mtx, row) + (col - jmtx_matrix_brm_first_pos_in_row(mtx, row)); row < mtx->lower_bandwidth && row < last_row; ++row)
-    {
-        values[j++] = mtx->values[i];
-        i += (mtx->upper_bandwidth + 1 + row);
-    }
-    for (; row < mtx->base.rows - mtx->upper_bandwidth && row < last_row; ++row)
-    {
-        values[j++] = mtx->values[i];
-        i += (mtx->upper_bandwidth + mtx->lower_bandwidth);
-    }
-    for (;  row < mtx->base.rows && row < last_row; ++row)
-    {
-        values[j++] = mtx->values[i];
-        i += ((mtx->base.rows - 1 - row) + mtx->lower_bandwidth);
-    }
     return j;
 }
 
