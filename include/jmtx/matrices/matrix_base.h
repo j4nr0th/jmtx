@@ -34,25 +34,6 @@ typedef enum jmtx_result_enum jmtx_result;
 
 const char* jmtx_result_to_str(jmtx_result res);
 
-
-
-typedef uint32_t jmtx_index_t;
-
-enum jmtx_matrix_type_enum
-{
-    JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
-
-    JMTX_TYPE_CRS,      //  Compressed row sparse
-    JMTX_TYPE_CCS,      //  Compressed column sparse
-    JMTX_TYPE_DRM,      //  Dense row-major
-    JMTX_TYPE_DCM,      //  Dense column-major
-
-    JMTX_TYPE_COUNT,    //  Here just as upper bound of what the enum should be
-};
-typedef enum jmtx_matrix_type_enum jmtx_matrix_type;
-
-const char* jmtx_matrix_type_to_str(jmtx_matrix_type type);
-
 typedef struct jmtx_allocator_callbacks_struct jmtx_allocator_callbacks;
 struct jmtx_allocator_callbacks_struct
 {
@@ -61,19 +42,5 @@ struct jmtx_allocator_callbacks_struct
     void* (*realloc)(void* state, void* ptr, uint64_t new_size);
     void* state;
 };
-
-typedef struct jmtx_matrix_struct jmtx_matrix;
-struct jmtx_matrix_struct
-{
-    jmtx_matrix_type type;
-    uint32_t rows;
-    uint32_t cols;
-    jmtx_allocator_callbacks allocator_callbacks;
-};
-
-JMTX_INTERNAL_FUNCTION
-uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t p_indices[static n_indices], uint32_t value);
-
-extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
 
 #endif // !JMTX_MATRIX_BASE_H

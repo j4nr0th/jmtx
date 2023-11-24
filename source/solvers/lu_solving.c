@@ -6,10 +6,11 @@
 #include <math.h>
 #include "../../include/jmtx/solvers/lu_solving.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../matrices/band_row_major_internal.h"
 #include "../../include/jmtx/solvers/incomplete_lu_decomposition.h"
 #include "../../include/jmtx/matrices/sparse_conversion.h"
 
-void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y, float* restrict x)
+void jmtx_lu_solve_crs(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y, float* restrict x)
 {
     const uint32_t n = l->base.cols;
     x[0] = y[0];
@@ -48,7 +49,7 @@ void jmtx_lu_solve(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const flo
     }
 }
 
-void jmtx_lu_solve_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, float* restrict x)
+void jmtx_lu_solve_inplace_crs(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, float* restrict x)
 {
     const uint32_t n = l->base.cols;
     //  First is the forward substitution for L v = y
@@ -85,7 +86,8 @@ void jmtx_lu_solve_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, f
     }
 }
 
-static inline void compute_residual(const uint32_t n, const jmtx_matrix_crs* mtx, const float* restrict x, const float* restrict y, float* restrict r)
+static inline void compute_residual(const uint32_t n, const jmtx_matrix_crs* mtx, const float* restrict x,
+                                    const float* restrict y, float* restrict r)
 {
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -93,7 +95,7 @@ static inline void compute_residual(const uint32_t n, const jmtx_matrix_crs* mtx
     }
 }
 
-jmtx_result jmtx_incomplete_lu_decomposition_solve(
+jmtx_result jmtx_incomplete_lu_decomposition_solve_crs(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -163,7 +165,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
     jmtx_matrix_ccs_destroy(upper_ccs);
     upper_ccs = NULL;
 
-    res = jmtx_incomplete_lu_decomposition_solve_precomputed(mtx, lower, upper, y, x, aux_vec, NULL);
+    res = jmtx_incomplete_lu_decomposition_solve_precomputed_crs(mtx, lower, upper, y, x, aux_vec, NULL);
 
     jmtx_matrix_crs_destroy(upper);
     jmtx_matrix_crs_destroy(lower);
@@ -172,7 +174,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve(
     return res;
 }
 
-jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
+jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
         float* aux_vec, jmtx_solver_arguments* args)
 {
@@ -255,7 +257,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
         }
 
 
-        jmtx_lu_solve_inplace(l, u, r);
+        jmtx_lu_solve_inplace_crs(l, u, r);
 
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -283,7 +285,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed(
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
+jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
         float* aux_vec, jmtx_solver_arguments* args)
 {
@@ -365,7 +367,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
         }
 
 
-        jmtx_lu_solve_inplace(l, u, r);
+        jmtx_lu_solve_inplace_crs(l, u, r);
 
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -393,7 +395,7 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
     return err < convergence_dif ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
+jmtx_result jmtx_incomplete_lu_decomposition_solve_crs_parallel(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -459,11 +461,75 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_parallel(
     jmtx_matrix_ccs_destroy(upper_ccs);
     upper_ccs = NULL;
 
-    res = jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(mtx, lower, upper, y, x, aux_vec, args);
+    res = jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(mtx, lower, upper, y, x, aux_vec, args);
 
     jmtx_matrix_crs_destroy(upper);
     jmtx_matrix_crs_destroy(lower);
 
 
     return res;
+}
+
+void jmtx_lu_solve_brm(const jmtx_matrix_brm* l, const jmtx_matrix_brm* u, const float* y, float* x)
+{
+    const uint_fast32_t n = l->base.cols;
+    x[0] = y[0];
+    //  First is the forward substitution for L v = y
+    for (uint_fast32_t i = 1; i < n; ++i)
+    {
+        const uint_fast32_t off_j = jmtx_matrix_brm_first_pos_in_row(l, i);
+        float* values = NULL;
+        const uint_fast32_t len = jmtx_matrix_brm_get_row(l, i, &values);
+        float v = 0;
+        for (uint_fast32_t j = 0; j < len - 1; ++j)
+        {
+            v += values[j] * x[off_j + j];
+        }
+        x[i] = y[i] - v;
+    }
+    //  Then the backward substitution for U x = v
+    for (int32_t i = (int32_t)n - 1; i >= 0; --i)
+    {
+        const uint_fast32_t off_j = jmtx_matrix_brm_first_pos_in_row(u, i);
+        float* values;
+        const uint_fast32_t len = jmtx_matrix_brm_get_row(u, i, &values);
+        float v = 0;
+        for (uint32_t j = 1; j < len; ++j)
+        {
+            v += values[j] * x[off_j + j];
+        }
+        x[i] = (x[i] - v) / values[0];
+    }
+}
+
+void jmtx_lu_solve_inplace_brm(const jmtx_matrix_brm* l, const jmtx_matrix_brm* u, float* x)
+{
+    const uint_fast32_t n = l->base.cols;
+//    x[0] = x[0];
+    //  First is the forward substitution for L v = y
+    for (uint_fast32_t i = 1; i < n; ++i)
+    {
+        const uint_fast32_t off_j = jmtx_matrix_brm_first_pos_in_row(l, i);
+        float* values = NULL;
+        const uint_fast32_t len = jmtx_matrix_brm_get_row(l, i, &values);
+        float v = 0;
+        for (uint_fast32_t j = 0; j < len - 1; ++j)
+        {
+            v += values[j] * x[off_j + j];
+        }
+        x[i] = x[i] - v;
+    }
+    //  Then the backward substitution for U x = v
+    for (int32_t i = (int32_t)n - 1; i >= 0; --i)
+    {
+        const uint_fast32_t off_j = jmtx_matrix_brm_first_pos_in_row(u, i);
+        float* values;
+        const uint_fast32_t len = jmtx_matrix_brm_get_row(u, i, &values);
+        float v = 0;
+        for (uint32_t j = 1; j < len; ++j)
+        {
+            v += values[j] * x[off_j + j];
+        }
+        x[i] = (x[i] - v) / values[0];
+    }
 }

@@ -157,7 +157,7 @@ int main()
             .in_convergence_criterion = 1e-5f,
             .in_max_iterations = MAXIMUM_ITERATIONS,
             };
-    mtx_res = jmtx_incomplete_lu_decomposition_solve_precomputed(
+    mtx_res = jmtx_incomplete_lu_decomposition_solve_precomputed_crs(
             mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, &solver_arguments);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Solving using ILU took %u iterations, with the final error of %g\n", solver_arguments.out_last_iteration, (double)solver_arguments.out_last_error);

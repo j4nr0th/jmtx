@@ -33,8 +33,10 @@ double fRNG_double_range(fRNG* p_rng, double min, double max);
 
 typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
 typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
+typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
 void print_crs_matrix(const jmtx_matrix_crs* mtx);
 void print_ccs_matrix(const jmtx_matrix_ccs* mtx);
+void print_brm_matrix(const jmtx_matrix_brm* mtx);
 
 #ifndef NDEBUG
 #   ifdef __GNUC__

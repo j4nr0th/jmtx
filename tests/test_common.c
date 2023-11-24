@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "../source/matrices/sparse_row_compressed_internal.h"
 #include "../source/matrices/sparse_column_compressed_internal.h"
+#include "../source/matrices/band_row_major_internal.h"
 #include <inttypes.h>
 
 
@@ -199,4 +200,32 @@ void print_ccs_matrix(const jmtx_matrix_ccs* mtx)
     }
 
     printf("\n]\n");
+}
+
+void print_brm_matrix(const jmtx_matrix_brm* mtx)
+{
+    for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
+    {
+        float* p_vals;
+        uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(mtx, i);
+        uint_fast32_t last = jmtx_matrix_brm_get_row(mtx, i, &p_vals) + first;
+        uint_fast32_t j = 0;
+        while (j < first)
+        {
+            printf(" %10g", 0.0f);
+            j += 1;
+        }
+        uint_fast32_t k = 0;
+        while (j < last)
+        {
+            printf(" %10g", p_vals[k++]);
+            j += 1;
+        }
+        while (j < mtx->base.cols)
+        {
+            printf(" %10g", 0.0f);
+            j += 1;
+        }
+        printf("\t- %u\n", (unsigned)(last - first));
+    }
 }

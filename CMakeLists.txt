@@ -13,21 +13,27 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/matrix_base.c
         source/matrices/sparse_conversion.c
         source/matrices/sparse_multiplication.c
+        source/matrices/band_row_major.c
         )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/matrices/sparse_row_compressed.h
         include/jmtx/matrices/sparse_column_compressed.h
-        include/jmtx/matrices/dense_row_major.h
-        include/jmtx/matrices/dense_col_major.h
+        source/matrices/dense_row_major.h
+        source/matrices/dense_col_major.h
         include/jmtx/matrices/matrix_base.h
         include/jmtx/matrices/sparse_conversion.h
         include/jmtx/matrices/sparse_multiplication.h
+        include/jmtx/matrices/band_row_major.h
+        include/jmtx/matrices/band_row_major_safe.h
         )
 
 list(APPEND INTERNAL_HEADER_FILES
+        source/matrices/matrix_base_internal.h
         source/matrices/sparse_row_compressed_internal.h
-        source/matrices/sparse_column_compressed_internal.h)
+        source/matrices/sparse_column_compressed_internal.h
+        source/matrices/band_row_major_internal.h
+)
 
 list(APPEND INTERNAL_SOURCE_FILES )
 
@@ -38,6 +44,8 @@ list(APPEND SOLVER_SOURCE_FILES
         source/solvers/conjugate_gradient_iteration.c
         source/solvers/incomplete_lu_decomposition.c
         source/solvers/lu_solving.c
+        source/solvers/cholesky_solving.c
+        source/solvers/incomplete_cholesky_decomposition.c
         )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -47,6 +55,9 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/solvers/conjugate_gradient_iteration.h
         include/jmtx/solvers/incomplete_lu_decomposition.h
         include/jmtx/solvers/lu_solving.h
+        include/jmtx/solvers/cholesky_solving.h
+        include/jmtx/solvers/incomplete_cholesky_decomposition.h
+        include/jmtx/solvers/solver_base.h
         )
 
 list(APPEND FORTRAN_SOURCE_FILES
@@ -59,13 +70,10 @@ add_library(jmtx
         ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
         ${FORTRAN_SOURCE_FILES}
         include/jmtx/common.h
-        include/jmtx/solvers/solver_base.h
-        include/jmtx/solvers/incomplete_cholesky_decomposition.h
-        source/solvers/incomplete_cholesky_decomposition.c
-        include/jmtx/solvers/cholesky_solving.h
-        source/solvers/cholesky_solving.c
         source/matrices/basic_io.c
         source/matrices/basic_io.h
+        source/solvers/band_lu_decomposition.c
+        source/solvers/band_lu_decomposition.h
 )
 
 #add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
@@ -193,3 +201,11 @@ add_test(NAME lu_solve_test COMMAND lu_solve_test)
 add_executable(base_io_test tests/matrix_ops_tests/io_test.c tests/test_common.c)
 target_link_libraries(base_io_test PRIVATE jmtx)
 add_test(NAME base_io_test COMMAND base_io_test)
+
+add_executable(base_brm_test tests/matrix_ops_tests/base_brm_test.c tests/test_common.c)
+target_link_libraries(base_brm_test PRIVATE jmtx)
+add_test(NAME base_brm_test COMMAND base_brm_test)
+
+add_executable(lu_solve_test_brm tests/matrix_ops_tests/lu_solve_test_brm.c tests/test_common.c)
+target_link_libraries(lu_solve_test_brm PRIVATE jmtx)
+add_test(NAME lu_solve_test_brm COMMAND lu_solve_test_brm)

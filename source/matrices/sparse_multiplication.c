@@ -5,6 +5,7 @@
 #include "../../include/jmtx/matrices/sparse_multiplication.h"
 #include "sparse_column_compressed_internal.h"
 #include "sparse_row_compressed_internal.h"
+#include "band_row_major_internal.h"
 
 jmtx_result jmtx_matrix_multiply_crs(
         const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_crs** p_out,
@@ -335,4 +336,159 @@ float jmtx_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, 
         }
     }
     return v;
+}
+
+jmtx_result jmtx_matrix_multiply_brm(
+        const jmtx_matrix_brm* a, const jmtx_matrix_brm* b, jmtx_matrix_brm** p_out,
+        const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!a)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (a->base.type != JMTX_TYPE_BRM)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!b)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (b->base.type != JMTX_TYPE_BRM)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (a->base.cols != b->base.rows)
+    {
+        //  can't do multiplication
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
+    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    const uint32_t r_out = a->base.rows;
+    const uint32_t c_out = b->base.cols;
+
+    uint_fast32_t max_ubw;
+//    uint_fast32_t min_ubw;
+    if (a->upper_bandwidth > b->upper_bandwidth)
+    {
+        max_ubw = a->upper_bandwidth;
+//        min_ubw = b->upper_bandwidth;
+    }
+    else
+    {
+        max_ubw = b->upper_bandwidth;
+//        min_ubw = a->upper_bandwidth;
+    }
+
+    uint_fast32_t max_lbw;
+//    uint_fast32_t min_lbw;
+    if (a->lower_bandwidth > b->lower_bandwidth)
+    {
+        max_lbw = a->lower_bandwidth;
+//        min_lbw = b->lower_bandwidth;
+    }
+    else
+    {
+        max_lbw = b->lower_bandwidth;
+//        min_lbw = a->lower_bandwidth;
+    }
+
+    jmtx_matrix_brm* out;
+    jmtx_result res = jmtx_matrix_brm_new(&out, c_out, r_out, max_ubw, max_lbw, NULL, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        return res;
+    }
+
+    const uint32_t capacity = 1 + max_ubw + max_lbw;
+    float* col_vals = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*col_vals) * capacity);
+    if (!col_vals)
+    {
+        jmtx_matrix_brm_destroy(out);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    float* values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*col_vals) * capacity);
+    if (!values)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, col_vals);
+        jmtx_matrix_brm_destroy(out);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+
+
+    //  Go row by row, so that the building of output matrix is done more efficiently
+    for (uint32_t i = 0; i < r_out; ++i)
+    {
+        uint_fast32_t k = 0;
+        uint32_t n_a, n_b;
+//        uint32_t* i_a, *i_b;
+        float* v_a;//, *v_b = col_vals;
+        n_a = jmtx_matrix_brm_get_row(a, i, &v_a);
+        (void) n_a, (void)n_b;
+        const uint_fast32_t first_a = jmtx_matrix_brm_first_pos_in_row(a, i);
+        const uint_fast32_t last_a = jmtx_matrix_brm_last_pos_in_row(a, i);
+        for (uint_fast32_t j = jmtx_matrix_brm_first_pos_in_row(out, i);
+             j < jmtx_matrix_brm_last_pos_in_row(out, i) + 1;
+             ++j, ++k)
+        {
+            n_b = jmtx_matrix_brm_get_col(b, j, col_vals);
+            const uint_fast32_t first_b = jmtx_matrix_brm_first_pos_in_col(b, j);
+            const uint_fast32_t last_b = jmtx_matrix_brm_last_pos_in_col(b, j);
+
+            uint_fast32_t first;
+
+            uint_fast32_t off_a = 0;
+            uint_fast32_t off_b = 0;
+
+            int_fast32_t len;
+            
+            if (first_a > first_b)
+            {
+                first = first_a;
+                off_b = first_b - first_a;
+            }
+            else
+            {
+                first = first_b;
+                off_a = first_a - first_b;
+            }
+
+            if (last_a > last_b)
+            {
+                len = 1 + (int_fast32_t)(last_b) - (int_fast32_t)first;
+            }
+            else
+            {
+                len = 1 + (int_fast32_t)last_a - (int_fast32_t)first;
+            }
+
+            float v = 0;
+            for (int_fast32_t p = 0; p < len; ++p)
+            {
+                v += v_a[off_a + p] * col_vals[off_b + p];
+            }
+            values[k] = v;
+        }
+        
+        jmtx_matrix_brm_set_row(out, i, values);
+    }
+
+
+    allocator_callbacks->free(allocator_callbacks->state, values);
+    allocator_callbacks->free(allocator_callbacks->state, col_vals);
+    *p_out = out;
+    return JMTX_RESULT_SUCCESS;
 }

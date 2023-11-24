@@ -829,7 +829,7 @@ jmtx_matrix_crs_get_col(const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, fl
         uint32_t* row_indices;
         float* unused_row_values;
         const uint32_t n_row_elements = crs_get_row_entries(mtx, row, &row_indices, &unused_row_values);
-        if (n_row_elements)
+        if (n_row_elements && row_indices[0] <= col)
         {
             uint32_t current = jmtx_internal_find_last_leq_value(n_row_elements, row_indices, col);
             if (row_indices[current] == col)

@@ -177,7 +177,7 @@ int main()
             .in_max_iterations = MAXIMUM_ITERATIONS,
             .in_convergence_criterion = 1e-4f,
             };
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_parallel(
+    MATRIX_TEST_CALL(jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
             mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, &solve_args));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", solve_args.out_last_iteration, (double)solve_args.out_last_error);

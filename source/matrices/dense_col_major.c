@@ -1,8 +1,8 @@
 //
 // Created by jan on 13.7.2023.
 //
-
-#include "../../include/jmtx/matrices/dense_col_major.h"
+#include "matrix_base_internal.h"
+#include "dense_col_major.h"
 
 jmtx_result jmtx_matrix_dcm_new(
         jmtx_matrix_dcm** p_out, uint32_t rows, uint32_t cols, int zero,

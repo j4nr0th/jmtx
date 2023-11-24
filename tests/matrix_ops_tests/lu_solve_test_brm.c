@@ -3,8 +3,9 @@
 //
 #include "../test_common.h"
 #include "../../include/jmtx/solvers/lu_solving.h"
-#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/matrices/band_row_major_safe.h"
 #include "../../include/jmtx/matrices/sparse_conversion.h"
+#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 #include "../../include/jmtx/matrices/sparse_column_compressed_safe.h"
 #include "../../include/jmtx/matrices/sparse_multiplication.h"
 #include <float.h>
@@ -49,6 +50,7 @@ enum {PROBLEM_SIZE = 5};
 int main()
 {
     jmtx_matrix_crs* lower, *upper, *combined, *multiplied;
+    jmtx_matrix_brm* lower_brm, *upper_brm, *combined_brm, *multiplied_brm;
     jmtx_matrix_ccs* cu;
     jmtx_result mtx_res;
 
@@ -57,6 +59,13 @@ int main()
     MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&upper, PROBLEM_SIZE, PROBLEM_SIZE, 0, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&combined, PROBLEM_SIZE, PROBLEM_SIZE, 0, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_new(&lower_brm, PROBLEM_SIZE, PROBLEM_SIZE, 0, 4, 0, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_new(&upper_brm, PROBLEM_SIZE, PROBLEM_SIZE, 4, 0, 0, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_new(&combined_brm, PROBLEM_SIZE, PROBLEM_SIZE, 4, 4, 0, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     //  Make L based on predefined values
@@ -96,7 +105,15 @@ int main()
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         }
     }
+    {
+        jmtx_matrix_brm_set_row(lower_brm, 0, (float[]){1.0f});
+        jmtx_matrix_brm_set_row(lower_brm, 1, (float[]){3.0f, 1.0f});
+        jmtx_matrix_brm_set_row(lower_brm, 2, (float[]){0.0f, 0.0f, 1.0f});
+        jmtx_matrix_brm_set_row(lower_brm, 3, (float[]){2.0f, 1.0f,-2.0f, 1.0f});
+        jmtx_matrix_brm_set_row(lower_brm, 4, (float[]){1.0f, 0.0f,-3.0f, 0.0f, 1.0f});
+    }
     print_crs_matrix(lower);
+    print_brm_matrix(lower_brm);
 
     //  Make U based on predefined values
     {
@@ -134,11 +151,21 @@ int main()
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         }
     }
+    {
+        jmtx_matrix_brm_set_row(upper_brm, 0, (float[]){3.0f, 0.0f, 0.0f, 0.0f, 2.0f});
+        jmtx_matrix_brm_set_row(upper_brm, 1, (float[]){      2.0f, 1.0f, 0.0f, 0.0f});
+        jmtx_matrix_brm_set_row(upper_brm, 2, (float[]){            1.0f, 0.0f, 3.0f});
+        jmtx_matrix_brm_set_row(upper_brm, 3, (float[]){                  4.0f, 1.0f});
+        jmtx_matrix_brm_set_row(upper_brm, 4, (float[]){                       -1.0f});
+    }
     print_crs_matrix(upper);
+    print_brm_matrix(upper_brm);
 
     MATRIX_TEST_CALL(jmtx_convert_crs_to_ccs(upper, &cu, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
+    MATRIX_TEST_CALL(jmtx_matrix_multiply_brm(lower_brm, upper_brm, &multiplied_brm, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtx_matrix_multiply_crs(lower, cu, &multiplied, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxs_matrix_ccs_destroy(cu));
@@ -154,32 +181,46 @@ int main()
             };
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {
+        jmtx_matrix_brm_set_row(combined_brm, i, exact_multiplied[i]);
         for (unsigned j = 0; j < PROBLEM_SIZE; ++j)
         {
             ASSERT(are_close(jmtx_matrix_crs_get_entry(multiplied, i, j), exact_multiplied[i][j], default_r_tol, default_r_tol));
+            ASSERT(are_close(jmtx_matrix_brm_get_entry(multiplied_brm, i, j), exact_multiplied[i][j], default_r_tol, default_r_tol));
         }
     }
-
+    print_brm_matrix(multiplied_brm);
     print_crs_matrix(multiplied);
+    print_brm_matrix(combined_brm);
+
+    
+
 
     const float x_exact[PROBLEM_SIZE] = {1.0f, -2.0f, 3.0f, -4.0f, 5.0f};
     const float y_exact[PROBLEM_SIZE] = {13, 38, 18,-22,-46};
     float y[PROBLEM_SIZE];
     float x[PROBLEM_SIZE];
+    const float xb_exact[PROBLEM_SIZE] = {1.0f, -2.0f, 3.0f, -4.0f, 5.0f};
+    const float yb_exact[PROBLEM_SIZE] = {13, 38, 18,-22,-46};
+    float yb[PROBLEM_SIZE];
+    float xb[PROBLEM_SIZE];
 
     jmtx_matrix_crs_vector_multiply(multiplied, x_exact, y);
+    jmtx_matrix_brm_vector_multiply(multiplied_brm, xb_exact, yb);
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {
         printf("yex_%u: %g\ty_%u: %g\n", i, y_exact[i], i, y[i]);
         ASSERT(are_close(y_exact[i], y[i], default_r_tol, default_a_tol));
+        ASSERT(are_close(yb_exact[i], yb[i], default_r_tol, default_a_tol));
     }
 
     jmtx_lu_solve_crs(lower, upper, y, x);
+    jmtx_lu_solve_brm(lower_brm, upper_brm, yb, xb);
 
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {
         printf("xex_%u: %g\tx_%u: %g\n", i, x_exact[i], i, x[i]);
         ASSERT(are_close(x_exact[i], x[i], default_r_tol, default_a_tol));
+        ASSERT(are_close(xb_exact[i], xb[i], default_r_tol, default_a_tol));
     }
 
 
@@ -192,6 +233,16 @@ int main()
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(lower));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(multiplied_brm));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(combined_brm));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(upper_brm));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(lower_brm));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
 
     return 0;
 }
