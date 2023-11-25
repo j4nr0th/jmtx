@@ -77,29 +77,39 @@ jmtx_result jmtx_band_lu_decomposition_brm(
     {
         uint_fast32_t first_l = jmtx_matrix_brm_first_pos_in_row(l, i);
         float* lwr_elements = NULL;
-        uint_fast32_t count_lwr = jmtx_matrix_brm_get_row(l, i, &lwr_elements);
-        assert(count_lwr == i - first_l + 1);
+//        uint_fast32_t count_lwr =
+        jmtx_matrix_brm_get_row(l, i, &lwr_elements);
+//        assert(count_lwr == i - first_l + 1);
         uint_fast32_t k = 0;
         float* a_elements;
         (void)jmtx_matrix_brm_get_row(a, i, &a_elements);
         float* const upr_elements = p_values + max_entries;
-        for (uint_fast32_t pl = first_l; pl < count_lwr - 1; ++pl)
+        for (uint_fast32_t pl = first_l; pl < i; ++pl)
         {
             const uint_fast32_t count_upr = jmtx_matrix_brm_get_col(u, pl, upr_elements);
             float v = 0;
-            jmtx_matrix_brm_first_pos_in_col(u, pl);
-            uint_fast32_t len;
-            if (count_lwr < count_upr)
+            uint_fast32_t first_u = jmtx_matrix_brm_first_pos_in_col(u, pl);
+            uint_fast32_t begin, end;
+            if (first_l < first_u)
             {
-                len = count_lwr;
+                begin = first_u;
             }
-            else// if (count_lwr >= count_upr)
+            else //if (first_l >= first_u)
             {
-                len = count_upr;
+                begin = first_l;
             }
-            for (uint_fast32_t j = 0; j < len - 1; ++j)
+            if (pl < i)
             {
-                v += lwr_elements[j] * upr_elements[j];
+                end = pl;
+            }
+            else //if (pl >= i)
+            {
+                end = i;
+            }
+
+            for (uint_fast32_t j = begin; j < end; ++j)
+            {
+                v += lwr_elements[j - first_l] * upr_elements[j - first_u];
             }
 
             lwr_elements[k] = (a_elements[k] - v) / upr_elements[count_upr - 1];
@@ -112,25 +122,35 @@ jmtx_result jmtx_band_lu_decomposition_brm(
         k = 0;
         (void)jmtx_matrix_brm_get_col(a, i, p_values);
         a_elements = p_values;
-        for (uint_fast32_t pu = first_u; pu < count_upr; ++pu)
+        assert(count_upr == i - first_u + 1);
+        for (uint_fast32_t pu = first_u; pu <= i; ++pu)
         {
-            count_lwr = jmtx_matrix_brm_get_row(l, pu, &lwr_elements);
+//            count_lwr =
+            jmtx_matrix_brm_get_row(l, pu, &lwr_elements);
             float v = 0;
-            jmtx_matrix_brm_first_pos_in_row(l, pu);
-            uint_fast32_t len;
-            if (count_lwr < count_upr)
-            {
-                len = count_lwr;
-            }
-            else// if (count_lwr >= count_upr)
-            {
-                len = count_upr;
-            }
-            for (uint_fast32_t j = 0; j < len - 1; ++j)
-            {
-                v += lwr_elements[j] * upr_elements[j ];
-            }
+            first_l = jmtx_matrix_brm_first_pos_in_row(l, pu);
 
+            uint_fast32_t begin, end;
+            if (first_l < first_u)
+            {
+                begin = first_u;
+            }
+            else //if (first_l >= first_u)
+            {
+                begin = first_l;
+            }
+            if (pu < i)
+            {
+                end = pu;
+            }
+            else //if (pu >= i)
+            {
+                end = i;
+            }
+            for (uint_fast32_t j = begin; j < end; ++j)
+            {
+                v += lwr_elements[j - first_l] * upr_elements[j - first_u];
+            }
             upr_elements[k] = (a_elements[k] - v);
             k += 1;
         }
