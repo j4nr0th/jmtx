@@ -77,9 +77,7 @@ jmtx_result jmtx_band_lu_decomposition_brm(
     {
         uint_fast32_t first_l = jmtx_matrix_brm_first_pos_in_row(l, i);
         float* lwr_elements = NULL;
-//        uint_fast32_t count_lwr =
         jmtx_matrix_brm_get_row(l, i, &lwr_elements);
-//        assert(count_lwr == i - first_l + 1);
         uint_fast32_t k = 0;
         float* a_elements;
         (void)jmtx_matrix_brm_get_row(a, i, &a_elements);
@@ -118,14 +116,11 @@ jmtx_result jmtx_band_lu_decomposition_brm(
         lwr_elements[k++] = 1.0f;
 
         const uint_fast32_t first_u = jmtx_matrix_brm_first_pos_in_col(u, i);
-        const uint_fast32_t count_upr = jmtx_matrix_brm_get_col(u, i, p_values);
         k = 0;
         (void)jmtx_matrix_brm_get_col(a, i, p_values);
         a_elements = p_values;
-        assert(count_upr == i - first_u + 1);
         for (uint_fast32_t pu = first_u; pu <= i; ++pu)
         {
-//            count_lwr =
             jmtx_matrix_brm_get_row(l, pu, &lwr_elements);
             float v = 0;
             first_l = jmtx_matrix_brm_first_pos_in_row(l, pu);

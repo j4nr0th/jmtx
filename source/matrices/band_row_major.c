@@ -434,28 +434,25 @@ jmtx_matrix_brm_get_col(const jmtx_matrix_brm* mtx, uint32_t col, float values[]
     {
         first_row = col - mtx->upper_bandwidth;
     }
-    uint_fast32_t last_row = last_row = col + 1 + mtx->lower_bandwidth;
-//    if (col > mtx->base.rows - 1 - mtx->upper_bandwidth)
-//    {
-//        last_row = mtx->base.rows;
-//    }
-//    else
-//    {
-//        last_row = col + 1 + mtx->lower_bandwidth;
-//    }
+    uint_fast32_t last_row = col + 1 + mtx->lower_bandwidth;
     if (last_row > mtx->base.rows)
     {
         last_row = mtx->base.rows;
     }
 
     uint_fast32_t row;
-    uint_fast32_t j, i;
+    uint_fast32_t j, i, pos_rel;
     const uint_fast32_t max = brm_row_offset(mtx, mtx->base.rows);
+    pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, first_row));
+    i = brm_row_offset(mtx, first_row) + pos_rel;
     for (row = first_row, j = 0; row < last_row; ++row)
     {
-        i = brm_row_offset(mtx, row) + (col - jmtx_matrix_brm_first_pos_in_row(mtx, row));
-        values[j++] = mtx->values[i];
         assert(i < max);
+        values[j++] = mtx->values[i];
+        uint_fast32_t new_pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, row + 1));
+        i += (brm_row_len(mtx, row) - (pos_rel))
+                +  new_pos_rel;
+        pos_rel = new_pos_rel;
     }
 
     return j;
@@ -756,32 +753,25 @@ void jmtx_matrix_brm_set_col(const jmtx_matrix_brm* mtx, uint32_t col, const flo
     {
         first_row = col - mtx->upper_bandwidth;
     }
-    uint_fast32_t last_row;
-    if (col > mtx->base.rows - 1 - mtx->upper_bandwidth)
+    uint_fast32_t last_row = col + 1 + mtx->lower_bandwidth;
+    if (last_row > mtx->base.rows)
     {
         last_row = mtx->base.rows;
     }
-    else
-    {
-        last_row = col + 1 + mtx->lower_bandwidth;
-    }
 
-    uint_fast32_t row = first_row;
-    uint_fast32_t j = 0, i;
-    for (i = brm_row_offset(mtx, row) + (col - jmtx_matrix_brm_first_pos_in_row(mtx, row)); row < mtx->lower_bandwidth && row < last_row; ++row)
+    uint_fast32_t row;
+    uint_fast32_t j, i, pos_rel;
+    const uint_fast32_t max = brm_row_offset(mtx, mtx->base.rows);
+    pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, first_row));
+    i = brm_row_offset(mtx, first_row) + pos_rel;
+    for (row = first_row, j = 0; row < last_row; ++row)
     {
+        assert(i < max);
         mtx->values[i] = values[j++];
-        i += (mtx->upper_bandwidth + 1 + row);
-    }
-    for (; row < mtx->base.rows - mtx->upper_bandwidth && row < last_row; ++row)
-    {
-        mtx->values[i] = values[j++];
-        i += (mtx->upper_bandwidth + mtx->lower_bandwidth);
-    }
-    for (;  row < mtx->base.rows && row < last_row; ++row)
-    {
-        mtx->values[i] = values[j++];
-        i += ((mtx->base.rows - 1 - row) + mtx->lower_bandwidth);
+        uint_fast32_t new_pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, row + 1));
+        i += (brm_row_len(mtx, row) - (pos_rel))
+             +  new_pos_rel;
+        pos_rel = new_pos_rel;
     }
 }
 

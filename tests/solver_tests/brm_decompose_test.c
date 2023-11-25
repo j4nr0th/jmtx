@@ -189,22 +189,22 @@ int main(int argc, const char* argv[static argc])
      * uniform mesh spacing on domain (0, 1)
      */
 
-    enum {POWER_COUNT = 16};
+    enum {POWER_COUNT = 25};
     float errors[POWER_COUNT];
     float size[POWER_COUNT];
     unsigned p = 1;
 
     struct timespec ts0, ts1;
-    clock_gettime(CLOCK_MONOTONIC, &ts0);
-    for (unsigned i = 0; i < POWER_COUNT; ++i)
-    {
-        p <<= 1;
-        size[i] = log10f((float)p);
-        errors[i] = log10f(get_rms_error_for_element_count(p));
-        printf("RMS error for %u elements was %g\n", p, errors[i]);
-    }
-    clock_gettime(CLOCK_MONOTONIC, &ts1);
-    printf("Time taken using CRS/CCS %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
+//    clock_gettime(CLOCK_MONOTONIC, &ts0);
+//    for (unsigned i = 0; i < POWER_COUNT; ++i)
+//    {
+//        p <<= 1;
+//        size[i] = log10f((float)p);
+//        errors[i] = log10f(get_rms_error_for_element_count(p));
+//        printf("RMS error for %u elements was %g\n", p, errors[i]);
+//    }
+//    clock_gettime(CLOCK_MONOTONIC, &ts1);
+//    printf("Time taken using CRS/CCS %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
 
     clock_gettime(CLOCK_MONOTONIC, &ts0);
     p = 1;
