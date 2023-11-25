@@ -33,4 +33,14 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
         float* aux_vec, jmtx_solver_arguments* args);
 
+
+jmtx_result jmtx_lu_solve_iterative_bmr(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l, const jmtx_matrix_brm* u,
+                                        const float y[const restrict], float x[const restrict],
+                                        float aux_vec[const restrict], jmtx_solver_arguments* args);
+
+jmtx_result jmtx_lu_solve_iterative_bmr_parallel(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l,
+                                                 const jmtx_matrix_brm* u,  const float y[const restrict],
+                                                 float x[const restrict], float aux_vec[const restrict],
+                                                 jmtx_solver_arguments* args);
+
 #endif //JMTX_LU_SOLVING_H

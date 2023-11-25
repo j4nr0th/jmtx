@@ -533,3 +533,124 @@ void jmtx_lu_solve_inplace_brm(const jmtx_matrix_brm* l, const jmtx_matrix_brm* 
         x[i] = (x[i] - v) / values[0];
     }
 }
+
+jmtx_result jmtx_lu_solve_iterative_bmr(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l, const jmtx_matrix_brm* u,
+                                        const float y[const restrict], float x[const restrict],
+                                        float aux_vec[const restrict],
+                                        jmtx_solver_arguments* args)
+{
+    const uint_fast32_t n = l->base.cols;
+    float y_magnitude2 = 0;
+    uint_fast32_t iteration_count = 0;
+    float error = 0;
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        y_magnitude2 += y[i] * y[i];
+    }
+    jmtx_lu_solve_brm(l, u, y, x);
+
+    for (;;)
+    {
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            aux_vec[i] = jmtx_matrix_brm_vector_multiply_row(a, x, i);
+        }
+
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            aux_vec[i] = y[i] - aux_vec[i];
+        }
+
+        float residual_magnitude2 = 0;
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            residual_magnitude2 += aux_vec[i] * aux_vec[i];
+        }
+        error = sqrtf(residual_magnitude2 / y_magnitude2);
+        if (args->opt_error_evolution )
+        {
+            args->opt_error_evolution[iteration_count] = error;
+        }
+        ++iteration_count;
+        if (error < args->in_convergence_criterion || iteration_count > args->in_max_iterations)
+        {
+            break;
+        }
+        jmtx_lu_solve_inplace_brm(l, u, aux_vec);
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            x[i] += aux_vec[i];
+        }
+    }
+    args->out_last_error = error;
+    args->out_last_iteration = iteration_count;
+    return iteration_count < args->in_max_iterations ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
+}
+
+jmtx_result jmtx_lu_solve_iterative_bmr_parallel(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l,
+                                                 const jmtx_matrix_brm* u,  const float y[const restrict],
+                                                 float x[const restrict], float aux_vec[const restrict],
+                                                 jmtx_solver_arguments* args)
+{
+    const uint_fast32_t n = l->base.cols;
+    float y_magnitude2 = 0;
+    uint_fast32_t iteration_count = 0;
+    float error = 0;
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        y_magnitude2 += y[i] * y[i];
+    }
+    float residual_magnitude2 = 0;
+    jmtx_lu_solve_brm(l, u, y, x);
+#pragma omp parallel default(none) shared(y, x, l, u, aux_vec, args, n, error, y_magnitude2, iteration_count,\
+                                          residual_magnitude2, a)
+    {
+        for (;;)
+        {
+#pragma omp for
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                aux_vec[i] = jmtx_matrix_brm_vector_multiply_row(a, x, i);
+            }
+
+#pragma omp for
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                aux_vec[i] = y[i] - aux_vec[i];
+            }
+
+#pragma omp for reduction(+:residual_magnitude2)
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                residual_magnitude2 += aux_vec[i] * aux_vec[i];
+            }
+
+#pragma omp single
+            {
+                error = sqrtf(residual_magnitude2 / y_magnitude2);
+                if (args->opt_error_evolution)
+                {
+                    args->opt_error_evolution[iteration_count] = error;
+                }
+                ++iteration_count;
+            }
+
+            if (error < args->in_convergence_criterion || iteration_count > args->in_max_iterations)
+            {
+                break;
+            }
+#pragma omp single
+            {
+                jmtx_lu_solve_inplace_brm(l, u, aux_vec);
+            }
+#pragma omp for
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                x[i] += aux_vec[i];
+            }
+        }
+    }
+    args->out_last_error = error;
+    args->out_last_iteration = iteration_count;
+    return iteration_count < args->in_max_iterations ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
+}

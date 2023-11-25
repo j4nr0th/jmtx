@@ -213,3 +213,7 @@ add_test(NAME lu_solve_test_brm COMMAND lu_solve_test_brm)
 add_executable(brm_decompose_test tests/solver_tests/brm_decompose_test.c tests/test_common.c)
 target_link_libraries(brm_decompose_test PRIVATE jmtx)
 add_test(NAME brm_decompose_test COMMAND brm_decompose_test)
+
+add_executable(brm_lu_improvement_test tests/solver_tests/brm_lu_improvement_test.c tests/test_common.c)
+target_link_libraries(brm_lu_improvement_test PRIVATE jmtx)
+add_test(NAME brm_lu_improvement_test COMMAND brm_lu_improvement_test)
