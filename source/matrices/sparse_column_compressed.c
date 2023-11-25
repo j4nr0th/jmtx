@@ -782,7 +782,7 @@ uint32_t jmtx_matrix_ccs_elements_in_row(const jmtx_matrix_ccs* mtx, uint32_t ro
         uint32_t* col_indices;
         float* unused_col_values;
         const uint32_t n_col_elements = ccs_get_column_entries(mtx, col, &col_indices, &unused_col_values);
-        if (n_col_elements)
+        if (n_col_elements && col_indices[0] <= row && col_indices[n_col_elements - 1] >= row)
         {
             uint32_t current = jmtx_internal_find_last_leq_value(n_col_elements, col_indices, row);
             if (col_indices[current] == row)
@@ -825,7 +825,7 @@ uint32_t jmtx_matrix_ccs_get_row(
         uint32_t* col_indices;
         float* unused_col_values;
         const uint32_t n_col_elements = ccs_get_column_entries(mtx, col, &col_indices, &unused_col_values);
-        if (n_col_elements && col_indices[0] <= row)
+        if (n_col_elements && col_indices[0] <= row && col_indices[n_col_elements - 1] >= row)
         {
             const uint32_t current = jmtx_internal_find_last_leq_value(n_col_elements, col_indices, row);
             if (col_indices[current] == row)
