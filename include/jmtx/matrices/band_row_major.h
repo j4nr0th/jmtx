@@ -1,6 +1,11 @@
 //
 // Created by jan on 13.6.2022.
 //
+/**
+ * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
+ * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these
+ * functions, which do perform parameter validation are in the "band_row_major_safe.h" header.
+ */
 
 #ifndef JMTX_BAND_ROW_MAJOR_H
 #define JMTX_BAND_ROW_MAJOR_H
@@ -8,14 +13,19 @@
     #include "matrix_base.h"
 #endif
 /**
- * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
- * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these functions,
- * which do perform parameter validation are in the "band_row_major_safe.h" header.
+ * @paragraph
+ * Band Row-Major matrix (BRM) is a matrix which has constant upper bandwidth (ubw) and lower bandwidths (lbw): constant
+ * number of entries above and bellow the diagonal. The rows are stored contiguously. The memory required is bounded by
+ * lbw + 1 + ubw. Memory access is performed in constant time for both rows and columns, with rows being slightly
+ * faster and doesn't need a separate function for setting it, since a pointer to a row allows modification.
+ *
+ * @paragraph
+ * Main advantage of BRM matrices is the fact that for a BRM with bandwidths ubw and lbw, its exact LU decomposition
+ * results in the matrix L having bandwidths 0 and lbw, and matrix U having bandwidths ubw and 0. This means that for
+ * a chosen matrix number of elements that need to be computed for full LU decomposition becomes (lbw + 1 + ubw) * N,
+ * with N being the size of the matrix. This means that using full LU decomposition can be viable, given that the
+ * bandwidth is low (most PDEs on a 1D domain).
  */
-
-
-
-
 typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
 
 
@@ -67,17 +77,45 @@ void jmtx_matrix_brm_set_col(const jmtx_matrix_brm* mtx, uint32_t col, const flo
  */
 uint_fast32_t jmtx_matrix_brm_get_row(const jmtx_matrix_brm* mtx, uint32_t row, float* p_elements[1]);
 
+/**
+ * Returns the index of the first non-zero column in a specific row
+ * @param mtx matrix for which this is to be determined
+ * @param row row of the matrix for which this is to be determined
+ * @return index of the first non-zero column in the row
+ */
 uint_fast32_t jmtx_matrix_brm_first_pos_in_row(const jmtx_matrix_brm* mtx, uint32_t row);
 
+/**
+ * Returns the index of the last non-zero column in a specific row
+ * @param mtx matrix for which this is to be determined
+ * @param row row of the matrix for which this is to be determined
+ * @return index of the last non-zero column in the row
+ */
 uint_fast32_t jmtx_matrix_brm_last_pos_in_row(const jmtx_matrix_brm* mtx, uint32_t row);
 
+/**
+ * Returns the number of non-zero elements in a row of a matrix
+ * @param mtx matrix for which this is to be determined
+ * @param row row of the matrix for which this is to be determined
+ * @return index of the last non-zero column in the row
+ */
 uint_fast32_t jmtx_matrix_brm_length_of_row(const jmtx_matrix_brm* mtx, uint32_t row);
 
+/**
+ * Returns the index of the first non-zero row in a specific column
+ * @param mtx matrix for which this is to be determined
+ * @param col column of the matrix for which this is to be determined
+ * @return index of the first non-zero row in the column
+ */
 uint_fast32_t jmtx_matrix_brm_first_pos_in_col(const jmtx_matrix_brm* mtx, uint32_t col);
 
+/**
+ * Returns the index of the last non-zero row in a specific column
+ * @param mtx matrix for which this is to be determined
+ * @param col column of the matrix for which this is to be determined
+ * @return index of the last non-zero row in the column
+ */
 uint_fast32_t jmtx_matrix_brm_last_pos_in_col(const jmtx_matrix_brm* mtx, uint32_t col);
-
-uint_fast32_t jmtx_matrix_brm_length_of_col(const jmtx_matrix_brm* mtx, uint32_t col);
 
 
 /**
@@ -188,6 +226,14 @@ jmtx_result jmtx_matrix_brm_copy(const jmtx_matrix_brm* mtx, jmtx_matrix_brm** p
  * @return result of the multiplication
  */
 float jmtx_matrix_brm_vector_multiply_row(const jmtx_matrix_brm* mtx, const float* x, uint32_t i);
+
+/**
+ * Returns the upper bandwidth and the lower bandwidth of the BRM matrix
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param ubw pointer which receives the upper bandwidth of the matrix
+ * @param lbw pointer which receives the lower bandwidth of the matrix
+ */
+void jmtx_matrix_brm_get_bandwidths(const jmtx_matrix_brm* mtx, uint32_t* ubw, uint32_t* lbw);
 
 
 #endif //JMTX_BAND_ROW_MAJOR_H

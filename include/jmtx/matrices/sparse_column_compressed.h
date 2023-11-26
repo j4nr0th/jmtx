@@ -1,37 +1,17 @@
 //
 // Created by jan on 15.6.2022.
 //
-
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
-#define JMTX_SPARSE_COLUMN_COMPRESSED_H
-#ifndef JMTX_MATRIX_BASE_H
-    #include "matrix_base.h"
-#endif
 /**
  * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
  * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these functions,
  * which do perform parameter validation are in the "sparse_row_compressed_safe.h" header.
  */
 
-//  Function testing 15.06.2022:
-//  - matrix_crs_new : DONE
-//  - matrix_crs_destroy : DONE
-//  - matrix_crs_shrink : DONE
-//  - matrix_crs_set_row : DONE
-//  - matrix_crs_get_row : DONE
-//  - matrix_crs_vector_multiply : DONE
-//  - matrix_crs_set_element : DONE
-//  - matrix_crs_get_element : DONE
-//  - matrix_crs_beef_check : BEEF (could also replace with B16B00B5 ( ͡° ͜ʖ ͡°))
-//  - matrix_crs_apply_unary_fn : DONE
-//  - matrix_crs_remove_zeros : DONE
-//  - matrix_crs_remove_bellow : DONE
-//  - matrix_crs_elements_in_column : DONE
-//  - matrix_crs_get_column : DONE
-//  - matrix_crs_transpose : DONE
-//  - matrix_crs_transpose : DONE
-//  - matrix_crs_copy : DONE
-//  The same test code was run as for crs matrices
+#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+#define JMTX_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTX_MATRIX_BASE_H
+    #include "matrix_base.h"
+#endif
 
 
 

@@ -1,17 +1,17 @@
 //
 // Created by jan on 15.6.2022.
 //
+/**
+ * Functions declared here perform more checking of the parameters. Faster "unsafe" versions of these functions,
+ * which do perform parameter validation are in the "sparse_row_compressed.h" header.
+ *
+ */
 
 #ifndef JMTX_SPARSE_COLUMN_COMPRESSED_SAFE_H
 #define JMTX_SPARSE_COLUMN_COMPRESSED_SAFE_H
 #ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
     #include "sparse_column_compressed.h"
 #endif
-/**
- * Functions declared here perform more checking of the parameters. Faster "unsafe" versions of these functions,
- * which do perform parameter validation are in the "sparse_row_compressed.h" header.
- *
- */
 
 
 /**

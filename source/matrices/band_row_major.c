@@ -704,6 +704,7 @@ void jmtx_matrix_brm_set_all_entries(const jmtx_matrix_brm* mtx, float x)
     }
 }
 
+[[gnu::hot]]
 uint_fast32_t jmtx_matrix_brm_first_pos_in_row(const jmtx_matrix_brm* mtx, uint32_t row)
 {
     if (row < mtx->lower_bandwidth)
@@ -740,7 +741,10 @@ uint_fast32_t jmtx_matrix_brm_last_pos_in_col(const jmtx_matrix_brm* mtx, uint32
     return col + mtx->lower_bandwidth;
 }
 
-uint_fast32_t jmtx_matrix_brm_length_of_col(const jmtx_matrix_brm* mtx, uint32_t col);
+uint_fast32_t jmtx_matrix_brm_length_of_row(const jmtx_matrix_brm* mtx, uint32_t row)
+{
+    return brm_row_len(mtx, row);
+}
 
 void jmtx_matrix_brm_set_col(const jmtx_matrix_brm* mtx, uint32_t col, const float* values)
 {
@@ -773,6 +777,12 @@ void jmtx_matrix_brm_set_col(const jmtx_matrix_brm* mtx, uint32_t col, const flo
              +  new_pos_rel;
         pos_rel = new_pos_rel;
     }
+}
+
+void jmtx_matrix_brm_get_bandwidths(const jmtx_matrix_brm* mtx, uint32_t* ubw, uint32_t* lbw)
+{
+    *ubw = mtx->upper_bandwidth;
+    *lbw = mtx->lower_bandwidth;
 }
 
 jmtx_result jmtxs_matrix_brm_set_all_entries(const jmtx_matrix_brm* mtx, float x)

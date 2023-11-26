@@ -1,6 +1,10 @@
 //
 // Created by jan on 13.6.2022.
 //
+/**
+ * Functions declared here perform more checking of the parameters. Faster "unsafe" versions of these functions,
+ * which do perform parameter validation are in the "band_row_major.h" header.
+ */
 
 #ifndef JMTX_BAND_ROW_MAJOR_SAFE_H
 #define JMTX_BAND_ROW_MAJOR_SAFE_H
@@ -8,15 +12,19 @@
     #include "band_row_major.h"
 #endif
 /**
- * Functions declared here perform more checking of the parameters. Faster "unsafe" versions of these functions,
- * which do perform parameter validation are in the "band_row_major.h" header.
+ * @paragraph
+ * Band Row-Major matrix (BRM) is a matrix which has constant upper bandwidth (ubw) and lower bandwidths (lbw): constant
+ * number of entries above and bellow the diagonal. The rows are stored contiguously. The memory required is bounded by
+ * lbw + 1 + ubw. Memory access is performed in constant time for both rows and columns, with rows being slightly
+ * faster and doesn't need a separate function for setting it, since a pointer to a row allows modification.
  *
+ * @paragraph
+ * Main advantage of BRM matrices is the fact that for a BRM with bandwidths ubw and lbw, its exact LU decomposition
+ * results in the matrix L having bandwidths 0 and lbw, and matrix U having bandwidths ubw and 0. This means that for
+ * a chosen matrix number of elements that need to be computed for full LU decomposition becomes (lbw + 1 + ubw) * N,
+ * with N being the size of the matrix. This means that using full LU decomposition can be viable, given that the
+ * bandwidth is low (most PDEs on a 1D domain).
  */
-
-
-
-
-typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
 
 
 /**

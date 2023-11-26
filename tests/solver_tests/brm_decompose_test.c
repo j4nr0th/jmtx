@@ -189,7 +189,7 @@ int main(int argc, const char* argv[static argc])
      * uniform mesh spacing on domain (0, 1)
      */
 
-    enum {POWER_COUNT = 25};
+    enum {POWER_COUNT = 16};
     float errors[POWER_COUNT];
     float size[POWER_COUNT];
     unsigned p = 1;

@@ -7,7 +7,7 @@
 #include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 #include "../../include/jmtx/solvers/incomplete_cholesky_decomposition.h"
 
-enum {PROBLEM_DIMS = (1 << 5), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
+enum {PROBLEM_DIMS = (1 << 12), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
 
 int main()
 {
@@ -75,7 +75,7 @@ int main()
     MATRIX_TEST_CALL(jmtx_incomplete_cholensk_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crs_matrix(cho);
+//    print_crs_matrix(cho);
 
     jmtx_matrix_crs* cho_t;
     MATRIX_TEST_CALL(jmtxs_matrix_crs_transpose(cho, &cho_t, NULL));
