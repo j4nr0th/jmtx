@@ -5,8 +5,13 @@
 #ifndef JMTX_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 #define JMTX_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 
-#include "../matrices/sparse_row_compressed.h"
-#include "solver_base.h"
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
+
 
 /**
  * Uses relations for Cholesky decomposition to compute an approximate decomposition with C' such that the matrix

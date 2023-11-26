@@ -1,8 +1,9 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
 #define JMTX_MATRIX_BASE_INTERNAL_H
 
-#include "../../include/jmtx/matrices/matrix_base.h"
-
+#ifndef JMTX_MATRIX_BASE_H
+    #include "../../include/jmtx/matrices/matrix_base.h"
+#endif
 
 enum jmtx_matrix_type_T
 {

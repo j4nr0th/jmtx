@@ -4,7 +4,9 @@
 
 #include "../../include/jmtx/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#include "../../include/jmtx/solvers/solver_base.h"
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 #include <math.h>
 #include <stdio.h>
 #include "../../include/jmtx/solvers/cholesky_solving.h"

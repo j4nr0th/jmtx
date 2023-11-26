@@ -5,9 +5,12 @@
 #ifndef JMTX_CONJUGATE_GRADIENT_ITERATION_H
 #define JMTX_CONJUGATE_GRADIENT_ITERATION_H
 
-#include "../matrices/sparse_row_compressed.h"
-#include "solver_base.h"
-
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
  * Directly solves and N x N system in N iterations, but converges closely in fewer. Convergence speed is better for

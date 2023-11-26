@@ -4,9 +4,15 @@
 
 #ifndef JMTX_LU_SOLVING_H
 #define JMTX_LU_SOLVING_H
-#include "../matrices/band_row_major.h"
-#include "../matrices/sparse_row_compressed.h"
-#include "solver_base.h"
+#ifndef JMTX_BAND_ROW_MAJOR_H
+    #include "../matrices/band_row_major.h"
+#endif
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 
 void jmtx_lu_solve_crs(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y, float* restrict x);
 

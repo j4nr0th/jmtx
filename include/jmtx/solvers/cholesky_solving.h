@@ -5,8 +5,12 @@
 #ifndef JMTX_CHOLESKY_SOLVING_H
 #define JMTX_CHOLESKY_SOLVING_H
 
-#include "../matrices/sparse_row_compressed.h"
-#include "solver_base.h"
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 
 void jmtx_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, const float* restrict y, float* restrict x);
 

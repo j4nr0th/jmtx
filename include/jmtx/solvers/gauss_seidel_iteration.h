@@ -4,9 +4,12 @@
 
 #ifndef JMTX_GAUSS_SEIDEL_ITERATION_H
 #define JMTX_GAUSS_SEIDEL_ITERATION_H
-#include "../matrices/sparse_row_compressed.h"
-#include "solver_base.h"
-
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
  * matrices D (diagonal), L (lower triangular with zero diagonal), and U (upper triangular with zero diagonal), such

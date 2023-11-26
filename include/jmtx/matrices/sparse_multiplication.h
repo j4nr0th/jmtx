@@ -4,10 +4,15 @@
 
 #ifndef JMTX_SPARSE_MULTIPLICATION_H
 #define JMTX_SPARSE_MULTIPLICATION_H
-#include "sparse_row_compressed.h"
-#include "sparse_column_compressed.h"
-#include "band_row_major.h"
-
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+    #include "sparse_column_compressed.h"
+#endif
+#ifndef JMTX_BAND_ROW_MAJOR_H
+    #include "band_row_major.h"
+#endif
 
 jmtx_result jmtx_matrix_multiply_crs(const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_crs** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks);

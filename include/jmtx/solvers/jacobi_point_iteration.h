@@ -4,9 +4,15 @@
 
 #ifndef JMTX_JACOBI_POINT_ITERATION_H
 #define JMTX_JACOBI_POINT_ITERATION_H
-#include "../matrices/sparse_row_compressed.h"
-#include "../matrices/sparse_column_compressed.h"
-#include "solver_base.h"
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+    #include "../matrices/sparse_column_compressed.h"
+#endif
+#ifndef JMTX_SOLVER_BASE_H
+    #include "solver_base.h"
+#endif
 
 /*
  * Jacobi Point Iteration is an iterative method for solving the system Ax = y. It works by splitting the matrix A into

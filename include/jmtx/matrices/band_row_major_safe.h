@@ -4,7 +4,9 @@
 
 #ifndef JMTX_BAND_ROW_MAJOR_SAFE_H
 #define JMTX_BAND_ROW_MAJOR_SAFE_H
-#include "band_row_major.h"
+#ifndef JMTX_BAND_ROW_MAJOR_H
+    #include "band_row_major.h"
+#endif
 /**
  * Functions declared here perform more checking of the parameters. Faster "unsafe" versions of these functions,
  * which do perform parameter validation are in the "band_row_major.h" header.

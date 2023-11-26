@@ -4,9 +4,13 @@
 
 #ifndef JMTX_SPARSE_ROW_COMPRESSED_INTERNAL_H
 #define JMTX_SPARSE_ROW_COMPRESSED_INTERNAL_H
-#include "../../include/jmtx/matrices/sparse_row_compressed.h"
-#include "matrix_base_internal.h"
 
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+    #include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#endif
+#ifndef JMTX_MATRIX_BASE_INTERNAL_H
+    #include "matrix_base_internal.h"
+#endif
 struct jmtx_matrix_crs_struct
 {
     jmtx_matrix_base base;

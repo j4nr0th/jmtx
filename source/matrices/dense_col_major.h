@@ -4,8 +4,13 @@
 
 #ifndef JMTX_DENSE_COL_MAJOR_H
 #define JMTX_DENSE_COL_MAJOR_H
-#include "../../include/jmtx/matrices/matrix_base.h"
-#include "matrix_base_internal.h"
+#ifndef JMTX_MATRIX_BASE_H
+    #include "../../include/jmtx/matrices/matrix_base.h"
+#endif
+
+#ifndef JMTX_MATRIX_BASE_INTERNAL_H
+    #include "matrix_base_internal.h"
+#endif
 
 typedef struct jmtx_matrix_dcm_struct jmtx_matrix_dcm;
 struct jmtx_matrix_dcm_struct

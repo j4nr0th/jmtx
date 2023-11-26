@@ -4,8 +4,10 @@
 
 #ifndef JMTX_BAND_LU_DECOMPOSITION_H
 #define JMTX_BAND_LU_DECOMPOSITION_H
-#include "../matrices/band_row_major.h"
 
+#ifndef JMTX_BAND_ROW_MAJOR_H
+    #include "../matrices/band_row_major.h"
+#endif
 /**
  * Uses relations for LU decomposition to compute the full decomposition for the A, such that LU = A. For banded
  * matrices L + U has the same bandwidth as A, so for band matrices, this dramatically reduces costs.

@@ -4,7 +4,9 @@
 
 #ifndef JMTX_SPARSE_ROW_COMPRESSED_H
 #define JMTX_SPARSE_ROW_COMPRESSED_H
-#include "matrix_base.h"
+#ifndef JMTX_MATRIX_BASE_H
+    #include "matrix_base.h"
+#endif
 /**
  * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
  * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these functions,

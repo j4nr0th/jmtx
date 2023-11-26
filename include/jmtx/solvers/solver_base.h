@@ -5,7 +5,9 @@
 #ifndef JMTX_SOLVER_BASE_H
 #define JMTX_SOLVER_BASE_H
 
-#include "../common.h"
+#ifndef JMTX_COMMON_H
+    #include "../common.h"
+#endif
 
 /**
  * Parameters used for any kind of iterative solution algorithm.

@@ -4,8 +4,9 @@
 
 #ifndef JMTX_BASIC_IO_H
 #define JMTX_BASIC_IO_H
-#include "../../include/jmtx/matrices/matrix_base.h"
-
+#ifndef JMTX_MATRIX_BASE_H
+    #include "../../include/jmtx/matrices/matrix_base.h"
+#endif
 #ifdef JMTX_SPARSE_ROW_COMPRESSED_H
 
 jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs* mtx, const char* filename);

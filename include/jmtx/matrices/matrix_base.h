@@ -1,7 +1,8 @@
 #ifndef JMTX_MATRIX_BASE_H
 #define JMTX_MATRIX_BASE_H
-
-#include "../common.h"
+#ifndef JMTX_COMMON_H
+    #include "../common.h"
+#endif
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
