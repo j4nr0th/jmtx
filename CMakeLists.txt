@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(jmtx)
-enable_language(Fortran)
+#enable_language(Fortran)
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_Fortran_STANDARD 95)
+#set(CMAKE_Fortran_STANDARD 95)
 
 list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/sparse_row_compressed.c
@@ -60,9 +60,9 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/solvers/solver_base.h
         )
 
-list(APPEND FORTRAN_SOURCE_FILES
-        source/f_exper/f_crs_base.f90
-        source/f_exper/fjacobi.f90)
+#list(APPEND FORTRAN_SOURCE_FILES
+#        source/f_exper/f_crs_base.f90
+#        source/f_exper/fjacobi.f90)
 
 add_library(jmtx
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
@@ -76,9 +76,7 @@ add_library(jmtx
         include/jmtx/solvers/band_lu_decomposition.h
 )
 
-#add_executable(test_mtx source/matrices/matrix_base.h source/matrices/sparse_row_compressed.h source/matrices/sparse_row_compressed.c tests/test_common.c tests/test_common.h source/matrices/sparse_column_compressed.c source/matrices/sparse_column_compressed.h source/solvers/jacobi_point_iteration.c source/solvers/jacobi_point_iteration.h iter_test.c source/solvers/gauss_seidel_iteration.c source/solvers/gauss_seidel_iteration.h source/solvers/bicgstab_iteration.c source/solvers/bicgstab_iteration.h tests/base_crs_test.c)
-#target_link_libraries(test_mtx m pthread)
-target_link_libraries(jmtx gomp jdm m)
+target_link_libraries(jmtx gomp m)
 
 #target_compile_definitions(test_mtx PRIVATE MTX_ERROR_MESSAGES MTX_MATRIX_CHECKS)
 target_compile_options(jmtx PRIVATE -march=native)
@@ -127,16 +125,16 @@ target_link_libraries(jacobi_point_test PRIVATE jmtx m
         )
 add_test(NAME jacobi COMMAND jacobi_point_test)
 
-add_executable(test_fortan tests/fortran_tests/ftest_multiply.c tests/test_common.c tests/test_common.h source/f_exper/f_interface.h)
-target_link_libraries(test_fortan PRIVATE jmtx m)
-add_test(NAME test_fortran_interface COMMAND test_fortan)
-
-add_executable(fjacobi_point_test tests/fortran_tests/fjacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
-#target_include_directories(jacobi_point_test PRIVATE cplot/include)
-target_link_libraries(fjacobi_point_test PRIVATE jmtx m
-        #cplot
-)
-add_test(NAME fortran_jacobi COMMAND fjacobi_point_test)
+#add_executable(test_fortan tests/fortran_tests/ftest_multiply.c tests/test_common.c tests/test_common.h source/f_exper/f_interface.h)
+#target_link_libraries(test_fortan PRIVATE jmtx m)
+#add_test(NAME test_fortran_interface COMMAND test_fortan)
+#
+#add_executable(fjacobi_point_test tests/fortran_tests/fjacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
+##target_include_directories(jacobi_point_test PRIVATE cplot/include)
+#target_link_libraries(fjacobi_point_test PRIVATE jmtx m
+#        #cplot
+#)
+#add_test(NAME fortran_jacobi COMMAND fjacobi_point_test)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
