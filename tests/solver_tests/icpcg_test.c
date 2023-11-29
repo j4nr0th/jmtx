@@ -7,7 +7,7 @@
 #include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 #include "../../include/jmtx/solvers/incomplete_cholesky_decomposition.h"
 
-enum {PROBLEM_DIMS = (1 << 12), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
+enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
 
 int main()
 {

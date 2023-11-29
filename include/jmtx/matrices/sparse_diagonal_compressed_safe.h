@@ -4,7 +4,7 @@
 
 #ifndef JMTX_SPARSE_DIAGONAL_COMPRESSED_SAFE_H
 #define JMTX_SPARSE_DIAGONAL_COMPRESSED_SAFE_H
-#ifndef JMTX_MATRIX_BASE_H
+#ifndef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
     #include "sparse_diagonal_compressed.h"
 #endif
 
@@ -81,6 +81,34 @@ jmtx_result jmtxs_matrix_cds_set_diagonal_part(jmtx_matrix_cds* mtx, int32_t dia
 jmtx_result jmtxs_matrix_cds_allocate_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint32_t* p_size, float** p_dia);
 
 /**
+ * Allocates a new diagonal if one does not already exits, otherwise it returns the pointer to the existing one.
+ * Sets the diagonal to zero if it was not allocated before.
+ * @param mtx matrix which to allocate the diagonal for
+ * @param dia offset of the diagonal from the main diagonal
+ * @param p_size pointer which receives the number of elements in the allocated diagonal. May be NULL
+ * @return pointer to the newly allocated diagonal, or NULL in case it failed to do so
+ * @param p_dia pointer which receives pointer to the newly allocated diagonal
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_allocate_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint32_t* p_size, float** p_dia);
+
+/**
+ * Sets a row of the matrix to zero. Does not free any memory and does it as efficiently as possible
+ * @param mtx matrix the row of which to clear
+ * @param row the index of the row to clear
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_zero_row(const jmtx_matrix_cds* mtx, uint32_t row);
+
+/**
+ * Sets a column of the matrix to zero. Does not free any memory and does it as efficiently as possible
+ * @param mtx matrix the column of which to clear
+ * @param row the index of the column to clear
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_zero_col(const jmtx_matrix_cds* mtx, uint32_t col);
+
+/**
  * Returns the pointer to the diagonal if one already exits, otherwise it returns NULL
  * @param mtx matrix which to allocate the diagonal for
  * @param dia offset of the diagonal from the main diagonal
@@ -104,13 +132,25 @@ jmtx_result jmtxs_matrix_cds_entries_in_row(const jmtx_matrix_cds* mtx, uint32_t
  * @param row row index of the matrix to look at
  * @param n number of values in the row to be extracted at most
  * @param p_values a buffer of at least n values which receives the values of the row
- * @param p_rows a buffer of at least n values which receives the row indices of the row
+ * @param p_cols a buffer of at least n values which receives the column indices of the row
  * @param p_count pointer which receives the  number of entries that were extracted from the column (may be less than
- * are really in the column if n was too small)
+ * are really in the row if n was too small)
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint32_t n, float p_values[restrict n],
                           uint32_t p_cols[restrict n], uint32_t* p_count);
+
+/**
+ * Returns the values of entries in the matrix, along with what column of the matrix they were located in
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param row row index of the matrix to look at
+ * @param n number of values to be set in the row
+ * @param p_values a buffer of at least n values which contain the values to be set to
+ * @param p_rows a buffer of at least n values which receives the row indices of the row
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t n,
+                                    const float p_values[restrict static n], const uint32_t p_cols[restrict static n]);
 
 /**
  * Returns the number of entries in the column of the matrix
@@ -135,6 +175,19 @@ jmtx_result jmtxs_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t
 jmtx_result
 jmtxs_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[restrict n],
                          uint32_t p_rows[restrict n], uint32_t* p_count);
+
+/**
+ * Sets all the entries in the column of the matrix, zeroing non-specified entries and allocating new diagonals as
+ * needed
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param col column index of the matrix to look at
+ * @param n number of values in the column to be set
+ * @param p_values a buffer of n values of column entries
+ * @param p_rows a buffer of n indices of column indices of columns to set
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_t n,
+                                    const float p_values[restrict static n], const uint32_t p_rows[restrict static n]);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y

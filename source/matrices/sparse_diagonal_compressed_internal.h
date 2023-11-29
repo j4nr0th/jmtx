@@ -8,7 +8,7 @@
     #include "matrix_base_internal.h"
 #endif
 #ifndef JMTX_JMTX_SPARSE_DIAGONAL_COMPRESSED_H
-    #include "sparse_diagonal_compressed.h"
+    #include "../../include/jmtx/matrices/sparse_diagonal_compressed.h"
 #endif
 
 struct jmtx_matrix_cds_diagonal_array_T

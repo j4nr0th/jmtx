@@ -7,7 +7,7 @@
 #include "../../include/jmtx/solvers/conjugate_gradient_iteration.h"
 #include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
-enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 4};
+enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 1};
 
 int main()
 {

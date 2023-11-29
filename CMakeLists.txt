@@ -25,8 +25,8 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/matrices/sparse_multiplication.h
         include/jmtx/matrices/band_row_major.h
         include/jmtx/matrices/band_row_major_safe.h
-        source/matrices/sparse_diagonal_compressed.h
-        source/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/matrices/sparse_diagonal_compressed.h
+        include/jmtx/matrices/sparse_diagonal_compressed_safe.h
         )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -201,3 +201,7 @@ add_test(NAME brm_decompose_test COMMAND brm_decompose_test)
 add_executable(brm_lu_improvement_test tests/solver_tests/brm_lu_improvement_test.c tests/test_common.c)
 target_link_libraries(brm_lu_improvement_test PRIVATE jmtx)
 add_test(NAME brm_lu_improvement_test COMMAND brm_lu_improvement_test)
+
+add_executable(base_cds_test tests/matrix_ops_tests/base_cds_test.c tests/test_common.c)
+target_link_libraries(base_cds_test PRIVATE jmtx)
+add_test(NAME base_cds_test COMMAND base_cds_test)

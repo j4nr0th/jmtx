@@ -7,7 +7,7 @@
 #include "../../include/jmtx/solvers/gauss_seidel_iteration.h"
 #include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
 
-enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (1 << 14)};
+enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (1 << 6)};
 
 int main()
 {

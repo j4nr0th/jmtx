@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <math.h>
 #include "sparse_diagonal_compressed_internal.h"
+#include "../../include/jmtx/matrices/sparse_diagonal_compressed.h"
+#include "../../include/jmtx/matrices/sparse_diagonal_compressed_safe.h"
 
 
 enum {MINIMUM_RESERVED_DIAGONALS = 8};
@@ -380,7 +382,7 @@ float* jmtx_matrix_cds_allocate_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint
             mtx->main_diagonal = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->main_diagonal) * len);
             if (!mtx->main_diagonal)
             {
-                NULL;
+                return NULL;
             }
         }
         ptr = mtx->main_diagonal;
@@ -435,6 +437,85 @@ float* jmtx_matrix_cds_allocate_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint
 }
 
 /**
+ * Allocates a new diagonal if one does not already exits, otherwise it returns the pointer to the existing one.
+ * Sets the diagonal to zero if it was not allocated before.
+ * @param mtx matrix which to allocate the diagonal for
+ * @param dia offset of the diagonal from the main diagonal
+ * @param p_size pointer which receives the number of elements in the allocated diagonal. May be NULL
+ * @return pointer to the newly allocated diagonal, or NULL in case it failed to do so
+ */
+float* jmtx_matrix_cds_allocate_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint32_t* p_size)
+{
+    float* ptr;
+    uint_fast32_t len;
+    uint_fast32_t idx;
+    if (dia == 0)
+    {
+        len = cds_superdiagonal_length(mtx->base.cols, mtx->base.rows, 0);
+        //  Main diagonal
+        if (mtx->main_diagonal == NULL)
+        {
+            mtx->main_diagonal = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->main_diagonal) * len);
+            if (!mtx->main_diagonal)
+            {
+                return NULL;
+            }
+            memset(mtx->main_diagonal, 0, sizeof(*mtx->main_diagonal) * len);
+        }
+        ptr = mtx->main_diagonal;
+    }
+    else if (dia < 0)
+    {
+        idx = -dia;
+        len = cds_subdiagonal_length(mtx->base.cols, mtx->base.rows, idx);
+        ptr = jmtx_matrix_cds_diagonal_array_get_ptr(&mtx->sub_diagonals, idx);
+        if (!ptr)
+        {
+            ptr = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*ptr) * len);
+            if (!ptr)
+            {
+                return NULL;
+            }
+            const jmtx_result res = jmtx_matrix_cds_diagonal_array_insert(
+                    &mtx->base.allocator_callbacks, &mtx->sub_diagonals, idx, ptr);
+            if (res != JMTX_RESULT_SUCCESS)
+            {
+                mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, ptr);
+                return NULL;
+            }
+            memset(ptr, 0, sizeof(*ptr) * len);
+        }
+    }
+    else //if (dia_idx > 0)
+    {
+        idx = dia;
+        len = cds_superdiagonal_length(mtx->base.cols, mtx->base.rows, idx);
+        ptr = jmtx_matrix_cds_diagonal_array_get_ptr(&mtx->super_diagonals, idx);
+        if (!ptr)
+        {
+            ptr = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*ptr) * len);
+            if (!ptr)
+            {
+                return NULL;
+            }
+            const jmtx_result res = jmtx_matrix_cds_diagonal_array_insert(
+                    &mtx->base.allocator_callbacks, &mtx->super_diagonals, idx, ptr);
+            if (res != JMTX_RESULT_SUCCESS)
+            {
+                mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, ptr);
+                return NULL;
+            }
+            memset(ptr, 0, sizeof(*ptr) * len);
+        }
+    }
+    if (p_size)
+    {
+        *p_size = len;
+    }
+    return ptr;
+}
+
+/**
  * Returns the pointer to the diagonal if one already exits, otherwise it returns NULL
  * @param mtx matrix which to allocate the diagonal for
  * @param dia offset of the diagonal from the main diagonal
@@ -471,9 +552,10 @@ uint32_t jmtx_matrix_cds_entries_in_row(const jmtx_matrix_cds* mtx, uint32_t row
         {
             continue;
         }
+
         k += 1;
     }
-    if (mtx->main_diagonal && row > mtx->base.cols)
+    if (mtx->main_diagonal && row < mtx->base.cols)
     {
         k += 1;
     }
@@ -481,10 +563,11 @@ uint32_t jmtx_matrix_cds_entries_in_row(const jmtx_matrix_cds* mtx, uint32_t row
     {
         //  Check the superdiagonals
         const uint_fast32_t idx = mtx->super_diagonals.indices[i];
-        if (row < mtx->base.cols - idx)
+        if (row >= mtx->base.cols - idx)
         {
-            continue;
+            break;
         }
+
         k += 1;
     }
 
@@ -513,13 +596,14 @@ uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint3
         {
             continue;
         }
+
         const uint_fast32_t pos = row - d;
         p_cols[k] = pos;
         const float* const diagonal = mtx->sub_diagonals.diagonals[mtx->sub_diagonals.count - 1 - i];
         p_values[k] = diagonal[pos];
         k += 1;
     }
-    if (mtx->main_diagonal && row > mtx->base.cols && k < n)
+    if (mtx->main_diagonal && row < mtx->base.cols && k < n)
     {
         p_cols[k] = row;
         p_values[k] = mtx->main_diagonal[row];
@@ -529,9 +613,9 @@ uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint3
     {
         //  Check the superdiagonals
         const uint_fast32_t idx = mtx->super_diagonals.indices[i];
-        if (row < mtx->base.cols - idx)
+        if (row >= mtx->base.cols - idx)
         {
-            continue;
+            break;
         }
 
         p_cols[k] = idx;
@@ -544,27 +628,91 @@ uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint3
 }
 
 /**
+ * Returns the values of entries in the matrix, along with what column of the matrix they were located in
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param row row index of the matrix to look at
+ * @param n number of values to be set in the row
+ * @param p_values a buffer of at least n values which contain the values to be set to
+ * @param p_rows a buffer of at least n values which receives the row indices of the row
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
+ */
+jmtx_result jmtx_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t n,
+                                    const float p_values[restrict static n], const uint32_t p_cols[restrict static n])
+{
+    jmtx_matrix_cds_zero_row(mtx, row);
+    for (uint_fast32_t m = 0; m < n; ++m)
+    {
+        const int32_t dia = (int32_t)p_cols[m] - (int32_t)row;
+        float* ptr;
+        float v;
+        ptr = jmtx_matrix_cds_allocate_zero_diagonal(mtx, dia, NULL);
+        if (!ptr)
+        {
+            return JMTX_RESULT_BAD_ALLOC;
+        }
+        v = p_values[m];
+        if (dia < 0)
+        {
+            ptr[p_cols[m]] = v;
+        }
+        else
+        {
+            ptr[row] = v;
+        }
+    }
+
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Sets all the entries in the column of the matrix, zeroing non-specified entries and allocating new diagonals as
+ * needed
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param col column index of the matrix to look at
+ * @param n number of values in the column to be set
+ * @param p_values a buffer of n values of column entries
+ * @param p_rows a buffer of n indices of column indices of columns to set
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
+jmtx_result jmtx_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_t n,
+                                    const float p_values[restrict static n], const uint32_t p_rows[restrict static n])
+{
+    jmtx_matrix_cds_zero_col(mtx, col);
+    for (uint_fast32_t m = 0; m < n; ++m)
+    {
+        const int32_t dia = (int32_t)col - (int32_t)p_rows[m];
+        float* ptr;
+        float v;
+        ptr = jmtx_matrix_cds_allocate_zero_diagonal(mtx, dia, NULL);
+        if (!ptr)
+        {
+            return JMTX_RESULT_BAD_ALLOC;
+        }
+        v = p_values[m];
+        if (dia <= 0)
+        {
+            ptr[col] = v;
+        }
+        else
+        {
+            ptr[p_rows[m]] = v;
+        }
+    }
+
+    return JMTX_RESULT_SUCCESS;
+}
+
+
+
+/**
  * Returns the number of entries in the column of the matrix
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
  * @return number of entries in the column
  */
-uint32_t jmtx_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t col){
+uint32_t jmtx_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t col)
+{
     uint_fast32_t k = 0;
-    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count; ++i)
-    {
-        //  Check the subdiagonals
-        const uint_fast32_t idx = mtx->sub_diagonals.indices[i];
-        if (col < mtx->base.rows - idx)
-        {
-            continue;
-        }
-        k += 1;
-    }
-    if (col > mtx->base.rows && mtx->main_diagonal)
-    {
-        k += 1;
-    }
     for (uint_fast32_t i = 0; i < mtx->super_diagonals.count; ++i)
     {
         //  Check the superdiagonals
@@ -573,9 +721,24 @@ uint32_t jmtx_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t col
         {
             continue;
         }
+
         k += 1;
     }
+    if (mtx->main_diagonal && col < mtx->base.rows)
+    {
+        k += 1;
+    }
+    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count; ++i)
+    {
+        //  Check the subdiagonals
+        const uint_fast32_t idx = mtx->sub_diagonals.indices[i];
+        if (col >= mtx->base.rows - idx)
+        {
+            break;
+        }
 
+        k += 1;
+    }
     return k;
 }
 
@@ -593,26 +756,6 @@ uint32_t
 jmtx_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[restrict n], uint32_t p_rows[restrict n])
 {
     uint_fast32_t k = 0;
-    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count && k < n; ++i)
-    {
-        //  Check the subdiagonals
-        const uint_fast32_t idx = mtx->sub_diagonals.indices[i];
-        if (col < mtx->base.rows - idx)
-        {
-            continue;
-        }
-
-        p_rows[k] = idx;
-        const float* const diagonal = mtx->sub_diagonals.diagonals[i];
-        p_values[k] = diagonal[col];
-        k += 1;
-    }
-    if (mtx->main_diagonal && col > mtx->base.rows && k < n)
-    {
-        p_rows[k] = col;
-        p_values[k] = mtx->main_diagonal[col];
-        k += 1;
-    }
     for (uint_fast32_t i = 0; i < mtx->super_diagonals.count && k < n; ++i)
     {
         //  Check the superdiagonals
@@ -627,7 +770,26 @@ jmtx_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, fl
         p_values[k] = diagonal[pos];
         k += 1;
     }
+    if (mtx->main_diagonal && col < mtx->base.rows && k < n)
+    {
+        p_rows[k] = col;
+        p_values[k] = mtx->main_diagonal[col];
+        k += 1;
+    }
+    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count && k < n; ++i)
+    {
+        //  Check the subdiagonals
+        const uint_fast32_t idx = mtx->sub_diagonals.indices[i];
+        if (col >= mtx->base.rows - idx)
+        {
+            break;
+        }
 
+        p_rows[k] = idx;
+        const float* const diagonal = mtx->sub_diagonals.diagonals[i];
+        p_values[k] = diagonal[col];
+        k += 1;
+    }
     return k;
 }
 
@@ -961,6 +1123,10 @@ void jmtx_matrix_cds_clear(jmtx_matrix_cds* mtx)
 jmtx_result jmtx_matrix_cds_transpose(
         const jmtx_matrix_cds* mtx, jmtx_matrix_cds** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
     jmtx_matrix_cds* tps = NULL;
     int32_t dummy = 0;
     const uint32_t new_cols = mtx->base.rows;
@@ -1176,6 +1342,63 @@ void jmtx_matrix_cds_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia_idx)
             len = cds_superdiagonal_length(mtx->base.cols, mtx->base.rows, dia_idx);
         }
         memset(ptr, 0, sizeof(*ptr) * len);
+    }
+}
+
+void jmtx_matrix_cds_zero_row(const jmtx_matrix_cds* mtx, uint32_t row)
+{
+    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count; ++i)
+    {
+        const uint_fast32_t dia = mtx->sub_diagonals.indices[i];
+        if (dia > row)
+        {
+            break;
+        }
+        float* const ptr = mtx->sub_diagonals.diagonals[i];
+        ptr[row - dia] = 0.0f;
+    }
+    if (mtx->main_diagonal && row < mtx->base.cols)
+    {
+        mtx->main_diagonal[row] = 0;
+    }
+    for (uint_fast32_t i = 0; i < mtx->super_diagonals.count; ++i)
+    {
+        const uint_fast32_t dia = mtx->super_diagonals.indices[i];
+        if (mtx->base.cols - dia <= row)
+        {
+            break;
+        }
+        float* const ptr = mtx->super_diagonals.diagonals[i];
+        ptr[row] = 0.0f;
+        assert(row < cds_superdiagonal_length(mtx->base.cols, mtx->base.rows, dia));
+    }
+}
+
+void jmtx_matrix_cds_zero_col(const jmtx_matrix_cds* mtx, uint32_t col)
+{
+    for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count; ++i)
+    {
+        const uint_fast32_t dia = mtx->sub_diagonals.indices[i];
+        if (mtx->base.rows - dia <= col)
+        {
+            break;
+        }
+        float* const ptr = mtx->sub_diagonals.diagonals[i];
+        ptr[col] = 0.0f;
+    }
+    if (mtx->main_diagonal && col < mtx->base.rows)
+    {
+        mtx->main_diagonal[col] = 0;
+    }
+    for (uint_fast32_t i = 0; i < mtx->super_diagonals.count; ++i)
+    {
+        const uint_fast32_t dia = mtx->super_diagonals.indices[i];
+        if (dia > col)
+        {
+            break;
+        }
+        float* const ptr = mtx->super_diagonals.diagonals[i];
+        ptr[col - dia] = 0.0f;
     }
 }
 
@@ -1399,6 +1622,92 @@ jmtx_result jmtxs_matrix_cds_allocate_diagonal(jmtx_matrix_cds* mtx, int32_t dia
 }
 
 /**
+ * Allocates a new diagonal if one does not already exits, otherwise it returns the pointer to the existing one.
+ * Sets the diagonal to zero if it was not allocated before.
+ * @param mtx matrix which to allocate the diagonal for
+ * @param dia offset of the diagonal from the main diagonal
+ * @param p_size pointer which receives the number of elements in the allocated diagonal. May be NULL
+ * @return pointer to the newly allocated diagonal, or NULL in case it failed to do so
+ * @param p_dia pointer which receives pointer to the newly allocated diagonal
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_allocate_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia, uint32_t* p_size, float** p_dia)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!p_dia)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (dia >= (int32_t)mtx->base.cols || dia <= -(int32_t)mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    float* const ptr = jmtx_matrix_cds_allocate_zero_diagonal(mtx, dia, p_size);
+    if (!ptr)
+    {
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    *p_dia = ptr;
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Sets a row of the matrix to zero. Does not free any memory and does it as efficiently as possible
+ * @param mtx matrix the row of which to clear
+ * @param row the index of the row to clear
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_zero_row(const jmtx_matrix_cds* mtx, uint32_t row)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (row >= mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    jmtx_matrix_cds_zero_row(mtx, row);
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Sets a column of the matrix to zero. Does not free any memory and does it as efficiently as possible
+ * @param mtx matrix the column of which to clear
+ * @param row the index of the column to clear
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_zero_col(const jmtx_matrix_cds* mtx, uint32_t col)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (col >= mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    jmtx_matrix_cds_zero_col(mtx, col);
+    return JMTX_RESULT_SUCCESS;
+}
+
+
+/**
  * Returns the pointer to the diagonal if one already exits, otherwise it returns NULL
  * @param mtx matrix which to allocate the diagonal for
  * @param dia offset of the diagonal from the main diagonal
@@ -1498,6 +1807,61 @@ jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, u
     return JMTX_RESULT_SUCCESS;
 }
 
+/**
+ * Returns the values of entries in the matrix, along with what column of the matrix they were located in
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param row row index of the matrix to look at
+ * @param n number of values to be set in the row
+ * @param p_values a buffer of at least n values which contain the values to be set to
+ * @param p_rows a buffer of at least n values which receives the row indices of the row
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t n,
+                                     const float p_values[restrict static n], const uint32_t p_cols[restrict static n])
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (row >= mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    if (!p_values)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        if (!isfinite(p_values[i]))
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+    }
+    if (!p_cols)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        if (p_cols[i] >= mtx->base.cols)
+        {
+            return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        }
+    }
+    for (uint_fast32_t i = 0; i < n - 1; ++i)
+    {
+        if (p_cols[i] >= p_cols[i + 1])
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+    }
+    return jmtx_matrix_cds_set_row(mtx, row, n, p_values, p_cols);
+}
 /**
  * Returns the number of entries in the column of the matrix
  * @param mtx pointer to the memory where the matrix is stored
@@ -1915,6 +2279,60 @@ jmtx_result jmtxs_matrix_cds_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia_idx
     }
     jmtx_matrix_cds_zero_diagonal(mtx, dia_idx);
     return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Sets all the entries in the column of the matrix, zeroing non-specified entries and allocating new diagonals as
+ * needed
+ * @param mtx pointer to the memory where the matrix is stored
+ * @param col column index of the matrix to look at
+ * @param n number of values in the column to be set
+ * @param p_values a buffer of n values of column entries
+ * @param p_rows a buffer of n indices of column indices of columns to set
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_t n,
+                                     const float p_values[restrict static n], const uint32_t p_rows[restrict static n])
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!p_values)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!p_rows)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (col >= mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    for (uint_fast32_t i = 0; i < n - 1; ++i)
+    {
+        if (p_rows[i] >= p_rows[i + 1])
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+    }
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        if (!isfinite(p_values[i]))
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+        if (p_rows[i] >= mtx->base.rows)
+        {
+            return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+        }
+    }
+    return jmtx_matrix_cds_set_col(mtx, col, n, p_values, p_rows);
 }
 
 

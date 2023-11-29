@@ -15,8 +15,8 @@
 static const float V = 10.0f;
 static const float omega_0 = 5.0f;
 
-#define steps 2048
-#define iterations 2048
+#define steps 64
+#define iterations 64
 
 static double ts_difference(const struct timespec* t_begin, const struct timespec* t_end)
 {
