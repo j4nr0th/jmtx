@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(jmtx)
-#enable_language(Fortran)
 set(CMAKE_C_STANDARD 23)
-#set(CMAKE_Fortran_STANDARD 95)
 
 list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/sparse_row_compressed.c
@@ -14,6 +12,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/matrices/sparse_conversion.c
         source/matrices/sparse_multiplication.c
         source/matrices/band_row_major.c
+        source/matrices/sparse_diagonal_compressed.c
         )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
@@ -26,6 +25,8 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/matrices/sparse_multiplication.h
         include/jmtx/matrices/band_row_major.h
         include/jmtx/matrices/band_row_major_safe.h
+        source/matrices/sparse_diagonal_compressed.h
+        source/matrices/sparse_diagonal_compressed_safe.h
         )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -33,7 +34,8 @@ list(APPEND INTERNAL_HEADER_FILES
         source/matrices/sparse_row_compressed_internal.h
         source/matrices/sparse_column_compressed_internal.h
         source/matrices/band_row_major_internal.h
-)
+        source/matrices/sparse_diagonal_compressed_internal.h
+        )
 
 list(APPEND INTERNAL_SOURCE_FILES )
 
@@ -46,6 +48,7 @@ list(APPEND SOLVER_SOURCE_FILES
         source/solvers/lu_solving.c
         source/solvers/cholesky_solving.c
         source/solvers/incomplete_cholesky_decomposition.c
+        source/solvers/band_lu_decomposition.c
         )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -58,11 +61,9 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/solvers/cholesky_solving.h
         include/jmtx/solvers/incomplete_cholesky_decomposition.h
         include/jmtx/solvers/solver_base.h
+        include/jmtx/solvers/band_lu_decomposition.h
         )
 
-#list(APPEND FORTRAN_SOURCE_FILES
-#        source/f_exper/f_crs_base.f90
-#        source/f_exper/fjacobi.f90)
 
 add_library(jmtx
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
@@ -72,13 +73,10 @@ add_library(jmtx
         include/jmtx/common.h
         source/matrices/basic_io.c
         source/matrices/basic_io.h
-        source/solvers/band_lu_decomposition.c
-        include/jmtx/solvers/band_lu_decomposition.h
-)
+        )
 
 target_link_libraries(jmtx gomp m)
 
-#target_compile_definitions(test_mtx PRIVATE MTX_ERROR_MESSAGES MTX_MATRIX_CHECKS)
 target_compile_options(jmtx PRIVATE -march=native)
 
 option(JMTX_USE_OPENMP "Use OpenMP for parallel functions" ON)
@@ -116,8 +114,6 @@ add_executable(add_crs_test tests/matrix_ops_tests/crs_addition_test.c tests/tes
 target_link_libraries(add_crs_test PRIVATE jmtx m)
 add_test(NAME addition_crs COMMAND add_crs_test)
 
-#add_subdirectory(cplot)
-
 add_executable(jacobi_point_test tests/solver_tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
 #target_include_directories(jacobi_point_test PRIVATE cplot/include)
 target_link_libraries(jacobi_point_test PRIVATE jmtx m
@@ -125,16 +121,6 @@ target_link_libraries(jacobi_point_test PRIVATE jmtx m
         )
 add_test(NAME jacobi COMMAND jacobi_point_test)
 
-#add_executable(test_fortan tests/fortran_tests/ftest_multiply.c tests/test_common.c tests/test_common.h source/f_exper/f_interface.h)
-#target_link_libraries(test_fortan PRIVATE jmtx m)
-#add_test(NAME test_fortran_interface COMMAND test_fortan)
-#
-#add_executable(fjacobi_point_test tests/fortran_tests/fjacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
-##target_include_directories(jacobi_point_test PRIVATE cplot/include)
-#target_link_libraries(fjacobi_point_test PRIVATE jmtx m
-#        #cplot
-#)
-#add_test(NAME fortran_jacobi COMMAND fjacobi_point_test)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

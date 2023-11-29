@@ -145,7 +145,7 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
 
     jmtx_solver_arguments args =
             {
-            .in_max_iterations = 1024,//n,
+            .in_max_iterations = 64,//n,
             .in_convergence_criterion = 1e-8f,
             };
     jmtx_lu_solve_iterative_bmr_parallel(system_matrix, l, u, f + 1, sol + 1, aux, &args);

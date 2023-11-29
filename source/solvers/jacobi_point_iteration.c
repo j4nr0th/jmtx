@@ -15,11 +15,8 @@ jmtx_result jmtx_jacobi_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
         jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -29,20 +26,14 @@ jmtx_result jmtx_jacobi_crs(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!args)
@@ -57,7 +48,6 @@ jmtx_result jmtx_jacobi_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
 
 
@@ -146,11 +136,8 @@ jmtx_result jmtx_jacobi_relaxed_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
         float* restrict aux_vec2, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -160,20 +147,14 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (relaxation_factor <= 0.0f)
@@ -193,7 +174,6 @@ jmtx_result jmtx_jacobi_relaxed_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
 
     //  Length of x and y
@@ -284,7 +264,6 @@ jmtx_result jmtx_jacobi_crs_parallel(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector1, float* restrict aux_vector2,
         jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -318,7 +297,6 @@ jmtx_result jmtx_jacobi_crs_parallel(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     //  Length of x and y
     const uint32_t n = mtx->base.cols;

@@ -16,6 +16,8 @@ enum jmtx_matrix_type_T
 
     JMTX_TYPE_BRM,      //  Band row-major
 
+    JMTX_TYPE_CDS,      //  Compressed diagonal sparse
+
     JMTX_TYPE_COUNT,    //  Here just as upper bound of what the enum should be
 };
 typedef enum jmtx_matrix_type_T jmtx_matrix_type;

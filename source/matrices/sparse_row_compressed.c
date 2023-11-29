@@ -1166,7 +1166,6 @@ void jmtx_matrix_crs_zero_all_entries(const jmtx_matrix_crs* mtx)
 jmtx_result jmtxs_matrix_crs_zero_all_entries(const jmtx_matrix_crs* mtx)
 {
 
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
 //        REPORT_ERROR_MESSAGE("Matrix pointer was null");
@@ -1179,7 +1178,7 @@ jmtx_result jmtxs_matrix_crs_zero_all_entries(const jmtx_matrix_crs* mtx)
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
-#endif
+
     jmtx_matrix_crs_zero_all_entries(mtx);
     return JMTX_RESULT_SUCCESS;
 }

@@ -99,41 +99,30 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_crs(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
     {
-        //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!args)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     if (!allocator_callbacks)
     {
@@ -178,11 +167,8 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
         float* aux_vec, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -192,27 +178,20 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!args)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
 
     const uint32_t n = mtx->base.rows;
@@ -289,11 +268,8 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* y, float* x,
         float* aux_vec, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -303,23 +279,16 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
 
     const uint32_t n = mtx->base.rows;
@@ -399,11 +368,8 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_crs_parallel(
         const jmtx_matrix_crs* mtx, const float* y, float* x, float* aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
-//        REPORT_ERROR_MESSAGE("Matrix pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (mtx->base.rows != mtx->base.cols)
@@ -413,23 +379,16 @@ jmtx_result jmtx_incomplete_lu_decomposition_solve_crs_parallel(
     }
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
-//        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_WRONG_TYPE;
     }
     if (!y)
     {
-//        REPORT_ERROR_MESSAGE("Vector y pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
-//        REPORT_ERROR_MESSAGE("Vector x pointer was null");
-//        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     if (!allocator_callbacks)
     {

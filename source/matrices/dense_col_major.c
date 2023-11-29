@@ -8,7 +8,7 @@ jmtx_result jmtx_matrix_dcm_new(
         jmtx_matrix_dcm** p_out, uint32_t rows, uint32_t cols, int zero,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!p_out)
     {
 //        REPORT_ERROR_MESSAGE("Matrix pointer was null");
@@ -27,7 +27,7 @@ jmtx_result jmtx_matrix_dcm_new(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_BAD_PARAM;
     }
-#endif
+
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
@@ -63,7 +63,7 @@ jmtx_result jmtx_matrix_dcm_new(
 
 jmtx_result jmtx_matrix_dcm_get_element(const jmtx_matrix_dcm* mtx, uint32_t row, uint32_t col, float* x)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -84,14 +84,14 @@ jmtx_result jmtx_matrix_dcm_get_element(const jmtx_matrix_dcm* mtx, uint32_t row
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     *x = mtx->elements[row + col * mtx->base.rows];
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_dcm_set_element(jmtx_matrix_dcm* mtx, uint32_t row, uint32_t col, float x)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -108,14 +108,14 @@ jmtx_result jmtx_matrix_dcm_set_element(jmtx_matrix_dcm* mtx, uint32_t row, uint
     {
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-#endif
+
     mtx->elements[row + col * mtx->base.rows] = x;
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_dcm_add_element(jmtx_matrix_dcm* mtx, uint32_t row, uint32_t col, float x)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -132,7 +132,7 @@ jmtx_result jmtx_matrix_dcm_add_element(jmtx_matrix_dcm* mtx, uint32_t row, uint
     {
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-#endif
+
     mtx->elements[row + col * mtx->base.rows] += x;
     return JMTX_RESULT_SUCCESS;
 }
@@ -146,7 +146,7 @@ jmtx_result jmtx_matrix_dcm_destroy(jmtx_matrix_dcm* mtx)
 
 jmtx_result jmtx_matrix_dcm_set_col(jmtx_matrix_dcm* mtx, uint32_t col, const float* elements)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -163,7 +163,7 @@ jmtx_result jmtx_matrix_dcm_set_col(jmtx_matrix_dcm* mtx, uint32_t col, const fl
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     memcpy(mtx->elements + mtx->base.rows * col, elements, sizeof(*elements) * mtx->base.rows);
 
     return JMTX_RESULT_SUCCESS;
@@ -171,7 +171,7 @@ jmtx_result jmtx_matrix_dcm_set_col(jmtx_matrix_dcm* mtx, uint32_t col, const fl
 
 jmtx_result jmtx_matrix_dcm_set_row(jmtx_matrix_dcm* mtx, uint32_t row, const float* elements)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -188,7 +188,7 @@ jmtx_result jmtx_matrix_dcm_set_row(jmtx_matrix_dcm* mtx, uint32_t row, const fl
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
         mtx->elements[row + i * mtx->base.rows] = elements[i];
@@ -198,7 +198,7 @@ jmtx_result jmtx_matrix_dcm_set_row(jmtx_matrix_dcm* mtx, uint32_t row, const fl
 
 jmtx_result jmtx_matrix_dcm_set_all_rm(jmtx_matrix_dcm* mtx, const float* elements)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -211,7 +211,7 @@ jmtx_result jmtx_matrix_dcm_set_all_rm(jmtx_matrix_dcm* mtx, const float* elemen
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     for (uint32_t col = 0; col < mtx->base.cols; ++col)
     {
         for (uint32_t row = 0; row < mtx->base.rows; ++row)
@@ -224,7 +224,7 @@ jmtx_result jmtx_matrix_dcm_set_all_rm(jmtx_matrix_dcm* mtx, const float* elemen
 
 jmtx_result jmtx_matrix_dcm_set_all_cm(jmtx_matrix_dcm* mtx, const float* elements)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -237,7 +237,7 @@ jmtx_result jmtx_matrix_dcm_set_all_cm(jmtx_matrix_dcm* mtx, const float* elemen
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     memcpy(mtx->elements , elements, sizeof(*elements) * mtx->base.rows * mtx->base.cols);
     return JMTX_RESULT_SUCCESS;
 }
@@ -245,7 +245,7 @@ jmtx_result jmtx_matrix_dcm_set_all_cm(jmtx_matrix_dcm* mtx, const float* elemen
 jmtx_result jmtx_matrix_dcm_transpose(jmtx_matrix_dcm* mtx, jmtx_matrix_dcm* out)
 {
 
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -265,7 +265,7 @@ jmtx_result jmtx_matrix_dcm_transpose(jmtx_matrix_dcm* mtx, jmtx_matrix_dcm* out
             return JMTX_RESULT_DIMS_MISMATCH;
         }
     }
-#endif
+
     if (!out)
     {
         out = mtx;
@@ -292,7 +292,7 @@ jmtx_result jmtx_matrix_dcm_transpose(jmtx_matrix_dcm* mtx, jmtx_matrix_dcm* out
 
 jmtx_result jmtx_matrix_dcm_elements_in_row(jmtx_matrix_dcm* mtx, uint32_t* p_count)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -305,14 +305,14 @@ jmtx_result jmtx_matrix_dcm_elements_in_row(jmtx_matrix_dcm* mtx, uint32_t* p_co
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     *p_count = mtx->base.cols;
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_dcm_elements_in_col(jmtx_matrix_dcm* mtx, uint32_t* p_count)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -325,14 +325,14 @@ jmtx_result jmtx_matrix_dcm_elements_in_col(jmtx_matrix_dcm* mtx, uint32_t* p_co
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     *p_count = mtx->base.rows;
     return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtx_matrix_dcm_get_row(jmtx_matrix_dcm* mtx, uint32_t row, float* p_out)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -349,7 +349,7 @@ jmtx_result jmtx_matrix_dcm_get_row(jmtx_matrix_dcm* mtx, uint32_t row, float* p
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
         p_out[i] = mtx->elements[row + mtx->base.rows * i];
@@ -359,7 +359,7 @@ jmtx_result jmtx_matrix_dcm_get_row(jmtx_matrix_dcm* mtx, uint32_t row, float* p
 
 jmtx_result jmtx_matrix_dcm_get_col(jmtx_matrix_dcm* mtx, uint32_t col, float* p_out)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -376,7 +376,7 @@ jmtx_result jmtx_matrix_dcm_get_col(jmtx_matrix_dcm* mtx, uint32_t col, float* p
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
     memcpy(p_out, mtx->elements + mtx->base.rows * col, sizeof(*mtx->elements) * mtx->base.rows);
     return JMTX_RESULT_SUCCESS;
 }
@@ -384,7 +384,7 @@ jmtx_result jmtx_matrix_dcm_get_col(jmtx_matrix_dcm* mtx, uint32_t col, float* p
 jmtx_result
 jmtx_matrix_dcm_multiply(jmtx_matrix_dcm* out, const jmtx_matrix_dcm* first, const jmtx_matrix_dcm* second)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
+
     if (!first)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -426,7 +426,7 @@ jmtx_matrix_dcm_multiply(jmtx_matrix_dcm* out, const jmtx_matrix_dcm* first, con
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-#endif
+
 
     float* const c = out->elements;
     const float* const a = first->elements;

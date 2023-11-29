@@ -16,7 +16,6 @@ jmtx_result jmtx_conjugate_gradient_crs(
         const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
         float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -54,7 +53,6 @@ jmtx_result jmtx_conjugate_gradient_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     const uint32_t n = mtx->base.rows;
     float* const r = aux_vec1;
@@ -200,7 +198,6 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(
         const uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
         float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -238,7 +235,6 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     const uint32_t n = mtx->base.rows;
     float* const r = aux_vec1;
@@ -408,7 +404,6 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
         float* restrict x, float stagnation, uint32_t recalculation_interval, float* restrict aux_vec1,
         float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, jmtx_solver_arguments* args)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -486,7 +481,6 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     const uint32_t n = mtx->base.rows;
     float* const r = aux_vec1;

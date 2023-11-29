@@ -229,7 +229,6 @@ jmtx_result jmtxs_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** 
 
 /**
  * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel.
- * Unless JMTX_NO_VERIFY_PARAMS is defined, the function performs checks on parameters.
  * @param mtx pointer to the memory where the matrix A is stored.
  * @param x pointer to the memory where the vector x is stored
  * @param i what entry of the residual to compute

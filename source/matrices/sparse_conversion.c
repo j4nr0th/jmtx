@@ -10,7 +10,6 @@
 
 jmtx_result jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs* in, jmtx_matrix_ccs** p_out)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!in)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -23,7 +22,6 @@ jmtx_result jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs* in, jmtx_
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
 
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CCS;
@@ -35,7 +33,6 @@ jmtx_result jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs* in, jmtx_
 
 jmtx_result jmtx_convert_ccs_to_crs_inplace_transpose(jmtx_matrix_ccs* in, jmtx_matrix_crs** p_out)
 {
-#ifndef JMTX_NO_VERIFY_PARAMS
     if (!in)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -48,7 +45,7 @@ jmtx_result jmtx_convert_ccs_to_crs_inplace_transpose(jmtx_matrix_ccs* in, jmtx_
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-#endif
+
 
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CRS;
