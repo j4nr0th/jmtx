@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../include/jmtx/solvers/conjugate_gradient_iteration.h"
-#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 
 enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 1};
 

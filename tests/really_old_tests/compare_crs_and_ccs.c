@@ -2,8 +2,8 @@
 // Created by jan on 15.6.2022.
 //
 #include <stdio.h>
-#include "../../include/jmtx/matrices/sparse_column_compressed.h"
-#include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/float/matrices/sparse_column_compressed.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed.h"
 #include "../test_common.h"
 #include <math.h>
 

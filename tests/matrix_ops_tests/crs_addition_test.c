@@ -2,9 +2,9 @@
 // Created by jan on 21.7.2023.
 //
 #include <stdio.h>
-#include "../../include/jmtx/matrices/sparse_row_compressed.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed.h"
 #include "../test_common.h"
-#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 
 int main()
 {

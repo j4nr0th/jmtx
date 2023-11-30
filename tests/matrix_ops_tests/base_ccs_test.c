@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../test_common.h"
-#include "../../include/jmtx/matrices/sparse_column_compressed.h"
-#include "../../include/jmtx/matrices/sparse_column_compressed_safe.h"
+#include "../../include/jmtx/float/matrices/sparse_column_compressed.h"
+#include "../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
 
 int main()
 {

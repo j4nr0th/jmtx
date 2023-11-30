@@ -3,8 +3,8 @@
 //
 #include <omp.h>
 #include "../test_common.h"
-#include "../../include/jmtx/solvers/jacobi_point_iteration.h"
-#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/float/solvers/jacobi_point_iteration.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 
 enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (1 << 6)};
 

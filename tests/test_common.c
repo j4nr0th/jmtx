@@ -3,14 +3,14 @@
 //
 
 #include "test_common.h"
-#include "../include/jmtx/matrices/sparse_row_compressed.h"
-#include "../include/jmtx/matrices/sparse_column_compressed.h"
+#include "../include/jmtx/float/matrices/sparse_row_compressed.h"
+#include "../include/jmtx/float/matrices/sparse_column_compressed.h"
 #include <stdio.h>
-#include "../source/matrices/sparse_row_compressed_internal.h"
-#include "../source/matrices/sparse_column_compressed_internal.h"
-#include "../source/matrices/band_row_major_internal.h"
-#include "../source/matrices/sparse_diagonal_compressed_internal.h"
-#include "../include/jmtx/matrices/sparse_diagonal_compressed_safe.h"
+#include "../source/float/matrices/sparse_row_compressed_internal.h"
+#include "../source/float/matrices/sparse_column_compressed_internal.h"
+#include "../source/float/matrices/band_row_major_internal.h"
+#include "../source/float/matrices/sparse_diagonal_compressed_internal.h"
+#include "../include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h"
 #include <inttypes.h>
 
 

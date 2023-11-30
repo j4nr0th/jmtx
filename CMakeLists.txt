@@ -4,64 +4,60 @@ project(jmtx)
 set(CMAKE_C_STANDARD 23)
 
 list(APPEND MATRIX_TYPE_SOURCE_FILES
-        source/matrices/sparse_row_compressed.c
-        source/matrices/sparse_column_compressed.c
-        source/matrices/dense_row_major.c
-        source/matrices/dense_col_major.c
-        source/matrices/matrix_base.c
-        source/matrices/sparse_conversion.c
-        source/matrices/sparse_multiplication.c
-        source/matrices/band_row_major.c
-        source/matrices/sparse_diagonal_compressed.c
+        source/float/matrices/sparse_row_compressed.c
+        source/float/matrices/sparse_column_compressed.c
+        source/matrix_base.c
+        source/float/matrices/sparse_conversion.c
+        source/float/matrices/sparse_multiplication.c
+        source/float/matrices/band_row_major.c
+        source/float/matrices/sparse_diagonal_compressed.c
         )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
-        include/jmtx/matrices/sparse_row_compressed.h
-        include/jmtx/matrices/sparse_column_compressed.h
-        source/matrices/dense_row_major.h
-        source/matrices/dense_col_major.h
-        include/jmtx/matrices/matrix_base.h
-        include/jmtx/matrices/sparse_conversion.h
-        include/jmtx/matrices/sparse_multiplication.h
-        include/jmtx/matrices/band_row_major.h
-        include/jmtx/matrices/band_row_major_safe.h
-        include/jmtx/matrices/sparse_diagonal_compressed.h
-        include/jmtx/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/float/matrices/sparse_row_compressed.h
+        include/jmtx/float/matrices/sparse_column_compressed.h
+        include/jmtx/matrix_base.h
+        include/jmtx/float/matrices/sparse_conversion.h
+        include/jmtx/float/matrices/sparse_multiplication.h
+        include/jmtx/float/matrices/band_row_major.h
+        include/jmtx/float/matrices/band_row_major_safe.h
+        include/jmtx/float/matrices/sparse_diagonal_compressed.h
+        include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h
         )
 
 list(APPEND INTERNAL_HEADER_FILES
-        source/matrices/matrix_base_internal.h
-        source/matrices/sparse_row_compressed_internal.h
-        source/matrices/sparse_column_compressed_internal.h
-        source/matrices/band_row_major_internal.h
-        source/matrices/sparse_diagonal_compressed_internal.h
+        source/matrix_base_internal.h
+        source/float/matrices/sparse_row_compressed_internal.h
+        source/float/matrices/sparse_column_compressed_internal.h
+        source/float/matrices/band_row_major_internal.h
+        source/float/matrices/sparse_diagonal_compressed_internal.h
         )
 
 list(APPEND INTERNAL_SOURCE_FILES )
 
 list(APPEND SOLVER_SOURCE_FILES
-        source/solvers/jacobi_point_iteration.c
-        source/solvers/gauss_seidel_iteration.c
-        source/solvers/bicgstab_iteration.c
-        source/solvers/conjugate_gradient_iteration.c
-        source/solvers/incomplete_lu_decomposition.c
-        source/solvers/lu_solving.c
-        source/solvers/cholesky_solving.c
-        source/solvers/incomplete_cholesky_decomposition.c
-        source/solvers/band_lu_decomposition.c
+        source/float/solvers/jacobi_point_iteration.c
+        source/float/solvers/gauss_seidel_iteration.c
+        source/float/solvers/bicgstab_iteration.c
+        source/float/solvers/conjugate_gradient_iteration.c
+        source/float/solvers/incomplete_lu_decomposition.c
+        source/float/solvers/lu_solving.c
+        source/float/solvers/cholesky_solving.c
+        source/float/solvers/incomplete_cholesky_decomposition.c
+        source/float/solvers/band_lu_decomposition.c
         )
 
 list(APPEND SOLVER_HEADER_FILES
-        include/jmtx/solvers/jacobi_point_iteration.h
-        include/jmtx/solvers/gauss_seidel_iteration.h
-        source/solvers/bicgstab_iteration.h
-        include/jmtx/solvers/conjugate_gradient_iteration.h
-        include/jmtx/solvers/incomplete_lu_decomposition.h
-        include/jmtx/solvers/lu_solving.h
-        include/jmtx/solvers/cholesky_solving.h
-        include/jmtx/solvers/incomplete_cholesky_decomposition.h
-        include/jmtx/solvers/solver_base.h
-        include/jmtx/solvers/band_lu_decomposition.h
+        include/jmtx/float/solvers/jacobi_point_iteration.h
+        include/jmtx/float/solvers/gauss_seidel_iteration.h
+        source/float/solvers/bicgstab_iteration.h
+        include/jmtx/float/solvers/conjugate_gradient_iteration.h
+        include/jmtx/float/solvers/incomplete_lu_decomposition.h
+        include/jmtx/float/solvers/lu_solving.h
+        include/jmtx/float/solvers/cholesky_solving.h
+        include/jmtx/float/solvers/incomplete_cholesky_decomposition.h
+        include/jmtx/float/solvers/solver_base.h
+        include/jmtx/float/solvers/band_lu_decomposition.h
         )
 
 
@@ -71,8 +67,8 @@ add_library(jmtx
         ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
         ${FORTRAN_SOURCE_FILES}
         include/jmtx/common.h
-        source/matrices/basic_io.c
-        source/matrices/basic_io.h
+        source/float/matrices/basic_io.c
+        source/float/matrices/basic_io.h
         )
 
 target_link_libraries(jmtx gomp m)
@@ -114,7 +110,7 @@ add_executable(add_crs_test tests/matrix_ops_tests/crs_addition_test.c tests/tes
 target_link_libraries(add_crs_test PRIVATE jmtx m)
 add_test(NAME addition_crs COMMAND add_crs_test)
 
-add_executable(jacobi_point_test tests/solver_tests/jacobi_test.c tests/test_common.c source/solvers/jacobi_point_iteration.c)
+add_executable(jacobi_point_test tests/solver_tests/jacobi_test.c tests/test_common.c source/float/solvers/jacobi_point_iteration.c)
 #target_include_directories(jacobi_point_test PRIVATE cplot/include)
 target_link_libraries(jacobi_point_test PRIVATE jmtx m
         #cplot

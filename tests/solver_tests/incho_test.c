@@ -2,15 +2,15 @@
 // Created by jan on 2.11.2023.
 //
 #include "../test_common.h"
-#include "../../include/jmtx/solvers/incomplete_cholesky_decomposition.h"
-#include "../../include/jmtx/matrices/sparse_multiplication.h"
-#include "../../include/jmtx/solvers/lu_solving.h"
-#include "../../include/jmtx/matrices/sparse_conversion.h"
+#include "../../include/jmtx/float/solvers/incomplete_cholesky_decomposition.h"
+#include "../../include/jmtx/float/matrices/sparse_multiplication.h"
+#include "../../include/jmtx/float/solvers/lu_solving.h"
+#include "../../include/jmtx/float/matrices/sparse_conversion.h"
 
 #include <math.h>
 #include <omp.h>
-#include "../../include/jmtx/matrices/sparse_row_compressed_safe.h"
-#include "../../include/jmtx/matrices/sparse_column_compressed_safe.h"
+#include "../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
+#include "../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
 
 enum
 {

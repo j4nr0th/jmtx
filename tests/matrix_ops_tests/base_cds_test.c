@@ -3,8 +3,8 @@
 //
 
 #include "../test_common.h"
-#include "../../include/jmtx/matrices/sparse_diagonal_compressed.h"
-#include "../../include/jmtx/matrices/sparse_diagonal_compressed_safe.h"
+#include "../../include/jmtx/float/matrices/sparse_diagonal_compressed.h"
+#include "../../include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h"
 
 static int are_arrays_the_same(unsigned len, const float a1[const static len], const float a2[const static len])
 {
