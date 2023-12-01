@@ -1467,6 +1467,57 @@ jmtx_result jmtxs_matrix_crs_new_like(
     return jmtx_matrix_crs_new_like(mtx, p_out, allocator_callbacks, p_val);
 }
 
+uint32_t jmtx_matrix_crs_find_upper_bandwidth(const jmtx_matrix_crs* mtx)
+{
+    //  Find the greatest distance above the main diagonal
+    uint_fast32_t v_max = 0;
+    for (uint_fast32_t i = 0, p = 0; i < mtx->base.rows; ++i)
+    {
+        uint_fast32_t j;
+        for (j = 0; j < mtx->end_of_row_offsets[i]; ++j)
+        {
+            if (mtx->indices[p + j] > i)
+            {
+                const uint_fast32_t dif = mtx->indices[p + j] - i;
+                if (dif > v_max)
+                {
+                    v_max = dif;
+                }
+            }
+        }
+        p += j;
+    }
+    return v_max;
+}
+
+/**
+ * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry bellow the main diagonal
+ * @param mtx matrx to find the lower bandwidth of
+ * @return lower bandwidth of the matrix
+ */
+uint32_t jmtx_matrix_crs_find_lower_bandwidth(const jmtx_matrix_crs* mtx)
+{
+    //  Find the greatest distance above the main diagonal
+    uint_fast32_t v_max = 0;
+    for (uint_fast32_t i = 0, p = 0; i < mtx->base.rows; ++i)
+    {
+        uint_fast32_t j;
+        for (j = 0; j < mtx->end_of_row_offsets[i]; ++j)
+        {
+            if (mtx->indices[p + j] < i)
+            {
+                const uint_fast32_t dif = i - mtx->indices[p + j];
+                if (dif > v_max)
+                {
+                    v_max = dif;
+                }
+            }
+        }
+        p += j;
+    }
+    return v_max;
+}
+
 jmtx_result jmtxs_matrix_crs_join_vertically(
         jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned int k,
         const jmtx_matrix_crs** matrix_list)

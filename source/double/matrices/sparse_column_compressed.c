@@ -215,7 +215,6 @@ jmtx_result jmtxd_matrix_ccs_shrink(jmtxd_matrix_ccs* mtx)
     {
         return JMTX_RESULT_SUCCESS;
     }
-    mtx->capacity = mtx->n_entries;
     double* element_new_ptr = mtx->base.allocator_callbacks.realloc(mtx->base.allocator_callbacks.state, mtx->values, sizeof*mtx->values * (mtx->n_entries));
     if (!element_new_ptr)
     {
@@ -228,6 +227,7 @@ jmtx_result jmtxd_matrix_ccs_shrink(jmtxd_matrix_ccs* mtx)
         return JMTX_RESULT_BAD_ALLOC;
     }
     mtx->indices = new_indices_ptr;
+    mtx->capacity = mtx->n_entries;
 
     return JMTX_RESULT_SUCCESS;
 }
@@ -1107,3 +1107,60 @@ jmtxd_matrix_ccs_build_col(jmtxd_matrix_ccs* mtx, uint32_t col, uint32_t n, cons
 
     return JMTX_RESULT_SUCCESS;
 }
+
+/**
+ * Finds the upper bandwidth of the matrix; what is the furthest distance of and entry above the main diagonal
+ * @param mtx matrx to find the upper bandwidth of
+ * @return upper bandwidth of the matrix
+ */
+uint32_t jmtxd_matrix_ccs_find_upper_bandwidth(const jmtxd_matrix_ccs* mtx)
+{
+    //  Find the greatest distance above the main diagonal
+    uint_fast32_t v_max = 0;
+    for (uint_fast32_t i = 0, p = 0; i < mtx->base.cols; ++i)
+    {
+        uint_fast32_t j;
+        for (j = 0; j < mtx->end_of_column_offsets[i]; ++j)
+        {
+            if (mtx->indices[p + j] < i)
+            {
+                const uint_fast32_t dif = i - mtx->indices[p + j];
+                if (dif > v_max)
+                {
+                    v_max = dif;
+                }
+            }
+        }
+        p += j;
+    }
+    return v_max;
+}
+
+/**
+ * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry bellow the main diagonal
+ * @param mtx matrx to find the lower bandwidth of
+ * @return lower bandwidth of the matrix
+ */
+uint32_t jmtxd_matrix_ccs_find_lower_bandwidth(const jmtxd_matrix_ccs* mtx)
+{
+    //  Find the greatest distance above the main diagonal
+    uint_fast32_t v_max = 0;
+    for (uint_fast32_t i = 0, p = 0; i < mtx->base.cols; ++i)
+    {
+        uint_fast32_t j;
+        for (j = 0; j < mtx->end_of_column_offsets[i]; ++j)
+        {
+            if (mtx->indices[p + j] > i)
+            {
+                const uint_fast32_t dif = mtx->indices[p + j] - i;
+                if (dif > v_max)
+                {
+                    v_max = dif;
+                }
+            }
+        }
+        p += j;
+    }
+    return v_max;
+}
+

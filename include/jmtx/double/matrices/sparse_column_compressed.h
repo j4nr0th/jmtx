@@ -204,4 +204,18 @@ jmtx_result jmtxd_matrix_ccs_transpose(const jmtxd_matrix_ccs* mtx, jmtxd_matrix
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxd_matrix_ccs_copy(const jmtxd_matrix_ccs* restrict mtx, jmtxd_matrix_ccs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
+/**
+ * Finds the upper bandwidth of the matrix; what is the furthest distance of and entry above the main diagonal
+ * @param mtx matrx to find the upper bandwidth of
+ * @return upper bandwidth of the matrix
+ */
+uint32_t jmtxd_matrix_ccs_find_upper_bandwidth(const jmtxd_matrix_ccs* mtx);
+
+/**
+ * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry bellow the main diagonal
+ * @param mtx matrx to find the lower bandwidth of
+ * @return lower bandwidth of the matrix
+ */
+uint32_t jmtxd_matrix_ccs_find_lower_bandwidth(const jmtxd_matrix_ccs* mtx);
+
 #endif //JMTXD_SPARSE_COLUMN_COMPRESSED_H
