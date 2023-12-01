@@ -265,4 +265,18 @@ jmtx_result jmtx_matrix_crs_new_like(const jmtx_matrix_crs* mtx, jmtx_matrix_crs
 jmtx_result jmtxs_matrix_crs_new_like(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out,
                                       const jmtx_allocator_callbacks* allocator_callbacks, const float* p_val);
 
+/**
+ * Finds the upper bandwidth of the matrix; what is the furthest distance of and entry above the main diagonal
+ * @param mtx matrx to find the upper bandwidth of
+ * @return upper bandwidth of the matrix
+ */
+uint32_t jmtx_matrix_crs_find_upper_bandwidth(const jmtx_matrix_crs* mtx);
+
+/**
+ * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry bellow the main diagonal
+ * @param mtx matrx to find the lower bandwidth of
+ * @return lower bandwidth of the matrix
+ */
+uint32_t jmtx_matrix_crs_find_lower_bandwidth(const jmtx_matrix_crs* mtx);
+
 #endif //JMTX_SPARSE_ROW_COMPRESSED_H
