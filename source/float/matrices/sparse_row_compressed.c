@@ -694,17 +694,6 @@ jmtx_result jmtxs_matrix_crs_remove_zeros(jmtx_matrix_crs* mtx)
     return JMTX_RESULT_SUCCESS;
 }
 
-static inline bool is_bellow_magnitude(float x, float mag)
-{
-    //  Reinterpret both as uints
-    uint32_t u_x = *(uint32_t*)&x;
-    const uint32_t u_mag = *(uint32_t*)&mag;
-    //  Mask out the zero bit of x
-    u_x &= ~(1u << 31u);
-    //  Compare as if they were ints (since float comparison works the same)
-    return u_x < u_mag;
-}
-
 void jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
 {
     //  Update offsets
@@ -716,7 +705,7 @@ void jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
     for (p = 0; p < mtx->n_entries; ++p)
     {
         assert(r < mtx->base.rows);
-        if (is_bellow_magnitude(mtx->values[p], v))
+        if (fabsf(mtx->values[p]) < v)
         {
             c += 1;
         }
@@ -741,11 +730,10 @@ void jmtx_matrix_crs_remove_bellow_magnitude(jmtx_matrix_crs* mtx, float v)
     while (p0 != 0)
     {
         //  Check if entry must be removed
-        if (is_bellow_magnitude(mtx->values[p0 - 1], v))
+        if (fabsf(mtx->values[p0 - 1]) < v)
         {
             uint32_t p1 = p0;
-            while (p0 != 0 &&
-                    is_bellow_magnitude(mtx->values[p0 - 1], v))
+            while (p0 != 0 && fabsf(mtx->values[p0 - 1]) < v)
             {
                 p0 -= 1;
             }

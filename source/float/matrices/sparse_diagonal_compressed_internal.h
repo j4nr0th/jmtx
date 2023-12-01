@@ -7,7 +7,7 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
     #include "../../matrix_base_internal.h"
 #endif
-#ifndef JMTX_JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#ifndef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
     #include "../../../include/jmtx/float/matrices/sparse_diagonal_compressed.h"
 #endif
 

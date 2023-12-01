@@ -8,7 +8,7 @@
 #ifndef JMTXD_MATRIX_BASE_INTERNAL_H
     #include "../../matrix_base_internal.h"
 #endif
-#ifndef JMTXD_JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+#ifndef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
     #include "../../../include/jmtx/double/matrices/sparse_diagonal_compressed.h"
 #endif
 

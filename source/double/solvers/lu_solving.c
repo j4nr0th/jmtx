@@ -203,7 +203,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_precomputed_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         residual2 += r[i] * r[i];
-        mag_y2 = y[i] * y[i];
+        mag_y2 += y[i] * y[i];
     }
 
     double err = sqrt(residual2/mag_y2);
@@ -300,7 +300,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
     for (uint32_t i = 0; i < n; ++i)
     {
         residual2 += r[i] * r[i];
-        mag_y2 = y[i] * y[i];
+        mag_y2 += y[i] * y[i];
     }
 
     double err = sqrt(residual2/mag_y2);

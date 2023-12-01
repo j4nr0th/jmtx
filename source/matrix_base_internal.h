@@ -16,6 +16,12 @@ enum jmtx_matrix_type_T
     JMTX_TYPE_BRM,      //  Band row-major
     JMTX_TYPE_CDS,      //  Compressed diagonal sparse
 
+    //  Single precision complex
+    JMTXC_TYPE_CRS,      //  Compressed row sparse
+    JMTXC_TYPE_CCS,      //  Compressed column sparse
+    JMTXC_TYPE_BRM,      //  Band row-major
+    JMTXC_TYPE_CDS,      //  Compressed diagonal sparse
+
     //  Double precision
     JMTXD_TYPE_CRS,      //  Compressed row sparse
     JMTXD_TYPE_CCS,      //  Compressed column sparse
