@@ -8,7 +8,7 @@
     #include "../matrices/sparse_row_compressed.h"
 #endif
 #ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+    #include "../../solver_base.h"
 #endif
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into

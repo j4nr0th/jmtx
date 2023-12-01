@@ -1,4 +1,4 @@
-// Automatically generated from source/float/matrices/sparse_conversion.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/matrices/sparse_conversion.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 2.11.2023.
 //
@@ -15,7 +15,7 @@ jmtx_result jmtxd_convert_crs_to_ccs_inplace_transpose(jmtxd_matrix_crs* in, jmt
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (in->base.type != JMTX_TYPE_CRS)
+    if (in->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -25,7 +25,7 @@ jmtx_result jmtxd_convert_crs_to_ccs_inplace_transpose(jmtxd_matrix_crs* in, jmt
     }
 
     //  Lol, lmao even
-    in->base.type = JMTX_TYPE_CCS;
+    in->base.type = JMTXD_TYPE_CCS;
 
     *p_out = (jmtxd_matrix_ccs*)in;
 
@@ -38,7 +38,7 @@ jmtx_result jmtxd_convert_ccs_to_crs_inplace_transpose(jmtxd_matrix_ccs* in, jmt
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (in->base.type != JMTX_TYPE_CCS)
+    if (in->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -49,7 +49,7 @@ jmtx_result jmtxd_convert_ccs_to_crs_inplace_transpose(jmtxd_matrix_ccs* in, jmt
 
 
     //  Lol, lmao even
-    in->base.type = JMTX_TYPE_CRS;
+    in->base.type = JMTXD_TYPE_CRS;
     *p_out = (jmtxd_matrix_crs*)in;
 
     return JMTX_RESULT_SUCCESS;

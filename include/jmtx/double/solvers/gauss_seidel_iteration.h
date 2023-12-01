@@ -1,15 +1,15 @@
-// Automatically generated from include/jmtx/float/solvers/gauss_seidel_iteration.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/solvers/gauss_seidel_iteration.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 16.6.2022.
 //
 
-#ifndef JMTX_GAUSS_SEIDEL_ITERATION_H
-#define JMTX_GAUSS_SEIDEL_ITERATION_H
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_GAUSS_SEIDEL_ITERATION_H
+#define JMTXD_GAUSS_SEIDEL_ITERATION_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../solver_base.h"
 #endif
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -58,4 +58,4 @@ jmtx_result jmtxd_gauss_seidel_crs_parallel(
         const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vector,
         jmtxd_solver_arguments* args);
 
-#endif //JMTX_GAUSS_SEIDEL_ITERATION_H
+#endif //JMTXD_GAUSS_SEIDEL_ITERATION_H

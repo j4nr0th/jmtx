@@ -1,4 +1,4 @@
-// Automatically generated from include/jmtx/float/matrices/sparse_row_compressed.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/sparse_row_compressed.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 13.6.2022.
 //
@@ -8,9 +8,9 @@
  * which do perform parameter validation are in the "sparse_row_compressed_safe.h" header.
  */
 
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
-#define JMTX_SPARSE_ROW_COMPRESSED_H
-#ifndef JMTX_MATRIX_BASE_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
+#define JMTXD_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_MATRIX_BASE_H
     #include "../../matrix_base.h"
 #endif
 
@@ -266,4 +266,4 @@ jmtx_result jmtxd_matrix_crs_new_like(const jmtxd_matrix_crs* mtx, jmtxd_matrix_
 jmtx_result jmtxds_matrix_crs_new_like(const jmtxd_matrix_crs* mtx, jmtxd_matrix_crs** p_out,
                                       const jmtx_allocator_callbacks* allocator_callbacks, const double* p_val);
 
-#endif //JMTX_SPARSE_ROW_COMPRESSED_H
+#endif //JMTXD_SPARSE_ROW_COMPRESSED_H

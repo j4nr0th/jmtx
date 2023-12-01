@@ -4,6 +4,7 @@ import os
 from typing import TextIO
 
 TRANSLATION_APPENDIX = "d"
+TRANSLATION_APPENDIX_CAP = "d"
 
 def translate_file(f_in: TextIO, f_out: TextIO, target: str, replacement: str, folder: str) -> None:
     if not f_out.name.endswith(".txt"):
@@ -12,7 +13,11 @@ def translate_file(f_in: TextIO, f_out: TextIO, target: str, replacement: str, f
     for line in f_in:
         new_line = ((line.replace(target, replacement).replace("jmtx_", f"jmtx{TRANSLATION_APPENDIX}_").
                     replace("jmtxs_", f"jmtx{TRANSLATION_APPENDIX}s_")).
+                    replace("JMTX_", f"JMTX{TRANSLATION_APPENDIX_CAP}_").
                     replace(f"jmtx{TRANSLATION_APPENDIX}_result", "jmtx_result").
+                    replace(f"JMTX{TRANSLATION_APPENDIX_CAP}_RESULT", "JMTX_RESULT").
+                    replace(f"JMTX{TRANSLATION_APPENDIX_CAP}_DEFAULT", "JMTX_DEFAULT").
+                    replace(f"JMTX{TRANSLATION_APPENDIX_CAP}_NODISCARD", "JMTX_NODISCARD").
                     replace(f"jmtx{TRANSLATION_APPENDIX}_allocator_callbacks", "jmtx_allocator_callbacks").
                     replace(f"jmtx{TRANSLATION_APPENDIX}_matrix_base", "jmtx_matrix_base").
                     replace(f"jmtx{TRANSLATION_APPENDIX}_internal_find_last_leq_value", f"jmtx_internal_find_last_leq_value").
@@ -60,8 +65,8 @@ if __name__ == "__main__":
     if target_type not in translated_initials.keys():
         print(f"\"{target_type}\" was not one of the allowed types ({translated_initials.keys()})")
         exit(1)
-    TRANSLATION_APPENDIX = translated_initials[target_type]
-
+    TRANSLATION_APPENDIX:str = translated_initials[target_type]
+    TRANSLATION_APPENDIX_CAP = TRANSLATION_APPENDIX.upper()
     out_path = os.path.join(input_directory, "..", output_directory)
 
     if os.path.isfile(out_path):

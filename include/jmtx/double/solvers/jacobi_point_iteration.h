@@ -1,18 +1,18 @@
-// Automatically generated from include/jmtx/float/solvers/jacobi_point_iteration.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/solvers/jacobi_point_iteration.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 15.6.2022.
 //
 
-#ifndef JMTX_JACOBI_POINT_ITERATION_H
-#define JMTX_JACOBI_POINT_ITERATION_H
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_JACOBI_POINT_ITERATION_H
+#define JMTXD_JACOBI_POINT_ITERATION_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
     #include "../matrices/sparse_column_compressed.h"
 #endif
-#ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../solver_base.h"
 #endif
 
 /*
@@ -72,4 +72,4 @@ jmtx_result jmtxd_jacobi_crs_parallel(
         const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vector1, double* restrict aux_vector2,
         jmtxd_solver_arguments* args);
 
-#endif //JMTX_JACOBI_POINT_ITERATION_H
+#endif //JMTXD_JACOBI_POINT_ITERATION_H

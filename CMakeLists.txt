@@ -9,7 +9,10 @@ add_library(jmtx
     source/matrix_base_internal.h
     source/matrix_base.c
     include/jmtx/matrix_base.h
-    )
+    include/jmtx/solver_base.h
+        source/conversion/crs_conversion.c
+        include/jmtx/conversion/crs_conversion.h
+)
 include(source/float/CMakeLists.txt)
 
 include(source/double/CMakeLists.txt)

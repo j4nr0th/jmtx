@@ -1,10 +1,10 @@
-// Automatically generated from tests/float/test_common.h on Thu Nov 30 20:00:39 2023
+// Automatically generated from tests/float/test_common.h on Fri Dec  1 06:43:09 2023
 //
 // Created by jan on 15.6.2022.
 //
 
-#ifndef JMTX_TEST_COMMON_H
-#define JMTX_TEST_COMMON_H
+#ifndef JMTXD_TEST_COMMON_H
+#define JMTXD_TEST_COMMON_H
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,4 +29,4 @@ void print_cds_matrix(const jmtxd_matrix_cds* mtx);
 #define ASSERT(x) if (!(x)) {fprintf(stderr, "Failed assertion \"" #x "\" on line %u, file %s\n", __LINE__, __FILE__); DBG_BREAK; exit(EXIT_FAILURE);} (void)0
 #define MATRIX_TEST_CALL(x) printf("Called:\t%s -> %s\n", #x, jmtx_result_to_str((mtx_res = (x))))
 
-#endif //JMTX_TEST_COMMON_H
+#endif //JMTXD_TEST_COMMON_H

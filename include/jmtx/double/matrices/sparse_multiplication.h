@@ -1,17 +1,17 @@
-// Automatically generated from include/jmtx/float/matrices/sparse_multiplication.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/sparse_multiplication.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 2.11.2023.
 //
 
-#ifndef JMTX_SPARSE_MULTIPLICATION_H
-#define JMTX_SPARSE_MULTIPLICATION_H
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_SPARSE_MULTIPLICATION_H
+#define JMTXD_SPARSE_MULTIPLICATION_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
     #include "sparse_column_compressed.h"
 #endif
-#ifndef JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXD_BAND_ROW_MAJOR_H
     #include "band_row_major.h"
 #endif
 
@@ -32,4 +32,4 @@ double jmtxd_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b
 jmtx_result jmtxd_matrix_multiply_brm(const jmtxd_matrix_brm* a, const jmtxd_matrix_brm* b, jmtxd_matrix_brm** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks);
 
-#endif //JMTX_SPARSE_MULTIPLICATION_H
+#endif //JMTXD_SPARSE_MULTIPLICATION_H

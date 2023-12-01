@@ -1,11 +1,11 @@
-// Automatically generated from include/jmtx/float/matrices/sparse_diagonal_compressed.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/sparse_diagonal_compressed.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 27.11.2023.
 //
 
-#ifndef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
-#define JMTX_SPARSE_DIAGONAL_COMPRESSED_H
-#ifndef JMTX_MATRIX_BASE_H
+#ifndef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+#define JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+#ifndef JMTXD_MATRIX_BASE_H
     #include "../../matrix_base.h"
 #endif
 typedef struct jmtxd_matrix_cds_struct jmtxd_matrix_cds;
@@ -293,4 +293,4 @@ void jmtxd_matrix_cds_zero_diagonal(jmtxd_matrix_cds* mtx, int32_t dia_idx);
 
 
 
-#endif //JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#endif //JMTXD_SPARSE_DIAGONAL_COMPRESSED_H

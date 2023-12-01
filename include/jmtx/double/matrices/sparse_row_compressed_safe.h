@@ -1,4 +1,4 @@
-// Automatically generated from include/jmtx/float/matrices/sparse_row_compressed_safe.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/sparse_row_compressed_safe.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 13.6.2022.
 //
@@ -8,9 +8,9 @@
  *
  */
 
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_SAFE_H
-#define JMTX_SPARSE_ROW_COMPRESSED_SAFE_H
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_SAFE_H
+#define JMTXD_SPARSE_ROW_COMPRESSED_SAFE_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "sparse_row_compressed.h"
 #endif
 
@@ -270,4 +270,4 @@ jmtx_result jmtxds_matrix_crs_remove_column(jmtxd_matrix_crs* mtx, uint32_t col)
 JMTX_NODISCARD_FUNCTION
 jmtx_result jmtxds_matrix_crs_join_vertically(jmtxd_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtxd_matrix_crs* matrix_list[static k]);
 
-#endif //JMTX_SPARSE_ROW_COMPRESSED_SAFE_H
+#endif //JMTXD_SPARSE_ROW_COMPRESSED_SAFE_H

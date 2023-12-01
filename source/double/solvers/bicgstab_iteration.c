@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/bicgstab_iteration.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/bicgstab_iteration.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 17.6.2022.
 //
@@ -23,7 +23,7 @@ jmtx_result jmtxd_bicgstab_crs(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
@@ -416,7 +416,7 @@ jmtx_result jmtxd_bicgstab_crs_mt(
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();

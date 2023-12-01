@@ -1,4 +1,4 @@
-// Automatically generated from source/float/matrices/basic_io.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/matrices/basic_io.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 23.11.2023.
 //
@@ -16,7 +16,7 @@ jmtx_result jmtxd_matrix_crs_to_file(const jmtxd_matrix_crs* mtx, const char* fi
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -57,7 +57,7 @@ jmtx_result jmtxd_matrix_crs_to_file_explicit(const jmtxd_matrix_crs* mtx, const
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -103,7 +103,7 @@ jmtx_result jmtxd_matrix_ccs_to_file(const jmtxd_matrix_ccs* mtx, const char* fi
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -145,7 +145,7 @@ jmtx_result jmtxd_matrix_ccs_to_file_explicit(const jmtxd_matrix_ccs* mtx, const
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

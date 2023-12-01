@@ -4,6 +4,7 @@
 
 #ifndef JMTX_COMMON_H
 #define JMTX_COMMON_H
+#define JMTXD_COMMON_H
 
 #include <stdlib.h>
 #include <stdint.h>

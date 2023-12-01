@@ -1,12 +1,12 @@
-// Automatically generated from source/float/solvers/conjugate_gradient_iteration.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/conjugate_gradient_iteration.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 30.10.2023.
 //
 
 #include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#ifndef JMTX_SOLVER_BASE_H
-    #include "../../../include/jmtx/double/solvers/solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../../include/jmtx/solver_base.h"
 #endif
 #include <math.h>
 #include <stdio.h>
@@ -26,7 +26,7 @@ jmtx_result jmtxd_conjugate_gradient_crs(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -208,7 +208,7 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -442,15 +442,15 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (cho->base.type != JMTX_TYPE_CRS)
+    if (cho->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (cho_t->base.type != JMTX_TYPE_CRS)
+    if (cho_t->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

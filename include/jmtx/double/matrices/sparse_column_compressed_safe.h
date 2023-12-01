@@ -1,4 +1,4 @@
-// Automatically generated from include/jmtx/float/matrices/sparse_column_compressed_safe.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/sparse_column_compressed_safe.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 15.6.2022.
 //
@@ -8,9 +8,9 @@
  *
  */
 
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_SAFE_H
-#define JMTX_SPARSE_COLUMN_COMPRESSED_SAFE_H
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_SAFE_H
+#define JMTXD_SPARSE_COLUMN_COMPRESSED_SAFE_H
+#ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
     #include "sparse_column_compressed.h"
 #endif
 
@@ -200,4 +200,4 @@ jmtx_result jmtxds_matrix_ccs_transpose(const jmtxd_matrix_ccs* mtx, jmtxd_matri
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxds_matrix_ccs_copy(const jmtxd_matrix_ccs* restrict mtx, jmtxd_matrix_ccs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
-#endif //JMTX_SPARSE_COLUMN_COMPRESSED_SAFE_H
+#endif //JMTXD_SPARSE_COLUMN_COMPRESSED_SAFE_H

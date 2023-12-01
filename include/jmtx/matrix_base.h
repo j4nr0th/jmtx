@@ -1,5 +1,6 @@
 #ifndef JMTX_MATRIX_BASE_H
 #define JMTX_MATRIX_BASE_H
+#define JMTXD_MATRIX_BASE_H
 #ifndef JMTX_COMMON_H
     #include "common.h"
 #endif

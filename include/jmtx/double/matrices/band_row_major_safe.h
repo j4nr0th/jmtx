@@ -1,4 +1,4 @@
-// Automatically generated from include/jmtx/float/matrices/band_row_major_safe.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/matrices/band_row_major_safe.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 13.6.2022.
 //
@@ -7,9 +7,9 @@
  * which do perform parameter validation are in the "band_row_major.h" header.
  */
 
-#ifndef JMTX_BAND_ROW_MAJOR_SAFE_H
-#define JMTX_BAND_ROW_MAJOR_SAFE_H
-#ifndef JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXD_BAND_ROW_MAJOR_SAFE_H
+#define JMTXD_BAND_ROW_MAJOR_SAFE_H
+#ifndef JMTXD_BAND_ROW_MAJOR_H
     #include "band_row_major.h"
 #endif
 /**
@@ -199,4 +199,4 @@ jmtx_result jmtxds_matrix_brm_copy(const jmtxd_matrix_brm* mtx, jmtxd_matrix_brm
 jmtx_result jmtxds_matrix_brm_vector_multiply_row(const jmtxd_matrix_brm* mtx, const double* restrict x, uint32_t i, double* restrict p_r);
 
 
-#endif //JMTX_BAND_ROW_MAJOR_SAFE_H
+#endif //JMTXD_BAND_ROW_MAJOR_SAFE_H

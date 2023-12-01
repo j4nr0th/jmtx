@@ -12,7 +12,7 @@
     #include "../matrices/sparse_column_compressed.h"
 #endif
 #ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+    #include "../../solver_base.h"
 #endif
 
 /**

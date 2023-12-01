@@ -1,5 +1,6 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
 #define JMTX_MATRIX_BASE_INTERNAL_H
+#define JMTXD_MATRIX_BASE_INTERNAL_H
 
 #ifndef JMTX_MATRIX_BASE_H
     #include "../include/jmtx/matrix_base.h"
@@ -9,11 +10,18 @@ enum jmtx_matrix_type_T
 {
     JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
 
+    //  Single precision types
     JMTX_TYPE_CRS,      //  Compressed row sparse
     JMTX_TYPE_CCS,      //  Compressed column sparse
     JMTX_TYPE_BRM,      //  Band row-major
-
     JMTX_TYPE_CDS,      //  Compressed diagonal sparse
+
+    //  Double precision
+    JMTXD_TYPE_CRS,      //  Compressed row sparse
+    JMTXD_TYPE_CCS,      //  Compressed column sparse
+    JMTXD_TYPE_BRM,      //  Band row-major
+    JMTXD_TYPE_CDS,      //  Compressed diagonal sparse
+
 
     JMTX_TYPE_COUNT,    //  Here just as upper bound of what the enum should be
 };

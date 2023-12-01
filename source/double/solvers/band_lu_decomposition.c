@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/band_lu_decomposition.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/band_lu_decomposition.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 24.11.2023.
 //
@@ -16,7 +16,7 @@ jmtx_result jmtxd_band_lu_decomposition_brm(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTX_TYPE_BRM)
+    if (a->base.type != JMTXD_TYPE_BRM)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

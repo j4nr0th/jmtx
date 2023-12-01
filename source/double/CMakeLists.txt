@@ -51,7 +51,6 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/double/solvers/lu_solving.h
         include/jmtx/double/solvers/cholesky_solving.h
         include/jmtx/double/solvers/incomplete_cholesky_decomposition.h
-        include/jmtx/double/solvers/solver_base.h
         include/jmtx/double/solvers/band_lu_decomposition.h
 )
 

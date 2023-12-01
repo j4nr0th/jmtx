@@ -1,4 +1,4 @@
-// Automatically generated from tests/float/solver_tests/brm_lu_improvement_test.c on Thu Nov 30 20:00:39 2023
+// Automatically generated from tests/float/solver_tests/brm_lu_improvement_test.c on Fri Dec  1 06:43:09 2023
 #include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/double/matrices/sparse_column_compressed_safe.h"
 #include "../../../include/jmtx/double/matrices/band_row_major_safe.h"
@@ -82,7 +82,7 @@ static double get_rms_error_for_element_count_brm(const unsigned n)
         err[i] = -sol[i] + (-4.0f * sinf(1.5f * (double)M_PI * x[i]) / (9.0f * (double)(M_PI * M_PI)));
         rms += err[i] * err[i];
     }
-    rms = sqrtf(rms / (double)(n + 1));
+    rms = sqrt(rms / (double)(n + 1));
     free(err);
     free(sol);
     free(x);
@@ -166,7 +166,7 @@ static double get_rms_error_for_element_count_brm_improved(const unsigned n)
         err[i] = -sol[i] + (-4.0f * sinf(1.5f * (double)M_PI * x[i]) / (9.0f * (double)(M_PI * M_PI)));
         rms += err[i] * err[i];
     }
-    rms = sqrtf(rms / (double)(n + 1));
+    rms = sqrt(rms / (double)(n + 1));
     free(aux);
     free(err);
     free(sol);

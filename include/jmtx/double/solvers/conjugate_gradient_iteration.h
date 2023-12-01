@@ -1,16 +1,16 @@
-// Automatically generated from include/jmtx/float/solvers/conjugate_gradient_iteration.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/solvers/conjugate_gradient_iteration.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 30.10.2023.
 //
 
-#ifndef JMTX_CONJUGATE_GRADIENT_ITERATION_H
-#define JMTX_CONJUGATE_GRADIENT_ITERATION_H
+#ifndef JMTXD_CONJUGATE_GRADIENT_ITERATION_H
+#define JMTXD_CONJUGATE_GRADIENT_ITERATION_H
 
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../solver_base.h"
 #endif
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
@@ -110,4 +110,4 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
         double stagnation, uint32_t recalculation_interval, double* restrict aux_vec1, double* restrict aux_vec2,
         double* restrict aux_vec3, double* restrict aux_vec4, jmtxd_solver_arguments* args);
 
-#endif //JMTX_CONJUGATE_GRADIENT_ITERATION_H
+#endif //JMTXD_CONJUGATE_GRADIENT_ITERATION_H

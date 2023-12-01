@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/lu_solving.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/lu_solving.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 6.11.2023.
 //
@@ -108,7 +108,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_crs(
     {
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -177,7 +177,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_precomputed_crs(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -278,7 +278,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -378,7 +378,7 @@ jmtx_result jmtxd_incomplete_lu_decomposition_solve_crs_parallel(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

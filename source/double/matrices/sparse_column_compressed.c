@@ -1,4 +1,4 @@
-// Automatically generated from source/float/matrices/sparse_column_compressed.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/matrices/sparse_column_compressed.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 15.6.2022.
 //
@@ -147,7 +147,7 @@ jmtx_result jmtxd_matrix_ccs_new(
     }
 
     this->base.rows = rows;
-    this->base.type = JMTX_TYPE_CCS;
+    this->base.type = JMTXD_TYPE_CCS;
     this->base.cols = cols;
     this->base.allocator_callbacks = *allocator_callbacks;
     this->indices = indices;
@@ -201,7 +201,7 @@ jmtx_result jmtxds_matrix_ccs_destroy(jmtxd_matrix_ccs* mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -238,7 +238,7 @@ jmtx_result jmtxds_matrix_ccs_shrink(jmtxd_matrix_ccs* mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -300,7 +300,7 @@ jmtx_result jmtxds_matrix_ccs_set_col(jmtxd_matrix_ccs* mtx, uint32_t col, uint3
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -364,7 +364,7 @@ jmtx_result jmtxds_matrix_ccs_vector_multiply(const jmtxd_matrix_ccs* mtx, const
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -427,7 +427,7 @@ jmtx_result jmtxds_matrix_ccs_set_entry(jmtxd_matrix_ccs* mtx, uint32_t i, uint3
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -467,7 +467,7 @@ jmtx_result jmtxds_matrix_ccs_get_entry(const jmtxd_matrix_ccs* mtx, uint32_t i,
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -494,7 +494,7 @@ jmtx_result jmtxds_matrix_ccs_get_col(const jmtxd_matrix_ccs* mtx, uint32_t col,
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -538,7 +538,7 @@ jmtx_result jmtxds_matrix_ccs_count_values(const jmtxd_matrix_ccs* mtx, double v
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -570,7 +570,7 @@ jmtx_result jmtxds_matrix_ccs_count_indices(const jmtxd_matrix_ccs* mtx, uint32_
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -607,7 +607,7 @@ jmtx_result jmtxds_matrix_ccs_apply_unary_fn(const jmtxd_matrix_ccs* mtx, int (*
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -680,7 +680,7 @@ jmtx_result jmtxds_matrix_ccs_remove_zeros(jmtxd_matrix_ccs* mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -763,7 +763,7 @@ jmtx_result jmtxds_matrix_ccs_remove_bellow(jmtxd_matrix_ccs* mtx, double v)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -801,7 +801,7 @@ jmtx_result jmtxds_matrix_ccs_elements_in_row(const jmtxd_matrix_ccs* mtx, uint3
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -848,7 +848,7 @@ jmtx_result jmtxds_matrix_ccs_get_row(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -944,7 +944,7 @@ jmtx_result jmtxds_matrix_ccs_transpose(const jmtxd_matrix_ccs* mtx, jmtxd_matri
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -1013,7 +1013,7 @@ jmtx_result jmtxds_matrix_ccs_copy(const jmtxd_matrix_ccs* mtx, jmtxd_matrix_ccs
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -1040,7 +1040,7 @@ jmtx_result jmtxds_matrix_ccs_zero_all_elements(const jmtxd_matrix_ccs* mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -1065,7 +1065,7 @@ jmtx_result jmtxds_matrix_ccs_set_all_elements(jmtxd_matrix_ccs* mtx, double x)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CCS)
+    if (mtx->base.type != JMTXD_TYPE_CCS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

@@ -1,11 +1,11 @@
-// Automatically generated from source/float/solvers/bicgstab_iteration.h on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/bicgstab_iteration.h on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 17.6.2022.
 //
 
-#ifndef JMTX_BICGSTAB_ITERATION_H
-#define JMTX_BICGSTAB_ITERATION_H
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_BICGSTAB_ITERATION_H
+#define JMTXD_BICGSTAB_ITERATION_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../../../include/jmtx/double/matrices/sparse_row_compressed.h"
 #endif
 
@@ -24,4 +24,4 @@ jmtx_result jmtxd_bicgstab_crs_mt(
         uint32_t n_max_iter, uint32_t* p_iter, double* p_final_error, double* p_error,
         const jmtx_allocator_callbacks* allocator_callbacks, uint32_t n_thrds);
 
-#endif //JMTX_BICGSTAB_ITERATION_H
+#endif //JMTXD_BICGSTAB_ITERATION_H

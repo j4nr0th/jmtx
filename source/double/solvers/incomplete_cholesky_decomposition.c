@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/incomplete_cholesky_decomposition.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/incomplete_cholesky_decomposition.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 21.11.2023.
 //
@@ -14,7 +14,7 @@ jmtx_result jmtxd_incomplete_cholensk_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTX_TYPE_CRS)
+    if (a->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

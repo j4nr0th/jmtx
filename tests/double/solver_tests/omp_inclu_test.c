@@ -1,4 +1,4 @@
-// Automatically generated from tests/float/solver_tests/omp_inclu_test.c on Thu Nov 30 20:00:39 2023
+// Automatically generated from tests/float/solver_tests/omp_inclu_test.c on Fri Dec  1 06:43:09 2023
 //
 // Created by jan on 2.11.2023.
 //
@@ -164,7 +164,7 @@ int main()
             mag_y += v * v;
         }
     }
-    mag_y = sqrtf(mag_y);
+    mag_y = sqrt(mag_y);
 
     MATRIX_TEST_CALL(jmtxds_matrix_crs_vector_multiply(mtx, initial_vector, forcing_vector));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -199,8 +199,8 @@ int main()
 //               err, forcing_vector[i]);
         residual += forcing_vector[i] * forcing_vector[i];
     }
-    rms_err = sqrtf(rms_err / PROBLEM_INTERNAL_PTS);
-    residual = sqrtf(residual);
+    rms_err = sqrt(rms_err / PROBLEM_INTERNAL_PTS);
+    residual = sqrt(residual);
     printf("RMS Error: %g, residual/forcing: %g/%g = %g\n", rms_err, residual, mag_y, residual/mag_y);
 
     free(auxiliary_vector);

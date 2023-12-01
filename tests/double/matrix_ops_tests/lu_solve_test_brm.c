@@ -1,4 +1,4 @@
-// Automatically generated from tests/float/matrix_ops_tests/lu_solve_test_brm.c on Thu Nov 30 20:00:39 2023
+// Automatically generated from tests/float/matrix_ops_tests/lu_solve_test_brm.c on Fri Dec  1 06:43:09 2023
 //
 // Created by jan on 23.11.2023.
 //
@@ -22,7 +22,7 @@ int are_close(double v1, double v2, double relative_tol, double abs_tol)
     }
     assert(abs_tol >= 0.0f);
     assert(relative_tol >= 0.0f);
-    const double dif = fabsf(v1 - v2);
+    const double dif = fabs(v1 - v2);
     if (dif < abs_tol)
     {
         return 1;

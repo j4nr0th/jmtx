@@ -36,6 +36,10 @@ static const char* const jmtx_matrix_type_string_array[JMTX_TYPE_COUNT] =
                 [JMTX_TYPE_CCS] = "Compressed-column sparse",   //  Compressed column sparse
                 [JMTX_TYPE_BRM] = "Band row-major",             //  Band row-major
                 [JMTX_TYPE_CDS] = "Compressed-diagonal sparse", //  Compressed diagonal sparse
+                [JMTXD_TYPE_CRS] = "Double precision compressed-row sparse",      //  Compressed row sparse
+                [JMTXD_TYPE_CCS] = "Double precision compressed-column sparse",   //  Compressed column sparse
+                [JMTXD_TYPE_BRM] = "Double precision band row-major",             //  Band row-major
+                [JMTXD_TYPE_CDS] = "Double precision compressed-diagonal sparse", //  Compressed diagonal sparse
         };
 
 const char* jmtx_matrix_type_to_str(jmtx_matrix_type type)

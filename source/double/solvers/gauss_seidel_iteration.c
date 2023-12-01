@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/gauss_seidel_iteration.c on Thu Nov 30 20:33:08 2023
+// Automatically generated from source/float/solvers/gauss_seidel_iteration.c on Fri Dec  1 06:43:01 2023
 //
 // Created by jan on 16.6.2022.
 //
@@ -18,7 +18,7 @@ jmtx_result jmtxd_gauss_seidel_crs(const jmtxd_matrix_crs* mtx, const double* re
 //        LEAVE_FUNCTION();
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
 //        REPORT_ERROR_MESSAGE("Matrix was not compressed row sparse");
 //        LEAVE_FUNCTION();
@@ -114,7 +114,7 @@ jmtx_result jmtxd_gauss_seidel_crs_parallel(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTX_TYPE_CRS)
+    if (mtx->base.type != JMTXD_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }

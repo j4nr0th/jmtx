@@ -1,18 +1,18 @@
-// Automatically generated from include/jmtx/float/solvers/lu_solving.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/solvers/lu_solving.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 6.11.2023.
 //
 
-#ifndef JMTX_LU_SOLVING_H
-#define JMTX_LU_SOLVING_H
-#ifndef JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXD_LU_SOLVING_H
+#define JMTXD_LU_SOLVING_H
+#ifndef JMTXD_BAND_ROW_MAJOR_H
     #include "../matrices/band_row_major.h"
 #endif
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../solver_base.h"
 #endif
 
 void jmtxd_lu_solve_crs(const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, const double* restrict y, double* restrict x);
@@ -50,4 +50,4 @@ jmtx_result jmtxd_lu_solve_iterative_bmr_parallel(const jmtxd_matrix_brm* a, con
                                                  double x[const restrict], double aux_vec[const restrict],
                                                  jmtxd_solver_arguments* args);
 
-#endif //JMTX_LU_SOLVING_H
+#endif //JMTXD_LU_SOLVING_H

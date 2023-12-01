@@ -1,16 +1,16 @@
-// Automatically generated from include/jmtx/float/solvers/incomplete_cholesky_decomposition.h on Thu Nov 30 19:26:51 2023
+// Automatically generated from include/jmtx/float/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 06:43:05 2023
 //
 // Created by jan on 2.11.2023.
 //
 
-#ifndef JMTX_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
-#define JMTX_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#ifndef JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#define JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTX_SOLVER_BASE_H
-    #include "solver_base.h"
+#ifndef JMTXD_SOLVER_BASE_H
+    #include "../../solver_base.h"
 #endif
 
 
@@ -32,4 +32,4 @@ jmtx_result jmtxd_incomplete_cholensk_crs(
         const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
 
 
-#endif //JMTX_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#endif //JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
