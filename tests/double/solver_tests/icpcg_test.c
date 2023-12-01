@@ -76,7 +76,7 @@ int main()
     MATRIX_TEST_CALL(jmtxd_incomplete_cholensk_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//    print_crs_matrix(cho);
+//    print_crsd_matrix(cho);
 
     jmtxd_matrix_crs* cho_t;
     MATRIX_TEST_CALL(jmtxds_matrix_crs_transpose(cho, &cho_t, NULL));

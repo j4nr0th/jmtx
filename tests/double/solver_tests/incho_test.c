@@ -102,7 +102,7 @@ int main()
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crs_matrix(cholesky);
+    print_crsd_matrix(cholesky);
     printf("Decomposition took %g seconds and the result: %s\n", t1_decomp -
     t0_decomp, jmtx_result_to_str(mtx_res));
 
@@ -113,14 +113,14 @@ int main()
 
     MATRIX_TEST_CALL(jmtxd_convert_crs_to_ccs_inplace_transpose(cpy, &cho_t));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_ccs_matrix(cho_t);
+    print_ccsd_matrix(cho_t);
 
     jmtxd_matrix_crs* approx_mtx = NULL;
     MATRIX_TEST_CALL(jmtxd_matrix_multiply_crs(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crs_matrix(mtx);
-    print_crs_matrix(approx_mtx);
+    print_crsd_matrix(mtx);
+    print_crsd_matrix(approx_mtx);
 
     MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(approx_mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);

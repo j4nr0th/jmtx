@@ -50,7 +50,7 @@ int main()
         MATRIX_TEST_CALL(jmtxds_matrix_brm_set_row(test_matrix, 4, (double[]){69.0f, 420.0f}));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
-    print_brm_matrix(test_matrix);
+    print_brmd_matrix(test_matrix);
 
     double column_vals[4];
     uint_fast32_t cnt;
@@ -83,7 +83,7 @@ int main()
     jmtxd_matrix_brm* transpose = NULL;
     MATRIX_TEST_CALL(jmtxds_matrix_brm_transpose(test_matrix, &transpose, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_brm_matrix(transpose);
+    print_brmd_matrix(transpose);
     double* pv;
     ASSERT((cnt = jmtxd_matrix_brm_get_row(transpose, 0, &pv)) == 2);
     ASSERT(are_arrays_the_same(cnt, pv, (double[]){1.0f, -1.0f}));

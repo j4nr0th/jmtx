@@ -62,8 +62,8 @@ static double get_rms_error_for_element_count_brm(const unsigned n)
     jmtxd_matrix_brm* l, *u;
 
     MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
-//    print_brm_matrix(l);
-//    print_brm_matrix(u);
+//    print_brmd_matrix(l);
+//    print_brmd_matrix(u);
 
     jmtxd_lu_solve_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(u));
@@ -141,8 +141,8 @@ static double get_rms_error_for_element_count_brm_improved(const unsigned n)
     jmtxd_matrix_brm* l, *u;
 
     MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
-//    print_brm_matrix(l);
-//    print_brm_matrix(u);
+//    print_brmd_matrix(l);
+//    print_brmd_matrix(u);
 
     jmtxd_solver_arguments args =
             {

@@ -87,7 +87,7 @@ int main()
         }
     }
 
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
     MATRIX_TEST_CALL(jmtxd_matrix_crs_to_file(mtx, "test_output_matrix.txt"));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxd_matrix_crs_to_file_explicit(mtx, "test_output_matrix_full.txt"));

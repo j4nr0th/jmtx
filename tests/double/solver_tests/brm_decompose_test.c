@@ -72,8 +72,8 @@ static double get_rms_error_for_element_count(const unsigned n)
 
     MATRIX_TEST_CALL(jmtxd_convert_ccs_to_crs(cu, &u, NULL));
     MATRIX_TEST_CALL(jmtxds_matrix_ccs_destroy(cu));
-//    print_crs_matrix(l);
-//    print_crs_matrix(u);
+//    print_crsd_matrix(l);
+//    print_crsd_matrix(u);
 
     jmtxd_lu_solve_crs(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(u));
@@ -150,8 +150,8 @@ static double get_rms_error_for_element_count_brm(const unsigned n)
     jmtxd_matrix_brm* l, *u;
 
     MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
-//    print_brm_matrix(l);
-//    print_brm_matrix(u);
+//    print_brmd_matrix(l);
+//    print_brmd_matrix(u);
 
     jmtxd_lu_solve_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(u));

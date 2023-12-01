@@ -114,8 +114,8 @@ int main()
         jmtxd_matrix_brm_set_row(lower_brm, 3, (double[]){2.0f, 1.0f,-2.0f, 1.0f});
         jmtxd_matrix_brm_set_row(lower_brm, 4, (double[]){1.0f, 0.0f,-3.0f, 0.0f, 1.0f});
     }
-    print_crs_matrix(lower);
-    print_brm_matrix(lower_brm);
+    print_crsd_matrix(lower);
+    print_brmd_matrix(lower_brm);
 
     //  Make U based on predefined values
     {
@@ -160,8 +160,8 @@ int main()
         jmtxd_matrix_brm_set_row(upper_brm, 3, (double[]){                  4.0f, 1.0f});
         jmtxd_matrix_brm_set_row(upper_brm, 4, (double[]){                       -1.0f});
     }
-    print_crs_matrix(upper);
-    print_brm_matrix(upper_brm);
+    print_crsd_matrix(upper);
+    print_brmd_matrix(upper_brm);
 
     MATRIX_TEST_CALL(jmtxd_convert_crs_to_ccs(upper, &cu, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -190,18 +190,18 @@ int main()
             ASSERT(are_close(jmtxd_matrix_brm_get_entry(multiplied_brm, i, j), exact_multiplied[i][j], default_r_tol, default_r_tol));
         }
     }
-    print_brm_matrix(multiplied_brm);
-    print_crs_matrix(multiplied);
-    print_brm_matrix(combined_brm);
+    print_brmd_matrix(multiplied_brm);
+    print_crsd_matrix(multiplied);
+    print_brmd_matrix(combined_brm);
 
 
     jmtxd_matrix_brm* du,* dl;
     MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(combined_brm, &dl, &du, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_crs_matrix(upper);
-    print_brm_matrix(du);
-    print_crs_matrix(lower);
-    print_brm_matrix(dl);
+    print_crsd_matrix(upper);
+    print_brmd_matrix(du);
+    print_crsd_matrix(lower);
+    print_brmd_matrix(dl);
 
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {

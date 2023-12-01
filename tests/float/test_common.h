@@ -25,7 +25,11 @@ void print_cds_matrix(const jmtx_matrix_cds* mtx);
 #define DBG_BREAK (void)0
 #endif
 
-#define ASSERT(x) if (!(x)) {fprintf(stderr, "Failed assertion \"" #x "\" on line %u, file %s\n", __LINE__, __FILE__); DBG_BREAK; exit(EXIT_FAILURE);} (void)0
-#define MATRIX_TEST_CALL(x) printf("Called:\t%s -> %s\n", #x, jmtx_result_to_str((mtx_res = (x))))
+#ifndef ASSERT
+    #define ASSERT(x) if (!(x)) {fprintf(stderr, "Failed assertion \"" #x "\" on line %u, file %s\n", __LINE__, __FILE__); DBG_BREAK; exit(EXIT_FAILURE);} (void)0
+#endif //ASSERT
+#ifndef MATRIX_TEST_CALL
+    #define MATRIX_TEST_CALL(x) printf("Called:\t%s -> %s\n", #x, jmtx_result_to_str((mtx_res = (x))))
+#endif //MATRIX_TEST_CALL
 
 #endif //JMTX_TEST_COMMON_H

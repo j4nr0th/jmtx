@@ -67,7 +67,7 @@ int main()
             };
     MATRIX_TEST_CALL(jmtxds_matrix_crs_set_row(mtx, 3, 15, indices, some_values));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     //  fourth row should have correct values now
     for (uint32_t row = 0; row < n_rows; ++row)
@@ -106,11 +106,11 @@ int main()
         mtx_res = jmtxds_matrix_crs_set_entry(mtx, i, i, -0.0f);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     MATRIX_TEST_CALL(jmtxds_matrix_crs_remove_zeros(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-//    print_crs_matrix(&mtx);
+//    print_crsd_matrix(&mtx);
 
     //  Matrix should not contain any negative zeros
     for (uint32_t row = 0; row < n_rows; ++row)
@@ -123,7 +123,7 @@ int main()
             ASSERT(v != 0.0f || !signbit(v));
         }
     }
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     const double other_values[16] =
             {
@@ -146,7 +146,7 @@ int main()
              2,  4, 15,  8,
              7,  7,  2,  6,
             };
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -160,7 +160,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -182,7 +182,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -193,7 +193,7 @@ int main()
 
 
 
-    print_crs_matrix(mtx);
+    print_crsd_matrix(mtx);
 
 
     MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));

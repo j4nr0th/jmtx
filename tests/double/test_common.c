@@ -15,7 +15,7 @@
 #include <inttypes.h>
 
 
-void print_crs_matrix(const jmtxd_matrix_crs* mtx)
+void print_crsd_matrix(const jmtxd_matrix_crs* mtx)
 {
     printf("Entries:");
     for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
@@ -48,7 +48,7 @@ void print_crs_matrix(const jmtxd_matrix_crs* mtx)
     printf("]\n");
 }
 
-void print_ccs_matrix(const jmtxd_matrix_ccs* mtx)
+void print_ccsd_matrix(const jmtxd_matrix_ccs* mtx)
 {
     printf("values:");
     for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
@@ -87,7 +87,7 @@ void print_ccs_matrix(const jmtxd_matrix_ccs* mtx)
     printf("\n]\n");
 }
 
-void print_brm_matrix(const jmtxd_matrix_brm* mtx)
+void print_brmd_matrix(const jmtxd_matrix_brm* mtx)
 {
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
     {
@@ -115,7 +115,7 @@ void print_brm_matrix(const jmtxd_matrix_brm* mtx)
     }
 }
 
-void print_cds_matrix(const jmtxd_matrix_cds* mtx)
+void print_cdsd_matrix(const jmtxd_matrix_cds* mtx)
 {
     printf("\nMatrix:\n[\n");
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)

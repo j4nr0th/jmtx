@@ -10,12 +10,12 @@ add_library(jmtx
     source/matrix_base.c
     include/jmtx/matrix_base.h
     include/jmtx/solver_base.h
-        source/conversion/crs_conversion.c
-        include/jmtx/conversion/crs_conversion.h
-)
-include(source/float/CMakeLists.txt)
+    )
 
+include(source/float/CMakeLists.txt)
 include(source/double/CMakeLists.txt)
+include(source/conversion/CMakeLists.txt)
+
 
 #include(source/cdouble/CMakeLists.txt)
 
@@ -23,6 +23,7 @@ target_sources(jmtx PRIVATE
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
         ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
         ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
+        ${CONVERSION_SOURCE_FILES} ${CONVERSION_HEADER_FILES}
         )
 
 target_link_libraries(jmtx gomp m)

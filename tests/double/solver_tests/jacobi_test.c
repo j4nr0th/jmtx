@@ -67,7 +67,7 @@ int main()
         MATRIX_TEST_CALL(jmtxds_matrix_crs_set_row(matrix, i, 2, indices, values));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
-//    print_crs_matrix(matrix);
+//    print_crsd_matrix(matrix);
 
     jmtxd_solver_arguments solver_arguments =
             {

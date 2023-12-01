@@ -61,7 +61,7 @@ int main()
         const double values[3] = { 1.0f, -2.0f, 1.0f };
         ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
-//    print_crs_matrix(mtx);
+//    print_crsd_matrix(mtx);
     uint32_t total_iterations = 0;
     double total_time = 0;
     jmtxd_solver_arguments solver_arguments =

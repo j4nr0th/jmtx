@@ -145,11 +145,11 @@ int main()
 
     for (uint32_t i = 0; i < 16; ++i)
     {
-//        print_ccs_matrix(&mtx);
+//        print_ccsd_matrix(&mtx);
         mtx_res = jmtxds_matrix_ccs_set_entry(mtx, row_indices[i], col_indices[i], other_values[i]);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//        print_ccs_matrix(&mtx);
+//        print_ccsd_matrix(&mtx);
         for (uint32_t j = 0; j <= i; ++j)
         {
             mtx_res = jmtxds_matrix_ccs_get_entry(mtx, row_indices[j], col_indices[j], &v);
@@ -157,7 +157,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-//    print_ccs_matrix(&mtx);
+//    print_ccsd_matrix(&mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -179,7 +179,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-//    print_ccs_matrix(&mtx);
+//    print_ccsd_matrix(&mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -189,7 +189,7 @@ int main()
     }
 
 
-//    print_ccs_matrix(&mtx);
+//    print_ccsd_matrix(&mtx);
 
 
     MATRIX_TEST_CALL(jmtxds_matrix_ccs_destroy(mtx));
