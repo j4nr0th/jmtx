@@ -28,6 +28,9 @@ def translate_file(f_in: TextIO, f_out: TextIO, target: str, replacement: str, f
                     replace(f"<{replacement}.h>", f"<{target}.h>").
                     replace(f"jmtx{TRANSLATION_APPENDIX}_matrix_type_to_str", f"jmtx_matrix_type_to_str").
                     replace(f"sqrtf", "sqrt").
+                    replace(f"crealf", "creal").
+                    replace(f"cimagf", "cimag").
+                    replace(f"cabsf", "cabs").
                     replace("fabsf", "fabs"))
         f_out.write(new_line)
 

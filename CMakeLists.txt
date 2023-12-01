@@ -14,10 +14,11 @@ add_library(jmtx
 
 include(source/float/CMakeLists.txt)
 include(source/double/CMakeLists.txt)
+include(source/cfloat/CMakeLists.txt)
+include(source/cdouble/CMakeLists.txt)
 include(source/conversion/CMakeLists.txt)
 
 
-include(source/cfloat/CMakeLists.txt)
 
 target_sources(jmtx PRIVATE
         ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}

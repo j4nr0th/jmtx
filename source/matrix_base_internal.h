@@ -28,6 +28,12 @@ enum jmtx_matrix_type_T
     JMTXD_TYPE_BRM,      //  Band row-major
     JMTXD_TYPE_CDS,      //  Compressed diagonal sparse
 
+    //  Double precision complex
+    JMTXZ_TYPE_CRS,      //  Compressed row sparse
+    JMTXZ_TYPE_CCS,      //  Compressed column sparse
+    JMTXZ_TYPE_BRM,      //  Band row-major
+    JMTXZ_TYPE_CDS,      //  Compressed diagonal sparse
+
 
     JMTX_TYPE_COUNT,    //  Here just as upper bound of what the enum should be
 };
