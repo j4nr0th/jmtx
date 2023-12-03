@@ -11,6 +11,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "../../../include/jmtx/double/solvers/cholesky_solving.h"
+#include "../matrices/sparse_diagonal_compressed_internal.h"
 
 jmtx_result jmtxd_conjugate_gradient_crs(
         const jmtxd_matrix_crs* mtx, const double* y, double* x, const double stagnation,
@@ -631,4 +632,153 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     args->out_last_iteration = n_iterations;
     if (stagnated) return JMTX_RESULT_STAGNATED;
     return args->out_last_error < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
+}
+
+jmtx_result jmtx_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
+                                        double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
+                                        jmtxd_solver_arguments* args)
+{
+    if (!mtx)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (mtx->base.rows != mtx->base.cols)
+    {
+        //  I am only doing square matrices!!!
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (mtx->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!y)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!x)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec1)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec2)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!aux_vec3)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!args)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (args->in_convergence_criterion < 0.0f || !isfinite(args->in_convergence_criterion))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    const uint_fast32_t n = mtx->base.rows;
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        if (!isfinite(x[i]) || !isfinite(y[i]))
+        {
+            return JMTX_RESULT_BAD_PARAM;
+        }
+    }
+
+    double* const r = aux_vec1;
+    double* const p = aux_vec2;
+    double* const Ap = aux_vec3;
+    double rkrk, new_rkrk;
+    double mag_y2 = 0;
+    double pkApk = 0;
+    uint_fast32_t n_iteration = 0;
+    double error, alfa, beta;
+
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        mag_y2 += y[i] * y[i];
+    }
+    for (;;)
+    {
+        //  Explicitly compute the residual
+        jmtxd_matrix_cds_vector_multiply(mtx, x, r);
+        rkrk = 0;
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            const double res = y[i] - r[i];
+            r[i] = res;
+            p[i] = res;
+            rkrk += res * res;
+        }
+        error = sqrt(rkrk / mag_y2);
+        if (n_iteration == args->in_max_iterations)
+        {
+            break;
+        }
+        if (error < args->in_convergence_criterion)
+        {
+            break;
+        }
+        //  Solve using implicitly computed residual
+        for (;;)
+        {
+            jmtxd_matrix_cds_vector_multiply(mtx, p, Ap);
+            pkApk = 0;
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                pkApk += p[i] * Ap[i];
+            }
+            alfa = rkrk / pkApk;
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                x[i] = x[i] + alfa * p[i];
+            }
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                r[i] = r[i] - alfa * Ap[i];
+            }
+            new_rkrk = 0;
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                new_rkrk += r[i] * r[i];
+            }
+
+            beta = new_rkrk / rkrk;
+            rkrk = new_rkrk;
+
+            error = sqrt(rkrk / mag_y2);
+            if (args->opt_error_evolution)
+            {
+                args->opt_error_evolution[n_iteration] = error;
+            }
+            if (n_iteration == args->in_max_iterations)
+            {
+                break;
+            }
+            n_iteration += 1;
+            if (error < args->in_convergence_criterion)
+            {
+                break;
+            }
+
+            for (uint_fast32_t i = 0; i < n; ++i)
+            {
+                p[i] = r[i] + beta * p[i];
+            }
+        }
+    }
+
+
+    args->out_last_error = error;
+    args->out_last_iteration = n_iteration;
+
+    if (!isfinite(error) || error > args->in_convergence_criterion)
+    {
+        return JMTX_RESULT_NOT_CONVERGED;
+    }
+
+    return JMTX_RESULT_SUCCESS;
 }

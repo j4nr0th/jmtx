@@ -5,13 +5,11 @@
 
 #ifndef JMTXD_CONJUGATE_GRADIENT_ITERATION_H
 #define JMTXD_CONJUGATE_GRADIENT_ITERATION_H
-
-#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
-    #include "../matrices/sparse_row_compressed.h"
-#endif
 #ifndef JMTXD_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
+
+#ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
  * Directly solves and N x N system in N iterations, but converges closely in fewer. Convergence speed is better for
@@ -109,5 +107,12 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
         const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* cho, const jmtxd_matrix_crs* cho_t,  const double* y, double* x,
         double stagnation, uint32_t recalculation_interval, double* restrict aux_vec1, double* restrict aux_vec2,
         double* restrict aux_vec3, double* restrict aux_vec4, jmtxd_solver_arguments* args);
+#endif //JMTXD_SPARSE_ROW_COMPRESSED_H
+
+#ifdef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+jmtx_result jmtx_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
+                                        double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
+                                        jmtxd_solver_arguments* args);
+#endif //JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
 
 #endif //JMTXD_CONJUGATE_GRADIENT_ITERATION_H

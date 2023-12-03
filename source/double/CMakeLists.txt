@@ -139,3 +139,7 @@ add_executable(base_cds_test_double tests/double/matrix_ops_tests/base_cds_test.
 target_link_libraries(base_cds_test_double PRIVATE jmtx)
 add_test(NAME base_cds_test_double COMMAND base_cds_test_double)
 
+add_executable(cg_cds_test_double tests/double/solver_tests/cg_cds_test.c tests/double/test_common.c)
+target_link_libraries(cg_cds_test_double PRIVATE jmtx)
+add_test(NAME cg_cds_double COMMAND cg_cds_test_double)
+
