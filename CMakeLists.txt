@@ -27,9 +27,7 @@ target_sources(jmtx PRIVATE
         ${CONVERSION_SOURCE_FILES} ${CONVERSION_HEADER_FILES}
         )
 
-target_link_libraries(jmtx gomp m)
 
-target_compile_options(jmtx PRIVATE -march=native)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
@@ -37,6 +35,12 @@ elseif(CMAKE_BUILD_TYPE STREQUAL Release)
     #    target_compile_definitions(jmtx PRIVATE JMTX_NO_VERIFY_PARAMS=1)
 endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL Release-Generate-Profile)
+    target_compile_options(jmtx PRIVATE -fprofile-use)
+    target_link_libraries(jmtx gcov)
+endif ()
+
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(jmtx PRIVATE -fopenmp -fanalyzer)
+    target_link_libraries(jmtx gomp m)
+    target_compile_options(jmtx PRIVATE -fopenmp -fanalyzer -march=native -mtune=native)
 endif ()

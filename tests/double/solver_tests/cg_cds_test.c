@@ -78,7 +78,7 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtx_conjugate_gradient_cds(
+        mtx_res = jmtxd_conjugate_gradient_cds(
                 mtx, forcing_vector, iterative_solution + 1, aux_v1, aux_v2, aux_v3, &solver_arguments);
         const double t1 = omp_get_wtime();
 //        printf("Error evolution:\n");

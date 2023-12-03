@@ -634,7 +634,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     return args->out_last_error < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtx_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
+jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
                                         double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
                                         jmtxd_solver_arguments* args)
 {
@@ -647,7 +647,7 @@ jmtx_result jmtx_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const doubl
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTX_TYPE_CDS)
+    if (mtx->base.type != JMTXD_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
