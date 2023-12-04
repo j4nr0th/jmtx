@@ -23,8 +23,6 @@
             #define JMTX_NODISCARD_FUNCTION __attribute__(nodiscard)
     #endif
 
-    #define JMTX_EXTERNAL_FUNCTION __attribute__((visibility("default")))
-    #define JMTX_INTERNAL_FUNCTION __attribute__((visibility("hidden")))
 #endif
 
 
