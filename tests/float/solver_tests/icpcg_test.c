@@ -72,7 +72,7 @@ int main()
         forcing_vector[i + 1] = jmtx_matrix_crs_vector_multiply_row(mtx, exact_solution + 1, i);
     }
     jmtx_matrix_crs* cho = NULL;
-    MATRIX_TEST_CALL(jmtx_incomplete_cholensk_crs(mtx, &cho, NULL));
+    MATRIX_TEST_CALL(jmtx_incomplete_cholesky_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
 //    print_crs_matrix(cho);

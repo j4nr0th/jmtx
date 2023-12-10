@@ -4,7 +4,6 @@
 
 #ifndef JMTX_SOLVER_BASE_H
 #define JMTX_SOLVER_BASE_H
-#define JMTXD_SOLVER_BASE_H
 
 #ifndef JMTX_COMMON_H
     #include "common.h"

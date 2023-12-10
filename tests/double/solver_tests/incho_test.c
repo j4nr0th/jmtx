@@ -3,6 +3,8 @@
 // Created by jan on 2.11.2023.
 //
 #include "../test_common.h"
+#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/double/matrices/sparse_column_compressed_safe.h"
 #include "../../../include/jmtx/double/solvers/incomplete_cholesky_decomposition.h"
 #include "../../../include/jmtx/double/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/double/solvers/lu_solving.h"
@@ -10,8 +12,6 @@
 
 #include <math.h>
 #include <omp.h>
-#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
-#include "../../../include/jmtx/double/matrices/sparse_column_compressed_safe.h"
 
 enum
 {
@@ -98,7 +98,7 @@ int main()
     }
     jmtxd_matrix_crs* cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxd_incomplete_cholensk_crs(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(jmtxd_incomplete_cholesky_crs(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 

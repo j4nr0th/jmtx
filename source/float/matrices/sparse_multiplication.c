@@ -6,6 +6,7 @@
 #include "sparse_column_compressed_internal.h"
 #include "sparse_row_compressed_internal.h"
 #include "band_row_major_internal.h"
+#include "sparse_diagonal_compressed_internal.h"
 
 jmtx_result jmtx_matrix_multiply_crs(
         const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_crs** p_out,
@@ -489,6 +490,124 @@ jmtx_result jmtx_matrix_multiply_brm(
 
     allocator_callbacks->free(allocator_callbacks->state, values);
     allocator_callbacks->free(allocator_callbacks->state, col_vals);
+    *p_out = out;
+    return JMTX_RESULT_SUCCESS;
+}
+
+
+jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix_cds* b, jmtx_matrix_cds** p_out,
+                                     const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!a)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (a->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!b)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (b->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (a->base.cols != b->base.rows)
+    {
+        //  can't do multiplication
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
+    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    const uint32_t r_out = a->base.rows;
+    const uint32_t c_out = b->base.cols;
+
+    const uint_fast32_t cnt_a = jmtx_matrix_cds_diagonal_count(a);
+    const uint_fast32_t cnt_b = jmtx_matrix_cds_diagonal_count(b);
+
+    uint32_t* const idx_a = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*idx_a) * cnt_a);
+    if (!idx_a)
+    {
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    uint32_t* const idx_b = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*idx_b) * cnt_b);
+    if (!idx_b)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, idx_a);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    float* const val_a = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*val_a) * cnt_a);
+    if (!val_a)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, idx_b);
+        allocator_callbacks->free(allocator_callbacks->state, idx_a);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    float* const val_b = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*val_b) * cnt_b);
+    if (!val_b)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, val_a);
+        allocator_callbacks->free(allocator_callbacks->state, idx_b);
+        allocator_callbacks->free(allocator_callbacks->state, idx_a);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+
+    
+    jmtx_matrix_cds* out;
+    jmtx_result res = jmtx_matrix_cds_new(&out, c_out, r_out, 0, (int32_t[]){0}, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, val_b);
+        allocator_callbacks->free(allocator_callbacks->state, val_a);
+        allocator_callbacks->free(allocator_callbacks->state, idx_b);
+        allocator_callbacks->free(allocator_callbacks->state, idx_a);
+        return res;
+    }
+
+    
+    //  CDS matrices are continuous in diagonals, meaning that there's no good way to build them, so just loop over each
+    //  element. This might take long, but there's no better option for CDS matrices
+    for (uint32_t i = 0; i < r_out; ++i)
+    {
+        const uint32_t c_a = jmtx_matrix_cds_get_row(a, i, cnt_a, val_a, idx_a);
+        for (uint_fast32_t j = 0; j < c_out; ++j)
+        {
+            const uint32_t c_b = jmtx_matrix_cds_get_col(b, j, cnt_b, val_b, idx_b);
+            const float val = jmtx_matrix_multiply_sparse_vectors(c_a, idx_a, val_a, c_b, idx_b, val_b);
+            if (val != 0)
+            {
+                res = jmtx_matrix_cds_insert_entry(out, i, j, val);
+                if (res != JMTX_RESULT_SUCCESS)
+                {
+                    allocator_callbacks->free(allocator_callbacks->state, val_b);
+                    allocator_callbacks->free(allocator_callbacks->state, val_a);
+                    allocator_callbacks->free(allocator_callbacks->state, idx_b);
+                    allocator_callbacks->free(allocator_callbacks->state, idx_a);
+                    return res;
+                }
+            }
+        }
+    }
+
+
+    allocator_callbacks->free(allocator_callbacks->state, val_b);
+    allocator_callbacks->free(allocator_callbacks->state, val_a);
+    allocator_callbacks->free(allocator_callbacks->state, idx_b);
+    allocator_callbacks->free(allocator_callbacks->state, idx_a);
     *p_out = out;
     return JMTX_RESULT_SUCCESS;
 }

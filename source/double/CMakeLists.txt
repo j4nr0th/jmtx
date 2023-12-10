@@ -143,3 +143,7 @@ add_executable(cg_cds_test_double tests/double/solver_tests/cg_cds_test.c tests/
 target_link_libraries(cg_cds_test_double PRIVATE jmtx)
 add_test(NAME cg_cds_double COMMAND cg_cds_test_double)
 
+add_executable(icho_cds_test_double tests/double/solver_tests/incho_cds_test.c tests/double/test_common.c)
+target_link_libraries(icho_cds_test_double PRIVATE jmtx)
+add_test(NAME icho_cds_test_double COMMAND icho_cds_test_double)
+

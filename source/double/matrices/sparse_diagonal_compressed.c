@@ -619,7 +619,7 @@ uint32_t jmtxd_matrix_cds_get_row(const jmtxd_matrix_cds* mtx, uint32_t row, uin
             break;
         }
 
-        p_cols[k] = idx;
+        p_cols[k] = idx + row;
         const double* const diagonal = mtx->super_diagonals.diagonals[i];
         p_values[k] = diagonal[row];
         k += 1;
@@ -786,7 +786,7 @@ jmtxd_matrix_cds_get_col(const jmtxd_matrix_cds* mtx, uint32_t col, uint32_t n, 
             break;
         }
 
-        p_rows[k] = idx;
+        p_rows[k] = idx + col;
         const double* const diagonal = mtx->sub_diagonals.diagonals[i];
         p_values[k] = diagonal[col];
         k += 1;

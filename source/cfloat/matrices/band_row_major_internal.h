@@ -5,7 +5,7 @@
 
 #ifndef JMTXC_BAND_ROW_MAJOR_INTERNAL_H
 #define JMTXC_BAND_ROW_MAJOR_INTERNAL_H
-#ifndef JMTXC_MATRIX_BASE_INTERNAL_H
+#ifndef JMTX_MATRIX_BASE_INTERNAL_H
     #include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXC_BAND_ROW_MAJOR_H

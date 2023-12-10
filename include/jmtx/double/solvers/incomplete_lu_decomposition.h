@@ -12,7 +12,7 @@
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
     #include "../matrices/sparse_column_compressed.h"
 #endif
-#ifndef JMTXD_SOLVER_BASE_H
+#ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 

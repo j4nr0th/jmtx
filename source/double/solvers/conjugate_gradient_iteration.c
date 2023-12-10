@@ -5,7 +5,7 @@
 
 #include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#ifndef JMTXD_SOLVER_BASE_H
+#ifndef JMTX_SOLVER_BASE_H
     #include "../../../include/jmtx/solver_base.h"
 #endif
 #include <math.h>

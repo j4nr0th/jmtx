@@ -143,3 +143,7 @@ add_executable(cg_cds_test_float tests/float/solver_tests/cg_cds_test.c tests/fl
 target_link_libraries(cg_cds_test_float PRIVATE jmtx)
 add_test(NAME cg_cds_float COMMAND cg_cds_test_float)
 
+add_executable(icho_cds_test_float tests/float/solver_tests/incho_cds_test.c tests/float/test_common.c)
+target_link_libraries(icho_cds_test_float PRIVATE jmtx)
+add_test(NAME icho_cds_test_float COMMAND icho_cds_test_float)
+

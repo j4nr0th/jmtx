@@ -1,6 +1,5 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
 #define JMTX_MATRIX_BASE_INTERNAL_H
-#define JMTXD_MATRIX_BASE_INTERNAL_H
 
 #ifndef JMTX_MATRIX_BASE_H
     #include "../include/jmtx/matrix_base.h"

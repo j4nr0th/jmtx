@@ -6,7 +6,7 @@
 
 #ifndef JMTXZ_SPARSE_DIAGONAL_COMPRESSED_H
 #define JMTXZ_SPARSE_DIAGONAL_COMPRESSED_H
-#ifndef JMTXZ_MATRIX_BASE_H
+#ifndef JMTX_MATRIX_BASE_H
     #include "../../matrix_base.h"
 #endif
 typedef struct jmtxz_matrix_cds_struct jmtxz_matrix_cds;

@@ -6,7 +6,7 @@
 
 #ifndef JMTXZ_BAND_ROW_MAJOR_INTERNAL_H
 #define JMTXZ_BAND_ROW_MAJOR_INTERNAL_H
-#ifndef JMTXZ_MATRIX_BASE_INTERNAL_H
+#ifndef JMTX_MATRIX_BASE_INTERNAL_H
     #include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXZ_BAND_ROW_MAJOR_H

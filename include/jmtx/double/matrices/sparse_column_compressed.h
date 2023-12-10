@@ -10,7 +10,7 @@
 
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
 #define JMTXD_SPARSE_COLUMN_COMPRESSED_H
-#ifndef JMTXD_MATRIX_BASE_H
+#ifndef JMTX_MATRIX_BASE_H
     #include "../../matrix_base.h"
 #endif
 

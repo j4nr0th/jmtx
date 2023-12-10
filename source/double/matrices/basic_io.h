@@ -5,7 +5,7 @@
 
 #ifndef JMTXD_BASIC_IO_H
 #define JMTXD_BASIC_IO_H
-#ifndef JMTXD_MATRIX_BASE_H
+#ifndef JMTX_MATRIX_BASE_H
     #include "../../../include/jmtx/matrix_base.h"
 #endif
 #ifdef JMTXD_SPARSE_ROW_COMPRESSED_H

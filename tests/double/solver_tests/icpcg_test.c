@@ -73,7 +73,7 @@ int main()
         forcing_vector[i + 1] = jmtxd_matrix_crs_vector_multiply_row(mtx, exact_solution + 1, i);
     }
     jmtxd_matrix_crs* cho = NULL;
-    MATRIX_TEST_CALL(jmtxd_incomplete_cholensk_crs(mtx, &cho, NULL));
+    MATRIX_TEST_CALL(jmtxd_incomplete_cholesky_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
 //    print_crsd_matrix(cho);

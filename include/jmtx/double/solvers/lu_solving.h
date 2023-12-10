@@ -11,7 +11,7 @@
 #ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTXD_SOLVER_BASE_H
+#ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 

@@ -9,7 +9,19 @@
 #include "../../../include/jmtx/cdouble/matrices/sparse_diagonal_compressed_safe.h"
 #include <complex.h>
 
-static int are_arrays_the_same(unsigned len, const _Complex double a1[const static len], const _Complex double a2[const static len])
+static int are_value_arrays_the_same(unsigned len, const _Complex double a1[const static len], const _Complex double a2[const static len])
+{
+    for (unsigned i = 0; i < len; ++i)
+    {
+        if (a1[i] != a2[i])
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int are_index_arrays_the_same(unsigned len, const uint32_t a1[const static len], const uint32_t a2[const static len])
 {
     for (unsigned i = 0; i < len; ++i)
     {
@@ -65,23 +77,28 @@ int test_row(void)
     uint_fast32_t cnt;
 
     ASSERT((cnt = jmtxz_matrix_cds_get_col(test_matrix, 0, 5, column_vals, indices)) == 2);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){1.0f, -1.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){1.0f, -1.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_col(test_matrix, 0));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_col(test_matrix, 1, 5, column_vals, indices)) == 3);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){2.0f, -2.0f, 1.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){2.0f, -2.0f, 1.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1, 2}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_col(test_matrix, 1));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_col(test_matrix, 2, 5, column_vals, indices)) == 4);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){3.0f, -3.0f, 2.0f, -5.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){3.0f, -3.0f, 2.0f, -5.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1, 2, 3}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_col(test_matrix, 2));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_col(test_matrix, 3, 5, column_vals, indices)) == 4);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){-4.0f, 3.0f, -6.0f, 69.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){-4.0f, 3.0f, -6.0f, 69.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {1, 2, 3, 4}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_col(test_matrix, 3));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_col(test_matrix, 4, 5, column_vals, indices)) == 3);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){4.0f, -7.0f, 420.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){4.0f, -7.0f, 420.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {2, 3, 4}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_col(test_matrix, 4));
 
     const _Complex double test_vec[5] = {1.0f, -1.0f, 3.0f, 0.0f, -3.0f};
@@ -149,23 +166,28 @@ int test_col(void)
     uint_fast32_t cnt;
 
     ASSERT((cnt = jmtxz_matrix_cds_get_row(test_matrix, 0, 5, column_vals, indices)) == 2);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){1.0f, -1.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){1.0f, -1.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_row(test_matrix, 0));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_row(test_matrix, 1, 5, column_vals, indices)) == 3);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){2.0f, -2.0f, 1.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){2.0f, -2.0f, 1.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1, 2}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_row(test_matrix, 1));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_row(test_matrix, 2, 5, column_vals, indices)) == 4);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){3.0f, -3.0f, 2.0f, -5.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){3.0f, -3.0f, 2.0f, -5.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {0, 1, 2, 3}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_row(test_matrix, 2));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_row(test_matrix, 3, 5, column_vals, indices)) == 4);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){-4.0f, 3.0f, -6.0f, 69.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){-4.0f, 3.0f, -6.0f, 69.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {1, 2, 3, 4}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_row(test_matrix, 3));
 
     ASSERT((cnt = jmtxz_matrix_cds_get_row(test_matrix, 4, 5, column_vals, indices)) == 3);
-    ASSERT(are_arrays_the_same(cnt, column_vals, (_Complex double[]){4.0f, -7.0f, 420.0f}));
+    ASSERT(are_value_arrays_the_same(cnt, column_vals, (_Complex double[]){4.0f, -7.0f, 420.0f}));
+    ASSERT(are_index_arrays_the_same(cnt, indices, (const uint32_t []) {2, 3, 4}));
     ASSERT(cnt == jmtxz_matrix_cds_entries_in_row(test_matrix, 4));
 
 

@@ -2,12 +2,11 @@
 // Created by jan on 2.11.2023.
 //
 #include "../test_common.h"
-#include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
-#include "../../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
-#include "../../../include/jmtx/float/solvers/incomplete_cholesky_decomposition.h"
-#include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
-#include "../../../include/jmtx/float/solvers/lu_solving.h"
-#include "../../../include/jmtx/float/matrices/sparse_conversion.h"
+#include "../../../include/jmtx/cdouble/matrices/sparse_diagonal_compressed_safe.h"
+#include "../../../include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/cdouble/matrices/sparse_multiplication.h"
+#include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
+#include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 
 #include <math.h>
 #include <omp.h>
@@ -32,20 +31,20 @@ static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
 
 int main()
 {
-    jmtx_matrix_crs* mtx;
+    jmtxz_matrix_cds* mtx;
     jmtx_result mtx_res;
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
     const int max_threads = omp_get_thread_num();
     printf("OpenMP found %d processors, with a maximum of %d threads\n", proc_count, max_threads);
 
-    const float dy = 1.0f / (PROBLEM_SIZE_Y - 1);
-    const float dx = 1.0f / (PROBLEM_SIZE_X - 1);
+    const double dy = 1.0f / (PROBLEM_SIZE_Y - 1);
+    const double dx = 1.0f / (PROBLEM_SIZE_X - 1);
 
-    const float rdy2 = 1.0f / (dy * dy);
-    const float rdx2 = 1.0f / (dx * dx);
+    const double rdy2 = 1.0f / (dy * dy);
+    const double rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ? 5 * PROBLEM_INTERNAL_PTS : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtxzs_matrix_cds_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 0, (const int32_t[]){0}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
@@ -54,7 +53,7 @@ int main()
         {
             //  Point is (DX * j, DY * i)
             unsigned k = 0;
-            float values[5];
+            _Complex double values[5];
             uint32_t positions[5];
             if (i != 0)
             {
@@ -92,45 +91,42 @@ int main()
                 k += 1;
             }
 
-            jmtx_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            jmtxz_matrix_cds_set_row(mtx, lexicographic_position(i, j), k, values, positions);
         }
     }
-    jmtx_matrix_crs* cholesky = NULL;
+    print_cds_matrix(mtx);
+    jmtxz_matrix_cds* cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtx_incomplete_cholesky_crs(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(jmtxz_incomplete_cholesky_cds(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crs_matrix(cholesky);
+    print_cds_matrix(cholesky);
     printf("Decomposition took %g seconds and the result: %s\n", t1_decomp -
     t0_decomp, jmtx_result_to_str(mtx_res));
 
-    jmtx_matrix_crs* cpy;
-    jmtx_matrix_ccs* cho_t = NULL;
-    MATRIX_TEST_CALL(jmtx_matrix_crs_copy(cholesky, &cpy, NULL));
+    jmtxz_matrix_cds* cho_t = NULL;
+    MATRIX_TEST_CALL(jmtxz_matrix_cds_transpose(cholesky, &cho_t, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    print_cds_matrix(cho_t);
+
+    jmtxz_matrix_cds* approx_mtx = NULL;
+    MATRIX_TEST_CALL(jmtxz_matrix_multiply_cds(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtx_convert_crs_to_ccs_inplace_transpose(cpy, &cho_t));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_ccs_matrix(cho_t);
+    print_cds_matrix(mtx);
+    print_cds_matrix(approx_mtx);
 
-    jmtx_matrix_crs* approx_mtx = NULL;
-    MATRIX_TEST_CALL(jmtx_matrix_multiply_crs(cholesky, cho_t, &approx_mtx, NULL));
+    MATRIX_TEST_CALL(jmtxzs_matrix_cds_destroy(approx_mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crs_matrix(mtx);
-    print_crs_matrix(approx_mtx);
-
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(approx_mtx));
+    MATRIX_TEST_CALL(jmtxzs_matrix_cds_destroy(cho_t));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_ccs_destroy(cho_t));
+    MATRIX_TEST_CALL(jmtxzs_matrix_cds_destroy(cholesky));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(cholesky));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx));
+    MATRIX_TEST_CALL(jmtxzs_matrix_cds_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }

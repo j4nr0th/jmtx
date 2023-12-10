@@ -10,7 +10,7 @@
 
 #ifndef JMTXD_BAND_ROW_MAJOR_H
 #define JMTXD_BAND_ROW_MAJOR_H
-#ifndef JMTXD_MATRIX_BASE_H
+#ifndef JMTX_MATRIX_BASE_H
     #include "../../matrix_base.h"
 #endif
 /**
