@@ -33,7 +33,7 @@ jmtx_result jmtxd_matrix_ccs_new(
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
- * Cleans up the ccs matrix and frees all of its memory
+ * Frees up memory which the matrix is not currently using. Matrix is still perfectly valid even on failure.
  * @param mtx pointer to memory where the matrix is stored
  */
 void jmtxd_matrix_ccs_destroy(jmtxd_matrix_ccs* mtx);

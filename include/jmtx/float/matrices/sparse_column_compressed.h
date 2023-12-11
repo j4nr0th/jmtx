@@ -38,7 +38,7 @@ jmtx_result jmtx_matrix_ccs_new(
 void jmtx_matrix_ccs_destroy(jmtx_matrix_ccs* mtx);
 
 /**
- * Frees up memory which the matrix is not currently using, which is was allocated in advance
+ * Frees up memory which the matrix is not currently using. Matrix is still perfectly valid even on failure.
  * @param mtx pointer to the memory where the matrix is stored
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */

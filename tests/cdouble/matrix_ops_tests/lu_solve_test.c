@@ -6,8 +6,8 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed_safe.h"
-#include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_column_compressed_safe.h"
+#include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_multiplication.h"
 #include <float.h>
 #include <math.h>
@@ -43,8 +43,8 @@ int are_close(_Complex double v1, _Complex double v2, double relative_tol, doubl
     return 0;
 }
 
-constexpr _Complex double default_r_tol = FLT_EPSILON * 400;
-constexpr _Complex double default_a_tol = FLT_EPSILON * 100;
+static const _Complex double default_r_tol = FLT_EPSILON * 400;
+static const _Complex double default_a_tol = FLT_EPSILON * 100;
 
 enum {PROBLEM_SIZE = 5};
 

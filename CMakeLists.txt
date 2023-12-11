@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(jmtx)
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 99)
 
 enable_testing()
 add_library(jmtx

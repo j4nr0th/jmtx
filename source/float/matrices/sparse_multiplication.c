@@ -2,49 +2,29 @@
 // Created by jan on 2.11.2023.
 //
 
-#include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
 #include "sparse_column_compressed_internal.h"
 #include "sparse_row_compressed_internal.h"
 #include "band_row_major_internal.h"
 #include "sparse_diagonal_compressed_internal.h"
+#include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
+#include "../../../include/jmtx/float/matrices/sparse_multiplication_safe.h"
 
+/**
+ * Multiplies CRS and CCS matrix together and saves the result into a CRS matrix
+ * @param a CRS matrix
+ * @param b CCS matrix
+ * @param p_out pointer which receives the resulting CRS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
 jmtx_result jmtx_matrix_multiply_crs(
         const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_crs** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!a)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (a->base.type != JMTX_TYPE_CRS)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!b)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (b->base.type != JMTX_TYPE_CCS)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (a->base.cols != b->base.rows)
-    {
-        //  can't do multiplication
-        return JMTX_RESULT_BAD_MATRIX;
-    }
-    if (!p_out)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
 
     const uint32_t r_out = a->base.rows;
@@ -146,11 +126,22 @@ jmtx_result jmtx_matrix_multiply_crs(
     *p_out = out;
     return JMTX_RESULT_SUCCESS;
 }
-
-jmtx_result jmtx_matrix_multiply_ccs(
-        const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_ccs** p_out,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+/**
+ * Multiplies CRS and CCS matrix together and saves the result into a CRS matrix
+ * @param a CRS matrix
+ * @param b CCS matrix
+ * @param p_out pointer which receives the resulting CRS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_multiply_crs(const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_crs** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -172,18 +163,31 @@ jmtx_result jmtx_matrix_multiply_ccs(
         //  can't do multiplication
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (!p_out)
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->free))
     {
         return JMTX_RESULT_NULL_PARAM;
     }
 
+    return jmtx_matrix_multiply_crs(a, b, p_out, allocator_callbacks);
+}
+
+/**
+ * Multiplies CRS and CCS matrix together and saves the result into a CCS matrix
+ * @param a CRS matrix
+ * @param b CCS matrix
+ * @param p_out pointer which receives the resulting CCS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
+jmtx_result jmtx_matrix_multiply_ccs(
+        const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_ccs** p_out,
+        const jmtx_allocator_callbacks* allocator_callbacks)
+{
+
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
 
     const uint32_t r_out = a->base.rows;
@@ -286,7 +290,61 @@ jmtx_result jmtx_matrix_multiply_ccs(
     return JMTX_RESULT_SUCCESS;
 }
 
+/**
+ * Multiplies CRS and CCS matrix together and saves the result into a CCS matrix
+ * @param a CRS matrix
+ * @param b CCS matrix
+ * @param p_out pointer which receives the resulting CCS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_multiply_ccs(const jmtx_matrix_crs* a, const jmtx_matrix_ccs* b, jmtx_matrix_ccs** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!a)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (a->base.type != JMTX_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!b)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (b->base.type != JMTX_TYPE_CCS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (a->base.cols != b->base.rows)
+    {
+        //  can't do multiplication
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
 
+    return jmtx_matrix_multiply_ccs(a, b, p_out, allocator_callbacks);
+}
+
+/**
+ * Computes the inner product of two sparse vectors
+ * @param n_a number of non-zero entries in the first vector
+ * @param i_a sorted array of indices of non-zero entries in the first vector
+ * @param v_a values of non-zero entries of the first vector
+ * @param n_b number of non-zero entries in the second vector
+ * @param i_b sorted array of indices of non-zero entries in the second vector
+ * @param v_b values of non-zero entries of the second vector
+ * @return inner product of the two vectors
+ */
 float jmtx_matrix_multiply_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const float v_a[const static n_a],
                                           uint32_t n_b, const uint32_t i_b[const static n_b], const float v_b[const static n_b])
 {
@@ -312,6 +370,19 @@ float jmtx_matrix_multiply_sparse_vectors(uint32_t n_a, const uint32_t i_a[const
     return v;
 }
 
+/**
+ * Computes the inner product of two sparse vectors, but stops once it reaches a maximum value of the non-zero entry
+ * indices (useful when inner product should be done for the first max_a/max_b components)
+ * @param max_a maximum non-zero index in the first vector that can be reached
+ * @param max_b maximum non-zero index in the second vector that can be reached
+ * @param n_a number of non-zero entries in the first vector
+ * @param i_a sorted array of indices of non-zero entries in the first vector
+ * @param v_a values of non-zero entries of the first vector
+ * @param n_b number of non-zero entries in the second vector
+ * @param i_b sorted array of indices of non-zero entries in the second vector
+ * @param v_b values of non-zero entries of the second vector
+ * @return inner product of the two vectors
+ */
 float jmtx_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
                                                 const uint32_t i_a[static n_a], const float v_a[static max_a],
                                                 uint32_t n_b, const uint32_t i_b[static n_b],
@@ -338,44 +409,22 @@ float jmtx_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, 
     }
     return v;
 }
-
+/**
+ * Multiplies two BRM matrices together and produces a BRM matrix with the result of the matrix multiplication.
+ * @param a BRM matrix
+ * @param b BRM matrix
+ * @param p_out pointer which receives the resulting BRM matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
 jmtx_result jmtx_matrix_multiply_brm(
         const jmtx_matrix_brm* a, const jmtx_matrix_brm* b, jmtx_matrix_brm** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!a)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (a->base.type != JMTX_TYPE_BRM)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!b)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (b->base.type != JMTX_TYPE_BRM)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (a->base.cols != b->base.rows)
-    {
-        //  can't do multiplication
-        return JMTX_RESULT_BAD_MATRIX;
-    }
-    if (!p_out)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
 
     const uint32_t r_out = a->base.rows;
@@ -494,15 +543,23 @@ jmtx_result jmtx_matrix_multiply_brm(
     return JMTX_RESULT_SUCCESS;
 }
 
-
-jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix_cds* b, jmtx_matrix_cds** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks)
+/**
+ * Multiplies two BRM matrices together and produces a BRM matrix with the result of the matrix multiplication.
+ * @param a BRM matrix
+ * @param b BRM matrix
+ * @param p_out pointer which receives the resulting BRM matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_multiply_brm(const jmtx_matrix_brm* a, const jmtx_matrix_brm* b, jmtx_matrix_brm** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTX_TYPE_CDS)
+    if (a->base.type != JMTX_TYPE_BRM)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -510,7 +567,7 @@ jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (b->base.type != JMTX_TYPE_CDS)
+    if (b->base.type != JMTX_TYPE_BRM)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -523,14 +580,30 @@ jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix
     {
         return JMTX_RESULT_NULL_PARAM;
     }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    return jmtx_matrix_multiply_brm(a, b, p_out, allocator_callbacks);
+}
+
+/**
+ * Multiplies two CDS matrices together and produces a CDS matrix with the result of the matrix multiplication.
+ * @param a CDS matrix
+ * @param b CDS matrix
+ * @param p_out pointer which receives the resulting CDS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
+jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix_cds* b, jmtx_matrix_cds** p_out,
+                                     const jmtx_allocator_callbacks* allocator_callbacks)
+{
 
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
-    }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
 
     const uint32_t r_out = a->base.rows;
@@ -610,4 +683,49 @@ jmtx_result jmtx_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix
     allocator_callbacks->free(allocator_callbacks->state, idx_a);
     *p_out = out;
     return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Multiplies two CDS matrices together and produces a CDS matrix with the result of the matrix multiplication.
+ * @param a CDS matrix
+ * @param b CDS matrix
+ * @param p_out pointer which receives the resulting CDS matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxs_matrix_multiply_cds(const jmtx_matrix_cds* a, const jmtx_matrix_cds* b, jmtx_matrix_cds** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!a)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (a->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (!b)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (b->base.type != JMTX_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (a->base.cols != b->base.rows)
+    {
+        //  can't do multiplication
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (allocator_callbacks && (!allocator_callbacks->alloc || !allocator_callbacks->free))
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    return jmtx_matrix_multiply_cds(a, b, p_out, allocator_callbacks);
 }

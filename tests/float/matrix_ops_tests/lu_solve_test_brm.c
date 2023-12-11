@@ -5,9 +5,9 @@
 #include "../../../include/jmtx/float/solvers/lu_solving.h"
 #include "../../../include/jmtx/float/solvers/band_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/band_row_major_safe.h"
-#include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
+#include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
 #include <float.h>
 #include <math.h>
@@ -43,8 +43,8 @@ int are_close(float v1, float v2, float relative_tol, float abs_tol)
     return 0;
 }
 
-constexpr float default_r_tol = FLT_EPSILON * 400;
-constexpr float default_a_tol = FLT_EPSILON * 100;
+static const float default_r_tol = FLT_EPSILON * 400;
+static const float default_a_tol = FLT_EPSILON * 100;
 
 enum {PROBLEM_SIZE = 5};
 

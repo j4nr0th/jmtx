@@ -4,7 +4,6 @@
 
 #ifndef JMTX_COMMON_H
 #define JMTX_COMMON_H
-#define JMTXD_COMMON_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -20,9 +19,12 @@
 //  Compiler specific
 #ifdef __GNUC__
     #ifndef JMTX_NODISCARD_FUNCTION
-            #define JMTX_NODISCARD_FUNCTION __attribute__(nodiscard)
+            #define JMTX_NODISCARD_FUNCTION __attribute__((warn_unused_result))
     #endif
 
+    #ifndef JMTX_HOT_FUNCTION
+        #define JMTX_HOT_FUNCTION __attribute__((hot))
+    #endif
 #endif
 
 
@@ -32,6 +34,9 @@
     #define JMTX_NODISCARD_FUNCTION
 #endif
 
+#ifndef JMTX_HOT_FUNCTION
+    #define JMTX_HOT_FUNCTION
+#endif
 
 #ifndef JMTX_EXTERNAL_FUNCTION
     #define JMTX_EXTERNAL_FUNCTION

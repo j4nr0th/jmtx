@@ -5,8 +5,8 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_row_compressed_safe.h"
-#include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_column_compressed_safe.h"
+#include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_multiplication.h"
 #include <float.h>
 #include <math.h>
@@ -42,8 +42,8 @@ int are_close(_Complex float v1, _Complex float v2, float relative_tol, float ab
     return 0;
 }
 
-constexpr _Complex float default_r_tol = FLT_EPSILON * 400;
-constexpr _Complex float default_a_tol = FLT_EPSILON * 100;
+static const _Complex float default_r_tol = FLT_EPSILON * 400;
+static const _Complex float default_a_tol = FLT_EPSILON * 100;
 
 enum {PROBLEM_SIZE = 5};
 

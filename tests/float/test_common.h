@@ -8,14 +8,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct jmtx_matrix_crs_struct jmtx_matrix_crs;
-typedef struct jmtx_matrix_ccs_struct jmtx_matrix_ccs;
-typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
-typedef struct jmtx_matrix_cds_struct jmtx_matrix_cds;
-void print_crs_matrix(const jmtx_matrix_crs* mtx);
-void print_ccs_matrix(const jmtx_matrix_ccs* mtx);
-void print_brm_matrix(const jmtx_matrix_brm* mtx);
-void print_cds_matrix(const jmtx_matrix_cds* mtx);
+struct jmtx_matrix_crs_struct;
+struct jmtx_matrix_ccs_struct;
+struct jmtx_matrix_brm_struct;
+struct jmtx_matrix_cds_struct;
+void print_crs_matrix(const struct jmtx_matrix_crs_struct* mtx);
+void print_ccs_matrix(const struct jmtx_matrix_ccs_struct* mtx);
+void print_brm_matrix(const struct jmtx_matrix_brm_struct* mtx);
+void print_cds_matrix(const struct jmtx_matrix_cds_struct* mtx);
 
 #ifndef NDEBUG
 #   ifdef __GNUC__

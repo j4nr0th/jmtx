@@ -6,7 +6,6 @@
 #include "../matrices/sparse_row_compressed_internal.h"
 #include <math.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <assert.h>
 
 #include <omp.h>

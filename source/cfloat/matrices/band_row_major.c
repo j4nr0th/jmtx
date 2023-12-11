@@ -706,7 +706,7 @@ void jmtxc_matrix_brm_set_all_entries(const jmtxc_matrix_brm* mtx, _Complex floa
     }
 }
 
-[[gnu::hot]]
+JMTX_HOT_FUNCTION
 uint_fast32_t jmtxc_matrix_brm_first_pos_in_row(const jmtxc_matrix_brm* mtx, uint32_t row)
 {
     if (row < mtx->lower_bandwidth)

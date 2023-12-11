@@ -8,7 +8,6 @@
 #include "../matrices/sparse_row_compressed_internal.h"
 #include <math.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <assert.h>
 
 #include <omp.h>
@@ -303,7 +302,7 @@ jmtx_result jmtxz_jacobi_crs_parallel(
     for (uint32_t i = 0; i < n; ++i)
     {
         _Complex double d;
-        if ((d = jmtxz_matrix_crs_get_entry(mtx, i, i)) == CMPLXF(0.0f, 0.0f))
+        if ((d = jmtxz_matrix_crs_get_entry(mtx, i, i)) == 0)
         {
             //  Diagonal entry is zero!
             //  Can't solve this one with Jacobi

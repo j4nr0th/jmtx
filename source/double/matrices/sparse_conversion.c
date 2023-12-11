@@ -4,58 +4,63 @@
 //
 
 #include <assert.h>
-#include "../../../include/jmtx/double/matrices/sparse_conversion.h"
 #include "sparse_row_compressed_internal.h"
 #include "sparse_column_compressed_internal.h"
 #include "sparse_diagonal_compressed_internal.h"
 #include "band_row_major_internal.h"
+#include "../../../include/jmtx/double/matrices/sparse_conversion.h"
+#include "../../../include/jmtx/double/matrices/sparse_conversion_safe.h"
+#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
 
-jmtx_result jmtxd_convert_crs_to_ccs_inplace_transpose(jmtxd_matrix_crs* in, jmtxd_matrix_ccs** p_out)
+jmtxd_matrix_ccs* jmtxd_convert_crs_to_ccs_inplace_transpose(jmtxd_matrix_crs* in)
 {
-    if (!in)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (in->base.type != JMTXD_TYPE_CRS)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!p_out)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
+//    if (!in)
+//    {
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//    if (in->base.type != JMTXD_TYPE_CRS)
+//    {
+//        return JMTX_RESULT_WRONG_TYPE;
+//    }
+//    if (!p_out)
+//    {
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//
     //  Lol, lmao even
     in->base.type = JMTXD_TYPE_CCS;
 
-    *p_out = (jmtxd_matrix_ccs*)in;
-
-    return JMTX_RESULT_SUCCESS;
+    return (jmtxd_matrix_ccs*)in;
 }
 
-jmtx_result jmtxd_convert_ccs_to_crs_inplace_transpose(jmtxd_matrix_ccs* in, jmtxd_matrix_crs** p_out)
+jmtxd_matrix_crs* jmtxd_convert_ccs_to_crs_inplace_transpose(jmtxd_matrix_ccs* in)
 {
-    if (!in)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (in->base.type != JMTXD_TYPE_CCS)
-    {
-        return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!p_out)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
+//    if (!in)
+//    {
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
+//    if (in->base.type != JMTXD_TYPE_CCS)
+//    {
+//        return JMTX_RESULT_WRONG_TYPE;
+//    }
+//    if (!p_out)
+//    {
+//        return JMTX_RESULT_NULL_PARAM;
+//    }
 
     //  Lol, lmao even
     in->base.type = JMTXD_TYPE_CRS;
-    *p_out = (jmtxd_matrix_crs*)in;
-
-    return JMTX_RESULT_SUCCESS;
+    return (jmtxd_matrix_crs*)in;
 }
 
+/**
+ * Converts a CRS matrix into the CCS format. Input matrix remains untouched.
+ * @param in CRS matrix to convert
+ * @param p_out pointer which receives the converted matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
+ */
 jmtx_result jmtxd_convert_crs_to_ccs(
         const jmtxd_matrix_crs* in, jmtxd_matrix_ccs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -65,8 +70,40 @@ jmtx_result jmtxd_convert_crs_to_ccs(
     {
         return res;
     }
-    res = jmtxd_convert_crs_to_ccs_inplace_transpose(cpy, p_out);
-    assert(res == JMTX_RESULT_SUCCESS);
+    *p_out = jmtxd_convert_crs_to_ccs_inplace_transpose(cpy);
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Converts a CRS matrix into the CCS format. Input matrix remains untouched.
+ * @param in CRS matrix to convert
+ * @param p_out pointer which receives the converted matrix
+ * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
+ * malloc, free, and realloc
+ * @return JMTX_RESULT_SUCCESS if successful
+ */
+jmtx_result jmtxds_convert_crs_to_ccs(const jmtxd_matrix_crs* in, jmtxd_matrix_ccs** p_out,
+                                      const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!in)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!p_out)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (in->base.type != JMTXD_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    jmtxd_matrix_crs* cpy;
+    jmtx_result res = jmtxds_matrix_crs_transpose(in, &cpy, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        return res;
+    }
+    *p_out = jmtxd_convert_crs_to_ccs_inplace_transpose(cpy);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -79,8 +116,7 @@ jmtx_result jmtxd_convert_ccs_to_crs(
     {
         return res;
     }
-    res = jmtxd_convert_ccs_to_crs_inplace_transpose(cpy, p_out);
-    assert(res == JMTX_RESULT_SUCCESS);
+    *p_out = jmtxd_convert_ccs_to_crs_inplace_transpose(cpy);
     return JMTX_RESULT_SUCCESS;
 }
 
