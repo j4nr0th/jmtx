@@ -109,7 +109,7 @@ int main()
     MATRIX_TEST_CALL(jmtxc_matrix_crs_copy(cholesky, &cpy, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxc_convert_crs_to_ccs_inplace_transpose(cpy, &cho_t));
+    cho_t = (jmtxc_convert_crs_to_ccs_inplace_transpose(cpy));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     print_ccs_matrix(cho_t);
 

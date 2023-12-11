@@ -12,7 +12,9 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/cfloat/matrices/sparse_row_compressed.h
         include/jmtx/cfloat/matrices/sparse_column_compressed.h
         include/jmtx/cfloat/matrices/sparse_conversion.h
+        include/jmtx/cfloat/matrices/sparse_conversion_safe.h
         include/jmtx/cfloat/matrices/sparse_multiplication.h
+        include/jmtx/cfloat/matrices/sparse_multiplication_safe.h
         include/jmtx/cfloat/matrices/band_row_major.h
         include/jmtx/cfloat/matrices/band_row_major_safe.h
         include/jmtx/cfloat/matrices/sparse_diagonal_compressed.h
