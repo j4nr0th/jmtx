@@ -2,6 +2,7 @@ import os
 from sys import argv
 from generate_directory import translate_file
 
+
 if __name__ == "__main__":
     if len(argv) != 4:
         print(f"3 arguments are required {len(argv)} were given (argv = {argv})")
@@ -16,11 +17,12 @@ if __name__ == "__main__":
         exit(1)
 
     translated_initials = {"_Complex float": "c", "_Complex double": "z", "double" : "d"}
+    translated_initials_CAP = {"_Complex float": "C", "_Complex double": "Z", "double" : "D"}
+    translated_folder = {"_Complex float": "cfloat", "_Complex double": "cdouble", "double" : "double"}
     if target_type not in translated_initials.keys():
         print(f"\"{target_type}\" was not one of the allowed types ({translated_initials.keys()})")
         exit(1)
-    TRANSLATION_APPENDIX:str = translated_initials[target_type]
-    TRANSLATION_APPENDIX_CAP = TRANSLATION_APPENDIX.upper()
+
 
     if os.path.exists(output_file):
         print(f"\"{output_file}\" already exists!")
@@ -28,6 +30,6 @@ if __name__ == "__main__":
 
     f_in = open(input_file, "r")
     f_out = open(output_file, "w")
-
-    translate_file(f_in, f_out, "float", target_type, "double")
+    translate_file(f_in, f_out, "float", target_type, translated_folder[target_type],
+                   translated_initials[target_type], translated_initials_CAP[target_type])
 

@@ -10,8 +10,8 @@
 #include <math.h>
 #include <time.h>
 #include "../test_common.h"
-#include "../../../include/jmtx/cfloat/solvers/jacobi_point_iteration.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/cfloat/solvers/jacobi_point_iteration.h"
 
 static const _Complex float V = 10.0f;
 static const _Complex float omega_0 = 5.0f;

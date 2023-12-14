@@ -11,8 +11,8 @@
 #include <math.h>
 #include <time.h>
 #include "../test_common.h"
-#include "../../../include/jmtx/cdouble/solvers/jacobi_point_iteration.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/cdouble/solvers/jacobi_point_iteration.h"
 
 static const _Complex double V = 10.0f;
 static const _Complex double omega_0 = 5.0f;
