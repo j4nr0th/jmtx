@@ -6,7 +6,7 @@
 
 #ifndef JMTXZ_BICGSTAB_ITERATION_H
 #define JMTXZ_BICGSTAB_ITERATION_H
-#ifndef JMTXZ_SOLVER_BASE_H
+#ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 

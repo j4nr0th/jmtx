@@ -1,26 +1,26 @@
-// Automatically generated from tests/float/solver_tests/omp_gauss_test.c on Fri Dec  1 06:43:09 2023
+// Automatically generated from tests/float/solver_tests/gauss_test.c on Sun Dec 17 16:46:33 2023
 //
 // Created by jan on 22.10.2023.
 //
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../../include/jmtx/double/solvers/gauss_seidel_iteration.h"
-#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/cdouble/solvers/gauss_seidel_iteration.h"
 
 enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (1 << 6)};
 
 int main()
 {
     //  Make the CRS matrix for the 1D Poisson equation
-    jmtxd_matrix_crs* mtx = NULL;
+    jmtxz_matrix_crs* mtx = NULL;
     jmtx_result mtx_res;
     //  Problem to solve is d^2/dx^2 (u) = 1, with u(0) = 0 and u(1) = 0, on x in (0, 1)
     //  Exact solution is u(x) = x * (x - 1) / 2
-    double exact_solution[PROBLEM_DIMS]; // exact solution of u
-    double forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all values are 1)
-    double iterative_solution[PROBLEM_DIMS] = {0};
-    double aux_v1[PROBLEM_DIMS];
+    _Complex double exact_solution[PROBLEM_DIMS]; // exact solution of u
+    _Complex double forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all values are 1)
+    _Complex double iterative_solution[PROBLEM_DIMS] = {0};
+    _Complex double aux_v1[PROBLEM_DIMS];
 
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
@@ -39,41 +39,41 @@ int main()
         forcing_vector[i] = 1.0f;
     }
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
+    MATRIX_TEST_CALL(jmtxzs_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     {
         const uint32_t indices1[2] = {0, 1};
-        const double values1[2] = {-2.0f, 1.0f};
+        const _Complex double values1[2] = {-2.0f, 1.0f};
         const uint32_t indices2[2] = {PROBLEM_DIMS - 4, PROBLEM_DIMS - 3};
-        const double values2[2] = {1.0f, -2.0f};
+        const _Complex double values2[2] = {1.0f, -2.0f};
         forcing_vector[0] += -0.0f;
         forcing_vector[PROBLEM_DIMS - 1] += -0.0f;
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
+        ASSERT(mtx_res == (jmtxzs_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
+        ASSERT(mtx_res == (jmtxzs_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
     }
     for (unsigned i = 1; i < PROBLEM_DIMS - 3; ++i)
     {
         const uint32_t indices[3] = {i - 1, i, i + 1};
-        const double values[3] = { 1.0f, -2.0f, 1.0f };
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, i, 3, indices, values)));
+        const _Complex double values[3] = { 1.0f, -2.0f, 1.0f };
+        ASSERT(mtx_res == (jmtxzs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
-//    print_crsd_matrix(mtx);
+//    print_crs_matrix(mtx);
     jmtxd_solver_arguments solver_arguments =
             {
             .in_max_iterations = MAX_ITERATIONS,
             .in_convergence_criterion = 1e-4f,
             };
     const double t0 = omp_get_wtime();
-    mtx_res = jmtxd_gauss_seidel_crs_parallel(
-            mtx, forcing_vector, iterative_solution + 1, aux_v1, &solver_arguments);
+    mtx_res = jmtxz_gauss_seidel_crs(
+            mtx, forcing_vector, iterative_solution, aux_v1, &solver_arguments);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
     printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, solver_arguments.out_last_iteration);
-    const double dx = 1.0f / (double)(PROBLEM_DIMS - 1);
+    const double dx = 1.0f / (_Complex double)(PROBLEM_DIMS - 1);
 #pragma omp parallel for default(none) shared(iterative_solution) shared(dx)
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
@@ -84,7 +84,7 @@ int main()
 //        const double x = (double)i / (double)(PROBLEM_DIMS - 1);
 //        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
 //    }
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));
+    MATRIX_TEST_CALL(jmtxzs_matrix_crs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }

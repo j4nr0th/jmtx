@@ -1,12 +1,12 @@
-// Automatically generated from tests/float/solver_tests/omp_gauss_test.c on Fri Dec  1 17:35:45 2023
+// Automatically generated from tests/float/solver_tests/gauss_test.c on Sun Dec 17 16:46:41 2023
 //
 // Created by jan on 22.10.2023.
 //
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../../include/jmtx/cfloat/solvers/gauss_seidel_iteration.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_row_compressed_safe.h"
+#include "../../../include/jmtx/cfloat/solvers/gauss_seidel_iteration.h"
 
 enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (1 << 6)};
 
@@ -29,7 +29,7 @@ int main()
 #pragma omp parallel for shared(exact_solution) default(none) schedule(static)
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
-        const _Complex float x = (_Complex float)i / (_Complex float)(PROBLEM_DIMS - 1);
+        const float x =  (float)i / (float)(PROBLEM_DIMS - 1);
         exact_solution[i] = x * (x - 1) / 2;
     }
 
@@ -65,15 +65,15 @@ int main()
             .in_convergence_criterion = 1e-4f,
             };
     const double t0 = omp_get_wtime();
-    mtx_res = jmtxc_gauss_seidel_crs_parallel(
-            mtx, forcing_vector, iterative_solution + 1, aux_v1, &solver_arguments);
+    mtx_res = jmtxc_gauss_seidel_crs(
+            mtx, forcing_vector, iterative_solution, aux_v1, &solver_arguments);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
     printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, solver_arguments.out_last_iteration);
-    const _Complex float dx = 1.0f / (_Complex float)(PROBLEM_DIMS - 1);
+    const float dx = 1.0f / (_Complex float)(PROBLEM_DIMS - 1);
 #pragma omp parallel for default(none) shared(iterative_solution) shared(dx)
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
@@ -81,7 +81,7 @@ int main()
     }
 //    for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
 //    {
-//        const _Complex float x = (_Complex float)i / (_Complex float)(PROBLEM_DIMS - 1);
+//        const _Complex float x = (float)i / (float)(PROBLEM_DIMS - 1);
 //        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
 //    }
     MATRIX_TEST_CALL(jmtxcs_matrix_crs_destroy(mtx));

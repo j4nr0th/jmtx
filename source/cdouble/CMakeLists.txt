@@ -83,9 +83,9 @@ add_executable(omp_jacobi_test_cdouble tests/cdouble/solver_tests/omp_jacobi_tes
 target_link_libraries(omp_jacobi_test_cdouble PRIVATE jmtx)
 add_test(NAME omp_jacobi_cdouble COMMAND omp_jacobi_test_cdouble)
 
-add_executable(omp_gauss_test_cdouble tests/cdouble/solver_tests/omp_gauss_test.c tests/cdouble/test_common.c)
-target_link_libraries(omp_gauss_test_cdouble PRIVATE jmtx)
-add_test(NAME omp_gauss_cdouble COMMAND omp_gauss_test_cdouble)
+add_executable(gauss_test_cdouble tests/cdouble/solver_tests/gauss_test.c tests/cdouble/test_common.c)
+target_link_libraries(gauss_test_cdouble PRIVATE jmtx)
+add_test(NAME gauss_cdouble COMMAND gauss_test_cdouble)
 
 add_executable(omp_build_test_cdouble tests/cdouble/matrix_ops_tests/omp_build_test.c tests/cdouble/test_common.c)
 target_link_libraries(omp_build_test_cdouble PRIVATE jmtx)

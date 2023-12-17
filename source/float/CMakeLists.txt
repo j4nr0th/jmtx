@@ -85,9 +85,9 @@ add_executable(omp_jacobi_test_float tests/float/solver_tests/omp_jacobi_test.c 
 target_link_libraries(omp_jacobi_test_float PRIVATE jmtx)
 add_test(NAME omp_jacobi_float COMMAND omp_jacobi_test_float)
 
-add_executable(omp_gauss_test_float tests/float/solver_tests/omp_gauss_test.c tests/float/test_common.c)
-target_link_libraries(omp_gauss_test_float PRIVATE jmtx)
-add_test(NAME omp_gauss_float COMMAND omp_gauss_test_float)
+add_executable(gauss_test_float tests/float/solver_tests/gauss_test.c tests/float/test_common.c)
+target_link_libraries(gauss_test_float PRIVATE jmtx)
+add_test(NAME gauss_float COMMAND gauss_test_float)
 
 add_executable(omp_build_test_float tests/float/matrix_ops_tests/omp_build_test.c tests/float/test_common.c)
 target_link_libraries(omp_build_test_float PRIVATE jmtx)
