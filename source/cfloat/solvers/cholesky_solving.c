@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/cholesky_solving.c on Fri Dec  1 17:36:03 2023
+// Automatically generated from source/float/solvers/cholesky_solving.c on Sun Dec 17 20:13:05 2023
 //
 // Created by jan on 6.11.2023.
 //
@@ -10,6 +10,13 @@
 #include "../../../include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
 
+/**
+ * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix.
+ * @param c lower triangular matrix C in the CCS format
+ * @param ct transpose of the matrix C in the CRS format
+ * @param y memory containing forcing vector
+ * @param x memory which receives the solution
+ */
 void jmtxc_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, const _Complex float* restrict y, _Complex float* restrict x)
 {
     const uint32_t n = c->base.cols;
@@ -48,6 +55,13 @@ void jmtxc_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct,
     }
 }
 
+/**
+ * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix. This version of the function stores the
+ * solution vector x back into the same memory where the forcing vector was.
+ * @param c lower triangular matrix C in the CCS format
+ * @param ct transpose of the matrix C in the CRS format
+ * @param x memory which contains the forcing vector and receives the solution
+ */
 void jmtxc_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, _Complex float* restrict x)
 {
     const uint32_t n = c->base.cols;
@@ -83,4 +97,129 @@ void jmtxc_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_
         }
         x[i] = (x[i] - v) / values[0];
     }
+}
+
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+{
+    for (unsigned i = 0; i < n; ++i)
+    {
+        const uintptr_t p1 = (uintptr_t)ptrs[i];
+        for (unsigned j = i + 1; j < n; ++j)
+        {
+            const uintptr_t p2 = (uintptr_t)ptrs[j];
+            if (p1 > p2)
+            {
+                if (p2 + size > p1)
+                {
+                    return 1;
+                }
+            }
+            else if (p1 + size > p2)
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+/**
+ * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix.
+ * @param c lower triangular matrix C in the CCS format
+ * @param ct transpose of the matrix C in the CRS format
+ * @param y memory containing forcing vector
+ * @param x memory which receives the solution
+ * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
+ */
+jmtx_result jmtxcs_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
+                                 const _Complex float y[static restrict n], _Complex float x[restrict n])
+{
+    if (!c)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (c->base.type != JMTXC_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (c->base.rows != n || c->base.cols != n)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+
+    if (!ct)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (ct->base.type != JMTXC_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (ct->base.rows != n || ct->base.cols != n)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+
+    if (!x)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (!y)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    const void* ptrs[] = {x, y};
+    if (check_vector_overlaps(sizeof(ptrs) / sizeof(*ptrs), sizeof(*x) * n, ptrs))
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    jmtxc_cholesky_solve(c, ct, y, x);
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix. This version of the function stores the
+ * solution vector x back into the same memory where the forcing vector was.
+ * @param c lower triangular matrix C in the CCS format
+ * @param ct transpose of the matrix C in the CRS format
+ * @param x memory which contains the forcing vector and receives the solution
+ * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
+ */
+jmtx_result jmtxcs_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
+                                         _Complex float x[static n])
+{
+    if (!c)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (c->base.type != JMTXC_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (c->base.rows != n || c->base.cols != n)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+
+    if (!ct)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+    if (ct->base.type != JMTXC_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (ct->base.rows != n || ct->base.cols != n)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+
+    if (!x)
+    {
+        return JMTX_RESULT_NULL_PARAM;
+    }
+
+    jmtxc_cholesky_solve_inplace(c, ct, x);
+    return JMTX_RESULT_SUCCESS;
 }
