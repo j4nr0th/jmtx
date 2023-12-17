@@ -3,9 +3,9 @@
 // Created by jan on 23.11.2023.
 //
 #include "../test_common.h"
-#include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_column_compressed_safe.h"
+#include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_multiplication.h"
 #include <float.h>

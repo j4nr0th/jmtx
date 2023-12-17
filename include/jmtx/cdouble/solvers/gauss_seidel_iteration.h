@@ -5,7 +5,7 @@
 
 #ifndef JMTXZ_GAUSS_SEIDEL_ITERATION_H
 #define JMTXZ_GAUSS_SEIDEL_ITERATION_H
-#ifndef JMTXZ_SOLVER_BASE_H
+#ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 

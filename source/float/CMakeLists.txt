@@ -101,9 +101,9 @@ add_executable(incomplete_lu_test_float tests/float/solver_tests/inclu_test.c te
 target_link_libraries(incomplete_lu_test_float PRIVATE jmtx)
 add_test(NAME solve_ilu_float COMMAND incomplete_lu_test_float)
 
-add_executable(omp_ilu_test_float tests/float/solver_tests/omp_inclu_test.c tests/float/test_common.c)
-target_link_libraries(omp_ilu_test_float PRIVATE jmtx)
-target_compile_options(omp_ilu_test_float PRIVATE -fopenmp)
+add_executable(ilu_test_float tests/float/solver_tests/ilu_test.c tests/float/test_common.c)
+target_link_libraries(ilu_test_float PRIVATE jmtx)
+target_compile_options(ilu_test_float PRIVATE -fopenmp)
 
 add_executable(icho_test_float tests/float/solver_tests/incho_test.c tests/float/test_common.c)
 target_link_libraries(icho_test_float PRIVATE jmtx)

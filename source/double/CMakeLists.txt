@@ -101,9 +101,9 @@ add_executable(incomplete_lu_test_double tests/double/solver_tests/inclu_test.c 
 target_link_libraries(incomplete_lu_test_double PRIVATE jmtx)
 add_test(NAME solve_ilu_double COMMAND incomplete_lu_test_double)
 
-add_executable(omp_ilu_test_double tests/double/solver_tests/omp_inclu_test.c tests/double/test_common.c)
-target_link_libraries(omp_ilu_test_double PRIVATE jmtx)
-target_compile_options(omp_ilu_test_double PRIVATE -fopenmp)
+add_executable(ilu_test_double tests/double/solver_tests/ilu_test.c tests/double/test_common.c)
+target_link_libraries(ilu_test_double PRIVATE jmtx)
+target_compile_options(ilu_test_double PRIVATE -fopenmp)
 
 add_executable(icho_test_double tests/double/solver_tests/incho_test.c tests/double/test_common.c)
 target_link_libraries(icho_test_double PRIVATE jmtx)

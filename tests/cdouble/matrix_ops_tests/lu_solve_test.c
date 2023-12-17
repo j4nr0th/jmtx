@@ -4,11 +4,11 @@
 // Created by jan on 23.11.2023.
 //
 #include "../test_common.h"
-#include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_column_compressed_safe.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_multiplication.h"
+#include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
 #include <float.h>
 #include <math.h>
 #include <assert.h>

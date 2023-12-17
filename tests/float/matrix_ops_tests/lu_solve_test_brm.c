@@ -2,11 +2,11 @@
 // Created by jan on 23.11.2023.
 //
 #include "../test_common.h"
-#include "../../../include/jmtx/float/solvers/lu_solving.h"
-#include "../../../include/jmtx/float/solvers/band_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/band_row_major_safe.h"
 #include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
+#include "../../../include/jmtx/float/solvers/lu_solving.h"
+#include "../../../include/jmtx/float/solvers/band_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
 #include <float.h>
