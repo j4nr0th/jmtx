@@ -18,9 +18,6 @@
  * @param mtx system matrix, that must be SPD
  * @param y result vector
  * @param x vector which receives the iterative solution
- * @param stagnation error reduction is less than this, give up
- * @param recalculation_interval after this many calculations, residual will be computed explicitly, instead of implicit
- * updates performed otherwise (value of 0 means to only do it when necessary to confirm convergence)
  * @param aux_vec1 auxiliary memory for a vector of the same size as x and y
  * @param aux_vec2 auxiliary memory for a vector of the same size as x and y
  * @param aux_vec3 auxiliary memory for a vector of the same size as x and y
@@ -34,8 +31,8 @@
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
 jmtx_result jmtx_conjugate_gradient_crs(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float stagnation,
-        uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
+        float* restrict aux_vec1, float* restrict aux_vec2,
         float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 
@@ -65,8 +62,8 @@ jmtx_result jmtx_conjugate_gradient_crs(
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
 jmtx_result jmtx_conjugate_gradient_crs_parallel(
-        const jmtx_matrix_crs* mtx, const float* y, float* x, float stagnation,
-        uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
+        float* restrict aux_vec1, float* restrict aux_vec2,
         float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 
@@ -104,8 +101,8 @@ jmtx_result jmtx_conjugate_gradient_crs_parallel(
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
 jmtx_result jmtx_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* cho, const jmtx_matrix_crs* cho_t,  const float* y, float* x,
-        float stagnation, uint32_t recalculation_interval, float* restrict aux_vec1, float* restrict aux_vec2,
+        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* cho, const jmtx_matrix_crs* cho_t,  const float* restrict y,
+        float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
         float* restrict aux_vec3, float* restrict aux_vec4, jmtx_solver_arguments* args);
 #endif // JMTX_SPARSE_ROW_COMPRESSED_H
 

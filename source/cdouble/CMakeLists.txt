@@ -35,6 +35,7 @@ list(APPEND INTERNAL_SOURCE_FILES
 list(APPEND SOLVER_SOURCE_FILES
         source/cdouble/solvers/jacobi_point_iteration.c
         source/cdouble/solvers/gauss_seidel_iteration.c
+        source/cdouble/solvers/conjugate_gradient_iteration.c
         source/cdouble/solvers/incomplete_lu_decomposition.c
         source/cdouble/solvers/bicgstab_iteration.c
         source/cdouble/solvers/lu_solving.c
@@ -46,6 +47,7 @@ list(APPEND SOLVER_SOURCE_FILES
 list(APPEND SOLVER_HEADER_FILES
         include/jmtx/cdouble/solvers/jacobi_point_iteration.h
         include/jmtx/cdouble/solvers/gauss_seidel_iteration.h
+        include/jmtx/cdouble/solvers/conjugate_gradient_iteration.h
         include/jmtx/cdouble/solvers/incomplete_lu_decomposition.h
         include/jmtx/cdouble/solvers/bicgstab_iteration.h
         include/jmtx/cdouble/solvers/lu_solving.h

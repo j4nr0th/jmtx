@@ -1,16 +1,16 @@
-// Automatically generated from include/jmtx/float/solvers/conjugate_gradient_iteration.h on Sun Dec 17 20:58:56 2023
+// Automatically generated from include/jmtx/float/solvers/conjugate_gradient_iteration.h on Sun Dec 17 20:59:12 2023
 //
 // Created by jan on 30.10.2023.
 //
 
-#ifndef JMTXD_CONJUGATE_GRADIENT_ITERATION_H
-#define JMTXD_CONJUGATE_GRADIENT_ITERATION_H
+#ifndef JMTXC_CONJUGATE_GRADIENT_ITERATION_H
+#define JMTXC_CONJUGATE_GRADIENT_ITERATION_H
 
 #ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 
-#ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
+#ifdef JMTXC_SPARSE_ROW_COMPRESSED_H
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
  * Directly solves and N x N system in N iterations, but converges closely in fewer. Convergence speed is better for
@@ -31,14 +31,14 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxd_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
-        double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args);
+jmtx_result jmtxc_conjugate_gradient_crs(
+        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
+        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 
 /**
- * Parallel version of the function jmtxd_conjugate_gradient_crs using OpenMP
+ * Parallel version of the function jmtxc_conjugate_gradient_crs using OpenMP
  *
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
  * Directly solves and N x N system in N iterations, but converges closely in fewer. Convergence speed is better for
@@ -62,10 +62,10 @@ jmtx_result jmtxd_conjugate_gradient_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxd_conjugate_gradient_crs_parallel(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
-        double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args);
+jmtx_result jmtxc_conjugate_gradient_crs_parallel(
+        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
+        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args);
 
 
 
@@ -101,13 +101,13 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* cho, const jmtxd_matrix_crs* cho_t,  const double* restrict y,
-        double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, double* restrict aux_vec4, jmtxd_solver_arguments* args);
-#endif // JMTXD_SPARSE_ROW_COMPRESSED_H
+jmtx_result jmtxc_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
+        const jmtxc_matrix_crs* mtx, const jmtxc_matrix_crs* cho, const jmtxc_matrix_crs* cho_t,  const _Complex float* restrict y,
+        _Complex float* restrict x, _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
+        _Complex float* restrict aux_vec3, _Complex float* restrict aux_vec4, jmtx_solver_arguments* args);
+#endif // JMTXC_SPARSE_ROW_COMPRESSED_H
 
-#ifdef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+#ifdef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
  * Directly solves and N x N system in N iterations, but converges closely in fewer. Convergence speed is better for
@@ -131,9 +131,9 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
-                                        double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-                                        jmtxd_solver_arguments* args);
-#endif //JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+jmtx_result jmtxc_conjugate_gradient_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+                                        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3,
+                                        jmtx_solver_arguments* args);
+#endif //JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
 
-#endif //JMTXD_CONJUGATE_GRADIENT_ITERATION_H
+#endif //JMTXC_CONJUGATE_GRADIENT_ITERATION_H

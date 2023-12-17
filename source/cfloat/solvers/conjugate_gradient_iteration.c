@@ -1,22 +1,22 @@
-// Automatically generated from source/float/solvers/conjugate_gradient_iteration.c on Sun Dec 17 20:57:27 2023
+// Automatically generated from source/float/solvers/conjugate_gradient_iteration.c on Sun Dec 17 20:57:47 2023
 //
 // Created by jan on 30.10.2023.
 //
 
-#ifndef JMTXD_SOLVER_BASE_H
+#ifndef JMTXC_SOLVER_BASE_H
     #include "../../../include/jmtx/solver_base.h"
 #endif
 #include <math.h>
-#include <stdio.h>
+#include <complex.h>
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
-#include "../../../include/jmtx/double/solvers/cholesky_solving.h"
-#include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
+#include "../../../include/jmtx/cfloat/solvers/cholesky_solving.h"
+#include "../../../include/jmtx/cfloat/solvers/conjugate_gradient_iteration.h"
 
-jmtx_result jmtxd_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
-        double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args)
+jmtx_result jmtxc_conjugate_gradient_crs(
+        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
+        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -27,7 +27,7 @@ jmtx_result jmtxd_conjugate_gradient_crs(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTXD_TYPE_CRS)
+    if (mtx->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -57,22 +57,22 @@ jmtx_result jmtxd_conjugate_gradient_crs(
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
+    _Complex float* const r = aux_vec1;
+    _Complex float* const p = aux_vec2;
+    _Complex float* const Ap = aux_vec3;
     uint32_t n_iterations = 0;
-    double alpha, beta;
+    _Complex float alpha, beta;
 
-    double rk_dp = 0;
-    double err = 0;
-    double mag_y = 0;
-    double pAp_dp = 0;
-    double new_rk_dp = 0;
+    float rk_dp = 0;
+    float err = 0;
+    float mag_y = 0;
+    _Complex float pAp_dp = 0;
+    float new_rk_dp = 0;
 
     {
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxc_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
@@ -80,12 +80,12 @@ jmtx_result jmtxd_conjugate_gradient_crs(
         mag_y = 0;
         for (unsigned i = 0; i < n; ++i)
         {
-            rk_dp += r[i] * r[i];
-            mag_y += y[i] * y[i];
+            rk_dp += conjf(r[i]) * r[i];
+            mag_y += conjf(y[i]) * y[i];
         }
 
-        mag_y = sqrt(mag_y);
-        err = sqrt(rk_dp) / mag_y;
+        mag_y = sqrtf(mag_y);
+        err = sqrtf(rk_dp) / mag_y;
         if (err < args->in_convergence_criterion)
         {
             args->out_last_error = err;
@@ -100,8 +100,8 @@ jmtx_result jmtxd_conjugate_gradient_crs(
             pAp_dp = 0;
             for (uint_fast32_t i = 0; i < n; ++i)
             {
-                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, p, i);
-                pAp_dp += p[i] * Ap[i];
+                Ap[i] = jmtxc_matrix_crs_vector_multiply_row(mtx, p, i);
+                pAp_dp += conjf(p[i]) * Ap[i];
             }
 
             //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
@@ -122,11 +122,11 @@ jmtx_result jmtxd_conjugate_gradient_crs(
             for (unsigned i = 0; i < n; ++i)
             {
                 r[i] = r[i] - alpha * Ap[i];
-                new_rk_dp += r[i] * r[i];
+                new_rk_dp += conjf(r[i]) * r[i];
             }
 
 
-            err = sqrt(new_rk_dp) / mag_y;
+            err = sqrtf(new_rk_dp) / mag_y;
             if (args->opt_error_evolution)
             {
                 args->opt_error_evolution[n_iterations] = err;
@@ -165,9 +165,9 @@ jmtx_result jmtxd_conjugate_gradient_crs(
     return err < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtxd_conjugate_gradient_crs_parallel(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args)
+jmtx_result jmtxc_conjugate_gradient_crs_parallel(
+        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x, _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
+        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -178,7 +178,7 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTXD_TYPE_CRS)
+    if (mtx->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -208,18 +208,18 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
-    double alpha = 0, beta = 0;
+    _Complex float* const r = aux_vec1;
+    _Complex float* const p = aux_vec2;
+    _Complex float* const Ap = aux_vec3;
+    _Complex float alpha = 0, beta = 0;
 
-    double rk_dp = 0;
-    double pAp_dp = 0;
-    double err = 0;
-    double new_rk_dp = 0;
-    double mag_y = 0;
-    double* const err_evolution = args->opt_error_evolution;
-    const double tolerance = args->in_convergence_criterion;
+    float rk_dp = 0;
+    _Complex float pAp_dp = 0;
+    float err = 0;
+    float new_rk_dp = 0;
+    float mag_y = 0;
+    float* const err_evolution = args->opt_error_evolution;
+    const float tolerance = args->in_convergence_criterion;
     const uint32_t max_iterations = args->in_max_iterations;
     uint32_t n_iterations = 0;
 #pragma omp parallel default(none) shared(n, rk_dp, r, mtx, p, Ap, alpha, err, x, y, n_iterations,\
@@ -228,21 +228,21 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
 #pragma omp for
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxc_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
 #pragma omp for reduction(+:rk_dp, mag_y)
         for (unsigned i = 0; i < n; ++i)
         {
-            rk_dp += r[i] * r[i];
-            mag_y += y[i] * y[i];
+            rk_dp += conjf(r[i]) * r[i];
+            mag_y += conjf(y[i]) * y[i];
         }
 
 #pragma omp single
         {
-            mag_y = sqrt(mag_y);
-            err = sqrt(rk_dp) / mag_y;
+            mag_y = sqrtf(mag_y);
+            err = sqrtf(rk_dp) / mag_y;
         }
 
         for (;;)
@@ -252,8 +252,8 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
 #pragma omp for reduction(+:pAp_dp)
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, p, i);
-                pAp_dp += p[i] * Ap[i];
+                Ap[i] = jmtxc_matrix_crs_vector_multiply_row(mtx, p, i);
+                pAp_dp += conjf(p[i]) * Ap[i];
             }
 
             //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
@@ -281,13 +281,13 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
             for (unsigned i = 0; i < n; ++i)
             {
                 r[i] = r[i] - alpha * Ap[i];
-                new_rk_dp += r[i] * r[i];
+                new_rk_dp += conjf(r[i]) * r[i];
 
             }
 
 #pragma omp single
             {
-                err = sqrt(new_rk_dp) / mag_y;
+                err = sqrtf(new_rk_dp) / mag_y;
                 if (err_evolution)
                 {
                     err_evolution[n_iterations] = err;
@@ -333,10 +333,10 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* cho, const jmtxd_matrix_crs* cho_t, const double* restrict y,
-        double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-        double* restrict aux_vec4, jmtxd_solver_arguments* args)
+jmtx_result jmtxc_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
+        const jmtxc_matrix_crs* mtx, const jmtxc_matrix_crs* cho, const jmtxc_matrix_crs* cho_t, const _Complex float* restrict y,
+        _Complex float* restrict x, _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3,
+        _Complex float* restrict aux_vec4, jmtx_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -375,15 +375,15 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTXD_TYPE_CRS)
+    if (mtx->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (cho->base.type != JMTXD_TYPE_CRS)
+    if (cho->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (cho_t->base.type != JMTXD_TYPE_CRS)
+    if (cho_t->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -417,39 +417,39 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
-    double* const z = aux_vec4;
+    _Complex float* const r = aux_vec1;
+    _Complex float* const p = aux_vec2;
+    _Complex float* const Ap = aux_vec3;
+    _Complex float* const z = aux_vec4;
     uint32_t n_iterations = 0;
-    double alpha, beta;
+    _Complex float alpha, beta;
 
-    double rk_dp = 0;
-    double rkzk_dp = 0;
-    double mag_y = 0;
-    double pAp_dp = 0;
-    double new_rkzk_dp = 0;
-    double err = 0;
+    float rk_dp = 0;
+    _Complex float rkzk_dp = 0;
+    float mag_y = 0;
+    _Complex float pAp_dp = 0;
+    _Complex float new_rkzk_dp = 0;
+    float err = 0;
 
     {
         //  Compute initial residual
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxc_matrix_crs_vector_multiply_row(mtx, x, i);
         }
         //  Compute initial z
-        jmtxd_cholesky_solve(cho, cho_t, r, z);
+        jmtxc_cholesky_solve(cho, cho_t, r, z);
 
         rk_dp = 0;
         mag_y = 0;
         for (unsigned i = 0; i < n; ++i)
         {
             p[i] = z[i];
-            rk_dp += r[i] * r[i];
-            rkzk_dp += r[i] * z[i];
-            mag_y += y[i] * y[i];
+            rk_dp += conjf(r[i]) * r[i];
+            rkzk_dp += conjf(r[i]) * z[i];
+            mag_y += conjf(y[i]) * y[i];
         }
-        mag_y = sqrt(mag_y);
+        mag_y = sqrtf(mag_y);
 
         for (;;)
         {
@@ -458,7 +458,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
             pAp_dp = 0;
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, p, i);
+                Ap[i] = jmtxc_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -481,11 +481,11 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
             for (unsigned i = 0; i < n; ++i)
             {
                 r[i] = r[i] - alpha * Ap[i];
-                rk_dp += r[i] * r[i];
+                rk_dp += conjf(r[i]) * r[i];
             }
 
 
-            err = sqrt(rk_dp) / mag_y;
+            err = sqrtf(rk_dp) / mag_y;
             if (args->opt_error_evolution)
             {
                 args->opt_error_evolution[n_iterations] = err;
@@ -501,12 +501,12 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
                 break;
             }
 
-            jmtxd_cholesky_solve(cho, cho_t, r, z);
+            jmtxc_cholesky_solve(cho, cho_t, r, z);
 
             new_rkzk_dp = 0;
             for (uint32_t i = 0; i < n; ++i)
             {
-                new_rkzk_dp += r[i] * z[i];
+                new_rkzk_dp += conjf(r[i]) * z[i];
             }
 
             beta = new_rkzk_dp / rkzk_dp;
@@ -522,7 +522,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     }
 
 
-    args->out_last_error = sqrt(rk_dp / mag_y);
+    args->out_last_error = sqrtf(rk_dp / mag_y);
     args->out_last_iteration = n_iterations;
     if (!isfinite(err) || err >= args->in_convergence_criterion)
     {
@@ -531,9 +531,9 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
-                                        double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-                                        jmtxd_solver_arguments* args)
+jmtx_result jmtxc_conjugate_gradient_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+                                        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3,
+                                        jmtx_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -544,7 +544,7 @@ jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const doub
         //  I am only doing square matrices!!!
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (mtx->base.type != JMTXD_TYPE_CDS)
+    if (mtx->base.type != JMTXC_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -579,39 +579,40 @@ jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const doub
     const uint_fast32_t n = mtx->base.rows;
     for (uint_fast32_t i = 0; i < n; ++i)
     {
-        if (!isfinite(x[i]) || !isfinite(y[i]))
+        if (!isfinite(crealf(x[i])) || !isfinite(cimagf(x[i])) || !isfinite(crealf(y[i])) || !isfinite(cimagf(y[i])))
         {
             return JMTX_RESULT_BAD_PARAM;
         }
     }
 
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
-    double rkrk, new_rkrk;
-    double mag_y = 0;
-    double pkApk = 0;
+    _Complex float* const r = aux_vec1;
+    _Complex float* const p = aux_vec2;
+    _Complex float* const Ap = aux_vec3;
+    float rkrk, new_rkrk;
+    float mag_y = 0;
+    _Complex float pkApk = 0;
     uint_fast32_t n_iteration = 0;
-    double error, alfa, beta;
+    float error;
+    _Complex float alfa, beta;
 
     for (uint_fast32_t i = 0; i < n; ++i)
     {
-        mag_y += y[i] * y[i];
+        mag_y += conjf(y[i]) * y[i];
     }
-    mag_y = sqrt(mag_y);
+    mag_y = sqrtf(mag_y);
     for (;;)
     {
         //  Explicitly compute the residual
-        jmtxd_matrix_cds_vector_multiply(mtx, x, r);
+        jmtxc_matrix_cds_vector_multiply(mtx, x, r);
         rkrk = 0;
         for (uint_fast32_t i = 0; i < n; ++i)
         {
-            const double res = y[i] - r[i];
+            const _Complex float res = y[i] - r[i];
             r[i] = res;
             p[i] = res;
-            rkrk += res * res;
+            rkrk += conjf(res) * res;
         }
-        error = sqrt(rkrk) / mag_y;
+        error = sqrtf(rkrk) / mag_y;
         if (n_iteration == args->in_max_iterations)
         {
             break;
@@ -623,11 +624,11 @@ jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const doub
         //  Solve using implicitly computed residual
         for (;;)
         {
-            jmtxd_matrix_cds_vector_multiply(mtx, p, Ap);
+            jmtxc_matrix_cds_vector_multiply(mtx, p, Ap);
             pkApk = 0;
             for (uint_fast32_t i = 0; i < n; ++i)
             {
-                pkApk += p[i] * Ap[i];
+                pkApk += conjf(p[i]) * Ap[i];
             }
             alfa = rkrk / pkApk;
             for (uint_fast32_t i = 0; i < n; ++i)
@@ -641,13 +642,13 @@ jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const doub
             new_rkrk = 0;
             for (uint_fast32_t i = 0; i < n; ++i)
             {
-                new_rkrk += r[i] * r[i];
+                new_rkrk += conjf(r[i]) * r[i];
             }
 
             beta = new_rkrk / rkrk;
             rkrk = new_rkrk;
 
-            error = sqrt(rkrk) / mag_y;
+            error = sqrtf(rkrk) / mag_y;
             if (args->opt_error_evolution)
             {
                 args->opt_error_evolution[n_iteration] = error;

@@ -73,7 +73,7 @@ int main()
     {
         const double t0 = omp_get_wtime();
         mtx_res = jmtxd_conjugate_gradient_crs_parallel(
-                mtx, forcing_vector, iterative_solution + 1, 1e-6f, 1, aux_v1, aux_v2, aux_v3, &solver_arguments);
+                mtx, forcing_vector, iterative_solution + 1, aux_v1, aux_v2, aux_v3, &solver_arguments);
         const double t1 = omp_get_wtime();
         printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
                jmtx_result_to_str(mtx_res), solver_arguments.out_last_error);
