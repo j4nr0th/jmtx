@@ -36,6 +36,7 @@ list(APPEND SOLVER_SOURCE_FILES
         source/cfloat/solvers/jacobi_point_iteration.c
         source/cfloat/solvers/gauss_seidel_iteration.c
         source/cfloat/solvers/incomplete_lu_decomposition.c
+        source/cfloat/solvers/bicgstab_iteration.c
         source/cfloat/solvers/lu_solving.c
         source/cfloat/solvers/cholesky_solving.c
         source/cfloat/solvers/incomplete_cholesky_decomposition.c
@@ -46,6 +47,7 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/cfloat/solvers/jacobi_point_iteration.h
         include/jmtx/cfloat/solvers/gauss_seidel_iteration.h
         include/jmtx/cfloat/solvers/incomplete_lu_decomposition.h
+        include/jmtx/cfloat/solvers/bicgstab_iteration.h
         include/jmtx/cfloat/solvers/lu_solving.h
         include/jmtx/cfloat/solvers/cholesky_solving.h
         include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h
@@ -132,4 +134,8 @@ add_test(NAME base_cds_test_cfloat COMMAND base_cds_test_cfloat)
 add_executable(icho_cds_test_cfloat tests/cfloat/solver_tests/incho_cds_test.c tests/cfloat/test_common.c)
 target_link_libraries(icho_cds_test_cfloat PRIVATE jmtx)
 add_test(NAME icho_cds_test_cfloat COMMAND icho_cds_test_cfloat)
+
+add_executable(bicgstab_cds_test_cfloat tests/cfloat/solver_tests/bicgstab_cds_test.c tests/cfloat/test_common.c)
+target_link_libraries(bicgstab_cds_test_cfloat PRIVATE jmtx)
+add_test(NAME bicgstab_cds_test_cfloat COMMAND bicgstab_cds_test_cfloat)
 

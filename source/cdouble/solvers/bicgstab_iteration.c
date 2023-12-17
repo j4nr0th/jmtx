@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/bicgstab_iteration.c on Sun Dec 17 15:54:13 2023
+// Automatically generated from source/float/solvers/bicgstab_iteration.c on Sun Dec 17 15:54:41 2023
 //
 // Created by jan on 17.6.2022.
 //
@@ -7,7 +7,8 @@
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/band_row_major_internal.h"
-#include "../../../include/jmtx/double/solvers/bicgstab_iteration.h"
+#include "../../../include/jmtx/cdouble/solvers/bicgstab_iteration.h"
+#include <complex.h>
 
 
 /**
@@ -36,34 +37,34 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_bicgstab_crs(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1,
-        double* restrict aux_vec2, double* restrict aux_vec3, double* restrict aux_vec4, double* restrict aux_vec5,
-        double* restrict aux_vec6, jmtxd_solver_arguments* args)
+jmtx_result jmtxz_bicgstab_crs(
+        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1,
+        _Complex double* restrict aux_vec2, _Complex double* restrict aux_vec3, _Complex double* restrict aux_vec4, _Complex double* restrict aux_vec5,
+        _Complex double* restrict aux_vec6, jmtxd_solver_arguments* args)
 {
     const uint32_t n = mtx->base.rows;
 
-    double rho = 1, alpha = 1, omega = 1;
+    _Complex double rho = 1, alpha = 1, omega = 1;
 
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
+    _Complex double* const r = aux_vec1;
+    _Complex double* const rQt = aux_vec2;
+    _Complex double* const p = aux_vec3;
+    _Complex double* const Ap = aux_vec4;
+    _Complex double* const s = aux_vec5;
+    _Complex double* const As = aux_vec6;
 
     double err = 0;
 
-    jmtxd_matrix_crs_vector_multiply(mtx, x, r);
+    jmtxz_matrix_crs_vector_multiply(mtx, x, r);
     double y_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
         r[i] = y[i] - r[i];
-        rQ[i] = r[i];
+        rQt[i] = conj(r[i]);
         p[i] = r[i];
 //        Ap[i] = 0;
-        y_mag += y[i] * y[i];
-        err += r[i] * r[i];
+        y_mag += conj(y[i]) * y[i];
+        err += rQt[i] * r[i];
     }
     y_mag = sqrt(y_mag);
     err = sqrt(err) / y_mag;
@@ -77,47 +78,47 @@ jmtx_result jmtxd_bicgstab_crs(
     uint32_t iter_count = 0;
     for (;;)
     {
-        jmtxd_matrix_crs_vector_multiply(mtx, p, Ap);
-        double rQAp = 0;
+        jmtxz_matrix_crs_vector_multiply(mtx, p, Ap);
+        _Complex double rQAp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            rQAp += rQ[i] * Ap[i];
+            rQAp += rQt[i] * Ap[i];
         }
         alpha = rho / rQAp;
         for (uint32_t i = 0; i < n; ++i)
         {
             x[i] = x[i] + alpha * p[i];
         }
-        double sksk_dp = 0;
+        _Complex double sksk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const double si = r[i] - alpha * Ap[i];
+            const _Complex double si = r[i] - alpha * Ap[i];
             s[i] = si;
-            sksk_dp += si * si;
+            sksk_dp += conj(si) * si;
         }
         err = sqrt(sksk_dp) / y_mag;
         if (err < args->in_convergence_criterion)
         {
             break;
         }
-        jmtxd_matrix_crs_vector_multiply(mtx, s, As);
-        double sAs_dp = 0, sAAs_dp = 0;
+        jmtxz_matrix_crs_vector_multiply(mtx, s, As);
+        _Complex double sAs_dp = 0, sAAs_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            sAAs_dp += As[i] * As[i];
-            sAs_dp += s[i] * As[i];
+            sAAs_dp += conj(As[i]) * As[i];
+            sAs_dp += conj(s[i]) * As[i];
         }
         omega = sAs_dp / sAAs_dp;
         for (uint32_t i = 0; i < n; ++i)
         {
             x[i] = x[i] + omega * s[i];
         }
-        double rkrk_dp = 0;
+        _Complex double rkrk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const double ri = s[i] - omega * As[i];
+            const _Complex double ri = s[i] - omega * As[i];
             r[i] = ri;
-            rkrk_dp += ri * ri;
+            rkrk_dp += conj(ri) * ri;
         }
         err = sqrt(rkrk_dp) / y_mag;
         if (args->opt_error_evolution)
@@ -134,12 +135,12 @@ jmtx_result jmtxd_bicgstab_crs(
             break;
         }
 
-        double rQrk_dp = 0;
+        _Complex double rQrk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            rQrk_dp += rQ[i] * r[i];
+            rQrk_dp += rQt[i] * r[i];
         }
-        const double beta = rQrk_dp / rho * alpha / omega;
+        const _Complex double beta = rQrk_dp / rho * alpha / omega;
         rho = rQrk_dp;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -209,16 +210,16 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxds_bicgstab_crs(
-        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n], double x[restrict n], double aux_vec1[restrict n],
-        double aux_vec2[restrict n], double aux_vec3[restrict n], double aux_vec4[restrict n], double aux_vec5[restrict n],
-        double aux_vec6[restrict n], jmtxd_solver_arguments* args)
+jmtx_result jmtxzs_bicgstab_crs(
+        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n], _Complex double aux_vec1[restrict n],
+        _Complex double aux_vec2[restrict n], _Complex double aux_vec3[restrict n], _Complex double aux_vec4[restrict n], _Complex double aux_vec5[restrict n],
+        _Complex double aux_vec6[restrict n], jmtxd_solver_arguments* args)
 {
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTXD_TYPE_CRS)
+    if (mtx->base.type != JMTXZ_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -245,7 +246,7 @@ jmtx_result jmtxds_bicgstab_crs(
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxd_bicgstab_crs(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
+    return jmtxz_bicgstab_crs(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
 }
 
 /**
@@ -274,34 +275,34 @@ jmtx_result jmtxds_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_bicgstab_cds(
-        const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1,
-        double* restrict aux_vec2, double* restrict aux_vec3, double* restrict aux_vec4, double* restrict aux_vec5,
-        double* restrict aux_vec6, jmtxd_solver_arguments* args)
+jmtx_result jmtxz_bicgstab_cds(
+        const jmtxz_matrix_cds* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1,
+        _Complex double* restrict aux_vec2, _Complex double* restrict aux_vec3, _Complex double* restrict aux_vec4, _Complex double* restrict aux_vec5,
+        _Complex double* restrict aux_vec6, jmtxd_solver_arguments* args)
 {
     const uint32_t n = mtx->base.rows;
 
-    double rho = 1, alpha = 1, omega = 1;
+    _Complex double rho = 1, alpha = 1, omega = 1;
 
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
+    _Complex double* const r = aux_vec1;
+    _Complex double* const rQt = aux_vec2;
+    _Complex double* const p = aux_vec3;
+    _Complex double* const Ap = aux_vec4;
+    _Complex double* const s = aux_vec5;
+    _Complex double* const As = aux_vec6;
 
     double err = 0;
 
-    jmtxd_matrix_cds_vector_multiply(mtx, x, r);
+    jmtxz_matrix_cds_vector_multiply(mtx, x, r);
     double y_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
         r[i] = y[i] - r[i];
-        rQ[i] = r[i];
+        rQt[i] = conj(r[i]);
         p[i] = r[i];
 //        Ap[i] = 0;
-        y_mag += y[i] * y[i];
-        err += r[i] * r[i];
+        y_mag += conj(y[i]) * y[i];
+        err += rQt[i] * r[i];
     }
     y_mag = sqrt(y_mag);
     err = sqrt(err) / y_mag;
@@ -315,47 +316,47 @@ jmtx_result jmtxd_bicgstab_cds(
     uint32_t iter_count = 0;
     for (;;)
     {
-        jmtxd_matrix_cds_vector_multiply(mtx, p, Ap);
-        double rQAp = 0;
+        jmtxz_matrix_cds_vector_multiply(mtx, p, Ap);
+        _Complex double rQAp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            rQAp += rQ[i] * Ap[i];
+            rQAp += rQt[i] * Ap[i];
         }
         alpha = rho / rQAp;
         for (uint32_t i = 0; i < n; ++i)
         {
             x[i] = x[i] + alpha * p[i];
         }
-        double sksk_dp = 0;
+        _Complex double sksk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const double si = r[i] - alpha * Ap[i];
+            const _Complex double si = r[i] - alpha * Ap[i];
             s[i] = si;
-            sksk_dp += si * si;
+            sksk_dp += conj(si) * si;
         }
         err = sqrt(sksk_dp) / y_mag;
         if (err < args->in_convergence_criterion)
         {
             break;
         }
-        jmtxd_matrix_cds_vector_multiply(mtx, s, As);
-        double sAs_dp = 0, sAAs_dp = 0;
+        jmtxz_matrix_cds_vector_multiply(mtx, s, As);
+        _Complex double sAs_dp = 0, sAAs_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            sAAs_dp += As[i] * As[i];
-            sAs_dp += s[i] * As[i];
+            sAAs_dp += conj(As[i]) * As[i];
+            sAs_dp += conj(s[i]) * As[i];
         }
         omega = sAs_dp / sAAs_dp;
         for (uint32_t i = 0; i < n; ++i)
         {
             x[i] = x[i] + omega * s[i];
         }
-        double rkrk_dp = 0;
+        _Complex double rkrk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const double ri = s[i] - omega * As[i];
+            const _Complex double ri = s[i] - omega * As[i];
             r[i] = ri;
-            rkrk_dp += ri * ri;
+            rkrk_dp += conj(ri) * ri;
         }
         err = sqrt(rkrk_dp) / y_mag;
         if (args->opt_error_evolution)
@@ -372,12 +373,12 @@ jmtx_result jmtxd_bicgstab_cds(
             break;
         }
 
-        double rQrk_dp = 0;
+        _Complex double rQrk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            rQrk_dp += rQ[i] * r[i];
+            rQrk_dp += rQt[i] * r[i];
         }
-        const double beta = rQrk_dp / rho * alpha / omega;
+        const _Complex double beta = rQrk_dp / rho * alpha / omega;
         rho = rQrk_dp;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -422,16 +423,16 @@ jmtx_result jmtxd_bicgstab_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxds_bicgstab_cds(
-        const jmtxd_matrix_cds* mtx, uint32_t n, const double y[restrict static n], double x[restrict n], double aux_vec1[restrict n],
-        double aux_vec2[restrict n], double aux_vec3[restrict n], double aux_vec4[restrict n], double aux_vec5[restrict n],
-        double aux_vec6[restrict n], jmtxd_solver_arguments* args)
+jmtx_result jmtxzs_bicgstab_cds(
+        const jmtxz_matrix_cds* mtx, uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n], _Complex double aux_vec1[restrict n],
+        _Complex double aux_vec2[restrict n], _Complex double aux_vec3[restrict n], _Complex double aux_vec4[restrict n], _Complex double aux_vec5[restrict n],
+        _Complex double aux_vec6[restrict n], jmtxd_solver_arguments* args)
 {
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (mtx->base.type != JMTXD_TYPE_CDS)
+    if (mtx->base.type != JMTXZ_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -458,5 +459,5 @@ jmtx_result jmtxds_bicgstab_cds(
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxd_bicgstab_cds(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
+    return jmtxz_bicgstab_cds(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
 }

@@ -47,7 +47,7 @@ list(APPEND SOLVER_SOURCE_FILES
 list(APPEND SOLVER_HEADER_FILES
         include/jmtx/float/solvers/jacobi_point_iteration.h
         include/jmtx/float/solvers/gauss_seidel_iteration.h
-        source/float/solvers/bicgstab_iteration.h
+        include/jmtx/float/solvers/bicgstab_iteration.h
         include/jmtx/float/solvers/conjugate_gradient_iteration.h
         include/jmtx/float/solvers/incomplete_lu_decomposition.h
         include/jmtx/float/solvers/lu_solving.h
@@ -148,4 +148,8 @@ add_test(NAME cg_cds_float COMMAND cg_cds_test_float)
 add_executable(icho_cds_test_float tests/float/solver_tests/incho_cds_test.c tests/float/test_common.c)
 target_link_libraries(icho_cds_test_float PRIVATE jmtx)
 add_test(NAME icho_cds_test_float COMMAND icho_cds_test_float)
+
+add_executable(bicgstab_cds_test_float tests/float/solver_tests/bicgstab_cds_test.c tests/float/test_common.c)
+target_link_libraries(bicgstab_cds_test_float PRIVATE jmtx)
+add_test(NAME bicgstab_cds_test_float COMMAND bicgstab_cds_test_float)
 
