@@ -13,7 +13,7 @@
 #include "../../../include/jmtx/double/solvers/cholesky_solving.h"
 #include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
 
-jmtx_result jmtxd_conjugate_gradient_crs(
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
         const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
         double* restrict aux_vec1, double* restrict aux_vec2,
         double* restrict aux_vec3, jmtxd_solver_arguments* args)
@@ -165,7 +165,7 @@ jmtx_result jmtxd_conjugate_gradient_crs(
     return err < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtxd_conjugate_gradient_crs_parallel(
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
         const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2,
         double* restrict aux_vec3, jmtxd_solver_arguments* args)
 {
@@ -333,7 +333,7 @@ jmtx_result jmtxd_conjugate_gradient_crs_parallel(
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
+jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
         const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* cho, const jmtxd_matrix_crs* cho_t, const double* restrict y,
         double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
         double* restrict aux_vec4, jmtxd_solver_arguments* args)
@@ -438,7 +438,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
             r[i] = y[i] - jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
         }
         //  Compute initial z
-        jmtxd_cholesky_solve(cho, cho_t, r, z);
+        jmtxd_solve_direct_cholesky_crs(cho, cho_t, r, z);
 
         rk_dp = 0;
         mag_y = 0;
@@ -501,7 +501,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
                 break;
             }
 
-            jmtxd_cholesky_solve(cho, cho_t, r, z);
+            jmtxd_solve_direct_cholesky_crs(cho, cho_t, r, z);
 
             new_rkzk_dp = 0;
             for (uint32_t i = 0; i < n; ++i)
@@ -531,7 +531,7 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
                                         double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
                                         jmtxd_solver_arguments* args)
 {

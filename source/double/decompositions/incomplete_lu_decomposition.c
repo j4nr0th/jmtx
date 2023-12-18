@@ -5,7 +5,7 @@
 
 #include <assert.h>
 #include <math.h>
-#include "../../../include/jmtx/double/solvers/incomplete_lu_decomposition.h"
+#include "../../../include/jmtx/double/decompositions/incomplete_lu_decomposition.h"
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_column_compressed_internal.h"
 #include "../../../tests/double/test_common.h"
@@ -27,7 +27,7 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxds_incomplete_lu_crs(
+jmtx_result jmtxds_decompose_ilu_cds(
         const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -57,10 +57,10 @@ jmtx_result jmtxds_incomplete_lu_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtxd_incomplete_lu_crs(a, p_l, p_u, allocator_callbacks);
+    return jmtxd_decompose_ilu_cds(a, p_l, p_u, allocator_callbacks);
 }
 
-jmtx_result jmtxd_incomplete_lu_crs(
+jmtx_result jmtxd_decompose_ilu_cds(
         const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {

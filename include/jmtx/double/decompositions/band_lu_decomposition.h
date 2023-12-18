@@ -24,7 +24,7 @@
  * and free are used.
  * @return JMTX_RESULT_SUCCESS if successfully
  */
-jmtx_result jmtxd_band_lu_decomposition_brm(const jmtxd_matrix_brm* a, jmtxd_matrix_brm** p_l, jmtxd_matrix_brm** p_u,
+jmtx_result jmtxd_decompose_lu_brm(const jmtxd_matrix_brm* a, jmtxd_matrix_brm** p_l, jmtxd_matrix_brm** p_u,
                                            const jmtx_allocator_callbacks* allocator_callbacks);
 
 #endif //JMTXD_BAND_LU_DECOMPOSITION_H

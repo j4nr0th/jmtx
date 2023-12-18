@@ -18,7 +18,7 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxzs_matrix_multiply_crs(const jmtxz_matrix_crs* a, const jmtxz_matrix_ccs* b, jmtxz_matrix_crs** p_out,
+jmtx_result jmtxzs_multiply_matrix_crs(const jmtxz_matrix_crs* a, const jmtxz_matrix_ccs* b, jmtxz_matrix_crs** p_out,
                                  const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -30,7 +30,7 @@ jmtx_result jmtxzs_matrix_multiply_crs(const jmtxz_matrix_crs* a, const jmtxz_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxzs_matrix_multiply_ccs(const jmtxz_matrix_crs* a, const jmtxz_matrix_ccs* b, jmtxz_matrix_ccs** p_out,
+jmtx_result jmtxzs_multiply_matrix_ccs(const jmtxz_matrix_crs* a, const jmtxz_matrix_ccs* b, jmtxz_matrix_ccs** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks);
 #endif
 
@@ -44,7 +44,7 @@ jmtx_result jmtxzs_matrix_multiply_ccs(const jmtxz_matrix_crs* a, const jmtxz_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxzs_matrix_multiply_brm(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* b, jmtxz_matrix_brm** p_out,
+jmtx_result jmtxzs_multiply_matrix_brm(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* b, jmtxz_matrix_brm** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks);
 #endif
 
@@ -58,7 +58,7 @@ jmtx_result jmtxzs_matrix_multiply_brm(const jmtxz_matrix_brm* a, const jmtxz_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxzs_matrix_multiply_cds(const jmtxz_matrix_cds* a, const jmtxz_matrix_cds* b, jmtxz_matrix_cds** p_out,
+jmtx_result jmtxzs_multiply_matrix_cds(const jmtxz_matrix_cds* a, const jmtxz_matrix_cds* b, jmtxz_matrix_cds** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks);
 #endif
 

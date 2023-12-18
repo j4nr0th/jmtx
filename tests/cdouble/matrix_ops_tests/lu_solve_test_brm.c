@@ -10,7 +10,7 @@
 #include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
-#include "../../../include/jmtx/cdouble/solvers/band_lu_decomposition.h"
+#include "../../../include/jmtx/cdouble/decompositions/band_lu_decomposition.h"
 #include <float.h>
 #include <math.h>
 #include <assert.h>
@@ -167,9 +167,9 @@ int main()
     MATRIX_TEST_CALL(jmtxz_convert_crs_to_ccs(upper, &cu, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxz_matrix_multiply_brm(lower_brm, upper_brm, &multiplied_brm, NULL));
+    MATRIX_TEST_CALL(jmtxz_multiply_matrix_brm(lower_brm, upper_brm, &multiplied_brm, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtxz_matrix_multiply_crs(lower, cu, &multiplied, NULL));
+    MATRIX_TEST_CALL(jmtxz_multiply_matrix_crs(lower, cu, &multiplied, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxzs_matrix_ccs_destroy(cu));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -197,7 +197,7 @@ int main()
 
 
     jmtxz_matrix_brm* du,* dl;
-    MATRIX_TEST_CALL(jmtxz_band_lu_decomposition_brm(combined_brm, &dl, &du, NULL));
+    MATRIX_TEST_CALL(jmtxz_decompose_lu_brm(combined_brm, &dl, &du, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     print_crs_matrix(upper);
     print_brm_matrix(du);
@@ -237,8 +237,8 @@ int main()
         ASSERT(are_close(yb_exact[i], yb[i], default_r_tol, default_a_tol));
     }
 
-    jmtxz_lu_solve_crs(lower, upper, y, x);
-    jmtxz_lu_solve_brm(lower_brm, upper_brm, yb, xb);
+    jmtxz_solve_direct_lu_crs(lower, upper, y, x);
+    jmtxz_solve_direct_lu_brm(lower_brm, upper_brm, yb, xb);
 
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {

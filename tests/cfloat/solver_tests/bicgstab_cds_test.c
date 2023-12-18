@@ -86,7 +86,7 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxcs_bicgstab_cds(
+        mtx_res = jmtxcs_solve_iterative_bicgstab_cds(
                 mtx, PROBLEM_DIMS - 2, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, &solver_arguments);
         const double t1 = omp_get_wtime();
 //        printf("Error evolution:\n");

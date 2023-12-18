@@ -35,7 +35,7 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_crs(
+jmtx_result jmtx_solve_iterative_jacobi_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
         jmtx_solver_arguments* args);
 
@@ -58,7 +58,7 @@ jmtx_result jmtx_jacobi_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_jacobi_crs(
+jmtx_result jmtxs_solve_iterative_jacobi_crs(
         const jmtx_matrix_crs* mtx, uint32_t n, const float y[static restrict n], float x[restrict n], float aux_vec1[restrict n], float aux_vec2[restrict n],
         jmtx_solver_arguments* args);
 
@@ -85,7 +85,7 @@ jmtx_result jmtxs_jacobi_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_relaxed_crs(
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
         float* restrict aux_vec2, jmtx_solver_arguments* args);
 
@@ -110,7 +110,7 @@ jmtx_result jmtx_jacobi_relaxed_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_crs_parallel(
+jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector1, float* restrict aux_vector2,
         jmtx_solver_arguments* args);
 #endif
@@ -136,7 +136,7 @@ jmtx_result jmtx_jacobi_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_cds(
+jmtx_result jmtx_solve_iterative_jacobi_cds(
         const jmtx_matrix_cds* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
         jmtx_solver_arguments* args);
 
@@ -163,7 +163,7 @@ jmtx_result jmtx_jacobi_cds(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_relaxed_cds(
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_cds(
         const jmtx_matrix_cds* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
         float* restrict aux_vec2, jmtx_solver_arguments* args);
 #endif
@@ -190,7 +190,7 @@ jmtx_result jmtx_jacobi_relaxed_cds(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_brm(
+jmtx_result jmtx_solve_iterative_jacobi_brm(
         const jmtx_matrix_brm* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2,
         jmtx_solver_arguments* args);
 
@@ -217,7 +217,7 @@ jmtx_result jmtx_jacobi_brm(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_relaxed_brm(
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(
         const jmtx_matrix_brm* mtx, const float* restrict y, float* restrict x, float relaxation_factor, float* restrict aux_vec1,
         float* restrict aux_vec2, jmtx_solver_arguments* args);
 
@@ -242,7 +242,7 @@ jmtx_result jmtx_jacobi_relaxed_brm(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_jacobi_brm_parallel(
+jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(
         const jmtx_matrix_brm* mtx, const float* restrict y, float* restrict x, float* restrict aux_vector1, float* restrict aux_vector2,
         jmtx_solver_arguments* args);
 #endif

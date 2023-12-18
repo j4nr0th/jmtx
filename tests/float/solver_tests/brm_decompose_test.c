@@ -1,8 +1,8 @@
 #include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
 #include "../../../include/jmtx/float/matrices/band_row_major_safe.h"
-#include "../../../include/jmtx/float/solvers/incomplete_lu_decomposition.h"
-#include "../../../include/jmtx/float/solvers/band_lu_decomposition.h"
+#include "../../../include/jmtx/float/decompositions/incomplete_lu_decomposition.h"
+#include "../../../include/jmtx/float/decompositions/band_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/float/solvers/lu_solving.h"
@@ -67,14 +67,14 @@ static float get_rms_error_for_element_count(const unsigned n)
     jmtx_matrix_crs* l, *u;
     jmtx_matrix_ccs* cu;
 
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(system_matrix, &l, &cu, NULL));
+    MATRIX_TEST_CALL(jmtx_decompose_ilu_cds(system_matrix, &l, &cu, NULL));
 
     MATRIX_TEST_CALL(jmtx_convert_ccs_to_crs(cu, &u, NULL));
     MATRIX_TEST_CALL(jmtxs_matrix_ccs_destroy(cu));
 //    print_crs_matrix(l);
 //    print_crs_matrix(u);
 
-    jmtx_lu_solve_crs(l, u, f + 1, sol + 1);
+    jmtx_solve_direct_lu_crs(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(u));
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(l));
     free(f);
@@ -148,11 +148,11 @@ static float get_rms_error_for_element_count_brm(const unsigned n)
 
     jmtx_matrix_brm* l, *u;
 
-    MATRIX_TEST_CALL(jmtx_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
+    MATRIX_TEST_CALL(jmtx_decompose_lu_brm(system_matrix, &l, &u, NULL));
 //    print_brm_matrix(l);
 //    print_brm_matrix(u);
 
-    jmtx_lu_solve_brm(l, u, f + 1, sol + 1);
+    jmtx_solve_direct_lu_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(u));
     MATRIX_TEST_CALL(jmtxs_matrix_brm_destroy(l));
     free(f);

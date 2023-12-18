@@ -3,7 +3,7 @@
 //
 #include "../test_common.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_diagonal_compressed_safe.h"
-#include "../../../include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/cfloat/decompositions/incomplete_cholesky_decomposition.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
@@ -97,7 +97,7 @@ int main()
     print_cds_matrix(mtx);
     jmtxc_matrix_cds* cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxc_incomplete_cholesky_cds(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(jmtxc_decompose_icho_cds(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
@@ -111,7 +111,7 @@ int main()
     print_cds_matrix(cho_t);
 
     jmtxc_matrix_cds* approx_mtx = NULL;
-    MATRIX_TEST_CALL(jmtxc_matrix_multiply_cds(cholesky, cho_t, &approx_mtx, NULL));
+    MATRIX_TEST_CALL(jmtxc_multiply_matrix_cds(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     print_cds_matrix(mtx);

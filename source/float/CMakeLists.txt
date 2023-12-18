@@ -37,11 +37,8 @@ list(APPEND SOLVER_SOURCE_FILES
         source/float/solvers/gauss_seidel_iteration.c
         source/float/solvers/bicgstab_iteration.c
         source/float/solvers/conjugate_gradient_iteration.c
-        source/float/solvers/incomplete_lu_decomposition.c
         source/float/solvers/lu_solving.c
         source/float/solvers/cholesky_solving.c
-        source/float/solvers/incomplete_cholesky_decomposition.c
-        source/float/solvers/band_lu_decomposition.c
 )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -49,11 +46,20 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/float/solvers/gauss_seidel_iteration.h
         include/jmtx/float/solvers/bicgstab_iteration.h
         include/jmtx/float/solvers/conjugate_gradient_iteration.h
-        include/jmtx/float/solvers/incomplete_lu_decomposition.h
         include/jmtx/float/solvers/lu_solving.h
         include/jmtx/float/solvers/cholesky_solving.h
-        include/jmtx/float/solvers/incomplete_cholesky_decomposition.h
-        include/jmtx/float/solvers/band_lu_decomposition.h
+)
+
+list(APPEND DECOMPOSITIONS_SOURCE_FILES
+        source/float/decompositions/incomplete_lu_decomposition.c
+        source/float/decompositions/incomplete_cholesky_decomposition.c
+        source/float/decompositions/band_lu_decomposition.c
+)
+
+list(APPEND DECOMPOSITIONS_HEADER_FILES
+        include/jmtx/float/decompositions/incomplete_lu_decomposition.h
+        include/jmtx/float/decompositions/incomplete_cholesky_decomposition.h
+        include/jmtx/float/decompositions/band_lu_decomposition.h
 )
 
 

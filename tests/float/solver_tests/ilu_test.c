@@ -9,7 +9,7 @@
 #include "inttypes.h"
 #include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
-#include "../../../include/jmtx/float/solvers/incomplete_lu_decomposition.h"
+#include "../../../include/jmtx/float/decompositions/incomplete_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/float/solvers/lu_solving.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion.h"
@@ -106,7 +106,7 @@ int main()
     jmtx_matrix_crs* lower = NULL;
     jmtx_matrix_ccs* upper = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtx_incomplete_lu_crs(mtx, &lower, &upper, NULL));
+    MATRIX_TEST_CALL(jmtx_decompose_ilu_cds(mtx, &lower, &upper, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
@@ -149,7 +149,7 @@ int main()
             .in_max_iterations = MAXIMUM_ITERATIONS,
             .in_convergence_criterion = 1e-4f,
             };
-    MATRIX_TEST_CALL(jmtxs_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
+    MATRIX_TEST_CALL(jmtxs_solve_iterative_ilu_crs_precomputed_parallel(
             mtx, lower, upper_crs, PROBLEM_INTERNAL_PTS, forcing_vector, approximate_vector, auxiliary_vector, &solve_args));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Solving using ILU took %"PRIu32" iterations, with the final error of %g\n", solve_args.out_last_iteration, (double)solve_args.out_last_error);

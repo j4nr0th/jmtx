@@ -5,10 +5,10 @@
 
 #include <assert.h>
 #include <math.h>
-#include "../../../include/jmtx/double/solvers/cholesky_solving.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#include "../../../include/jmtx/double/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/double/decompositions/incomplete_cholesky_decomposition.h"
 #include "../../../include/jmtx/double/matrices/sparse_conversion.h"
+#include "../../../include/jmtx/double/solvers/cholesky_solving.h"
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix.
@@ -17,7 +17,7 @@
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtxd_cholesky_solve(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, const double* restrict y, double* restrict x)
+void jmtxd_solve_direct_cholesky_crs(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, const double* restrict y, double* restrict x)
 {
     const uint32_t n = c->base.cols;
     x[0] = y[0];
@@ -62,7 +62,7 @@ void jmtxd_cholesky_solve(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct,
  * @param ct transpose of the matrix C in the CRS format
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtxd_cholesky_solve_inplace(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, double* restrict x)
+void jmtxd_solve_direct_cholesky_crs_inplace(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, double* restrict x)
 {
     const uint32_t n = c->base.cols;
     //  First is the forward substitution for C v = y
@@ -131,7 +131,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxds_cholesky_solve(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxds_solve_direct_cholesky_crs(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, uint32_t n,
                                  const double y[static restrict n], double x[restrict n])
 {
     if (!c)
@@ -174,7 +174,7 @@ jmtx_result jmtxds_cholesky_solve(const jmtxd_matrix_crs* c, const jmtxd_matrix_
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    jmtxd_cholesky_solve(c, ct, y, x);
+    jmtxd_solve_direct_cholesky_crs(c, ct, y, x);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -186,7 +186,7 @@ jmtx_result jmtxds_cholesky_solve(const jmtxd_matrix_crs* c, const jmtxd_matrix_
  * @param x memory which contains the forcing vector and receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxds_cholesky_solve_inplace(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxds_solve_direct_cholesky_crs_inplace(const jmtxd_matrix_crs* c, const jmtxd_matrix_crs* ct, uint32_t n,
                                          double x[static n])
 {
     if (!c)
@@ -220,6 +220,6 @@ jmtx_result jmtxds_cholesky_solve_inplace(const jmtxd_matrix_crs* c, const jmtxd
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    jmtxd_cholesky_solve_inplace(c, ct, x);
+    jmtxd_solve_direct_cholesky_crs_inplace(c, ct, x);
     return JMTX_RESULT_SUCCESS;
 }

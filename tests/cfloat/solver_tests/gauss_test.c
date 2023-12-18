@@ -65,7 +65,7 @@ int main()
             .in_convergence_criterion = 1e-4f,
             };
     const double t0 = omp_get_wtime();
-    mtx_res = jmtxc_gauss_seidel_crs(
+    mtx_res = jmtxc_solve_iterative_gauss_seidel_crs(
             mtx, forcing_vector, iterative_solution, aux_v1, &solver_arguments);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);

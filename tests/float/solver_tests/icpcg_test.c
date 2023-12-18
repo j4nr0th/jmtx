@@ -5,7 +5,7 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
-#include "../../../include/jmtx/float/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/float/decompositions/incomplete_cholesky_decomposition.h"
 
 enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
 
@@ -72,7 +72,7 @@ int main()
         forcing_vector[i + 1] = jmtx_matrix_crs_vector_multiply_row(mtx, exact_solution + 1, i);
     }
     jmtx_matrix_crs* cho = NULL;
-    MATRIX_TEST_CALL(jmtx_incomplete_cholesky_crs(mtx, &cho, NULL));
+    MATRIX_TEST_CALL(jmtx_decompose_icho_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
 //    print_crs_matrix(cho);
@@ -91,7 +91,7 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtx_incomplete_cholesky_preconditioned_conjugate_gradient_crs(
+        mtx_res = jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
                 mtx, cho, cho_t, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, &solver_arguments);
         const double t1 = omp_get_wtime();
         printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,

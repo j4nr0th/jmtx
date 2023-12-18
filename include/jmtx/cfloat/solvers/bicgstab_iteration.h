@@ -37,7 +37,7 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxc_bicgstab_crs(
+jmtx_result jmtxc_solve_iterative_bicgstab_crs(
         const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x, _Complex float* restrict aux_vec1,
         _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3, _Complex float* restrict aux_vec4, _Complex float* restrict aux_vec5,
         _Complex float* restrict aux_vec6, jmtx_solver_arguments* args);
@@ -69,7 +69,7 @@ jmtx_result jmtxc_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxcs_bicgstab_crs(
+jmtx_result jmtxcs_solve_iterative_bicgstab_crs(
         const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[restrict static n], _Complex float x[restrict n], _Complex float aux_vec1[restrict n],
         _Complex float aux_vec2[restrict n], _Complex float aux_vec3[restrict n], _Complex float aux_vec4[restrict n], _Complex float aux_vec5[restrict n],
         _Complex float aux_vec6[restrict n], jmtx_solver_arguments* args);
@@ -103,7 +103,7 @@ jmtx_result jmtxcs_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxc_bicgstab_cds(
+jmtx_result jmtxc_solve_iterative_bicgstab_cds(
         const jmtxc_matrix_cds* mtx, const _Complex float* restrict y, _Complex float* restrict x, _Complex float* restrict aux_vec1,
         _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3, _Complex float* restrict aux_vec4, _Complex float* restrict aux_vec5,
         _Complex float* restrict aux_vec6, jmtx_solver_arguments* args);
@@ -135,7 +135,7 @@ jmtx_result jmtxc_bicgstab_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxcs_bicgstab_cds(
+jmtx_result jmtxcs_solve_iterative_bicgstab_cds(
         const jmtxc_matrix_cds* mtx, uint32_t n, const _Complex float y[restrict static n], _Complex float x[restrict n], _Complex float aux_vec1[restrict n],
         _Complex float aux_vec2[restrict n], _Complex float aux_vec3[restrict n], _Complex float aux_vec4[restrict n], _Complex float aux_vec5[restrict n],
         _Complex float aux_vec6[restrict n], jmtx_solver_arguments* args);

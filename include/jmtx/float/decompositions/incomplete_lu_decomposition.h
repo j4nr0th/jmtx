@@ -1,15 +1,14 @@
-// Automatically generated from include/jmtx/float/solvers/incomplete_lu_decomposition.h on Sun Dec 17 17:58:12 2023
 //
 // Created by jan on 2.11.2023.
 //
 
-#ifndef JMTXD_INCOMPLETE_LU_DECOMPOSITION_H
-#define JMTXD_INCOMPLETE_LU_DECOMPOSITION_H
+#ifndef JMTX_INCOMPLETE_LU_DECOMPOSITION_H
+#define JMTX_INCOMPLETE_LU_DECOMPOSITION_H
 
-#ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
     #include "../matrices/sparse_row_compressed.h"
 #endif
-#ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
     #include "../matrices/sparse_column_compressed.h"
 #endif
 #ifndef JMTX_SOLVER_BASE_H
@@ -33,8 +32,8 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxd_incomplete_lu_crs(
-        const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
+jmtx_result jmtx_decompose_ilu_cds(
+        const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -54,10 +53,10 @@ jmtx_result jmtxd_incomplete_lu_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxds_incomplete_lu_crs(
-        const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
+jmtx_result jmtxs_decompose_ilu_cds(
+        const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 
 
-#endif //JMTXD_INCOMPLETE_LU_DECOMPOSITION_H
+#endif //JMTX_INCOMPLETE_LU_DECOMPOSITION_H

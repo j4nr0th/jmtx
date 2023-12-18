@@ -36,7 +36,7 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_bicgstab_crs(
+jmtx_result jmtx_solve_iterative_bicgstab_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1,
         float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, float* restrict aux_vec5,
         float* restrict aux_vec6, jmtx_solver_arguments* args);
@@ -68,7 +68,7 @@ jmtx_result jmtx_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxs_bicgstab_crs(
+jmtx_result jmtxs_solve_iterative_bicgstab_crs(
         const jmtx_matrix_crs* mtx, uint32_t n, const float y[restrict static n], float x[restrict n], float aux_vec1[restrict n],
         float aux_vec2[restrict n], float aux_vec3[restrict n], float aux_vec4[restrict n], float aux_vec5[restrict n],
         float aux_vec6[restrict n], jmtx_solver_arguments* args);
@@ -102,7 +102,7 @@ jmtx_result jmtxs_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_bicgstab_cds(
+jmtx_result jmtx_solve_iterative_bicgstab_cds(
         const jmtx_matrix_cds* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1,
         float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, float* restrict aux_vec5,
         float* restrict aux_vec6, jmtx_solver_arguments* args);
@@ -134,7 +134,7 @@ jmtx_result jmtx_bicgstab_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes in case of other errors
  */
-jmtx_result jmtxs_bicgstab_cds(
+jmtx_result jmtxs_solve_iterative_bicgstab_cds(
         const jmtx_matrix_cds* mtx, uint32_t n, const float y[restrict static n], float x[restrict n], float aux_vec1[restrict n],
         float aux_vec2[restrict n], float aux_vec3[restrict n], float aux_vec4[restrict n], float aux_vec5[restrict n],
         float aux_vec6[restrict n], jmtx_solver_arguments* args);

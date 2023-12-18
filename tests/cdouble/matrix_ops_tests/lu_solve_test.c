@@ -141,7 +141,7 @@ int main()
     MATRIX_TEST_CALL(jmtxz_convert_crs_to_ccs(upper, &cu, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxz_matrix_multiply_crs(lower, cu, &multiplied, NULL));
+    MATRIX_TEST_CALL(jmtxz_multiply_matrix_crs(lower, cu, &multiplied, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     MATRIX_TEST_CALL(jmtxzs_matrix_ccs_destroy(cu));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -176,7 +176,7 @@ int main()
         ASSERT(are_close(y_exact[i], y[i], default_r_tol, default_a_tol));
     }
 
-    jmtxz_lu_solve_crs(lower, upper, y, x);
+    jmtxz_solve_direct_lu_crs(lower, upper, y, x);
 
     for (unsigned i = 0; i < PROBLEM_SIZE; ++i)
     {

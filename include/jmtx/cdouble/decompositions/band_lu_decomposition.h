@@ -1,12 +1,13 @@
-// Automatically generated from include/jmtx/float/solvers/band_lu_decomposition.h on Fri Dec  1 17:35:57 2023
+// Automatically generated from include/jmtx/cfloat/solvers/band_lu_decomposition.h on Fri Dec  1 18:48:13 2023
+// Automatically generated from include/jmtx/cdouble/solvers/band_lu_decomposition.h on Fri Dec  1 17:35:57 2023
 //
 // Created by jan on 24.11.2023.
 //
 
-#ifndef JMTXC_BAND_LU_DECOMPOSITION_H
-#define JMTXC_BAND_LU_DECOMPOSITION_H
+#ifndef JMTXZ_BAND_LU_DECOMPOSITION_H
+#define JMTXZ_BAND_LU_DECOMPOSITION_H
 
-#ifndef JMTXC_BAND_ROW_MAJOR_H
+#ifndef JMTXZ_BAND_ROW_MAJOR_H
     #include "../matrices/band_row_major.h"
 #endif
 /**
@@ -24,7 +25,7 @@
  * and free are used.
  * @return JMTX_RESULT_SUCCESS if successfully
  */
-jmtx_result jmtxc_band_lu_decomposition_brm(const jmtxc_matrix_brm* a, jmtxc_matrix_brm** p_l, jmtxc_matrix_brm** p_u,
+jmtx_result jmtxz_decompose_lu_brm(const jmtxz_matrix_brm* a, jmtxz_matrix_brm** p_l, jmtxz_matrix_brm** p_u,
                                            const jmtx_allocator_callbacks* allocator_callbacks);
 
-#endif //JMTXC_BAND_LU_DECOMPOSITION_H
+#endif //JMTXZ_BAND_LU_DECOMPOSITION_H

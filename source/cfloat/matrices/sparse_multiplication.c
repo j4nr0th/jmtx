@@ -19,7 +19,7 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxc_matrix_multiply_crs(
+jmtx_result jmtxc_multiply_matrix_crs(
         const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_crs** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -138,7 +138,7 @@ jmtx_result jmtxc_matrix_multiply_crs(
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_matrix_multiply_crs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_crs** p_out,
+jmtx_result jmtxcs_multiply_matrix_crs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_crs** p_out,
                                        const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
@@ -170,7 +170,7 @@ jmtx_result jmtxcs_matrix_multiply_crs(const jmtxc_matrix_crs* a, const jmtxc_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtxc_matrix_multiply_crs(a, b, p_out, allocator_callbacks);
+    return jmtxc_multiply_matrix_crs(a, b, p_out, allocator_callbacks);
 }
 
 /**
@@ -182,7 +182,7 @@ jmtx_result jmtxcs_matrix_multiply_crs(const jmtxc_matrix_crs* a, const jmtxc_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxc_matrix_multiply_ccs(
+jmtx_result jmtxc_multiply_matrix_ccs(
         const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_ccs** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -300,7 +300,7 @@ jmtx_result jmtxc_matrix_multiply_ccs(
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_matrix_multiply_ccs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_ccs** p_out,
+jmtx_result jmtxcs_multiply_matrix_ccs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_ccs** p_out,
                                        const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
@@ -332,7 +332,7 @@ jmtx_result jmtxcs_matrix_multiply_ccs(const jmtxc_matrix_crs* a, const jmtxc_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtxc_matrix_multiply_ccs(a, b, p_out, allocator_callbacks);
+    return jmtxc_multiply_matrix_ccs(a, b, p_out, allocator_callbacks);
 }
 
 /**
@@ -345,7 +345,7 @@ jmtx_result jmtxcs_matrix_multiply_ccs(const jmtxc_matrix_crs* a, const jmtxc_ma
  * @param v_b values of non-zero entries of the second vector
  * @return inner product of the two vectors
  */
-_Complex float jmtxc_matrix_multiply_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const _Complex float v_a[const static n_a],
+_Complex float jmtxc_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const _Complex float v_a[const static n_a],
                                           uint32_t n_b, const uint32_t i_b[const static n_b], const _Complex float v_b[const static n_b])
 {
     _Complex float v = 0;
@@ -383,7 +383,7 @@ _Complex float jmtxc_matrix_multiply_sparse_vectors(uint32_t n_a, const uint32_t
  * @param v_b values of non-zero entries of the second vector
  * @return inner product of the two vectors
  */
-_Complex float jmtxc_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
+_Complex float jmtxc_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
                                                 const uint32_t i_a[static n_a], const _Complex float v_a[static max_a],
                                                 uint32_t n_b, const uint32_t i_b[static n_b],
                                                 const _Complex float v_b[static max_b])
@@ -419,7 +419,7 @@ _Complex float jmtxc_matrix_multiply_sparse_vectors_limit(uint32_t max_a, uint32
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxc_matrix_multiply_brm(
+jmtx_result jmtxc_multiply_matrix_brm(
         const jmtxc_matrix_brm* a, const jmtxc_matrix_brm* b, jmtxc_matrix_brm** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -554,7 +554,7 @@ jmtx_result jmtxc_matrix_multiply_brm(
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_matrix_multiply_brm(const jmtxc_matrix_brm* a, const jmtxc_matrix_brm* b, jmtxc_matrix_brm** p_out,
+jmtx_result jmtxcs_multiply_matrix_brm(const jmtxc_matrix_brm* a, const jmtxc_matrix_brm* b, jmtxc_matrix_brm** p_out,
                                        const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
@@ -586,7 +586,7 @@ jmtx_result jmtxcs_matrix_multiply_brm(const jmtxc_matrix_brm* a, const jmtxc_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtxc_matrix_multiply_brm(a, b, p_out, allocator_callbacks);
+    return jmtxc_multiply_matrix_brm(a, b, p_out, allocator_callbacks);
 }
 
 /**
@@ -598,7 +598,7 @@ jmtx_result jmtxcs_matrix_multiply_brm(const jmtxc_matrix_brm* a, const jmtxc_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxc_matrix_multiply_cds(const jmtxc_matrix_cds* a, const jmtxc_matrix_cds* b, jmtxc_matrix_cds** p_out,
+jmtx_result jmtxc_multiply_matrix_cds(const jmtxc_matrix_cds* a, const jmtxc_matrix_cds* b, jmtxc_matrix_cds** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
 
@@ -661,7 +661,7 @@ jmtx_result jmtxc_matrix_multiply_cds(const jmtxc_matrix_cds* a, const jmtxc_mat
         for (uint_fast32_t j = 0; j < c_out; ++j)
         {
             const uint32_t c_b = jmtxc_matrix_cds_get_col(b, j, cnt_b, val_b, idx_b);
-            const _Complex float val = jmtxc_matrix_multiply_sparse_vectors(c_a, idx_a, val_a, c_b, idx_b, val_b);
+            const _Complex float val = jmtxc_multiply_matrix_sparse_vectors(c_a, idx_a, val_a, c_b, idx_b, val_b);
             if (val != 0)
             {
                 res = jmtxc_matrix_cds_insert_entry(out, i, j, val);
@@ -695,7 +695,7 @@ jmtx_result jmtxc_matrix_multiply_cds(const jmtxc_matrix_cds* a, const jmtxc_mat
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_matrix_multiply_cds(const jmtxc_matrix_cds* a, const jmtxc_matrix_cds* b, jmtxc_matrix_cds** p_out,
+jmtx_result jmtxcs_multiply_matrix_cds(const jmtxc_matrix_cds* a, const jmtxc_matrix_cds* b, jmtxc_matrix_cds** p_out,
                                        const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
@@ -727,5 +727,5 @@ jmtx_result jmtxcs_matrix_multiply_cds(const jmtxc_matrix_cds* a, const jmtxc_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtxc_matrix_multiply_cds(a, b, p_out, allocator_callbacks);
+    return jmtxc_multiply_matrix_cds(a, b, p_out, allocator_callbacks);
 }

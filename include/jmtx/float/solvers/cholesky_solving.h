@@ -16,7 +16,7 @@
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtx_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, const float* restrict y, float* restrict x);
+void jmtx_solve_direct_cholesky_crs(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, const float* restrict y, float* restrict x);
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix. This version of the function stores the
@@ -25,7 +25,7 @@ void jmtx_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, co
  * @param ct transpose of the matrix C in the CRS format
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtx_cholesky_solve_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, float* restrict x);
+void jmtx_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, float* restrict x);
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix.
@@ -35,7 +35,7 @@ void jmtx_cholesky_solve_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
                                  const float y[static restrict n], float x[restrict n]);
 
 /**
@@ -46,7 +46,7 @@ jmtx_result jmtxs_cholesky_solve(const jmtx_matrix_crs* c, const jmtx_matrix_crs
  * @param x memory which contains the forcing vector and receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_cholesky_solve_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxs_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
                                          float x[static n]);
 
 #endif

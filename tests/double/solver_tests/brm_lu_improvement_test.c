@@ -2,8 +2,8 @@
 #include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/double/matrices/sparse_column_compressed_safe.h"
 #include "../../../include/jmtx/double/matrices/band_row_major_safe.h"
-#include "../../../include/jmtx/double/solvers/incomplete_lu_decomposition.h"
-#include "../../../include/jmtx/double/solvers/band_lu_decomposition.h"
+#include "../../../include/jmtx/double/decompositions/incomplete_lu_decomposition.h"
+#include "../../../include/jmtx/double/decompositions/band_lu_decomposition.h"
 #include "../../../include/jmtx/double/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/double/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/double/solvers/lu_solving.h"
@@ -61,11 +61,11 @@ static double get_rms_error_for_element_count_brm(const unsigned n)
 
     jmtxd_matrix_brm* l, *u;
 
-    MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
+    MATRIX_TEST_CALL(jmtxd_decompose_lu_brm(system_matrix, &l, &u, NULL));
 //    print_brmd_matrix(l);
 //    print_brmd_matrix(u);
 
-    jmtxd_lu_solve_brm(l, u, f + 1, sol + 1);
+    jmtxd_solve_direct_lu_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(u));
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(l));
     free(f);
@@ -140,7 +140,7 @@ static double get_rms_error_for_element_count_brm_improved(const unsigned n)
 
     jmtxd_matrix_brm* l, *u;
 
-    MATRIX_TEST_CALL(jmtxd_band_lu_decomposition_brm(system_matrix, &l, &u, NULL));
+    MATRIX_TEST_CALL(jmtxd_decompose_lu_brm(system_matrix, &l, &u, NULL));
 //    print_brmd_matrix(l);
 //    print_brmd_matrix(u);
 
@@ -149,7 +149,7 @@ static double get_rms_error_for_element_count_brm_improved(const unsigned n)
             .in_max_iterations = 64,//n,
             .in_convergence_criterion = 1e-8f,
             };
-    jmtxd_lu_solve_iterative_bmr(system_matrix, l, u, f + 1, sol + 1, aux, &args);
+    jmtxd_solve_iterative_lu_brm_refine(system_matrix, l, u, f + 1, sol + 1, aux, &args);
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(u));
     MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(l));
     free(f);

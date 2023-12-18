@@ -1,21 +1,22 @@
+// Automatically generated from source/float/solvers/band_lu_decomposition.c on Fri Dec  1 17:36:03 2023
 //
 // Created by jan on 24.11.2023.
 //
 
 #include <assert.h>
-#include "../../../include/jmtx/float/solvers/band_lu_decomposition.h"
+#include "../../../include/jmtx/cfloat/decompositions/band_lu_decomposition.h"
 #include "../matrices/band_row_major_internal.h"
 
 
-jmtx_result jmtx_band_lu_decomposition_brm(
-        const jmtx_matrix_brm* a, jmtx_matrix_brm** p_l, jmtx_matrix_brm** p_u,
+jmtx_result jmtxc_decompose_lu_brm(
+        const jmtxc_matrix_brm* a, jmtxc_matrix_brm** p_l, jmtxc_matrix_brm** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTX_TYPE_BRM)
+    if (a->base.type != JMTXC_TYPE_BRM)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -48,26 +49,26 @@ jmtx_result jmtx_band_lu_decomposition_brm(
     const uint32_t max_entries = lbw + ubw + 1;
     const uint32_t n = a->base.rows;
     jmtx_result res;
-    jmtx_matrix_brm* l = NULL;
-    jmtx_matrix_brm* u = NULL;
+    jmtxc_matrix_brm* l = NULL;
+    jmtxc_matrix_brm* u = NULL;
 
-    float* const p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_entries);
+    _Complex float* const p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_entries);
     if (!p_values)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    res = jmtx_matrix_brm_new(&l, n, n, 0, lbw, NULL, allocator_callbacks);
+    res = jmtxc_matrix_brm_new(&l, n, n, 0, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         //  Can't make matrix :(
         allocator_callbacks->free(allocator_callbacks->state, p_values);
         return res;
     }
-    res = jmtx_matrix_brm_new(&u, n, n, ubw, 0, NULL, allocator_callbacks);
+    res = jmtxc_matrix_brm_new(&u, n, n, ubw, 0, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
-        jmtx_matrix_brm_destroy(l);
+        jmtxc_matrix_brm_destroy(l);
         allocator_callbacks->free(allocator_callbacks->state, p_values);
         //  Can't make matrix :(
         return res;
@@ -75,18 +76,18 @@ jmtx_result jmtx_band_lu_decomposition_brm(
 
     for (uint_fast32_t i = 0; i < n; ++i)
     {
-        uint_fast32_t first_l = jmtx_matrix_brm_first_pos_in_row(l, i);
-        float* lwr_elements = NULL;
-        jmtx_matrix_brm_get_row(l, i, &lwr_elements);
+        uint_fast32_t first_l = jmtxc_matrix_brm_first_pos_in_row(l, i);
+        _Complex float* lwr_elements = NULL;
+        jmtxc_matrix_brm_get_row(l, i, &lwr_elements);
         uint_fast32_t k = 0;
-        float* a_elements;
-        (void)jmtx_matrix_brm_get_row(a, i, &a_elements);
-        float* const upr_elements = p_values + max_entries;
+        _Complex float* a_elements;
+        (void)jmtxc_matrix_brm_get_row(a, i, &a_elements);
+        _Complex float* const upr_elements = p_values + max_entries;
         for (uint_fast32_t pl = first_l; pl < i; ++pl)
         {
-            const uint_fast32_t count_upr = jmtx_matrix_brm_get_col(u, pl, upr_elements);
-            float v = 0;
-            uint_fast32_t first_u = jmtx_matrix_brm_first_pos_in_col(u, pl);
+            const uint_fast32_t count_upr = jmtxc_matrix_brm_get_col(u, pl, upr_elements);
+            _Complex float v = 0;
+            uint_fast32_t first_u = jmtxc_matrix_brm_first_pos_in_col(u, pl);
             uint_fast32_t begin, end;
             if (first_l < first_u)
             {
@@ -115,15 +116,15 @@ jmtx_result jmtx_band_lu_decomposition_brm(
         }
         lwr_elements[k++] = 1.0f;
 
-        const uint_fast32_t first_u = jmtx_matrix_brm_first_pos_in_col(u, i);
+        const uint_fast32_t first_u = jmtxc_matrix_brm_first_pos_in_col(u, i);
         k = 0;
-        (void)jmtx_matrix_brm_get_col(a, i, p_values);
+        (void)jmtxc_matrix_brm_get_col(a, i, p_values);
         a_elements = p_values;
         for (uint_fast32_t pu = first_u; pu <= i; ++pu)
         {
-            jmtx_matrix_brm_get_row(l, pu, &lwr_elements);
-            float v = 0;
-            first_l = jmtx_matrix_brm_first_pos_in_row(l, pu);
+            jmtxc_matrix_brm_get_row(l, pu, &lwr_elements);
+            _Complex float v = 0;
+            first_l = jmtxc_matrix_brm_first_pos_in_row(l, pu);
 
             uint_fast32_t begin, end;
             if (first_l < first_u)
@@ -149,7 +150,7 @@ jmtx_result jmtx_band_lu_decomposition_brm(
             upr_elements[k] = (a_elements[k] - v);
             k += 1;
         }
-        jmtx_matrix_brm_set_col(u, i, upr_elements);
+        jmtxc_matrix_brm_set_col(u, i, upr_elements);
     }
 
     allocator_callbacks->free(allocator_callbacks->state, p_values);

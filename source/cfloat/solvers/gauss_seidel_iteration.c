@@ -3,8 +3,8 @@
 // Created by jan on 16.6.2022.
 //
 
-#include "../../../include/jmtx/cfloat/solvers/gauss_seidel_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../include/jmtx/cfloat/solvers/gauss_seidel_iteration.h"
 
 #include <math.h>
 #include <complex.h>
@@ -35,7 +35,7 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxc_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
+jmtx_result jmtxc_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
                                   _Complex float* restrict aux_vec1, jmtx_solver_arguments* args)
 {
     //  Length of x and y
@@ -144,7 +144,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxcs_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[static restrict n],
+jmtx_result jmtxcs_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[static restrict n],
                                    _Complex float x[restrict n], _Complex float aux_vec1[restrict n], jmtx_solver_arguments* args)
 {
     if (!mtx)
@@ -180,5 +180,5 @@ jmtx_result jmtxcs_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, uint32_t n, con
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtxc_gauss_seidel_crs(mtx, y, x, aux_vec1, args);
+    return jmtxc_solve_iterative_gauss_seidel_crs(mtx, y, x, aux_vec1, args);
 }

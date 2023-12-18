@@ -17,7 +17,7 @@
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtxc_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, const _Complex float* restrict y, _Complex float* restrict x);
+void jmtxc_solve_direct_cholesky_crs(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, const _Complex float* restrict y, _Complex float* restrict x);
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix. This version of the function stores the
@@ -26,7 +26,7 @@ void jmtxc_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct,
  * @param ct transpose of the matrix C in the CRS format
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtxc_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, _Complex float* restrict x);
+void jmtxc_solve_direct_cholesky_crs_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, _Complex float* restrict x);
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix.
@@ -36,7 +36,7 @@ void jmtxc_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxcs_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxcs_solve_direct_cholesky_crs(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
                                  const _Complex float y[static restrict n], _Complex float x[restrict n]);
 
 /**
@@ -47,7 +47,7 @@ jmtx_result jmtxcs_cholesky_solve(const jmtxc_matrix_crs* c, const jmtxc_matrix_
  * @param x memory which contains the forcing vector and receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxcs_cholesky_solve_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
+jmtx_result jmtxcs_solve_direct_cholesky_crs_inplace(const jmtxc_matrix_crs* c, const jmtxc_matrix_crs* ct, uint32_t n,
                                          _Complex float x[static n]);
 
 #endif

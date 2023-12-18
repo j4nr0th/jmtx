@@ -5,7 +5,7 @@
 #include <omp.h>
 #include <stdio.h>
 #include "../test_common.h"
-#include "../../../include/jmtx/double/solvers/incomplete_lu_decomposition.h"
+#include "../../../include/jmtx/double/decompositions/incomplete_lu_decomposition.h"
 #include "../../../include/jmtx/double/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/double/solvers/lu_solving.h"
 #include "../../../include/jmtx/double/matrices/sparse_conversion.h"
@@ -112,7 +112,7 @@ int main()
     jmtxd_matrix_crs* lower = NULL;
     jmtxd_matrix_ccs* upper = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxd_incomplete_lu_crs(mtx, &lower, &upper, NULL));
+    MATRIX_TEST_CALL(jmtxd_decompose_ilu_cds(mtx, &lower, &upper, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 
@@ -158,7 +158,7 @@ int main()
             .in_convergence_criterion = 1e-5f,
             .in_max_iterations = MAXIMUM_ITERATIONS,
             };
-    mtx_res = jmtxd_incomplete_lu_decomposition_solve_precomputed_crs(
+    mtx_res = jmtxd_solve_iterative_ilu_crs_precomputed(
             mtx, lower, upper_crs, forcing_vector, approximate_vector, auxiliary_vector, &solver_arguments);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
     printf("Solving using ILU took %u iterations, with the final error of %g\n", solver_arguments.out_last_iteration, (double)solver_arguments.out_last_error);

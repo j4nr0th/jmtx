@@ -63,7 +63,7 @@ int main()
             .in_max_iterations = MAX_ITERATIONS,
             };
     const double t0 = omp_get_wtime();
-    mtx_res = jmtx_jacobi_crs_parallel(mtx, forcing_vector, iterative_solution + 1, aux_v1, aux_v2, &solver_arguments);
+    mtx_res = jmtx_solve_iterative_jacobi_crs_parallel(mtx, forcing_vector, iterative_solution + 1, aux_v1, aux_v2, &solver_arguments);
     const double t1 = omp_get_wtime();
     printf("Solution took %g seconds for a problem of size %d\n", t1 - t0, PROBLEM_DIMS);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);

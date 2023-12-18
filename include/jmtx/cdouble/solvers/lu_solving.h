@@ -19,7 +19,7 @@
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtxz_lu_solve_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, const _Complex double* restrict y, _Complex double* restrict x);
+void jmtxz_solve_direct_lu_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, const _Complex double* restrict y, _Complex double* restrict x);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -29,7 +29,7 @@ void jmtxz_lu_solve_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, co
  * @param u upper triangular matrix
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtxz_lu_solve_inplace_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, _Complex double* restrict x);
+void jmtxz_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, _Complex double* restrict x);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -41,7 +41,7 @@ void jmtxz_lu_solve_inplace_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_br
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_lu_solve_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n,
+jmtx_result jmtxzs_solve_direct_lu_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n,
                                const _Complex double y[static restrict n], _Complex double x[static restrict n]);
 
 /**
@@ -54,7 +54,7 @@ jmtx_result jmtxzs_lu_solve_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_br
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_lu_solve_inplace_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n, _Complex double x[static n]);
+jmtx_result jmtxzs_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n, _Complex double x[static n]);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -75,7 +75,7 @@ jmtx_result jmtxzs_lu_solve_inplace_brm(const jmtxz_matrix_brm* l, const jmtxz_m
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_lu_solve_iterative_bmr(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
+jmtx_result jmtxz_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
                                         const _Complex double y[restrict], _Complex double x[restrict],
                                         _Complex double aux_vec[restrict], jmtxd_solver_arguments* args);
 
@@ -100,7 +100,7 @@ jmtx_result jmtxz_lu_solve_iterative_bmr(const jmtxz_matrix_brm* a, const jmtxz_
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_lu_solve_iterative_bmr(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
+jmtx_result jmtxzs_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
                                         uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n],
                                         _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args);
 
@@ -125,7 +125,7 @@ jmtx_result jmtxzs_lu_solve_iterative_bmr(const jmtxz_matrix_brm* a, const jmtxz
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_lu_solve_iterative_bmr_parallel(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l,
+jmtx_result jmtxz_solve_iterative_lu_brm_refine_parallel(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l,
                                                  const jmtxz_matrix_brm* u,  const _Complex double y[const restrict],
                                                  _Complex double x[const restrict], _Complex double aux_vec[const restrict],
                                                  jmtxd_solver_arguments* args);
@@ -140,7 +140,7 @@ jmtx_result jmtxz_lu_solve_iterative_bmr_parallel(const jmtxz_matrix_brm* a, con
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtxz_lu_solve_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, const _Complex double* restrict y, _Complex double* restrict x);
+void jmtxz_solve_direct_lu_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, const _Complex double* restrict y, _Complex double* restrict x);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -150,7 +150,7 @@ void jmtxz_lu_solve_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, co
  * @param u upper triangular matrix
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtxz_lu_solve_inplace_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, _Complex double* restrict x);
+void jmtxz_solve_direct_lu_crs_inplace(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, _Complex double* restrict x);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -162,7 +162,7 @@ void jmtxz_lu_solve_inplace_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_cr
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_lu_solve_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n,
+jmtx_result jmtxzs_solve_direct_lu_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n,
                                const _Complex double y[static restrict n], _Complex double x[restrict n]);
 
 /**
@@ -175,7 +175,7 @@ jmtx_result jmtxzs_lu_solve_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_cr
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_lu_solve_inplace_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, _Complex double x[static n]);
+jmtx_result jmtxzs_solve_direct_lu_crs_inplace(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, _Complex double x[static n]);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -196,7 +196,7 @@ jmtx_result jmtxzs_lu_solve_inplace_crs(const jmtxz_matrix_crs* l, const jmtxz_m
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_incomplete_lu_decomposition_solve_crs(
+jmtx_result jmtxz_solve_iterative_ilu_crs(
         const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* aux_vec, jmtxd_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
@@ -220,7 +220,7 @@ jmtx_result jmtxz_incomplete_lu_decomposition_solve_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_incomplete_lu_decomposition_solve_crs(
+jmtx_result jmtxzs_solve_iterative_ilu_crs(
         const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n],
         _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks);
 
@@ -245,7 +245,7 @@ jmtx_result jmtxzs_incomplete_lu_decomposition_solve_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_incomplete_lu_decomposition_solve_precomputed_crs(
+jmtx_result jmtxz_solve_iterative_ilu_crs_precomputed(
         const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, const _Complex double* restrict y, _Complex double* restrict x,
         _Complex double* aux_vec, jmtxd_solver_arguments* args);
 
@@ -271,7 +271,7 @@ jmtx_result jmtxz_incomplete_lu_decomposition_solve_precomputed_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_incomplete_lu_decomposition_solve_precomputed_crs(
+jmtx_result jmtxzs_solve_iterative_ilu_crs_precomputed(
         const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, const _Complex double y[restrict static n],
         _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args);
 
@@ -296,7 +296,7 @@ jmtx_result jmtxzs_incomplete_lu_decomposition_solve_precomputed_crs(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_incomplete_lu_decomposition_solve_crs_parallel(
+jmtx_result jmtxz_solve_iterative_ilu_crs_parallel(
         const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec, jmtxd_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
@@ -322,7 +322,7 @@ jmtx_result jmtxz_incomplete_lu_decomposition_solve_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_incomplete_lu_decomposition_solve_crs_parallel(
+jmtx_result jmtxzs_solve_iterative_ilu_crs_parallel(
         const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[restrict static n],
         _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks);
@@ -350,7 +350,7 @@ jmtx_result jmtxzs_incomplete_lu_decomposition_solve_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
+jmtx_result jmtxz_solve_iterative_ilu_crs_precomputed_parallel(
         const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, const _Complex double* restrict y, _Complex double* restrict x,
         _Complex double* restrict aux_vec, jmtxd_solver_arguments* args);
 
@@ -378,7 +378,7 @@ jmtx_result jmtxz_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_incomplete_lu_decomposition_solve_precomputed_crs_parallel(
+jmtx_result jmtxzs_solve_iterative_ilu_crs_precomputed_parallel(
         const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n,
         const _Complex double y[restrict static n], _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args);
 

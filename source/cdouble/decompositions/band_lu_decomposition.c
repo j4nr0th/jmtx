@@ -5,11 +5,11 @@
 //
 
 #include <assert.h>
-#include "../../../include/jmtx/cdouble/solvers/band_lu_decomposition.h"
+#include "../../../include/jmtx/cdouble/decompositions/band_lu_decomposition.h"
 #include "../matrices/band_row_major_internal.h"
 
 
-jmtx_result jmtxz_band_lu_decomposition_brm(
+jmtx_result jmtxz_decompose_lu_brm(
         const jmtxz_matrix_brm* a, jmtxz_matrix_brm** p_l, jmtxz_matrix_brm** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {

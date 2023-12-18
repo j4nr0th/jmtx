@@ -1,16 +1,17 @@
-// Automatically generated from include/jmtx/float/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 06:43:05 2023
+// Automatically generated from include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 18:48:13 2023
+// Automatically generated from include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 17:35:57 2023
 //
 // Created by jan on 2.11.2023.
 //
 
-#ifndef JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
-#define JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#ifndef JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#define JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 
 #ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
 
-#ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
+#ifdef JMTXZ_SPARSE_ROW_COMPRESSED_H
 /**
  * Uses relations for Cholesky decomposition to compute an approximate decomposition with C' such that the matrix
  * C'C'^T has the same sparsity as the starting matrix. This decomposition can be used as a preconditioner or directly.
@@ -25,11 +26,11 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxd_incomplete_cholesky_crs(
-        const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxz_decompose_icho_crs(
+        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
 #endif
 
-#ifdef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+#ifdef JMTXZ_SPARSE_DIAGONAL_COMPRESSED_H
 /**
  * Uses relations for Cholesky decomposition to compute an approximate decomposition with C' such that the matrix
  * C'C'^T has the same sparsity as the starting matrix. This decomposition can be used as a preconditioner or directly.
@@ -44,9 +45,9 @@ jmtx_result jmtxd_incomplete_cholesky_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxd_incomplete_cholesky_cds(
-        const jmtxd_matrix_cds* a, jmtxd_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxz_decompose_icho_cds(
+        const jmtxz_matrix_cds* a, jmtxz_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
 #endif
 
 
-#endif //JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#endif //JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H

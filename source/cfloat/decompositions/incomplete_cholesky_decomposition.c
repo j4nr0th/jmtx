@@ -1,23 +1,22 @@
-// Automatically generated from source/cfloat/solvers/incomplete_cholesky_decomposition.c on Fri Dec  1 18:48:06 2023
-// Automatically generated from source/cdouble/solvers/incomplete_cholesky_decomposition.c on Fri Dec  1 17:36:03 2023
+// Automatically generated from source/float/solvers/incomplete_cholesky_decomposition.c on Fri Dec  1 17:36:03 2023
 //
 // Created by jan on 21.11.2023.
 //
 #include <assert.h>
 #include <math.h>
-#include <complex.h>
-#include "../../../include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/cfloat/decompositions/incomplete_cholesky_decomposition.h"
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
+#include <complex.h>
 
-jmtx_result jmtxz_incomplete_cholesky_crs(
-        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_decompose_icho_crs(
+        const jmtxc_matrix_crs* a, jmtxc_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTXZ_TYPE_CRS)
+    if (a->base.type != JMTXC_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -43,8 +42,8 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
 
-    jmtxz_matrix_crs* c = NULL;
-    jmtx_result res = jmtxz_matrix_crs_copy(a, &c, allocator_callbacks);
+    jmtxc_matrix_crs* c = NULL;
+    jmtx_result res = jmtxc_matrix_crs_copy(a, &c, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -53,15 +52,15 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
     for (uint32_t i = 0; i < n; ++i)
     {
         uint32_t* i_idx = NULL;
-        _Complex double* i_val = NULL;
-        const uint32_t i_cnt = jmtxz_matrix_crs_get_row(c, i, &i_idx, &i_val);
+        _Complex float* i_val = NULL;
+        const uint32_t i_cnt = jmtxc_matrix_crs_get_row(c, i, &i_idx, &i_val);
         uint32_t j = 0, p;
         for (p = 0; p < i_cnt && j <= i; ++p, j = i_idx[p])
         {
             uint32_t* j_idx;
-            _Complex double* j_val;
-            const uint32_t j_cnt = jmtxz_matrix_crs_get_row(c, j, &j_idx, &j_val);
-            _Complex double v = 0.0f;
+            _Complex float* j_val;
+            const uint32_t j_cnt = jmtxc_matrix_crs_get_row(c, j, &j_idx, &j_val);
+            _Complex float v = 0.0f;
             uint32_t ki, kj;
             for (ki = 0, kj = 0; ki < i_cnt && kj < j_cnt && i_idx[ki] < j && j_idx[kj] < j;)
             {
@@ -90,12 +89,12 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
 
             if (i != j)
             {
-                const _Complex double l_ij = (i_val[p] - v) / j_val[kj];
+                const _Complex float l_ij = (i_val[p] - v) / j_val[kj];
                 i_val[p] = l_ij;
             }
             else
             {
-                const _Complex double l_ij = csqrt((i_val[p] - v));
+                const _Complex float l_ij = csqrtf((i_val[p] - v));
                 i_val[p] = l_ij;
                 p += 1;
                 break;
@@ -104,7 +103,7 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
         if (j != i)
         {
             //  There was no diagonal entry!
-            jmtxz_matrix_crs_destroy(c);
+            jmtxc_matrix_crs_destroy(c);
             return JMTX_RESULT_BAD_MATRIX;
         }
 
@@ -116,12 +115,11 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
         }
     }
 
-    jmtxz_matrix_crs_remove_zeros(c);
+    jmtxc_matrix_crs_remove_zeros(c);
     *p_c = c;
 
     return JMTX_RESULT_SUCCESS;
 }
-
 
 /**
  * Uses relations for Cholesky decomposition to compute an approximate decomposition with C' such that the matrix
@@ -137,15 +135,15 @@ jmtx_result jmtxz_incomplete_cholesky_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxz_incomplete_cholesky_cds(
-        const jmtxz_matrix_cds* a, jmtxz_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_decompose_icho_cds(
+        const jmtxc_matrix_cds* a, jmtxc_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
 
 {
     if (!a)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (a->base.type != JMTXZ_TYPE_CDS)
+    if (a->base.type != JMTXC_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -170,13 +168,13 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
 
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
-    const uint_fast32_t max_per_row = jmtxz_matrix_cds_diagonal_count(a);
+    const uint_fast32_t max_per_row = jmtxc_matrix_cds_diagonal_count(a);
     uint32_t* const i_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_indices) * max_per_row);
     if (!i_indices)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    _Complex double* const i_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_values) * max_per_row);
+    _Complex float* const i_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_values) * max_per_row);
     if (!i_values)
     {
         allocator_callbacks->free(allocator_callbacks->state, i_indices);
@@ -190,7 +188,7 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
         allocator_callbacks->free(allocator_callbacks->state, i_indices);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    _Complex double* const j_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_values) * max_per_row);
+    _Complex float* const j_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_values) * max_per_row);
     if (!j_values)
     {
         allocator_callbacks->free(allocator_callbacks->state, j_indices);
@@ -199,8 +197,8 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtxz_matrix_cds* c = NULL;
-    jmtx_result res = jmtxz_matrix_cds_copy(a, &c, allocator_callbacks);
+    jmtxc_matrix_cds* c = NULL;
+    jmtx_result res = jmtxc_matrix_cds_copy(a, &c, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, j_values);
@@ -213,7 +211,7 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
 
     for (uint_fast32_t i = 0; i < n; ++i)
     {
-        const uint_fast32_t i_cnt = jmtxz_matrix_cds_get_row(c, i, max_per_row, i_values, i_indices);
+        const uint_fast32_t i_cnt = jmtxc_matrix_cds_get_row(c, i, max_per_row, i_values, i_indices);
         uint_fast32_t j = 0, p;
         for (p = 0; p < i_cnt && j <= i; ++p, j = i_indices[p])
         {
@@ -221,8 +219,8 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
             {
                 continue;
             }
-            const uint32_t j_cnt = jmtxz_matrix_cds_get_row(c, j, max_per_row, j_values, j_indices);
-            _Complex double v = 0.0f;
+            const uint32_t j_cnt = jmtxc_matrix_cds_get_row(c, j, max_per_row, j_values, j_indices);
+            _Complex float v = 0.0f;
             uint32_t ki, kj;
             for (ki = 0, kj = 0; ki < i_cnt && kj < j_cnt && i_indices[ki] < j && j_indices[kj] < j;)
             {
@@ -249,22 +247,22 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
             //  Zero on diagonal should not happen because it would've been encountered by now
 //            if (i_idx[kj] != j)
 //            {
-//                jmtxz_matrix_crs_destroy(c);
+//                jmtxc_matrix_crs_destroy(c);
 //                return JMTX_RESULT_BAD_MATRIX;
 //            }
             assert(j_indices[kj] == j);
 
             if (i != j)
             {
-                const _Complex double l_ij = (i_values[p] - v) / j_values[kj];
+                const _Complex float l_ij = (i_values[p] - v) / j_values[kj];
                 i_values[p] = l_ij;
-                jmtxz_matrix_cds_set_entry(c, i, i_indices[p], l_ij);
+                jmtxc_matrix_cds_set_entry(c, i, i_indices[p], l_ij);
             }
             else
             {
-                const _Complex double l_ij = csqrt((i_values[p] - v));
+                const _Complex float l_ij = csqrtf((i_values[p] - v));
                 i_values[p] = l_ij;
-                jmtxz_matrix_cds_set_entry(c, i, i_indices[p], l_ij);
+                jmtxc_matrix_cds_set_entry(c, i, i_indices[p], l_ij);
                 p += 1;
                 break;
             }
@@ -276,7 +274,7 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
             allocator_callbacks->free(allocator_callbacks->state, j_indices);
             allocator_callbacks->free(allocator_callbacks->state, i_values);
             allocator_callbacks->free(allocator_callbacks->state, i_indices);
-            jmtxz_matrix_cds_destroy(c);
+            jmtxc_matrix_cds_destroy(c);
             return JMTX_RESULT_BAD_MATRIX;
         }
 
@@ -284,19 +282,19 @@ jmtx_result jmtxz_incomplete_cholesky_cds(
         //  Zero the rest of the row out
         while (p < i_cnt)
         {
-            jmtxz_matrix_cds_set_entry(c, i, i_indices[p], 0);
+            jmtxc_matrix_cds_set_entry(c, i, i_indices[p], 0);
             i_values[p] = 0;
             p += 1;
         }
 
-//        res = jmtxz_matrix_cds_set_row(c, i, p, i_values, i_indices);
+//        res = jmtxc_matrix_cds_set_row(c, i, p, i_values, i_indices);
 //        if (res != JMTX_RESULT_SUCCESS)
 //        {
 //            allocator_callbacks->free(allocator_callbacks->state, j_values);
 //            allocator_callbacks->free(allocator_callbacks->state, j_indices);
 //            allocator_callbacks->free(allocator_callbacks->state, i_values);
 //            allocator_callbacks->free(allocator_callbacks->state, i_indices);
-//            jmtxz_matrix_cds_destroy(c);
+//            jmtxc_matrix_cds_destroy(c);
 //            return res;
 //        }
     }

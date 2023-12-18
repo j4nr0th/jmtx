@@ -6,7 +6,7 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed_safe.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_column_compressed_safe.h"
-#include "../../../include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h"
+#include "../../../include/jmtx/cdouble/decompositions/incomplete_cholesky_decomposition.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/cdouble/matrices/sparse_conversion.h"
 
@@ -97,7 +97,7 @@ int main()
     }
     jmtxz_matrix_crs* cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxz_incomplete_cholesky_crs(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(jmtxz_decompose_icho_crs(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
@@ -115,7 +115,7 @@ int main()
     print_ccs_matrix(cho_t);
 
     jmtxz_matrix_crs* approx_mtx = NULL;
-    MATRIX_TEST_CALL(jmtxz_matrix_multiply_crs(cholesky, cho_t, &approx_mtx, NULL));
+    MATRIX_TEST_CALL(jmtxz_multiply_matrix_crs(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     print_crs_matrix(mtx);

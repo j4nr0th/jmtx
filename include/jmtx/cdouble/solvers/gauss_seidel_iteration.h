@@ -34,7 +34,7 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_gauss_seidel_crs(const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x,
+jmtx_result jmtxz_solve_iterative_gauss_seidel_crs(const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x,
                                   _Complex double* restrict aux_vec1, jmtxd_solver_arguments* args);
 
 /**
@@ -54,7 +54,7 @@ jmtx_result jmtxz_gauss_seidel_crs(const jmtxz_matrix_crs* mtx, const _Complex d
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_gauss_seidel_crs(const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[static restrict n],
+jmtx_result jmtxzs_solve_iterative_gauss_seidel_crs(const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[static restrict n],
                                    _Complex double x[restrict n], _Complex double aux_vec1[restrict n], jmtxd_solver_arguments* args);
 
 #endif
