@@ -55,8 +55,9 @@ jmtx_result jmtxc_decompose_icho_crs(
         _Complex float* i_val = NULL;
         const uint32_t i_cnt = jmtxc_matrix_crs_get_row(c, i, &i_idx, &i_val);
         uint32_t j = 0, p;
-        for (p = 0; p < i_cnt && j <= i; ++p, j = i_idx[p])
+        for (p = 0; p < i_cnt && j <= i; ++p)
         {
+            j = i_idx[p];
             uint32_t* j_idx;
             _Complex float* j_val;
             const uint32_t j_cnt = jmtxc_matrix_crs_get_row(c, j, &j_idx, &j_val);
@@ -213,12 +214,13 @@ jmtx_result jmtxc_decompose_icho_cds(
     {
         const uint_fast32_t i_cnt = jmtxc_matrix_cds_get_row(c, i, max_per_row, i_values, i_indices);
         uint_fast32_t j = 0, p;
-        for (p = 0; p < i_cnt && j <= i; ++p, j = i_indices[p])
+        for (p = 0; p < i_cnt && j <= i; ++p)
         {
             if (i_values[p] == 0)
             {
                 continue;
             }
+            j = i_indices[p];
             const uint32_t j_cnt = jmtxc_matrix_cds_get_row(c, j, max_per_row, j_values, j_indices);
             _Complex float v = 0.0f;
             uint32_t ki, kj;

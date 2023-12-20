@@ -38,8 +38,8 @@ int main()
     const int max_threads = omp_get_thread_num();
     printf("OpenMP found %d processors, with a maximum of %d threads\n", proc_count, max_threads);
 
-    const double dy = 1.0f / (PROBLEM_SIZE_Y - 1);
-    const double dx = 1.0f / (PROBLEM_SIZE_X - 1);
+    double dy = 1.0f / (PROBLEM_SIZE_Y - 1);
+    double dx = 1.0f / (PROBLEM_SIZE_X - 1);
 
     const double rdy2 = 1.0f / (dy * dy);
     const double rdx2 = 1.0f / (dx * dx);
@@ -128,5 +128,75 @@ int main()
 
     MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    MATRIX_TEST_CALL(jmtxds_matrix_cds_new(&mtx, 16, 16, 0, (int32_t[]){0}, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    dx = 1.0f / (double)(4 - 1);
+    dy = 1.0f / (double)(4 - 1);
+    {
+        uint32_t dummy_size;
+        double* dummy_ptr;
+        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 0, &dummy_size, &dummy_ptr));
+        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 1, &dummy_size, &dummy_ptr));
+        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 4, &dummy_size, &dummy_ptr));
+        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, -1, &dummy_size, &dummy_ptr));
+        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, -4, &dummy_size, &dummy_ptr));
+    }
+
+    //  Build the whole matrix
+    for (unsigned row = 0; row < 4; ++row)
+    {
+        for (unsigned col = 0; col < 4; ++col)
+        {
+            const unsigned i = row * 4 + col;
+
+            if (col != 0 && col != 4 - 1 && row != 0 && row != 4 - 1)
+            {
+                //  Entry corresponds to an interior point
+                //  Left point not on boundary
+                if (col > 1)
+                {
+                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i - 1, -1.0f / (dx * dx)));
+                }
+                //  Right point not on the boundary
+                if (col < 4 - 2)
+                {
+                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i + 1, -1.0 / (dx * dx)));
+                }
+                //  Middle point (just exists I guess)
+                MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i, 2.0 / (dx * dx) + 2.0 / (dy * dy)));
+                //  Top point not on the boundary
+                if (row > 1)
+                {
+                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i - 4, -1.0 / (dy * dy)));
+                }
+                //  Bottom point not on the boundary
+                if (row < 4 - 2)
+                {
+                    MATRIX_TEST_CALL( jmtxds_matrix_cds_insert_entry(mtx, i, i + 4, -1.0 / (dy * dy)));
+                }
+            }
+            else
+            {
+                MATRIX_TEST_CALL( jmtxds_matrix_cds_insert_entry(mtx, i, i, 1.0));
+            }
+        }
+    }
+    
+    print_cdsd_matrix(mtx);
+
+    jmtxd_matrix_cds* cho = NULL;
+    MATRIX_TEST_CALL(jmtxd_decompose_icho_cds(mtx, &cho, NULL));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    print_cdsd_matrix(cho);
+
+    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(cho));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(mtx));
+    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+
+
     return 0;
 }
