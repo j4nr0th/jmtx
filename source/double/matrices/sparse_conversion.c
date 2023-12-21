@@ -175,6 +175,7 @@ jmtx_result jmtxd_convert_cds_to_crs(
         assert(p <= max_entries);
         mtx->end_of_row_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
     (void)jmtxd_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -219,6 +220,7 @@ jmtx_result jmtxds_convert_cds_to_crs(const jmtxd_matrix_cds* in, jmtxd_matrix_c
         assert(p <= max_entries);
         mtx->end_of_row_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
     (void)jmtxd_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -251,6 +253,7 @@ jmtx_result jmtxd_convert_cds_to_ccs(const jmtxd_matrix_cds* in, jmtxd_matrix_cc
         assert(p <= max_entries);
         mtx->end_of_column_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
     (void)jmtxd_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -294,6 +297,7 @@ jmtx_result jmtxds_convert_cds_to_ccs(const jmtxd_matrix_cds* in, jmtxd_matrix_c
         assert(p <= max_entries);
         mtx->end_of_column_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
     (void)jmtxd_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -495,6 +499,7 @@ jmtx_result jmtxd_convert_brm_to_crs(const jmtxd_matrix_brm* in, jmtxd_matrix_cr
         assert(p <= max_entries);
         mtx->end_of_row_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
     jmtxd_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -544,6 +549,7 @@ jmtx_result jmtxds_convert_brm_to_crs(const jmtxd_matrix_brm* in, jmtxd_matrix_c
         assert(p <= max_entries);
         mtx->end_of_row_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
     jmtxd_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -580,6 +586,7 @@ jmtx_result jmtxd_convert_brm_to_ccs(const jmtxd_matrix_brm* in, jmtxd_matrix_cc
         assert(p <= max_entries);
         mtx->end_of_column_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
     jmtxd_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
@@ -627,6 +634,7 @@ jmtx_result jmtxds_convert_brm_to_ccs(const jmtxd_matrix_brm* in, jmtxd_matrix_c
         assert(p <= max_entries);
         mtx->end_of_column_offsets[i] = p;
     }
+    mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
     jmtxd_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
