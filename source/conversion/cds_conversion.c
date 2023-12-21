@@ -317,7 +317,7 @@ jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds** p_mtx, const jmtxd_m
 
 
     mtx->base.cols = in->base.cols;
-    mtx->base.type = JMTXD_TYPE_CDS;
+    mtx->base.type = JMTXZ_TYPE_CDS;
     mtx->base.rows = in->base.cols;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
