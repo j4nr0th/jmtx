@@ -440,6 +440,7 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
         jmtx_solve_direct_cholesky_crs(cho, cho_t, r, z);
 
         rk_dp = 0;
+        rkzk_dp = 0;
         mag_y = 0;
         for (unsigned i = 0; i < n; ++i)
         {
@@ -461,28 +462,17 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
                 pAp_dp += p[i] * Ap[i];
             }
 
-            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
-            //  go forward anymore
-
             alpha = rkzk_dp / pAp_dp;
-            rk_dp = 0;
-
 
             //  Update guess of x
+            //  Update guess of r
+            rk_dp = 0;
             for (unsigned i = 0; i < n; ++i)
             {
                 x[i] += alpha * p[i];
-            }
-
-            //  Update guess of r
-            //  Update it implicitly
-            rk_dp = 0;
-            for (unsigned i = 0; i < n; ++i)
-            {
-                r[i] = r[i] - alpha * Ap[i];
+                r[i] -= alpha * Ap[i];
                 rk_dp += r[i] * r[i];
             }
-
 
             err = sqrtf(rk_dp) / mag_y;
             if (args->opt_error_evolution)

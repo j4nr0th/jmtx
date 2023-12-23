@@ -7,7 +7,7 @@
 #include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
 #include "../../../include/jmtx/float/decompositions/incomplete_cholesky_decomposition.h"
 
-enum {PROBLEM_DIMS = (1 << 6), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
+enum {PROBLEM_DIMS = (1 << 10), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
 
 int main()
 {
@@ -83,9 +83,10 @@ int main()
 
     uint32_t total_iterations = 0;
     double total_time = 0;
+    const float approx_condition_number = 1/dx2;
     jmtx_solver_arguments solver_arguments =
             {
-            .in_convergence_criterion = 1e-6f,
+            .in_convergence_criterion = 1e-8f * approx_condition_number,
             .in_max_iterations = MAX_ITERATIONS,
             };
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
