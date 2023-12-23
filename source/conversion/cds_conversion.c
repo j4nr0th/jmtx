@@ -2,17 +2,15 @@
 // Created by jan on 1.12.2023.
 //
 
-#include <complex.h>
-
 #include <assert.h>
 #include <complex.h>
 
-#include "../../include/jmtx/conversion/cds_conversion.h"
 #include "../matrix_base_internal.h"
 #include "../float/matrices/sparse_diagonal_compressed_internal.h"
 #include "../double/matrices/sparse_diagonal_compressed_internal.h"
 #include "../cfloat/matrices/sparse_diagonal_compressed_internal.h"
 #include "../cdouble/matrices/sparse_diagonal_compressed_internal.h"
+#include "../../include/jmtx/conversion/cds_conversion.h"
 
 /***********************************************************************************************************************
  *                                                                                                                     *
@@ -76,7 +74,7 @@ jmtx_result jmtx_matrix_cds_from_double(jmtx_matrix_cds** p_mtx, const jmtxd_mat
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -247,7 +245,7 @@ jmtx_result jmtxd_matrix_cds_from_float(jmtxd_matrix_cds** p_mtx, const jmtx_mat
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -425,7 +423,7 @@ jmtx_result jmtx_matrix_cds_from_cfloat_real(jmtx_matrix_cds** p_mtx, const jmtx
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -485,7 +483,7 @@ jmtx_result jmtx_matrix_cds_from_cfloat_imag(jmtx_matrix_cds** p_mtx, const jmtx
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -1074,7 +1072,7 @@ jmtx_result jmtxd_matrix_cds_from_cdouble_real(jmtxd_matrix_cds** p_mtx, const j
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -1133,7 +1131,7 @@ jmtx_result jmtxd_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds** p_mtx, const j
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -1723,7 +1721,7 @@ jmtx_result jmtxc_matrix_cds_from_cdouble(jmtxc_matrix_cds** p_mtx, const jmtxz_
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXC_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;
@@ -1893,7 +1891,7 @@ jmtx_result jmtxz_matrix_cds_from_cfloat(jmtxz_matrix_cds** p_mtx, const jmtxc_m
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXZ_TYPE_CDS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
 
     *p_mtx = mtx;

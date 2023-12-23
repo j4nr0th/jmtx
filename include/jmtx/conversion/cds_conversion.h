@@ -4,10 +4,6 @@
 
 #ifndef JMTX_CDS_CONVERSION_H
 #define JMTX_CDS_CONVERSION_H
-#include "../float/matrices/sparse_diagonal_compressed.h"
-#include "../double/matrices/sparse_diagonal_compressed.h"
-#include "../cfloat/matrices/sparse_diagonal_compressed.h"
-#include "../cdouble/matrices/sparse_diagonal_compressed.h"
 
 
 

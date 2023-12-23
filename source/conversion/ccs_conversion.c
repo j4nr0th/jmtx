@@ -76,7 +76,7 @@ jmtx_result jmtx_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_mat
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -203,7 +203,7 @@ jmtx_result jmtxd_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_mat
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -344,7 +344,7 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmtx
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -414,7 +414,7 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmtx
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTX_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -922,7 +922,7 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const j
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -992,7 +992,7 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const j
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXD_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -1499,7 +1499,7 @@ jmtx_result jmtxc_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz_
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXC_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;
@@ -1621,7 +1621,7 @@ jmtx_result jmtxz_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_m
 
     mtx->base.cols = in->base.cols;
     mtx->base.type = JMTXZ_TYPE_CCS;
-    mtx->base.rows = in->base.cols;
+    mtx->base.rows = in->base.rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     mtx->indices = indices;
     mtx->values = values;

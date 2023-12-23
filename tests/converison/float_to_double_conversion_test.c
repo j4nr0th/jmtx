@@ -15,9 +15,9 @@
 #include "inttypes.h"
 #include "../../include/jmtx/float/matrices/sparse_row_compressed_safe.h"
 #include "../../include/jmtx/float/matrices/sparse_column_compressed_safe.h"
-#include "../../include/jmtx/conversion/crs_conversion.h"
 #include "../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
 #include "../../include/jmtx/double/solvers/lu_solving.h"
+#include "../../include/jmtx/conversion/crs_conversion.h"
 
 enum
 {
