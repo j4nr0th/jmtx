@@ -4,10 +4,6 @@
 
 #ifndef JMTX_CCS_CONVERSION_H
 #define JMTX_CCS_CONVERSION_H
-#include "../float/matrices/sparse_column_compressed.h"
-#include "../double/matrices/sparse_column_compressed.h"
-#include "../cfloat/matrices/sparse_column_compressed.h"
-#include "../cdouble/matrices/sparse_column_compressed.h"
 
 
 

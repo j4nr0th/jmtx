@@ -5,12 +5,12 @@
 #include <complex.h>
 #include <assert.h>
 
-#include "../../include/jmtx/conversion/ccs_conversion.h"
 #include "../matrix_base_internal.h"
 #include "../float/matrices/sparse_column_compressed_internal.h"
 #include "../double/matrices/sparse_column_compressed_internal.h"
 #include "../cfloat/matrices/sparse_column_compressed_internal.h"
 #include "../cdouble/matrices/sparse_column_compressed_internal.h"
+#include "../../include/jmtx/conversion/ccs_conversion.h"
 
 /***********************************************************************************************************************
  *                                                                                                                     *
@@ -850,6 +850,10 @@ jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_ma
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
+    if ((in_real && in_imag) && (in_real->base.rows != in_imag->base.rows || in_real->base.cols != in_imag->base.cols))
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
 
     return jmtxc_matrix_ccs_from_float(p_mtx, in_real, in_imag, allocator_callbacks);
 }
@@ -1423,6 +1427,10 @@ jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_
         (in_imag && in_imag->base.type != JMTXD_TYPE_CCS))
     {
         return JMTX_RESULT_WRONG_TYPE;
+    }
+    if ((in_real && in_imag) && (in_real->base.rows != in_imag->base.rows || in_real->base.cols != in_imag->base.cols))
+    {
+        return JMTX_RESULT_BAD_MATRIX;
     }
 
     return jmtxz_matrix_ccs_from_double(p_mtx, in_real, in_imag, allocator_callbacks);

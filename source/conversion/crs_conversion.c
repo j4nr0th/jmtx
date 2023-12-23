@@ -111,7 +111,6 @@ jmtx_matrix_crs* jmtx_matrix_crs_from_double_inplace(jmtxd_matrix_crs* in)
     in->base.type = JMTX_TYPE_CRS;
 
     return (jmtx_matrix_crs*)in;
-
 }
 
 /**
@@ -850,6 +849,10 @@ jmtx_result jmtxcs_matrix_crs_from_float(jmtxc_matrix_crs** p_mtx, const jmtx_ma
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
+    if ((in_real && in_imag) && (in_real->base.rows != in_imag->base.rows || in_real->base.cols != in_imag->base.cols))
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
 
     return jmtxc_matrix_crs_from_float(p_mtx, in_real, in_imag, allocator_callbacks);
 }
@@ -1423,6 +1426,10 @@ jmtx_result jmtxzs_matrix_crs_from_double(jmtxz_matrix_crs** p_mtx, const jmtxd_
         (in_imag && in_imag->base.type != JMTXD_TYPE_CRS))
     {
         return JMTX_RESULT_WRONG_TYPE;
+    }
+    if ((in_real && in_imag) && (in_real->base.rows != in_imag->base.rows || in_real->base.cols != in_imag->base.cols))
+    {
+        return JMTX_RESULT_BAD_MATRIX;
     }
 
     return jmtxz_matrix_crs_from_double(p_mtx, in_real, in_imag, allocator_callbacks);
