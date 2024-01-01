@@ -98,7 +98,7 @@ int main()
         double rms_error = 0;
         for (uint_fast32_t j = 0; j < PROBLEM_DIMS; ++j)
         {
-            const _Complex double local_error = exact_solution[i] - iterative_solution[i];
+            const _Complex double local_error = exact_solution[j] - iterative_solution[j];
             rms_error += conj(local_error) * local_error;
         }
         rms_error = sqrt(rms_error / (_Complex double)PROBLEM_DIMS);

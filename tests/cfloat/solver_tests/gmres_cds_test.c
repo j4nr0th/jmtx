@@ -1,4 +1,4 @@
-// Automatically generated from tests/float/solver_tests/bicgstab_cds_test.c on Sun Dec 17 16:07:19 2023
+// Automatically generated from tests/float/solver_tests/bicgstab_cds_test.c on Sun Dec 17 16:07:06 2023
 //
 // Created by jan on 3.12.2023.
 //
@@ -7,10 +7,9 @@
 #include <math.h>
 #include "../test_common.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_diagonal_compressed_safe.h"
-#include "../../../include/jmtx/cfloat/solvers/bicgstab_iteration.h"
-#include <complex.h>
+#include "../../../include/jmtx/cfloat/solvers/generalized_minimum_residual_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
+enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (PROBLEM_DIMS << 2), RESTART_INTERVAL = (MAX_ITERATIONS >> 1)};
 
 int main()
 {
@@ -25,28 +24,32 @@ int main()
     ASSERT(forcing_vector);
     _Complex float* const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
     ASSERT(iterative_solution);
-    _Complex float* const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
+    _Complex float* const aux_v1 = calloc(RESTART_INTERVAL, sizeof(*aux_v1));
     ASSERT(aux_v1);
-    _Complex float* const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
+    _Complex float* const aux_v2 = calloc(RESTART_INTERVAL, sizeof(*aux_v2));
     ASSERT(aux_v2);
-    _Complex float* const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
+    _Complex float* const aux_v3 = calloc(RESTART_INTERVAL, sizeof(*aux_v3));
     ASSERT(aux_v3);
-    _Complex float* const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
+    _Complex float* const aux_v4 = calloc(RESTART_INTERVAL, sizeof(*aux_v4));
     ASSERT(aux_v4);
-    _Complex float* const aux_v5 = calloc(PROBLEM_DIMS, sizeof(*aux_v5));
+    _Complex float* const aux_v5 = calloc(RESTART_INTERVAL, sizeof(*aux_v5));
     ASSERT(aux_v5);
-    _Complex float* const aux_v6 = calloc(PROBLEM_DIMS, sizeof(*aux_v6));
+    _Complex float* const aux_v6 = calloc(RESTART_INTERVAL, sizeof(*aux_v6));
     ASSERT(aux_v6);
+    _Complex float* const aux_v7 = calloc(RESTART_INTERVAL, sizeof(*aux_v7));
+    ASSERT(aux_v7);
+    _Complex float* const aux_vecs = calloc(PROBLEM_DIMS * RESTART_INTERVAL, sizeof(*aux_vecs));
+    ASSERT(aux_vecs);
     float* const err_evol = calloc(MAX_ITERATIONS, sizeof(*err_evol));
     ASSERT(err_evol);
 
 
-    const _Complex float dx = 1.0f / (_Complex float)(PROBLEM_DIMS - 1);
+    const float dx = 1.0f / (float)(PROBLEM_DIMS - 1);
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
-        const _Complex float x = (_Complex float)i / (_Complex float)(PROBLEM_DIMS - 1);
+        const float x = (float)i / (float)(PROBLEM_DIMS - 1);
         exact_solution[i] = sinf(M_PI * x);
-        forcing_vector[i] = (_Complex float)(-M_PI * M_PI * sinf(M_PI * x) - M_PI * cosf(M_PI * x));
+        forcing_vector[i] = (float)(-M_PI * M_PI * sinf(M_PI * x) - M_PI * cosf(M_PI * x));
     }
 
 
@@ -74,6 +77,9 @@ int main()
     }
 
 
+    jmtxc_matrix_brm* r_mtx;
+    MATRIX_TEST_CALL(jmtxc_matrix_brm_new(&r_mtx, RESTART_INTERVAL, RESTART_INTERVAL, RESTART_INTERVAL - 1, 0, NULL, NULL));
+
 //    print_cds_matrix(mtx);
     uint32_t total_iterations = 0;
     double total_time = 0;
@@ -83,11 +89,11 @@ int main()
             .in_max_iterations = MAX_ITERATIONS,
             .opt_error_evolution = err_evol,
             };
-    for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
+
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxcs_solve_iterative_bicgstab_cds(
-                mtx, PROBLEM_DIMS - 2, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, &solver_arguments);
+        mtx_res = jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(
+                mtx, forcing_vector + 1, iterative_solution + 1, RESTART_INTERVAL, r_mtx, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_vecs, &solver_arguments);
         const double t1 = omp_get_wtime();
 //        printf("Error evolution:\n");
 //        for (uint_fast32_t j = 0; j < solver_arguments.out_last_iteration; ++j)
@@ -95,23 +101,13 @@ int main()
 //            printf("%"PRIuFAST32": %.10e\n", j, err_evol[j]);
 //        }
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
-        float rms_error = 0;
-        for (uint_fast32_t j = 0; j < PROBLEM_DIMS; ++j)
-        {
-            const _Complex float local_error = exact_solution[j] - iterative_solution[j];
-            rms_error += conjf(local_error) * local_error;
-        }
-        rms_error = sqrtf(rms_error / (float)PROBLEM_DIMS);
-        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\nReal RMS error was: %e\n\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
-               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error, rms_error);
+        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
+               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error);
 
         total_iterations += solver_arguments.out_last_iteration;
         total_time += t1 - t0;
-        if (solver_arguments.out_last_error < solver_arguments.in_convergence_criterion)
-        {
-            break;
-        }
     }
+    jmtxc_matrix_brm_destroy(r_mtx);
 
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
@@ -120,10 +116,10 @@ int main()
     float rms_error = 0;
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
-//        const _Complex float x = (_Complex float)i / (_Complex float)(PROBLEM_DIMS - 1);
+//        const float x = (float)i / (float)(PROBLEM_DIMS - 1);
 //        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
-        const _Complex float local_error = exact_solution[i] - iterative_solution[i];
-        rms_error += conjf(local_error) * local_error;
+        const float local_error = exact_solution[i] - iterative_solution[i];
+        rms_error += local_error * local_error;
     }
     rms_error = sqrtf(rms_error / PROBLEM_DIMS);
     printf("Iterative solution had final RMS error of %e after %u iterations\n", rms_error, total_iterations);
@@ -140,5 +136,7 @@ int main()
     free(aux_v4);
     free(aux_v5);
     free(aux_v6);
+    free(aux_v7);
+    free(aux_vecs);
     return 0;
 }

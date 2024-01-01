@@ -90,7 +90,7 @@ int main()
         float rms_error = 0;
         for (uint_fast32_t j = 0; j < PROBLEM_DIMS; ++j)
         {
-            const float local_error = exact_solution[i] - iterative_solution[i];
+            const float local_error = exact_solution[j] - iterative_solution[j];
             rms_error += local_error * local_error;
         }
         rms_error = sqrtf(rms_error / PROBLEM_DIMS);

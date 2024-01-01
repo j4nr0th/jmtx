@@ -1,3 +1,4 @@
+// Automatically generated from tests/float/solver_tests/bicgstab_cds_test.c on Sun Dec 17 16:07:06 2023
 //
 // Created by jan on 3.12.2023.
 //
@@ -6,9 +7,9 @@
 #include <math.h>
 #include "../test_common.h"
 #include "../../../include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h"
-#include "../../../include/jmtx/float/solvers/bicgstab_iteration.h"
+#include "../../../include/jmtx/float/solvers/recursive_generalized_minimum_residual_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
+enum {PROBLEM_DIMS = (1 << 8), MAX_ITERATIONS = (PROBLEM_DIMS << 2), RESTART_INTERVAL = (1 << 4), TRUNCATION_INTERVAL = (1 << 4)};
 
 int main()
 {
@@ -23,18 +24,26 @@ int main()
     ASSERT(forcing_vector);
     float* const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
     ASSERT(iterative_solution);
-    float* const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
+    float* const aux_v1 = calloc(RESTART_INTERVAL, sizeof(*aux_v1));
     ASSERT(aux_v1);
-    float* const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
+    float* const aux_v2 = calloc(RESTART_INTERVAL, sizeof(*aux_v2));
     ASSERT(aux_v2);
-    float* const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
+    float* const aux_v3 = calloc(RESTART_INTERVAL, sizeof(*aux_v3));
     ASSERT(aux_v3);
-    float* const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
+    float* const aux_v4 = calloc(RESTART_INTERVAL, sizeof(*aux_v4));
     ASSERT(aux_v4);
-    float* const aux_v5 = calloc(PROBLEM_DIMS, sizeof(*aux_v5));
+    float* const aux_v5 = calloc(RESTART_INTERVAL, sizeof(*aux_v5));
     ASSERT(aux_v5);
     float* const aux_v6 = calloc(PROBLEM_DIMS, sizeof(*aux_v6));
     ASSERT(aux_v6);
+    float* const aux_v7 = calloc(RESTART_INTERVAL, sizeof(*aux_v7));
+    ASSERT(aux_v7);
+    float* const aux_vecs = calloc(PROBLEM_DIMS * RESTART_INTERVAL, sizeof(*aux_vecs));
+    ASSERT(aux_vecs);
+    float* const aux_vecs2 = calloc(PROBLEM_DIMS * TRUNCATION_INTERVAL, sizeof(*aux_vecs2));
+    ASSERT(aux_vecs2);
+    float* const aux_vecs3 = calloc(PROBLEM_DIMS * TRUNCATION_INTERVAL, sizeof(*aux_vecs3));
+    ASSERT(aux_vecs3);
     float* const err_evol = calloc(MAX_ITERATIONS, sizeof(*err_evol));
     ASSERT(err_evol);
 
@@ -72,48 +81,41 @@ int main()
     }
 
 
+    jmtx_matrix_brm* r_mtx;
+    MATRIX_TEST_CALL(jmtx_matrix_brm_new(&r_mtx, RESTART_INTERVAL, RESTART_INTERVAL, RESTART_INTERVAL - 1, 0, NULL, NULL));
+
 //    print_cds_matrix(mtx);
     uint32_t total_iterations = 0;
-    double total_time = 0;
+    float total_time = 0;
     jmtx_solver_arguments solver_arguments =
             {
             .in_convergence_criterion = 1e-6f,
             .in_max_iterations = MAX_ITERATIONS,
             .opt_error_evolution = err_evol,
             };
-    for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
+
     {
-        const double t0 = omp_get_wtime();
-        mtx_res = jmtxs_solve_iterative_bicgstab_cds(
-                mtx, PROBLEM_DIMS - 2, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, &solver_arguments);
-        const double t1 = omp_get_wtime();
+        const float t0 = omp_get_wtime();
+        mtx_res = jmtx_solve_iterative_gmresr_cds(
+                mtx, forcing_vector + 1, iterative_solution + 1, RESTART_INTERVAL, TRUNCATION_INTERVAL, r_mtx, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_vecs, aux_vecs2, aux_vecs3, &solver_arguments);
+        const float t1 = omp_get_wtime();
 //        printf("Error evolution:\n");
 //        for (uint_fast32_t j = 0; j < solver_arguments.out_last_iteration; ++j)
 //        {
 //            printf("%"PRIuFAST32": %.10e\n", j, err_evol[j]);
 //        }
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
-        float rms_error = 0;
-        for (uint_fast32_t j = 0; j < PROBLEM_DIMS; ++j)
-        {
-            const float local_error = exact_solution[j] - iterative_solution[j];
-            rms_error += local_error * local_error;
-        }
-        rms_error = sqrtf(rms_error / (float)PROBLEM_DIMS);
-        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\nReal RMS error was: %e\n\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
-               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error, rms_error);
+        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
+               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error);
 
         total_iterations += solver_arguments.out_last_iteration;
         total_time += t1 - t0;
-        if (solver_arguments.out_last_error < solver_arguments.in_convergence_criterion)
-        {
-            break;
-        }
     }
+    jmtx_matrix_brm_destroy(r_mtx);
 
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
-    printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, total_iterations);
+    printf("Iterative solution had final residual ratio of %g after %u iterations (at most %u GMRES rounds)\n", solver_arguments.out_last_error, total_iterations, total_iterations * RESTART_INTERVAL);
 
     float rms_error = 0;
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
@@ -123,7 +125,7 @@ int main()
         const float local_error = exact_solution[i] - iterative_solution[i];
         rms_error += local_error * local_error;
     }
-    rms_error = sqrtf(rms_error / PROBLEM_DIMS);
+    rms_error = sqrt(rms_error / PROBLEM_DIMS);
     printf("Iterative solution had final RMS error of %e after %u iterations\n", rms_error, total_iterations);
 
     MATRIX_TEST_CALL(jmtxs_matrix_cds_destroy(mtx));
@@ -138,5 +140,9 @@ int main()
     free(aux_v4);
     free(aux_v5);
     free(aux_v6);
+    free(aux_v7);
+    free(aux_vecs);
+    free(aux_vecs2);
+    free(aux_vecs3);
     return 0;
 }

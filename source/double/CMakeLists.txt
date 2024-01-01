@@ -39,6 +39,8 @@ list(APPEND SOLVER_SOURCE_FILES
         source/double/solvers/conjugate_gradient_iteration.c
         source/double/solvers/lu_solving.c
         source/double/solvers/cholesky_solving.c
+        source/double/solvers/generalized_minimum_residual_iteration.c
+        source/double/solvers/recursive_generalized_minimum_residual_iteration.c
 )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -48,6 +50,8 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/double/solvers/conjugate_gradient_iteration.h
         include/jmtx/double/solvers/lu_solving.h
         include/jmtx/double/solvers/cholesky_solving.h
+        include/jmtx/double/solvers/generalized_minimum_residual_iteration.h
+        include/jmtx/double/solvers/recursive_generalized_minimum_residual_iteration.h
 )
 
 list(APPEND DECOMPOSITIONS_SOURCE_FILES
@@ -158,4 +162,16 @@ add_test(NAME icho_cds_test_double COMMAND icho_cds_test_double)
 add_executable(bicgstab_cds_test_double tests/double/solver_tests/bicgstab_cds_test.c tests/double/test_common.c)
 target_link_libraries(bicgstab_cds_test_double PRIVATE jmtx)
 add_test(NAME bicgstab_cds_test_double COMMAND bicgstab_cds_test_double)
+
+add_executable(gmres_test_double tests/double/solver_tests/gmres_test.c tests/double/test_common.c)
+target_link_libraries(gmres_test_double PRIVATE jmtx)
+add_test(NAME gmres_test_double COMMAND gmres_test_double)
+
+add_executable(gmres_cds_test_double tests/double/solver_tests/gmres_cds_test.c tests/double/test_common.c)
+target_link_libraries(gmres_cds_test_double PRIVATE jmtx)
+add_test(NAME gmres_cds_test_double COMMAND gmres_cds_test_double)
+
+add_executable(gmresr_cds_test_double tests/double/solver_tests/gmresr_cds_test.c tests/double/test_common.c)
+target_link_libraries(gmresr_cds_test_double PRIVATE jmtx)
+add_test(NAME gmresr_cds_test_double COMMAND gmresr_cds_test_double)
 

@@ -39,6 +39,8 @@ list(APPEND SOLVER_SOURCE_FILES
         source/cfloat/solvers/bicgstab_iteration.c
         source/cfloat/solvers/lu_solving.c
         source/cfloat/solvers/cholesky_solving.c
+        source/cfloat/solvers/generalized_minimum_residual_iteration.c
+        source/cfloat/solvers/recursive_generalized_minimum_residual_iteration.c
 )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -48,6 +50,8 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/cfloat/solvers/bicgstab_iteration.h
         include/jmtx/cfloat/solvers/lu_solving.h
         include/jmtx/cfloat/solvers/cholesky_solving.h
+        include/jmtx/cfloat/solvers/generalized_minimum_residual_iteration.h
+        include/jmtx/cfloat/solvers/recursive_generalized_minimum_residual_iteration.h
 )
 
 list(APPEND DECOMPOSITIONS_SOURCE_FILES
@@ -146,4 +150,16 @@ add_test(NAME icho_cds_test_cfloat COMMAND icho_cds_test_cfloat)
 add_executable(bicgstab_cds_test_cfloat tests/cfloat/solver_tests/bicgstab_cds_test.c tests/cfloat/test_common.c)
 target_link_libraries(bicgstab_cds_test_cfloat PRIVATE jmtx)
 add_test(NAME bicgstab_cds_test_cfloat COMMAND bicgstab_cds_test_cfloat)
+
+add_executable(gmres_test_cfloat tests/cfloat/solver_tests/gmres_test.c tests/cfloat/test_common.c)
+target_link_libraries(gmres_test_cfloat PRIVATE jmtx)
+add_test(NAME gmres_test_cfloat COMMAND gmres_test_cfloat)
+
+add_executable(gmres_cds_test_cfloat tests/cfloat/solver_tests/gmres_cds_test.c tests/cfloat/test_common.c)
+target_link_libraries(gmres_cds_test_cfloat PRIVATE jmtx)
+add_test(NAME gmres_cds_test_cfloat COMMAND gmres_cds_test_cfloat)
+
+add_executable(gmresr_cds_test_cfloat tests/cfloat/solver_tests/gmresr_cds_test.c tests/cfloat/test_common.c)
+target_link_libraries(gmresr_cds_test_cfloat PRIVATE jmtx)
+add_test(NAME gmresr_cds_test_cfloat COMMAND gmresr_cds_test_cfloat)
 
