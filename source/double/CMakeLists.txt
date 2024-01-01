@@ -26,6 +26,7 @@ list(APPEND INTERNAL_HEADER_FILES
         source/double/matrices/sparse_column_compressed_internal.h
         source/double/matrices/band_row_major_internal.h
         source/double/matrices/sparse_diagonal_compressed_internal.h
+        source/double/solvers/gmres_internal.h
 )
 
 list(APPEND INTERNAL_SOURCE_FILES
