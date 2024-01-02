@@ -3,8 +3,9 @@
 //
 #include <math.h>
 
-#include "../../../include/jmtx/double/solvers/recursive_generalized_minimum_residual_iteration.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/band_row_major_internal.h"
+#include "../../../include/jmtx/double/solvers/recursive_generalized_minimum_residual_iteration.h"
 
 #include "gmres_internal.h"
 
@@ -167,4 +168,72 @@ jmtx_result jmtxd_solve_iterative_gmresr_cds(const jmtxd_matrix_cds* mtx, const 
     }
 
     return JMTX_RESULT_NOT_CONVERGED;
+}
+/**
+ * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
+ * Builds up a set of m orthonormal basis for the Krylov subspace in order to find an optimal search direction, then
+ * makes its contribution to residual orthogonal to previous search directions. This makes it in general much better
+ * behaved than GMRES with a short restart interval. Previously used search directions are saved up to the specified
+ * number and removed from the previously applied directions.
+ *
+ * @param mtx system matrix A
+ * @param n the size of the system
+ * @param y the solution of the system A x = y
+ * @param x the solution vector which contains the initial guess of the solution
+ * @param m the GMRES restart interval
+ * @param l the CGR truncation interval
+ * @param r an m by m upper triangular matrix (lbw = 0, ubw = m - 1) that is to be used in solving the least squares
+ * problem
+ * @param aux_vec1 auxiliary memory for a vector of m elements
+ * @param aux_vec2 auxiliary memory for a vector of m elements
+ * @param aux_vec3 auxiliary memory for a vector of m elements
+ * @param aux_vec4 auxiliary memory for a vector of m elements
+ * @param aux_vec5 auxiliary memory for a vector of m elements
+ * @param aux_vec6 auxiliary memory for a vector of the same size as x and y
+ * @param aux_vecs1 auxiliary memory for m vectors of the same size as x and y (n by m)
+ * @param aux_vecs2 auxiliary memory for l vectors of the same size as x and y (n by l)
+ * @param aux_vecs3 auxiliary memory for l vectors of the same size as x and y (n by l)
+ * @param args::in_convergence_criterion tolerance to determine if the solution is close enough
+ * @param args::in_max_iterations number of iterations to stop at
+ * @param args::out_last_error receives the value of the error criterion at the final iteration
+ * @param args::out_last_iteration receives the number of the final iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
+ * iteration
+ * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
+ * given number of iterations, other error codes for other errors
+ */
+jmtx_result jmtxds_solve_iterative_gmresr_cds(const jmtxd_matrix_cds* mtx, uint32_t n, const double y[static restrict n],
+                                             double x[static restrict n], uint32_t m, uint32_t l, jmtxd_matrix_brm* r_mtx,
+                                             double aux_vec1[restrict m], double aux_vec2[restrict m],
+                                             double aux_vec3[restrict m], double aux_vec4[restrict m],
+                                             double aux_vec5[restrict m], double aux_vec6[restrict n],
+                                             double aux_vecs1[restrict m * n], double aux_vecs2[restrict l * n],
+                                             double aux_vecs3[restrict l * n], jmtxd_solver_arguments* args)
+{
+    if (mtx->base.type != JMTXD_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (mtx->base.rows != n || mtx->base.cols != n || mtx->main_diagonal)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r_mtx->base.type != JMTXD_TYPE_BRM)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (r_mtx->base.rows != m || r_mtx->base.cols != m)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r_mtx->upper_bandwidth != m - 1 || r_mtx->lower_bandwidth != 0)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (m == 0)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtxd_solve_iterative_gmresr_cds(mtx, y, x, m ,l, r_mtx, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5,
+                                           aux_vec6, aux_vecs1, aux_vecs2, aux_vecs3, args);
 }

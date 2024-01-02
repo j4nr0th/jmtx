@@ -4,9 +4,10 @@
 
 #include <math.h>
 #include <assert.h>
-#include "../../../include/jmtx/double/solvers/generalized_minimum_residual_iteration.h"
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/band_row_major_internal.h"
+#include "../../../include/jmtx/double/solvers/generalized_minimum_residual_iteration.h"
 
 jmtx_result jmtxd_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
                                              uint32_t m, jmtxd_matrix_brm* r, double aux_vec1[restrict m],
@@ -154,6 +155,71 @@ jmtx_result jmtxd_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, const 
     args->out_last_error = err;
     args->out_last_iteration = n_iteration;
     return JMTX_RESULT_NOT_CONVERGED;
+}
+
+
+
+/**
+ * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
+ * orthonormal basis for the Krylov subspace, then solves a least squares problem to minimize the residual using these
+ * basis to solve a problem A x = y.
+ *
+ *
+ * @param mtx system matrix A
+ * @param n size of the problem
+ * @param y the solution of the system A x = y
+ * @param x the solution vector which contains the initial guess of the solution
+ * @param m the GMRES restart interval
+ * @param r an m by m upper triangular matrix (lbw = 0, ubw = m - 1) that is to be used in solving the least squares
+ * problem
+ * @param aux_vec1 auxiliary memory for a vector of m elements
+ * @param aux_vec2 auxiliary memory for a vector of m elements
+ * @param aux_vec3 auxiliary memory for a vector of m elements
+ * @param aux_vec4 auxiliary memory for a vector of m elements
+ * @param aux_vec5 auxiliary memory for a vector of m elements
+ * @param aux_vecs auxiliary memory for m vectors of the same size as x and y (n by m)
+ * @param args::in_convergence_criterion tolerance to determine if the solution is close enough
+ * @param args::in_max_iterations number of iterations to stop at
+ * @param args::out_last_error receives the value of the error criterion at the final iteration
+ * @param args::out_last_iteration receives the number of the final iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
+ * iteration
+ * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
+ * given number of iterations, other error codes for other errors
+ */
+jmtx_result jmtxds_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n],
+                                             double x[restrict static n], uint32_t m, jmtxd_matrix_brm* r,
+                                             double aux_vec1[restrict m], double aux_vec2[restrict m],
+                                             double aux_vec3[restrict m], double aux_vec4[restrict m],
+                                             double aux_vec5[restrict m], double aux_vecs[restrict m * n],
+                                             jmtxd_solver_arguments* args)
+{
+    if (mtx->base.type != JMTXD_TYPE_CRS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (mtx->base.rows != n || mtx->base.cols != n)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r->base.type != JMTXD_TYPE_BRM)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (r->base.rows != m || r->base.cols != m)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r->upper_bandwidth != m - 1 || r->lower_bandwidth != 0)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (m == 0)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtxd_solve_iterative_gmresm_crs(mtx, y, x, m ,r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
+                                           args);
 }
 
 uint32_t jmtxd_gmresm_round_cds(const jmtxd_matrix_cds* mtx, const uint32_t n, const uint32_t m, const double y_mag,
@@ -447,6 +513,69 @@ jmtx_result jmtxd_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, const 
     args->out_last_error = err;
     args->out_last_iteration = n_iteration;
     return JMTX_RESULT_NOT_CONVERGED;
+}
+
+/**
+ * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
+ * orthonormal basis for the Krylov subspace, then solves a least squares problem to minimize the residual using these
+ * basis to solve a problem A x = y.
+ *
+ *
+ * @param mtx system matrix A
+ * @param n size of the problem
+ * @param y the solution of the system A x = y
+ * @param x the solution vector which contains the initial guess of the solution
+ * @param m the GMRES restart interval
+ * @param r an m by m upper triangular matrix (lbw = 0, ubw = m - 1) that is to be used in solving the least squares
+ * problem
+ * @param aux_vec1 auxiliary memory for a vector of m elements
+ * @param aux_vec2 auxiliary memory for a vector of m elements
+ * @param aux_vec3 auxiliary memory for a vector of m elements
+ * @param aux_vec4 auxiliary memory for a vector of m elements
+ * @param aux_vec5 auxiliary memory for a vector of m elements
+ * @param aux_vecs auxiliary memory for m vectors of the same size as x and y (n by m)
+ * @param args::in_convergence_criterion tolerance to determine if the solution is close enough
+ * @param args::in_max_iterations number of iterations to stop at
+ * @param args::out_last_error receives the value of the error criterion at the final iteration
+ * @param args::out_last_iteration receives the number of the final iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
+ * iteration
+ * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
+ * given number of iterations, other error codes for other errors
+ */
+jmtx_result jmtxds_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, uint32_t n, const double y[static restrict n],
+                                             double x[static restrict n], uint32_t m, jmtxd_matrix_brm* r,
+                                             double aux_vec1[restrict m], double aux_vec2[restrict m],
+                                             double aux_vec3[restrict m], double aux_vec4[restrict m],
+                                             double aux_vec5[restrict m], double aux_vecs[restrict n * m],
+                                             jmtxd_solver_arguments* args)
+{
+    if (mtx->base.type != JMTXD_TYPE_CDS)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (mtx->base.rows != n || mtx->base.cols != n || mtx->main_diagonal)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r->base.type != JMTXD_TYPE_BRM)
+    {
+        return JMTX_RESULT_WRONG_TYPE;
+    }
+    if (r->base.rows != m || r->base.cols != m)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (r->upper_bandwidth != m - 1 || r->lower_bandwidth != 0)
+    {
+        return JMTX_RESULT_BAD_MATRIX;
+    }
+    if (m == 0)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    return jmtxd_solve_iterative_gmresm_cds(mtx, y, x, m ,r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
+                                           args);
 }
 
 
