@@ -51,7 +51,7 @@ int main()
         MATRIX_TEST_CALL(jmtxcs_matrix_brm_set_row(test_matrix, 4, (_Complex float[]){69.0f, 420.0f}));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
-    print_brm_matrix(test_matrix);
+    print_brmc_matrix(test_matrix);
 
     _Complex float column_vals[4];
     uint_fast32_t cnt;
@@ -84,7 +84,7 @@ int main()
     jmtxc_matrix_brm* transpose = NULL;
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_transpose(test_matrix, &transpose, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_brm_matrix(transpose);
+    print_brmc_matrix(transpose);
     _Complex float* pv;
     ASSERT((cnt = jmtxc_matrix_brm_get_row(transpose, 0, &pv)) == 2);
     ASSERT(are_arrays_the_same(cnt, pv, (_Complex float[]){1.0f, -1.0f}));

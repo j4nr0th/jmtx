@@ -71,8 +71,8 @@ static _Complex float get_rms_error_for_element_count(const unsigned n)
 
     MATRIX_TEST_CALL(jmtxc_convert_ccs_to_crs(cu, &u, NULL));
     MATRIX_TEST_CALL(jmtxcs_matrix_ccs_destroy(cu));
-//    print_crs_matrix(l);
-//    print_crs_matrix(u);
+//    print_crsc_matrix(l);
+//    print_crsc_matrix(u);
 
     jmtxc_solve_direct_lu_crs(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxcs_matrix_crs_destroy(u));
@@ -148,8 +148,8 @@ static _Complex float get_rms_error_for_element_count_brm(const unsigned n)
     jmtxc_matrix_brm* l, *u;
 
     MATRIX_TEST_CALL(jmtxc_decompose_lu_brm(system_matrix, &l, &u, NULL));
-//    print_brm_matrix(l);
-//    print_brm_matrix(u);
+//    print_brmc_matrix(l);
+//    print_brmc_matrix(u);
 
     jmtxc_solve_direct_lu_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(u));

@@ -6,6 +6,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/cfloat/matrices/sparse_multiplication.c
         source/cfloat/matrices/band_row_major.c
         source/cfloat/matrices/sparse_diagonal_compressed.c
+        source/cfloat/matrices/dense_row_major.c
 )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
@@ -19,6 +20,7 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/cfloat/matrices/band_row_major_safe.h
         include/jmtx/cfloat/matrices/sparse_diagonal_compressed.h
         include/jmtx/cfloat/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/cfloat/matrices/dense_row_major.h
 )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -59,12 +61,14 @@ list(APPEND DECOMPOSITIONS_SOURCE_FILES
         source/cfloat/decompositions/incomplete_lu_decomposition.c
         source/cfloat/decompositions/incomplete_cholesky_decomposition.c
         source/cfloat/decompositions/band_lu_decomposition.c
+        source/cfloat/decompositions/dense_lu_decomposition.c
 )
 
 list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/cfloat/decompositions/incomplete_lu_decomposition.h
         include/jmtx/cfloat/decompositions/incomplete_cholesky_decomposition.h
         include/jmtx/cfloat/decompositions/band_lu_decomposition.h
+        include/jmtx/cfloat/decompositions/dense_lu_decomposition.h
 )
 
 
@@ -163,4 +167,13 @@ add_test(NAME gmres_cds_test_cfloat COMMAND gmres_cds_test_cfloat)
 add_executable(gmresr_cds_test_cfloat tests/cfloat/solver_tests/gmresr_cds_test.c tests/cfloat/test_common.c)
 target_link_libraries(gmresr_cds_test_cfloat PRIVATE jmtx)
 add_test(NAME gmresr_cds_test_cfloat COMMAND gmresr_cds_test_cfloat)
+
+add_executable(base_drm_test_cfloat tests/cfloat/matrix_ops_tests/base_drm_test.c tests/cfloat/test_common.c)
+target_link_libraries(base_drm_test_cfloat PRIVATE jmtx)
+add_test(NAME base_drm_test_cfloat COMMAND base_drm_test_cfloat)
+
+add_executable(drm_decompose_test_cfloat tests/cfloat/solver_tests/drm_decompose_test.c tests/cfloat/test_common.c)
+target_link_libraries(drm_decompose_test_cfloat PRIVATE jmtx)
+add_test(NAME drm_decompose_test_cfloat COMMAND drm_decompose_test_cfloat)
+
 

@@ -12,10 +12,11 @@
 #include "../../source/cdouble/matrices/sparse_column_compressed_internal.h"
 #include "../../source/cdouble/matrices/band_row_major_internal.h"
 #include "../../source/cdouble/matrices/sparse_diagonal_compressed_internal.h"
+#include "../../source/cdouble/matrices/dense_row_major_internal.h"
 #include <inttypes.h>
 #include <complex.h>
 
-void print_crs_matrix(const jmtxz_matrix_crs* mtx)
+void print_crsz_matrix(const jmtxz_matrix_crs* mtx)
 {
     printf("Entries:");
     for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
@@ -48,7 +49,7 @@ void print_crs_matrix(const jmtxz_matrix_crs* mtx)
     printf("]\n");
 }
 
-void print_ccs_matrix(const jmtxz_matrix_ccs* mtx)
+void print_ccsz_matrix(const jmtxz_matrix_ccs* mtx)
 {
     printf("values:");
     for (uint32_t i = 0, l = 0; i < mtx->n_entries; ++i)
@@ -87,7 +88,7 @@ void print_ccs_matrix(const jmtxz_matrix_ccs* mtx)
     printf("\n]\n");
 }
 
-void print_brm_matrix(const jmtxz_matrix_brm* mtx)
+void print_brmz_matrix(const jmtxz_matrix_brm* mtx)
 {
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
     {
@@ -116,7 +117,7 @@ void print_brm_matrix(const jmtxz_matrix_brm* mtx)
     }
 }
 
-void print_cds_matrix(const jmtxz_matrix_cds* mtx)
+void print_cdsz_matrix(const jmtxz_matrix_cds* mtx)
 {
     printf("\nMatrix:\n[\n");
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
@@ -128,6 +129,32 @@ void print_cds_matrix(const jmtxz_matrix_cds* mtx)
             printf("%10g%+10g ", creal(x), cimag(x));
         }
         printf("]\n");
+    }
+    printf("]\n");
+}
+
+void print_drmz_matrix(const struct jmtxz_matrix_drm_struct* mtx)
+{
+    printf("\nMatrix:\n[\n");
+    for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
+    {
+        printf("\t[");
+        for (uint32_t j = 0; j < mtx->base.cols; ++j)
+        {
+            const _Complex double x = mtx->values[j + mtx->base.cols * (mtx->permutations ? mtx->permutations[i] : i)];
+            printf("%10g%+9gj\n", crealf(x), cimagf(x));
+        }
+        printf("]\n");
+    }
+    printf("]\n");
+}
+
+void print_vecz(unsigned n, const _Complex double x[static n])
+{
+    printf("\nVector:\n[\n");
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        printf("%10g%+9gj\n", crealf(x[i]), cimagf(x[i]));
     }
     printf("]\n");
 }

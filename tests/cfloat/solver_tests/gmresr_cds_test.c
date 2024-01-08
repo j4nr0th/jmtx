@@ -84,7 +84,7 @@ int main()
     jmtxc_matrix_brm* r_mtx;
     MATRIX_TEST_CALL(jmtxc_matrix_brm_new(&r_mtx, RESTART_INTERVAL, RESTART_INTERVAL, RESTART_INTERVAL - 1, 0, NULL, NULL));
 
-//    print_cds_matrix(mtx);
+//    print_cdsc_matrix(mtx);
     uint32_t total_iterations = 0;
     double total_time = 0;
     jmtx_solver_arguments solver_arguments =

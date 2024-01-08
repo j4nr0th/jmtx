@@ -6,6 +6,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/cdouble/matrices/sparse_multiplication.c
         source/cdouble/matrices/band_row_major.c
         source/cdouble/matrices/sparse_diagonal_compressed.c
+        source/cdouble/matrices/dense_row_major.c
 )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
@@ -19,6 +20,7 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/cdouble/matrices/band_row_major_safe.h
         include/jmtx/cdouble/matrices/sparse_diagonal_compressed.h
         include/jmtx/cdouble/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/cdouble/matrices/dense_row_major.h
 )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -59,12 +61,14 @@ list(APPEND DECOMPOSITIONS_SOURCE_FILES
         source/cdouble/decompositions/incomplete_lu_decomposition.c
         source/cdouble/decompositions/incomplete_cholesky_decomposition.c
         source/cdouble/decompositions/band_lu_decomposition.c
+        source/cdouble/decompositions/dense_lu_decomposition.c
 )
 
 list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/cdouble/decompositions/incomplete_lu_decomposition.h
         include/jmtx/cdouble/decompositions/incomplete_cholesky_decomposition.h
         include/jmtx/cdouble/decompositions/band_lu_decomposition.h
+        include/jmtx/cdouble/decompositions/dense_lu_decomposition.h
 )
 
 
@@ -163,4 +167,13 @@ add_test(NAME gmres_cds_test_cdouble COMMAND gmres_cds_test_cdouble)
 add_executable(gmresr_cds_test_cdouble tests/cdouble/solver_tests/gmresr_cds_test.c tests/cdouble/test_common.c)
 target_link_libraries(gmresr_cds_test_cdouble PRIVATE jmtx)
 add_test(NAME gmresr_cds_test_cdouble COMMAND gmresr_cds_test_cdouble)
+
+add_executable(base_drm_test_cdouble tests/cdouble/matrix_ops_tests/base_drm_test.c tests/cdouble/test_common.c)
+target_link_libraries(base_drm_test_cdouble PRIVATE jmtx)
+add_test(NAME base_drm_test_cdouble COMMAND base_drm_test_cdouble)
+
+add_executable(drm_decompose_test_cdouble tests/cdouble/solver_tests/drm_decompose_test.c tests/cdouble/test_common.c)
+target_link_libraries(drm_decompose_test_cdouble PRIVATE jmtx)
+add_test(NAME drm_decompose_test_cdouble COMMAND drm_decompose_test_cdouble)
+
 

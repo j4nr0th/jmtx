@@ -6,6 +6,7 @@
 #include <math.h>
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/band_row_major_internal.h"
+#include "../matrices/dense_row_major_internal.h"
 #include "../../../include/jmtx/float/decompositions/incomplete_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/solvers/lu_solving.h"
@@ -1500,4 +1501,69 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_parallel(
 
     return res;
 }
+
+
+
+/**
+ * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
+ * triangular matrix.
+ * @param decomposed LU decomposition of the system to solve
+ * @param y memory containing forcing vector
+ * @param x memory which receives the solution
+ */
+void jmtx_solve_direct_lu_drm(const jmtx_matrix_drm* decomposed, const float* restrict y, float* restrict x, float* restrict aux_vec)
+{
+    const uint_fast32_t n = decomposed->base.rows;
+    if (!decomposed->permutations)
+    {
+        //  Decomposition has no pivoting, we can index directly
+        //      Forward substitute for solving the L part
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            float v = 0;
+            for (uint32_t j = 0; j < i; ++j)
+            {
+                v += x[j] * decomposed->values[i * n + j];
+            }
+            x[i] = y[i] - v;
+        }
+        //      Backward substitute for solving the U part
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            float v = 0;
+            const uint32_t row_idx = n - 1 - i;
+            for (uint32_t j = row_idx + 1; j < n; ++j)
+            {
+                v += x[j] * decomposed->values[row_idx * n + j];
+            }
+            x[row_idx] = (x[row_idx] - v) / decomposed->values[row_idx * n + row_idx];
+        }
+    }
+    else
+    {
+        //  Decomposition has no pivoting, we can index directly
+        //      Forward substitute for solving the L part
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            float v = 0;
+            for (uint32_t j = 0; j < i; ++j)
+            {
+                v += aux_vec[decomposed->permutations[j]] * decomposed->values[decomposed->permutations[i] * n + j];
+            }
+            aux_vec[decomposed->permutations[i]] = y[decomposed->permutations[i]] - v;
+        }
+        //      Backward substitute for solving the U part
+        for (uint_fast32_t i = 0; i < n; ++i)
+        {
+            float v = 0;
+            const uint32_t row_idx = n - 1 - i;
+            for (uint32_t j = row_idx + 1; j < n; ++j)
+            {
+                v += x[j] * decomposed->values[decomposed->permutations[row_idx] * n + j];
+            }
+            x[row_idx] = (aux_vec[decomposed->permutations[row_idx]] - v) / decomposed->values[decomposed->permutations[row_idx] * n + row_idx];
+        }
+    }
+}
+
 

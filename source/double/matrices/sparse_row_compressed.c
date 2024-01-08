@@ -100,7 +100,7 @@ jmtx_result jmtxd_matrix_crs_new(
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    jmtx_result mtx_res = 0;
+    ;
     uint32_t* offsets = NULL;
     uint32_t* indices = NULL;
 
@@ -149,7 +149,7 @@ jmtx_result jmtxd_matrix_crs_new(
     mtx->end_of_row_offsets = offsets;
     *p_mtx = mtx;
 
-    return mtx_res;
+    return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtxds_matrix_crs_new(

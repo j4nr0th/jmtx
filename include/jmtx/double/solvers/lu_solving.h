@@ -384,4 +384,19 @@ jmtx_result jmtxds_solve_iterative_ilu_crs_precomputed_parallel(
 
 #endif
 
+#ifdef JMTXD_DENSE_ROW_MAJOR_H
+
+/**
+ * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
+ * triangular matrix.
+ * @param decomposed LU decomposition of the system to solve
+ * @param y memory containing forcing vector
+ * @param x memory which receives the solution
+ * @param aux_vec extra memory of same size as x and y, used to store intermediate values
+ */
+void jmtxd_solve_direct_lu_drm(const jmtxd_matrix_drm* decomposed, const double* restrict y, double* restrict x, double* restrict aux_vec);
+
+
+#endif
+
 #endif //JMTXD_LU_SOLVING_H

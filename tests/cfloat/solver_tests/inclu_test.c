@@ -148,8 +148,8 @@ int main()
     MATRIX_TEST_CALL(jmtxc_convert_ccs_to_crs(upper, &upper_crs, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//    print_ccs_matrix(upper);
-//    print_crs_matrix(upper_crs);
+//    print_ccsc_matrix(upper);
+//    print_crsc_matrix(upper_crs);
 
     jmtx_solver_arguments solver_arguments =
             {

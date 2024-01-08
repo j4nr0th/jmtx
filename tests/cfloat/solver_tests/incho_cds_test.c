@@ -94,28 +94,28 @@ int main()
             jmtxc_matrix_cds_set_row(mtx, lexicographic_position(i, j), k, values, positions);
         }
     }
-    print_cds_matrix(mtx);
+    print_cdsc_matrix(mtx);
     jmtxc_matrix_cds* cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
     MATRIX_TEST_CALL(jmtxc_decompose_icho_cds(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_cds_matrix(cholesky);
+    print_cdsc_matrix(cholesky);
     printf("Decomposition took %g seconds and the result: %s\n", t1_decomp -
     t0_decomp, jmtx_result_to_str(mtx_res));
 
     jmtxc_matrix_cds* cho_t = NULL;
     MATRIX_TEST_CALL(jmtxc_matrix_cds_transpose(cholesky, &cho_t, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_cds_matrix(cho_t);
+    print_cdsc_matrix(cho_t);
 
     jmtxc_matrix_cds* approx_mtx = NULL;
     MATRIX_TEST_CALL(jmtxc_multiply_matrix_cds(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_cds_matrix(mtx);
-    print_cds_matrix(approx_mtx);
+    print_cdsc_matrix(mtx);
+    print_cdsc_matrix(approx_mtx);
 
     MATRIX_TEST_CALL(jmtxcs_matrix_cds_destroy(approx_mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);

@@ -53,7 +53,7 @@ jmtx_result jmtxd_matrix_brm_new(
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    jmtx_result mtx_res = 0;
+    ;
 
     jmtxd_matrix_brm* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
@@ -96,7 +96,7 @@ jmtx_result jmtxd_matrix_brm_new(
 
     *p_mtx = mtx;
 
-    return mtx_res;
+    return JMTX_RESULT_SUCCESS;
 }
 
 jmtx_result jmtxds_matrix_brm_new(

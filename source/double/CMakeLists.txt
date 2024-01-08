@@ -6,6 +6,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/double/matrices/sparse_multiplication.c
         source/double/matrices/band_row_major.c
         source/double/matrices/sparse_diagonal_compressed.c
+        source/double/matrices/dense_row_major.c
 )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
@@ -19,6 +20,7 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/double/matrices/band_row_major_safe.h
         include/jmtx/double/matrices/sparse_diagonal_compressed.h
         include/jmtx/double/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/double/matrices/dense_row_major.h
 )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -59,12 +61,14 @@ list(APPEND DECOMPOSITIONS_SOURCE_FILES
         source/double/decompositions/incomplete_lu_decomposition.c
         source/double/decompositions/incomplete_cholesky_decomposition.c
         source/double/decompositions/band_lu_decomposition.c
+        source/double/decompositions/dense_lu_decomposition.c
 )
 
 list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/double/decompositions/incomplete_lu_decomposition.h
         include/jmtx/double/decompositions/incomplete_cholesky_decomposition.h
         include/jmtx/double/decompositions/band_lu_decomposition.h
+        include/jmtx/double/decompositions/dense_lu_decomposition.h
 )
 
 
@@ -175,4 +179,13 @@ add_test(NAME gmres_cds_test_double COMMAND gmres_cds_test_double)
 add_executable(gmresr_cds_test_double tests/double/solver_tests/gmresr_cds_test.c tests/double/test_common.c)
 target_link_libraries(gmresr_cds_test_double PRIVATE jmtx)
 add_test(NAME gmresr_cds_test_double COMMAND gmresr_cds_test_double)
+
+add_executable(base_drm_test_double tests/double/matrix_ops_tests/base_drm_test.c tests/double/test_common.c)
+target_link_libraries(base_drm_test_double PRIVATE jmtx)
+add_test(NAME base_drm_test_double COMMAND base_drm_test_double)
+
+add_executable(drm_decompose_test_double tests/double/solver_tests/drm_decompose_test.c tests/double/test_common.c)
+target_link_libraries(drm_decompose_test_double PRIVATE jmtx)
+add_test(NAME drm_decompose_test_double COMMAND drm_decompose_test_double)
+
 

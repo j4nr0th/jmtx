@@ -55,7 +55,7 @@ int main()
         }
     }
     printf("Matrix after adding m1:\n");
-    print_crs_matrix(mtx);
+    print_crsz_matrix(mtx);
     printf("\n");
 
     for (uint32_t i = 0; i < 4; ++i)
@@ -85,7 +85,7 @@ int main()
         }
     }
     printf("Matrix after adding m2:\n");
-    print_crs_matrix(mtx);
+    print_crsz_matrix(mtx);
     printf("\n");
 
     for (uint32_t i = 0; i < 4; ++i)
@@ -115,7 +115,7 @@ int main()
         }
     }
     printf("Matrix after adding m3:\n");
-    print_crs_matrix(mtx);
+    print_crsz_matrix(mtx);
     printf("\n");
 
     for (uint32_t i = 0; i < 4; ++i)
@@ -135,7 +135,7 @@ int main()
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     printf("Matrix after removing 2nd column:\n");
-    print_crs_matrix(mtx);
+    print_crsz_matrix(mtx);
     printf("\n");
 
     for (uint32_t i = 0; i < 4; ++i)
@@ -156,7 +156,7 @@ int main()
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     printf("Matrix after removing 1st row:\n");
-    print_crs_matrix(mtx);
+    print_crsz_matrix(mtx);
     printf("\n");
 
     for (uint32_t i = 1; i < 4; ++i)

@@ -97,7 +97,7 @@ int main()
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         }
     }
-    print_crs_matrix(lower);
+    print_crsc_matrix(lower);
 
     //  Make U based on predefined values
     {
@@ -135,7 +135,7 @@ int main()
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         }
     }
-    print_crs_matrix(upper);
+    print_crsc_matrix(upper);
 
     MATRIX_TEST_CALL(jmtxc_convert_crs_to_ccs(upper, &cu, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -161,7 +161,7 @@ int main()
         }
     }
 
-    print_crs_matrix(multiplied);
+    print_crsc_matrix(multiplied);
 
     const _Complex float x_exact[PROBLEM_SIZE] = {1.0f, -2.0f, 3.0f, -4.0f, 5.0f};
     const _Complex float y_exact[PROBLEM_SIZE] = {13, 38, 18,-22,-46};

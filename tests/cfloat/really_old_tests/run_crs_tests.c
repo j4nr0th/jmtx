@@ -42,12 +42,12 @@ int main()
     const _Complex float values2[3] = { 1, 20};
     jmtxc_matrix_crs_set_row(matrix, 4, 2, indices2, values2);
 
-    print_crs_matrix(matrix);
+    print_crsc_matrix(matrix);
     jmtxc_matrix_crs_remove_bellow_magnitude(matrix, 5.0f);
     const uint32_t indices3[5] = {0, 10, 13, 15, 23};
     const _Complex float values3[5] = {-1.0f, 1.0f, -2.0f, 1.0f, 20};
     jmtxc_matrix_crs_set_row(matrix, 14, 5, indices3, values3);
-    print_crs_matrix(matrix);
+    print_crsc_matrix(matrix);
     jmtxc_matrix_crs_shrink(matrix);
 
 
@@ -61,7 +61,7 @@ int main()
     jmtxc_matrix_crs_set_entry(matrix, 2, 1, -400);
     jmtxc_matrix_crs_set_entry(matrix, 20, 1, -400);
     printf("\n\nBREAK 1\n");
-    print_crs_matrix(matrix);
+    print_crsc_matrix(matrix);
     printf("Row 2 is:\n");
     {
         uint32_t n;
@@ -76,7 +76,7 @@ int main()
     }
     jmtxc_matrix_crs_remove_zeros(matrix);
 
-    print_crs_matrix(matrix);
+    print_crsc_matrix(matrix);
     jmtxc_matrix_crs* matrix_1;
     jmtxc_matrix_crs* matrix_2;
 
@@ -114,8 +114,8 @@ int main()
     jmtxc_matrix_crs_transpose(matrix_1, &matrix_2, NULL);
 
     printf("\n\nBREAK 2\n");
-    print_crs_matrix(matrix_1);
-    print_crs_matrix(matrix_2);
+    print_crsc_matrix(matrix_1);
+    print_crsc_matrix(matrix_2);
 
     uint32_t err_count = 0;
 

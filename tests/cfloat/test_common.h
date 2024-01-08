@@ -13,10 +13,14 @@ struct jmtxc_matrix_crs_struct;
 struct jmtxc_matrix_ccs_struct;
 struct jmtxc_matrix_brm_struct;
 struct jmtxc_matrix_cds_struct;
-void print_crs_matrix(const struct jmtxc_matrix_crs_struct* mtx);
-void print_ccs_matrix(const struct jmtxc_matrix_ccs_struct* mtx);
-void print_brm_matrix(const struct jmtxc_matrix_brm_struct* mtx);
-void print_cds_matrix(const struct jmtxc_matrix_cds_struct* mtx);
+struct jmtxc_matrix_drm_struct;
+void print_crsc_matrix(const struct jmtxc_matrix_crs_struct* mtx);
+void print_ccsc_matrix(const struct jmtxc_matrix_ccs_struct* mtx);
+void print_brmc_matrix(const struct jmtxc_matrix_brm_struct* mtx);
+void print_cdsc_matrix(const struct jmtxc_matrix_cds_struct* mtx);
+void print_drmc_matrix(const struct jmtxc_matrix_drm_struct* mtx);
+
+void print_vecc(unsigned n, const _Complex float x[static n]);
 
 #ifndef NDEBUG
 #   ifdef __GNUC__

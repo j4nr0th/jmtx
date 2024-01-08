@@ -58,7 +58,7 @@ int main()
         const _Complex float values[3] = { 1.0f, -2.0f, 1.0f };
         ASSERT(mtx_res == (jmtxcs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
-//    print_crs_matrix(mtx);
+//    print_crsc_matrix(mtx);
     jmtx_solver_arguments solver_arguments =
             {
             .in_max_iterations = MAX_ITERATIONS,

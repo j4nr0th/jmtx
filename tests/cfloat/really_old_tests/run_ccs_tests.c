@@ -43,12 +43,12 @@ int main()
     const uint32_t indices2[3] = {0, 2};
     const _Complex float values2[3] = { 1, 20};
     jmtxcs_matrix_ccs_set_col(matrix, 4, 2, indices2, values2);
-    print_ccs_matrix(matrix);
+    print_ccsc_matrix(matrix);
     jmtxcs_matrix_ccs_remove_bellow(matrix, 5.0f);
     const uint32_t indices3[5] = {0, 10, 13, 15, 23};
     const _Complex float values3[5] = {-1.0f, 1.0f, -2.0f, 1.0f, 20};
     jmtxcs_matrix_ccs_set_col(matrix, 14, 5, indices3, values3);
-    print_ccs_matrix(matrix);
+    print_ccsc_matrix(matrix);
     jmtxcs_matrix_ccs_shrink(matrix);
 
     uint32_t funny = 0;
@@ -61,7 +61,7 @@ int main()
     jmtxcs_matrix_ccs_set_entry(matrix, 2, 1, -400);
     jmtxcs_matrix_ccs_set_entry(matrix, 20, 1, -400);
     printf("\n\nBREAK 1\n");
-    print_ccs_matrix(matrix);
+    print_ccsc_matrix(matrix);
     printf("Column 2 is:\n");
     {
         uint32_t n;
@@ -75,7 +75,7 @@ int main()
         printf("\n");
     }
     jmtxcs_matrix_ccs_remove_zeros(matrix);
-    print_ccs_matrix(matrix);
+    print_ccsc_matrix(matrix);
     jmtxc_matrix_ccs* matrix_1;
     jmtxc_matrix_ccs* matrix_2;
 
@@ -113,15 +113,15 @@ int main()
     jmtxcs_matrix_ccs_transpose(matrix_1, &matrix_2, NULL);
 
     printf("\n\nBREAK 2\n");
-    print_ccs_matrix(matrix_1);
-    print_ccs_matrix(matrix_2);
+    print_ccsc_matrix(matrix_1);
+    print_ccsc_matrix(matrix_2);
 
     uint32_t err_count = 0;
 
     jmtxc_matrix_ccs* tmp;
     jmtxcs_matrix_ccs_transpose(matrix, &tmp, NULL);
-    print_ccs_matrix(matrix);
-    print_ccs_matrix(tmp);
+    print_ccsc_matrix(matrix);
+    print_ccsc_matrix(tmp);
     for (uint32_t i = 0; i < 25; ++i)
     {
         for (uint32_t j = 0; j < 25; ++j)

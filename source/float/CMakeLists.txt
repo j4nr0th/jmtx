@@ -6,6 +6,7 @@ list(APPEND MATRIX_TYPE_SOURCE_FILES
         source/float/matrices/sparse_multiplication.c
         source/float/matrices/band_row_major.c
         source/float/matrices/sparse_diagonal_compressed.c
+        source/float/matrices/dense_row_major.c
 )
 
 list(APPEND MATRIX_TYPE_HEADER_FILES
@@ -19,6 +20,7 @@ list(APPEND MATRIX_TYPE_HEADER_FILES
         include/jmtx/float/matrices/band_row_major_safe.h
         include/jmtx/float/matrices/sparse_diagonal_compressed.h
         include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h
+        include/jmtx/float/matrices/dense_row_major.h
 )
 
 list(APPEND INTERNAL_HEADER_FILES
@@ -59,12 +61,14 @@ list(APPEND DECOMPOSITIONS_SOURCE_FILES
         source/float/decompositions/incomplete_lu_decomposition.c
         source/float/decompositions/incomplete_cholesky_decomposition.c
         source/float/decompositions/band_lu_decomposition.c
+        source/float/decompositions/dense_lu_decomposition.c
 )
 
 list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/float/decompositions/incomplete_lu_decomposition.h
         include/jmtx/float/decompositions/incomplete_cholesky_decomposition.h
         include/jmtx/float/decompositions/band_lu_decomposition.h
+        include/jmtx/float/decompositions/dense_lu_decomposition.h
 )
 
 
@@ -175,3 +179,11 @@ add_test(NAME gmres_cds_test_float COMMAND gmres_cds_test_float)
 add_executable(gmresr_cds_test_float tests/float/solver_tests/gmresr_cds_test.c tests/float/test_common.c)
 target_link_libraries(gmresr_cds_test_float PRIVATE jmtx)
 add_test(NAME gmresr_cds_test_float COMMAND gmresr_cds_test_float)
+
+add_executable(base_drm_test_float tests/float/matrix_ops_tests/base_drm_test.c tests/float/test_common.c)
+target_link_libraries(base_drm_test_float PRIVATE jmtx)
+add_test(NAME base_drm_test_float COMMAND base_drm_test_float)
+
+add_executable(drm_decompose_test_float tests/float/solver_tests/drm_decompose_test.c tests/float/test_common.c)
+target_link_libraries(drm_decompose_test_float PRIVATE jmtx)
+add_test(NAME drm_decompose_test_float COMMAND drm_decompose_test_float)

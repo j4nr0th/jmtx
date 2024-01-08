@@ -74,7 +74,7 @@ int main()
     }
 
 
-//    print_cds_matrix(mtx);
+//    print_cdsc_matrix(mtx);
     uint32_t total_iterations = 0;
     double total_time = 0;
     jmtx_solver_arguments solver_arguments =

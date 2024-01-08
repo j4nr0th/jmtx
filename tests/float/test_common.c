@@ -11,6 +11,7 @@
 #include "../../source/float/matrices/band_row_major_internal.h"
 #include "../../source/float/matrices/sparse_diagonal_compressed_internal.h"
 #include "../../include/jmtx/float/matrices/sparse_diagonal_compressed_safe.h"
+#include "../../source/float/matrices/dense_row_major_internal.h"
 #include <inttypes.h>
 
 
@@ -126,6 +127,32 @@ void print_cds_matrix(const jmtx_matrix_cds* mtx)
             printf("%10g ", x);
         }
         printf("]\n");
+    }
+    printf("]\n");
+}
+
+void print_drm_matrix(const struct jmtx_matrix_drm_struct* mtx)
+{
+    printf("\nMatrix:\n[\n");
+    for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
+    {
+        printf("\t[");
+        for (uint32_t j = 0; j < mtx->base.cols; ++j)
+        {
+            const float x = mtx->values[j + mtx->base.cols * (mtx->permutations ? mtx->permutations[i] : i)];
+            printf("%10g ", x);
+        }
+        printf("]\n");
+    }
+    printf("]\n");
+}
+
+void print_vec(unsigned n, const float x[static n])
+{
+    printf("\nVector:\n[\n");
+    for (uint_fast32_t i = 0; i < n; ++i)
+    {
+        printf("%10g\n", x[i]);
     }
     printf("]\n");
 }
