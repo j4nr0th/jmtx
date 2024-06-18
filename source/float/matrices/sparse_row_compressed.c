@@ -1461,19 +1461,17 @@ uint32_t jmtx_matrix_crs_find_upper_bandwidth(const jmtx_matrix_crs* mtx)
     uint_fast32_t v_max = 0;
     for (uint_fast32_t i = 0, p = 0; i < mtx->base.rows; ++i)
     {
-        uint_fast32_t j;
-        for (j = 0; j < mtx->end_of_row_offsets[i]; ++j)
+        for (; p < mtx->end_of_row_offsets[i]; ++p)
         {
-            if (mtx->indices[p + j] > i)
+            if (mtx->indices[p] > i)
             {
-                const uint_fast32_t dif = mtx->indices[p + j] - i;
+                const uint_fast32_t dif = mtx->indices[p] - i;
                 if (dif > v_max)
                 {
                     v_max = dif;
                 }
             }
         }
-        p += j;
     }
     return v_max;
 }
@@ -1489,19 +1487,17 @@ uint32_t jmtx_matrix_crs_find_lower_bandwidth(const jmtx_matrix_crs* mtx)
     uint_fast32_t v_max = 0;
     for (uint_fast32_t i = 0, p = 0; i < mtx->base.rows; ++i)
     {
-        uint_fast32_t j;
-        for (j = p; j < mtx->end_of_row_offsets[i]; ++j)
+        for (; p < mtx->end_of_row_offsets[i]; ++p)
         {
-            if (mtx->indices[j] < i)
+            if (mtx->indices[p] < i)
             {
-                const uint_fast32_t dif = i - mtx->indices[j];
+                const uint_fast32_t dif = i - mtx->indices[p];
                 if (dif > v_max)
                 {
                     v_max = dif;
                 }
             }
         }
-        p += j;
     }
     return v_max;
 }
