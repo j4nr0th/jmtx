@@ -94,7 +94,7 @@ jmtx_result jmtx_matrix_crs_new(
         reserved_entries = DEFAULT_RESERVED_ELEMENTS;
         reserved_entries = reserved_entries < cols * rows ? reserved_entries : cols * rows;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -846,7 +846,7 @@ jmtx_result jmtxs_matrix_crs_get_col(
     {
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-    if (!p_values)
+    if (p_values == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -861,7 +861,7 @@ jmtx_result jmtxs_matrix_crs_get_col(
 jmtx_result jmtx_matrix_crs_transpose(
         const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &mtx->base.allocator_callbacks;
     }
@@ -949,7 +949,7 @@ jmtx_result jmtxs_matrix_crs_transpose(
 
 jmtx_result jmtx_matrix_crs_copy(const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &mtx->base.allocator_callbacks;
     }
@@ -1369,7 +1369,7 @@ jmtx_result jmtx_matrix_crs_new_like(
         const jmtx_matrix_crs* mtx, jmtx_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks,
         const float* p_val)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &mtx->base.allocator_callbacks;
     }

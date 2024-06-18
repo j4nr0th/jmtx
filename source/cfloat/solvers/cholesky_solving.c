@@ -164,10 +164,6 @@ jmtx_result jmtxcs_solve_direct_cholesky_crs(const jmtxc_matrix_crs* c, const jm
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
 
     const void* ptrs[] = {x, y};
     if (check_vector_overlaps(sizeof(ptrs) / sizeof(*ptrs), sizeof(*x) * n, ptrs))
@@ -215,10 +211,6 @@ jmtx_result jmtxcs_solve_direct_cholesky_crs_inplace(const jmtxc_matrix_crs* c, 
         return JMTX_RESULT_BAD_MATRIX;
     }
 
-    if (!x)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
 
     jmtxc_solve_direct_cholesky_crs_inplace(c, ct, x);
     return JMTX_RESULT_SUCCESS;

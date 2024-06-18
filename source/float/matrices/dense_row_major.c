@@ -19,7 +19,7 @@ jmtx_result jmtx_matrix_drm_new(
         jmtx_matrix_drm** p_mtx, uint32_t cols, uint32_t rows, const float* set_value,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -82,6 +82,10 @@ void jmtx_matrix_drm_destroy(jmtx_matrix_drm* mtx)
     {
         callbacks.free(callbacks.state, mtx->permutations);
     }
+    if (mtx->rperm)
+    {
+        callbacks.free(callbacks.state, mtx->rperm);
+    }
     callbacks.free(callbacks.state, mtx->values);
     callbacks.free(callbacks.state, mtx);
 }
@@ -139,11 +143,11 @@ uint_fast32_t jmtx_matrix_drm_get_row(const jmtx_matrix_drm* mtx, uint32_t row, 
 {
     if (mtx->permutations)
     {
-        *p_elements = mtx->values + mtx->permutations[row];
+        *p_elements = mtx->values + mtx->base.cols * mtx->permutations[row];
     }
     else
     {
-        *p_elements = mtx->values + row;
+        *p_elements = mtx->values + mtx->base.cols * row;
     }
     return mtx->base.cols;
 }

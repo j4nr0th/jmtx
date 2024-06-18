@@ -682,7 +682,7 @@ jmtx_result jmtxzs_convert_brm_to_ccs(const jmtxz_matrix_brm* in, jmtxz_matrix_c
 jmtx_result jmtxz_convert_brm_to_cds(const jmtxz_matrix_brm* in, jmtxz_matrix_cds** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -757,11 +757,11 @@ jmtx_result jmtxzs_convert_brm_to_cds(const jmtxz_matrix_brm* in, jmtxz_matrix_c
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -824,7 +824,7 @@ jmtx_result jmtxzs_convert_brm_to_cds(const jmtxz_matrix_brm* in, jmtxz_matrix_c
 jmtx_result jmtxz_convert_crs_to_brm(const jmtxz_matrix_crs* in, jmtxz_matrix_brm** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -885,11 +885,11 @@ jmtx_result jmtxzs_convert_crs_to_brm(const jmtxz_matrix_crs* in, jmtxz_matrix_b
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -938,7 +938,7 @@ jmtx_result jmtxzs_convert_crs_to_brm(const jmtxz_matrix_crs* in, jmtxz_matrix_b
 jmtx_result jmtxz_convert_ccs_to_brm(const jmtxz_matrix_ccs* in, jmtxz_matrix_brm** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1006,11 +1006,11 @@ jmtx_result jmtxzs_convert_ccs_to_brm(const jmtxz_matrix_ccs* in, jmtxz_matrix_b
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -1066,7 +1066,7 @@ jmtx_result jmtxzs_convert_ccs_to_brm(const jmtxz_matrix_ccs* in, jmtxz_matrix_b
 jmtx_result jmtxz_convert_cds_to_brm(const jmtxz_matrix_cds* in, jmtxz_matrix_brm** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1149,11 +1149,11 @@ jmtx_result jmtxzs_convert_cds_to_brm(const jmtxz_matrix_cds* in, jmtxz_matrix_b
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }

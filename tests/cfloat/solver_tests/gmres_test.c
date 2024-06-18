@@ -99,6 +99,7 @@ int main()
     MATRIX_TEST_CALL(jmtxcs_matrix_crs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
+    free(aux_vecs);
     free(aux_v5);
     free(aux_v4);
     free(aux_v3);

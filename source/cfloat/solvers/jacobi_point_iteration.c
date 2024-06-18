@@ -143,10 +143,7 @@ jmtx_result jmtxcs_solve_iterative_jacobi_crs(
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
+
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;

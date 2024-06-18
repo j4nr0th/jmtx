@@ -29,11 +29,11 @@ jmtx_result jmtxd_decompose_icho_crs(
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -166,11 +166,11 @@ jmtx_result jmtxd_decompose_icho_cds(
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }

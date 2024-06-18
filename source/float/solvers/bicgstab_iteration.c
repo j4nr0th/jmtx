@@ -119,13 +119,13 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(
             rkrk_dp += ri * ri;
         }
         err = sqrtf(rkrk_dp) / y_mag;
-        if (args->opt_error_evolution)
-        {
-            args->opt_error_evolution[iter_count] = err;
-        }
         if (iter_count == args->in_max_iterations)
         {
             break;
+        }
+        if (args->opt_error_evolution)
+        {
+            args->opt_error_evolution[iter_count] = err;
         }
         iter_count += 1;
         if (err < args->in_convergence_criterion)
@@ -220,10 +220,6 @@ jmtx_result jmtxs_solve_iterative_bicgstab_crs(
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
         return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {
@@ -357,13 +353,13 @@ jmtx_result jmtx_solve_iterative_bicgstab_cds(
             rkrk_dp += ri * ri;
         }
         err = sqrtf(rkrk_dp) / y_mag;
-        if (args->opt_error_evolution)
-        {
-            args->opt_error_evolution[iter_count] = err;
-        }
         if (iter_count == args->in_max_iterations)
         {
             break;
+        }
+        if (args->opt_error_evolution)
+        {
+            args->opt_error_evolution[iter_count] = err;
         }
         iter_count += 1;
         if (err < args->in_convergence_criterion)
@@ -433,10 +429,6 @@ jmtx_result jmtxs_solve_iterative_bicgstab_cds(
     if (mtx->base.type != JMTX_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
     if (!x)
     {

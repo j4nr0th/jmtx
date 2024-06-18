@@ -24,7 +24,7 @@ jmtx_result jmtxd_multiply_matrix_crs(
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -187,7 +187,7 @@ jmtx_result jmtxd_multiply_matrix_ccs(
         const jmtxd_matrix_crs* a, const jmtxd_matrix_ccs* b, jmtxd_matrix_ccs** p_out,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -404,7 +404,7 @@ jmtx_result jmtxd_multiply_matrix_brm(
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -584,7 +584,7 @@ jmtx_result jmtxd_multiply_matrix_cds(const jmtxd_matrix_cds* a, const jmtxd_mat
                                      const jmtx_allocator_callbacks* allocator_callbacks)
 {
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }

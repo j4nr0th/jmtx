@@ -155,15 +155,6 @@ jmtx_result jmtxs_solve_direct_lu_brm(const jmtx_matrix_brm* l, const jmtx_matri
         return JMTX_RESULT_BAD_MATRIX;
     }
 
-    if (!x)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
     const void* ptrs[] = {x, y};
     if (check_vector_overlaps(sizeof(ptrs) / sizeof(*ptrs), sizeof(*x) * n, ptrs))
     {
@@ -209,11 +200,6 @@ jmtx_result jmtxs_solve_direct_lu_brm_inplace(const jmtx_matrix_brm* l, const jm
     if (u->base.rows != n || u->base.cols != n)
     {
         return JMTX_RESULT_BAD_MATRIX;
-    }
-
-    if (!x)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
 
     jmtx_solve_direct_lu_brm_inplace(l, u, x);
@@ -591,11 +577,6 @@ jmtx_result jmtxs_solve_direct_lu_crs(const jmtx_matrix_crs* l, const jmtx_matri
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
     const void* ptrs[] = {x, y};
     if (check_vector_overlaps(sizeof(ptrs) / sizeof(*ptrs), sizeof(*x) * n, ptrs))
     {
@@ -643,11 +624,6 @@ jmtx_result jmtxs_solve_direct_lu_crs_inplace(const jmtx_matrix_crs* l, const jm
         return JMTX_RESULT_BAD_MATRIX;
     }
 
-    if (!x)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-
     jmtx_solve_direct_lu_crs_inplace(l, u, x);
     return JMTX_RESULT_SUCCESS;
 }
@@ -684,7 +660,7 @@ jmtx_result jmtx_solve_iterative_ilu_crs(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -755,10 +731,7 @@ jmtx_result jmtxs_solve_iterative_ilu_crs(
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
+
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -778,11 +751,11 @@ jmtx_result jmtxs_solve_iterative_ilu_crs(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -980,10 +953,7 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_precomputed(
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
+
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -1243,10 +1213,7 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_precomputed_parallel(
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
+
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -1364,7 +1331,7 @@ jmtx_result jmtx_solve_iterative_ilu_crs_parallel(
         const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec, jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1440,10 +1407,7 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_parallel(
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
+
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;
@@ -1463,11 +1427,11 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_parallel(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_BAD_PARAM;
     }

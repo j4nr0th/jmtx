@@ -158,10 +158,6 @@ jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, u
     {
         return JMTX_RESULT_BAD_MATRIX;
     }
-    if (!y)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
     if (!x)
     {
         return JMTX_RESULT_NULL_PARAM;

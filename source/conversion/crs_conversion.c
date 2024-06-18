@@ -29,7 +29,7 @@
 jmtx_result jmtx_matrix_crs_from_double(jmtx_matrix_crs** p_mtx, const jmtxd_matrix_crs* in,
                                         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -155,7 +155,7 @@ jmtx_result jmtxs_matrix_crs_from_double(jmtx_matrix_crs** p_mtx, const jmtxd_ma
 jmtx_result jmtxd_matrix_crs_from_float(jmtxd_matrix_crs** p_mtx, const jmtx_matrix_crs* in,
                                         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -296,7 +296,7 @@ jmtx_result jmtxds_matrix_crs_from_float(jmtxd_matrix_crs** p_mtx, const jmtx_ma
 jmtx_result jmtx_matrix_crs_from_cfloat_real(jmtx_matrix_crs** p_mtx, const jmtxc_matrix_crs* in,
                                              const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -366,7 +366,7 @@ jmtx_result jmtx_matrix_crs_from_cfloat_real(jmtx_matrix_crs** p_mtx, const jmtx
 jmtx_result jmtx_matrix_crs_from_cfloat_imag(jmtx_matrix_crs** p_mtx, const jmtxc_matrix_crs* in,
                                              const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -543,7 +543,7 @@ jmtx_result jmtxc_matrix_crs_from_float(jmtxc_matrix_crs** p_mtx, const jmtx_mat
                                         const jmtx_matrix_crs* in_imag,
                                         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -874,7 +874,7 @@ jmtx_result jmtxcs_matrix_crs_from_float(jmtxc_matrix_crs** p_mtx, const jmtx_ma
 jmtx_result jmtxd_matrix_crs_from_cdouble_real(jmtxd_matrix_crs** p_mtx, const jmtxz_matrix_crs* in,
                                                const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -944,7 +944,7 @@ jmtx_result jmtxd_matrix_crs_from_cdouble_real(jmtxd_matrix_crs** p_mtx, const j
 jmtx_result jmtxd_matrix_crs_from_cdouble_imag(jmtxd_matrix_crs** p_mtx, const jmtxz_matrix_crs* in,
                                                const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1121,7 +1121,7 @@ jmtx_result jmtxz_matrix_crs_from_double(jmtxz_matrix_crs** p_mtx, const jmtxd_m
                                          const jmtxd_matrix_crs* in_imag,
                                          const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1451,7 +1451,7 @@ jmtx_result jmtxzs_matrix_crs_from_double(jmtxz_matrix_crs** p_mtx, const jmtxd_
 jmtx_result jmtxc_matrix_crs_from_cdouble(jmtxc_matrix_crs** p_mtx, const jmtxz_matrix_crs* in,
                                           const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1573,7 +1573,7 @@ jmtx_result jmtxcs_matrix_crs_from_cdouble(jmtxc_matrix_crs** p_mtx, const jmtxz
 jmtx_result jmtxz_matrix_crs_from_cfloat(jmtxz_matrix_crs** p_mtx, const jmtxc_matrix_crs* in,
                                          const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }

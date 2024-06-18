@@ -34,11 +34,11 @@ jmtx_result jmtxc_decompose_lu_brm(
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    else if (!allocator_callbacks->alloc || !allocator_callbacks->free)
+    else if (allocator_callbacks->alloc == NULL || allocator_callbacks->free == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -48,17 +48,16 @@ jmtx_result jmtxc_decompose_lu_brm(
     const uint_fast32_t ubw = a->upper_bandwidth;
     const uint32_t max_entries = lbw + ubw + 1;
     const uint32_t n = a->base.rows;
-    jmtx_result res;
     jmtxc_matrix_brm* l = NULL;
     jmtxc_matrix_brm* u = NULL;
 
     _Complex float* const p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_entries);
-    if (!p_values)
+    if (p_values == NULL)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    res = jmtxc_matrix_brm_new(&l, n, n, 0, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxc_matrix_brm_new(&l, n, n, 0, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         //  Can't make matrix :(

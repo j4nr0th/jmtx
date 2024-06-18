@@ -177,13 +177,16 @@ jmtx_result jmtx_matrix_cds_new(
         jmtx_matrix_cds** p_mtx, uint32_t cols, uint32_t rows, uint32_t n_diagonals,
         const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    const int32_t backup_diag[1] = {0};
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
     if (n_diagonals == 0)
     {
         //  Always prepare the main diagonal
+        p_dia_idx = backup_diag;
+        n_diagonals = 1;
     }
 
     jmtx_result mtx_res;
@@ -1123,7 +1126,7 @@ void jmtx_matrix_cds_clear(jmtx_matrix_cds* mtx)
 jmtx_result jmtx_matrix_cds_transpose(
         const jmtx_matrix_cds* mtx, jmtx_matrix_cds** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -1424,10 +1427,6 @@ jmtx_result jmtxs_matrix_cds_new(
     }
     if (n_diagonals != 0)
     {
-        if (p_dia_idx == NULL)
-        {
-            return JMTX_RESULT_NULL_PARAM;
-        }
         //  check values are sorted and not duplicate
         for (uint_fast32_t i = 0; i < n_diagonals - 1; ++i)
         {
@@ -1568,10 +1567,6 @@ jmtx_result jmtxs_matrix_cds_set_diagonal_part(jmtx_matrix_cds* mtx, int32_t dia
                                                uint32_t* p_count, const float values[static n])
 {
     if (!mtx)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!values)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -1795,7 +1790,7 @@ jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, u
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!p_values)
+    if (p_values == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -1831,20 +1826,12 @@ jmtx_result jmtxs_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_
     {
         return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
     }
-    if (!p_values)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
     for (uint_fast32_t i = 0; i < n; ++i)
     {
         if (!isfinite(p_values[i]))
         {
             return JMTX_RESULT_BAD_PARAM;
         }
-    }
-    if (!p_cols)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
     for (uint_fast32_t i = 0; i < n; ++i)
     {
@@ -1922,7 +1909,7 @@ jmtxs_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, f
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (!p_values)
+    if (p_values == NULL)
     {
         return JMTX_RESULT_NULL_PARAM;
     }
@@ -2301,14 +2288,6 @@ jmtx_result jmtxs_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_
     if (mtx->base.type != JMTX_TYPE_CDS)
     {
         return JMTX_RESULT_WRONG_TYPE;
-    }
-    if (!p_values)
-    {
-        return JMTX_RESULT_NULL_PARAM;
-    }
-    if (!p_rows)
-    {
-        return JMTX_RESULT_NULL_PARAM;
     }
     if (col >= mtx->base.cols)
     {

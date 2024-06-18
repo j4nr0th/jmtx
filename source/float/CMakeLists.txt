@@ -44,6 +44,7 @@ list(APPEND SOLVER_SOURCE_FILES
         source/float/solvers/cholesky_solving.c
         source/float/solvers/generalized_minimum_residual_iteration.c
         source/float/solvers/recursive_generalized_minimum_residual_iteration.c
+        source/float/solvers/induced_dimension_reduction_iteration.c
 )
 
 list(APPEND SOLVER_HEADER_FILES
@@ -55,6 +56,7 @@ list(APPEND SOLVER_HEADER_FILES
         include/jmtx/float/solvers/cholesky_solving.h
         include/jmtx/float/solvers/generalized_minimum_residual_iteration.h
         include/jmtx/float/solvers/recursive_generalized_minimum_residual_iteration.h
+        include/jmtx/float/solvers/induced_dimension_reduction_iteration.h
 )
 
 list(APPEND DECOMPOSITIONS_SOURCE_FILES
@@ -187,3 +189,7 @@ add_test(NAME base_drm_test_float COMMAND base_drm_test_float)
 add_executable(drm_decompose_test_float tests/float/solver_tests/drm_decompose_test.c tests/float/test_common.c)
 target_link_libraries(drm_decompose_test_float PRIVATE jmtx)
 add_test(NAME drm_decompose_test_float COMMAND drm_decompose_test_float)
+
+add_executable(idrs_test_float tests/float/solver_tests/idr_test.c tests/float/test_common.c)
+target_link_libraries(idrs_test_float PRIVATE jmtx)
+add_test(NAME idrs_test_float COMMAND idrs_test_float)

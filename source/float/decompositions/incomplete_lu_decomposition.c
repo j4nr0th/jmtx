@@ -63,7 +63,7 @@ jmtx_result jmtx_decompose_ilu_cds(
         const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    if (!allocator_callbacks)
+    if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
@@ -98,7 +98,7 @@ jmtx_result jmtx_decompose_ilu_cds(
         return JMTX_RESULT_BAD_ALLOC;
     }
     float* p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_elements_in_direction);
-    if (!p_values)
+    if (p_values == NULL)
     {
         allocator_callbacks->free(allocator_callbacks->state, p_indices);
         return JMTX_RESULT_BAD_ALLOC;
