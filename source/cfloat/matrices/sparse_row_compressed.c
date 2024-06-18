@@ -1493,11 +1493,11 @@ uint32_t jmtxc_matrix_crs_find_lower_bandwidth(const jmtxc_matrix_crs* mtx)
     for (uint_fast32_t i = 0, p = 0; i < mtx->base.rows; ++i)
     {
         uint_fast32_t j;
-        for (j = 0; j < mtx->end_of_row_offsets[i]; ++j)
+        for (j = p; j < mtx->end_of_row_offsets[i]; ++j)
         {
-            if (mtx->indices[p + j] < i)
+            if (mtx->indices[j] < i)
             {
-                const uint_fast32_t dif = i - mtx->indices[p + j];
+                const uint_fast32_t dif = i - mtx->indices[j];
                 if (dif > v_max)
                 {
                     v_max = dif;
