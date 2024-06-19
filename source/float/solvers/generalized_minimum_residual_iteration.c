@@ -367,6 +367,124 @@ uint32_t jmtx_gmresm_round_cds(const jmtx_matrix_cds* mtx, const uint32_t n, con
 }
 
 
+uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs* mtx, const uint32_t n, const uint32_t m, const float y_mag,
+                                const float tol, const float residual[const restrict static n],
+                                float x[const restrict static n], jmtx_matrix_brm* r, float ck[const restrict m],
+                                float sk[const restrict m], float g[const restrict m], float alpha[const restrict m],
+                                float h[const restrict m], float p_mat[const restrict m * n])
+{
+    float* p = p_mat;
+    uint32_t n_iteration = 0;
+    float err, r_mag = 0;
+    for (uint32_t i = 0; i < n; ++i)
+    {
+        r_mag += residual[i] * residual[i];
+    }
+    r_mag = sqrtf(r_mag);
+    err = r_mag / y_mag;
+    if (err < tol)
+    {
+        return 0;
+    }
+
+    for (uint32_t i = 0; i < n; ++i)
+    {
+        p[i] = residual[i] / r_mag;
+    }
+    g[0] = r_mag;
+    uint32_t k;
+    for (k = 1; k < m; ++k)
+    {
+        //  Generate new basis vector
+        jmtx_matrix_crs_vector_multiply(mtx, p, p + n);
+        p += n;
+        //  Make the basis orthogonal to other basis
+        for (uint32_t l = 0; l < k; ++l)
+        {
+            h[l] = 0;
+            const float* old_p = p_mat + n * l;
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                h[l] += old_p[i] * p[i];
+            }
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                p[i] -= h[l] * old_p[i];
+            }
+        }
+
+        //  Find magnitude
+        float mag_p = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            mag_p += p[i] * p[i];
+        }
+        const float mag_p2 = mag_p;
+        mag_p = sqrtf(mag_p);
+
+        //  Normalize basis vector
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            p[i] /= mag_p;
+        }
+
+        //  Apply previous Givens rotations to the new column of R
+        for (uint32_t l = 0; l < k - 1; ++l)
+        {
+            const float tmp = ck[l] * h[l] + sk[l] * h[l + 1];
+            h[l + 1] = -sk[l] * h[l] + ck[l] * h[l + 1];
+            h[l] = tmp;
+        }
+
+        //  Compute the new givens rotation
+        const float rho = sqrtf(mag_p2 + h[k - 1] * h[k - 1]);
+        const float c_new = h[k - 1] / rho;
+        const float s_new = mag_p / rho;
+        ck[k - 1] = c_new;
+        sk[k - 1] = s_new;
+        h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
+
+        jmtx_matrix_brm_set_col(r, k - 1, h);
+
+        g[k] = -s_new * g[k - 1];
+        g[k - 1] = c_new * g[k - 1];
+
+        r_mag = fabsf(g[k]);
+        err = r_mag / y_mag;
+        n_iteration += 1;
+        if (err < tol || k + 1 == m)
+        {
+            break;
+        }
+    }
+
+    //  Solve the least squares problem using back substitution
+    for (uint_fast32_t row = 0; row < k; ++row)
+    {
+        const uint_fast32_t i = k - 1 - row;
+        float* elements;
+        jmtx_matrix_brm_get_row(r,  i, &elements);
+        float sum = 0;
+        for (uint_fast32_t j = 1; j < row + 1; ++j)
+        {
+            sum += alpha[i + j] * elements[j];
+        }
+        alpha[i] = (g[i] - sum) / elements[0];
+    }
+
+    //  Compute improvement to x
+    for (uint32_t i = 0; i < n; ++i)
+    {
+        for (uint32_t j = 0; j < k; ++j)
+        {
+            x[i] += alpha[j] * p_mat[j * n + i];
+        }
+    }
+
+    return n_iteration;
+}
+
+
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
  * orthonormal basis for the Krylov subspace, then solves a least squares problem to minimize the residual using these
