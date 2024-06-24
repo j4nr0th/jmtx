@@ -93,7 +93,7 @@ jmtx_result jmtxd_matrix_crs_new(
     if (reserved_entries == 0)
     {
         reserved_entries = DEFAULT_RESERVED_ELEMENTS;
-        reserved_entries = reserved_entries < cols * rows ? reserved_entries : cols * rows;
+        reserved_entries = reserved_entries < ((uint64_t)cols * (uint64_t)rows) ? reserved_entries : ((uint64_t)cols * (uint64_t)rows);
     }
     if (allocator_callbacks == NULL)
     {
@@ -168,7 +168,7 @@ jmtx_result jmtxds_matrix_crs_new(
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    if (reserved_entries > cols * rows)
+    if (reserved_entries > ((uint64_t)cols * (uint64_t)rows))
     {
         return JMTX_RESULT_BAD_PARAM;
     }

@@ -106,7 +106,7 @@ jmtx_result jmtx_matrix_ccs_new(
     if (reserved_entries == 0)
     {
         reserved_entries = DEFAULT_RESERVED_ELEMENTS;
-        reserved_entries = reserved_entries < cols * rows ? reserved_entries : cols * rows;
+        reserved_entries = reserved_entries < ((uint64_t)cols * (uint64_t)rows) ? reserved_entries : ((uint64_t)cols * (uint64_t)rows);
     }
 
     uint32_t* offsets = NULL;
@@ -175,7 +175,7 @@ jmtx_result jmtxs_matrix_ccs_new(
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    if (reserved_entries > cols * rows)
+    if (reserved_entries > ((uint64_t)cols * (uint64_t)rows))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
