@@ -33,7 +33,7 @@ jmtx_result jmtxd_multiply_matrix_crs(
     const uint32_t c_out = b->base.cols;
 
     jmtxd_matrix_crs* out;
-    jmtx_result res = jmtxd_matrix_crs_new(&out, c_out, r_out, a->n_entries + b->n_entries, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_crs_new(&out, r_out, c_out, a->n_entries + b->n_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -196,7 +196,7 @@ jmtx_result jmtxd_multiply_matrix_ccs(
     const uint32_t c_out = b->base.cols;
 
     jmtxd_matrix_ccs* out;
-    jmtx_result res = jmtxd_matrix_ccs_new(&out, c_out, r_out, a->n_entries + b->n_entries, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_ccs_new(&out, r_out, c_out, a->n_entries + b->n_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -439,7 +439,7 @@ jmtx_result jmtxd_multiply_matrix_brm(
     }
 
     jmtxd_matrix_brm* out;
-    jmtx_result res = jmtxd_matrix_brm_new(&out, c_out, r_out, max_ubw, max_lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_brm_new(&out, r_out, c_out, max_ubw, max_lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -624,7 +624,7 @@ jmtx_result jmtxd_multiply_matrix_cds(const jmtxd_matrix_cds* a, const jmtxd_mat
 
 
     jmtxd_matrix_cds* out;
-    jmtx_result res = jmtxd_matrix_cds_new(&out, c_out, r_out, 0, (int32_t[]){0}, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_cds_new(&out, r_out, c_out, 0, (int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, val_b);

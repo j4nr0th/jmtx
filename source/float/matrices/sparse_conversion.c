@@ -162,7 +162,7 @@ jmtx_result jmtx_convert_cds_to_crs(
     jmtx_matrix_crs* mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
     jmtx_result res = jmtx_matrix_crs_new(
-            &mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -207,7 +207,7 @@ jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds* in, jmtx_matrix_crs*
     jmtx_matrix_crs* mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
     jmtx_result res = jmtxs_matrix_crs_new(
-            &mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -240,7 +240,7 @@ jmtx_result jmtx_convert_cds_to_ccs(const jmtx_matrix_cds* in, jmtx_matrix_ccs**
     jmtx_matrix_ccs* mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
     jmtx_result res = jmtx_matrix_ccs_new(
-            &mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -284,7 +284,7 @@ jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds* in, jmtx_matrix_ccs*
     jmtx_matrix_ccs* mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
     jmtx_result res = jmtxs_matrix_ccs_new(
-            &mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -315,7 +315,7 @@ jmtx_result jmtx_convert_crs_to_cds(const jmtx_matrix_crs* in, jmtx_matrix_cds**
 {
     jmtx_matrix_cds* mtx;
     jmtx_result res = jmtx_matrix_cds_new(
-            &mtx, in->base.cols, in->base.rows, 0, (const int32_t[]) {0}, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, 0, (const int32_t[]) {0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -361,7 +361,7 @@ jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs* in, jmtx_matrix_cds*
     }
     jmtx_matrix_cds* mtx;
     jmtx_result res = jmtxs_matrix_cds_new(
-            &mtx, in->base.cols, in->base.rows, 0, (const int32_t[]) {0}, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, 0, (const int32_t[]) {0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -396,7 +396,7 @@ jmtx_result jmtx_convert_ccs_to_cds(const jmtx_matrix_ccs* in, jmtx_matrix_cds**
 {
     jmtx_matrix_cds* mtx;
     jmtx_result res = jmtx_matrix_cds_new(
-            &mtx, in->base.cols, in->base.rows, 0, (const int32_t[]) {0}, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, 0, (const int32_t[]) {0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -443,7 +443,7 @@ jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs* in, jmtx_matrix_cds*
     }
     jmtx_matrix_cds* mtx;
     jmtx_result res = jmtxs_matrix_cds_new(
-            &mtx, in->base.cols, in->base.rows, 0, (const int32_t[]) {0}, allocator_callbacks);
+        &mtx, in->base.rows, in->base.cols, 0, (const int32_t[]) {0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -478,7 +478,7 @@ jmtx_result jmtx_convert_brm_to_crs(const jmtx_matrix_brm* in, jmtx_matrix_crs**
 {
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
     jmtx_matrix_crs* mtx;
-    jmtx_result res = jmtx_matrix_crs_new(&mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -528,7 +528,7 @@ jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm* in, jmtx_matrix_crs*
     }
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
     jmtx_matrix_crs* mtx;
-    jmtx_result res = jmtxs_matrix_crs_new(&mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -567,7 +567,7 @@ jmtx_result jmtx_convert_brm_to_ccs(const jmtx_matrix_brm* in, jmtx_matrix_ccs**
 {
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
     jmtx_matrix_ccs* mtx;
-    jmtx_result res = jmtx_matrix_ccs_new(&mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -615,7 +615,7 @@ jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm* in, jmtx_matrix_ccs*
     }
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
     jmtx_matrix_ccs* mtx;
-    jmtx_result res = jmtxs_matrix_ccs_new(&mtx, in->base.cols, in->base.rows, max_entries, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -666,7 +666,7 @@ jmtx_result jmtx_convert_brm_to_cds(const jmtx_matrix_brm* in, jmtx_matrix_cds**
         allocator_callbacks->free(allocator_callbacks->state, index_array);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtx_matrix_cds_new(&mtx, in->base.cols, in->base.rows, 0, (const int32_t[]){0}, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (const int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, value_array);
@@ -744,7 +744,7 @@ jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm* in, jmtx_matrix_cds*
         allocator_callbacks->free(allocator_callbacks->state, index_array);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtxs_matrix_cds_new(&mtx, in->base.cols, in->base.rows, 0, (const int32_t[]){0}, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (const int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, value_array);
@@ -796,7 +796,7 @@ jmtx_result jmtx_convert_crs_to_brm(const jmtx_matrix_crs* in, jmtx_matrix_brm**
     jmtx_matrix_brm* mtx;
     const uint32_t lbw = jmtx_matrix_crs_find_lower_bandwidth(in);
     const uint32_t ubw = jmtx_matrix_crs_find_upper_bandwidth(in);
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -861,7 +861,7 @@ jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs* in, jmtx_matrix_brm*
     jmtx_matrix_brm* mtx;
     const uint32_t lbw = jmtx_matrix_crs_find_lower_bandwidth(in);
     const uint32_t ubw = jmtx_matrix_crs_find_upper_bandwidth(in);
-    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -915,7 +915,7 @@ jmtx_result jmtx_convert_ccs_to_brm(const jmtx_matrix_ccs* in, jmtx_matrix_brm**
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, values);
@@ -987,7 +987,7 @@ jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs* in, jmtx_matrix_brm*
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, values);
@@ -1056,7 +1056,7 @@ jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds* in, jmtx_matrix_brm**
         allocator_callbacks->free(allocator_callbacks->state, values);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, indices);
@@ -1143,7 +1143,7 @@ jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds* in, jmtx_matrix_brm*
         allocator_callbacks->free(allocator_callbacks->state, values);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.cols, in->base.rows, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxs_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, indices);

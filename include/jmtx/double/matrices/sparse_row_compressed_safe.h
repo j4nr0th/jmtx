@@ -17,15 +17,15 @@
 /**
  * Initializes a new Compressed Row Sparse matrix
  * @param p_mtx address that receives the pointer to the matrix
- * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
+ * @param cols number of columns of the sparse matrix
  * @param reserved_entries how many entries should the space be reserved for in the matrix initially
  * @return JMTX_RESULT_SUCCESS if successful
  */
 JMTX_NODISCARD_FUNCTION
 jmtx_result jmtxds_matrix_crs_new(
-        jmtxd_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+ jmtxd_matrix_crs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+ const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the crs matrix and frees all of its memory

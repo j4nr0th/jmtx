@@ -43,8 +43,8 @@ typedef struct jmtxd_matrix_brm_struct jmtxd_matrix_brm;
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxd_matrix_brm_new(
-        jmtxd_matrix_brm** p_mtx, uint32_t cols, uint32_t rows, uint32_t ubw, uint32_t lbw, const double* set_value,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+ jmtxd_matrix_brm** p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw, const double* set_value,
+ const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the BRM matrix and frees all of its memory

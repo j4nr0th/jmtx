@@ -15,8 +15,8 @@ typedef struct jmtxz_matrix_cds_struct jmtxz_matrix_cds;
 /**
  * Initializes a new Compressed Diagonal Sparse matrix
  * @param p_mtx address that receives the pointer to the matrix
- * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
+ * @param cols number of columns of the sparse matrix
  * @param n_diagonals how already filled diagonals are given to the matrix to initialize with
  * @param p_dia_idx SORTED indices of locations of the diagonals to reserve, indices being relative to the main
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
@@ -24,8 +24,8 @@ typedef struct jmtxz_matrix_cds_struct jmtxz_matrix_cds;
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxz_matrix_cds_new(
-        jmtxz_matrix_cds** p_mtx, uint32_t cols, uint32_t rows, uint32_t n_diagonals,
-        const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks);
+ jmtxz_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
+ const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the cds matrix and frees all of its memory

@@ -187,7 +187,7 @@ int main()
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
-        MATRIX_TEST_CALL(jmtxds_matrix_crs_new(mtx_array + i, PROBLEM_INTERNAL_PTS, (sizes[i + 1] - sizes[i]), 5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i]) ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]), NULL));
+        MATRIX_TEST_CALL(jmtxds_matrix_crs_new(mtx_array + i, (sizes[i + 1] - sizes[i]), PROBLEM_INTERNAL_PTS, 5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i]) ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]),  NULL));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 

@@ -46,8 +46,8 @@ static inline uint_fast32_t brm_row_len(const jmtxc_matrix_brm mtx[const static 
 
 
 jmtx_result jmtxc_matrix_brm_new(
-        jmtxc_matrix_brm** p_mtx, uint32_t cols, uint32_t rows, uint32_t ubw, uint32_t lbw, const _Complex float* set_value,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxc_matrix_brm** p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw, const _Complex float* set_value,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -101,8 +101,8 @@ jmtx_result jmtxc_matrix_brm_new(
 }
 
 jmtx_result jmtxcs_matrix_brm_new(
-        jmtxc_matrix_brm** p_mtx, uint32_t cols, uint32_t rows, uint32_t ubw, uint32_t lbw, const _Complex float* set_value,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxc_matrix_brm** p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw, const _Complex float* set_value,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -133,7 +133,7 @@ jmtx_result jmtxcs_matrix_brm_new(
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxc_matrix_brm_new(p_mtx, cols, rows, ubw, lbw, set_value, allocator_callbacks);
+    return jmtxc_matrix_brm_new(p_mtx, rows, cols, ubw, lbw, set_value, allocator_callbacks);
 }
 
 void jmtxc_matrix_brm_destroy(jmtxc_matrix_brm* mtx)

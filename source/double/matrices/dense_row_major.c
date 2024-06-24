@@ -16,8 +16,8 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxd_matrix_drm_new(
-        jmtxd_matrix_drm** p_mtx, uint32_t cols, uint32_t rows, const double* set_value,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxd_matrix_drm** p_mtx, uint32_t rows, uint32_t cols, const double* set_value,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -311,7 +311,7 @@ jmtx_result jmtxd_matrix_drm_transpose(
 {
     jmtxd_matrix_drm* new;
     const uint32_t new_cols = mtx->base.rows, new_rows = mtx->base.cols;
-    jmtx_result res = jmtxd_matrix_drm_new(&new, new_cols, new_rows, NULL, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_drm_new(&new, new_rows, new_cols, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -388,7 +388,7 @@ jmtx_result jmtxd_matrix_drm_transpose_inplace(jmtxd_matrix_drm* mtx, double* au
 jmtx_result jmtxd_matrix_drm_copy(const jmtxd_matrix_drm* mtx, jmtxd_matrix_drm** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
     jmtxd_matrix_drm* new;
-    jmtx_result res = jmtxd_matrix_drm_new(&new, mtx->base.cols, mtx->base.rows, NULL, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_drm_new(&new, mtx->base.rows, mtx->base.cols, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;

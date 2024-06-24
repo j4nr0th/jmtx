@@ -97,8 +97,8 @@ static jmtx_result ccs_insert_entry_at(jmtxc_matrix_ccs* mtx, uint32_t col, uint
 
 
 jmtx_result jmtxc_matrix_ccs_new(
-        jmtxc_matrix_ccs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxc_matrix_ccs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -162,8 +162,8 @@ jmtx_result jmtxc_matrix_ccs_new(
 }
 
 jmtx_result jmtxcs_matrix_ccs_new(
-        jmtxc_matrix_ccs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxc_matrix_ccs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -185,7 +185,7 @@ jmtx_result jmtxcs_matrix_ccs_new(
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtxc_matrix_ccs_new(p_mtx, cols, rows, reserved_entries, allocator_callbacks);
+    return jmtxc_matrix_ccs_new(p_mtx, rows, cols, reserved_entries, allocator_callbacks);
 }
 
 void jmtxc_matrix_ccs_destroy(jmtxc_matrix_ccs* mtx)

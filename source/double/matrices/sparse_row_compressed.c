@@ -87,8 +87,8 @@ static jmtx_result crs_insert_entry_at(jmtxd_matrix_crs* mtx, uint32_t row, uint
 }
 
 jmtx_result jmtxd_matrix_crs_new(
-        jmtxd_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxd_matrix_crs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (reserved_entries == 0)
     {
@@ -153,8 +153,8 @@ jmtx_result jmtxd_matrix_crs_new(
 }
 
 jmtx_result jmtxds_matrix_crs_new(
-        jmtxd_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxd_matrix_crs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+    const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -177,7 +177,7 @@ jmtx_result jmtxds_matrix_crs_new(
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxd_matrix_crs_new(p_mtx, cols, rows, reserved_entries, allocator_callbacks);
+    return jmtxd_matrix_crs_new(p_mtx, rows, cols, reserved_entries, allocator_callbacks);
 }
 
 void jmtxd_matrix_crs_destroy(jmtxd_matrix_crs* mtx)
@@ -1339,7 +1339,7 @@ jmtx_result jmtxd_matrix_crs_join_vertically(jmtxd_matrix_crs** output, const jm
     }
 
     jmtxd_matrix_crs* out;
-    jmtx_result res = jmtxd_matrix_crs_new(&out, col_count, n_rows, element_count, allocators);
+    jmtx_result res = jmtxd_matrix_crs_new(&out, n_rows, col_count, element_count, allocators);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;

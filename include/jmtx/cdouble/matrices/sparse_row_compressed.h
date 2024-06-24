@@ -24,16 +24,16 @@ typedef struct jmtxz_matrix_crs_struct jmtxz_matrix_crs;
 /**
  * Initializes a new Compressed Row Sparse matrix
  * @param p_mtx address that receives the pointer to the matrix
- * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
+ * @param cols number of columns of the sparse matrix
  * @param reserved_entries how many entries should the space be reserved for in the matrix initially
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxz_matrix_crs_new(
-        jmtxz_matrix_crs** p_mtx, uint32_t cols, uint32_t rows, uint32_t reserved_entries,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+ jmtxz_matrix_crs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+ const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the crs matrix and frees all of its memory

@@ -36,8 +36,8 @@ typedef struct jmtxc_matrix_drm_struct jmtxc_matrix_drm;
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxc_matrix_drm_new(
-        jmtxc_matrix_drm** p_mtx, uint32_t cols, uint32_t rows, const _Complex float* set_value,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+ jmtxc_matrix_drm** p_mtx, uint32_t rows, uint32_t cols, const _Complex float* set_value,
+ const jmtx_allocator_callbacks* allocator_callbacks);
 
 
 /**

@@ -167,16 +167,16 @@ static inline uint_fast32_t cds_superdiagonal_length(const uint_fast32_t cols, c
 /**
  * Initializes a new Compressed Diagonal Sparse matrix
  * @param p_mtx address that receives the pointer to the matrix
- * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
+ * @param cols number of columns of the sparse matrix
  * @param reserved_entries how many entries should the space be reserved for in the matrix initially
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxd_matrix_cds_new(
-        jmtxd_matrix_cds** p_mtx, uint32_t cols, uint32_t rows, uint32_t n_diagonals,
-        const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxd_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
+    const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
 {
     const int32_t backup_diag[1] = {0};
     if (allocator_callbacks == NULL)
@@ -1163,7 +1163,7 @@ jmtx_result jmtxd_matrix_cds_transpose(
     }
 
 
-    jmtx_result res = jmtxd_matrix_cds_new(&tps, new_cols, new_rows, dia_count, p_dia, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_cds_new(&tps, new_rows, new_cols, dia_count, p_dia, allocator_callbacks);
     allocator_callbacks->free(allocator_callbacks->state, p_dia);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -1252,7 +1252,7 @@ jmtx_result jmtxd_matrix_cds_copy(const jmtxd_matrix_cds* mtx, jmtxd_matrix_cds*
     }
 
 
-    jmtx_result res = jmtxd_matrix_cds_new(&cpy, new_cols, new_rows, dia_count, p_dia, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_cds_new(&cpy, new_rows, new_cols, dia_count, p_dia, allocator_callbacks);
     allocator_callbacks->free(allocator_callbacks->state, p_dia);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -1410,8 +1410,8 @@ void jmtxd_matrix_cds_zero_col(const jmtxd_matrix_cds* mtx, uint32_t col)
 /**
  * Initializes a new Compressed Diagonal Sparse matrix
  * @param p_mtx address that receives the pointer to the matrix
- * @param cols number of columns of the sparse matrix
  * @param rows number of rows of the sparse matrix
+ * @param cols number of columns of the sparse matrix
  * @param n_diagonals how already filled diagonals are given to the matrix to initialize with
  * @param p_dia_idx SORTED indices of locations of the diagonals to reserve, indices being relative to the main
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
@@ -1419,8 +1419,8 @@ void jmtxd_matrix_cds_zero_col(const jmtxd_matrix_cds* mtx, uint32_t col)
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxds_matrix_cds_new(
-        jmtxd_matrix_cds** p_mtx, uint32_t cols, uint32_t rows, uint32_t n_diagonals,
-        const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
+    jmtxd_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
+    const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1450,7 +1450,7 @@ jmtx_result jmtxds_matrix_cds_new(
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtxd_matrix_cds_new(p_mtx, cols, rows, n_diagonals, p_dia_idx, allocator_callbacks);
+    return jmtxd_matrix_cds_new(p_mtx, rows, cols, n_diagonals, p_dia_idx, allocator_callbacks);
 }
 
 /**
