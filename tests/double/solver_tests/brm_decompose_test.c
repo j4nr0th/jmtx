@@ -68,7 +68,7 @@ static double get_rms_error_for_element_count(const unsigned n)
     jmtxd_matrix_crs* l, *u;
     jmtxd_matrix_ccs* cu;
 
-    MATRIX_TEST_CALL(jmtxd_decompose_ilu_cds(system_matrix, &l, &cu, NULL));
+    MATRIX_TEST_CALL(jmtxd_decompose_ilu_crs(system_matrix, &l, &cu, NULL));
 
     MATRIX_TEST_CALL(jmtxd_convert_ccs_to_crs(cu, &u, NULL));
     MATRIX_TEST_CALL(jmtxds_matrix_ccs_destroy(cu));

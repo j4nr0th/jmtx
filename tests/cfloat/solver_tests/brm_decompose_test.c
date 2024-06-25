@@ -67,7 +67,7 @@ static _Complex float get_rms_error_for_element_count(const unsigned n)
     jmtxc_matrix_crs* l, *u;
     jmtxc_matrix_ccs* cu;
 
-    MATRIX_TEST_CALL(jmtxc_decompose_ilu_cds(system_matrix, &l, &cu, NULL));
+    MATRIX_TEST_CALL(jmtxc_decompose_ilu_crs(system_matrix, &l, &cu, NULL));
 
     MATRIX_TEST_CALL(jmtxc_convert_ccs_to_crs(cu, &u, NULL));
     MATRIX_TEST_CALL(jmtxcs_matrix_ccs_destroy(cu));

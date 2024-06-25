@@ -33,7 +33,7 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxc_decompose_ilu_cds(
+jmtx_result jmtxc_decompose_ilu_crs(
         const jmtxc_matrix_crs* a, jmtxc_matrix_crs** p_l, jmtxc_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
@@ -54,7 +54,7 @@ jmtx_result jmtxc_decompose_ilu_cds(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxcs_decompose_ilu_cds(
+jmtx_result jmtxcs_decompose_ilu_crs(
         const jmtxc_matrix_crs* a, jmtxc_matrix_crs** p_l, jmtxc_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 

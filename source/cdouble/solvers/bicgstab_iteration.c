@@ -1,4 +1,4 @@
-// Automatically generated from source/float/solvers/bicgstab_iteration.c on Sun Dec 17 15:54:41 2023
+// Automatically generated from source/double/solvers/bicgstab_iteration.c on Sun Dec 17 15:54:41 2023
 //
 // Created by jan on 17.6.2022.
 //
@@ -8,6 +8,7 @@
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/band_row_major_internal.h"
 #include "../../../include/jmtx/cdouble/solvers/bicgstab_iteration.h"
+#include "../../../include/jmtx/cdouble/solvers/lu_solving.h"
 #include <complex.h>
 
 
@@ -453,3 +454,164 @@ jmtx_result jmtxzs_solve_iterative_bicgstab_cds(
 
     return jmtxz_solve_iterative_bicgstab_cds(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
 }
+
+/**
+ *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
+ *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
+ *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
+ *  convergence behaviour.
+ *
+ *  This version uses incomplete LU decomposition (ILU) of the matrix, which then allows for better convergence
+ *  properties. The decomposition must be given to the function.
+ *
+ *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *
+ * @param mtx system matrix A
+ * @param l lower triangular matrix
+ * @param u upper triangular matrix
+ * @param y solution to the system A x = y
+ * @param x the initial guess of x, which receives the final solution
+ * @param aux_vec1 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec2 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec3 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec4 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec5 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec6 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec7 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param aux_vec8 auxiliary memory used by the algorithm which needs to be the same size as x and y
+ * @param args::in_convergence_criterion tolerance to determine if the solution is close enough
+ * @param args::in_max_iterations number of iterations to stop at
+ * @param args::out_last_error receives the value of the error criterion at the final iteration
+ * @param args::out_last_iteration receives the number of the final iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
+ * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
+ * given number of iterations
+ */
+jmtx_result jmtxz_solve_iterative_pilubicgstab_crs(
+        const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, const _Complex double* restrict y,
+        _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2, _Complex double* restrict aux_vec3,
+        _Complex double* restrict aux_vec4, _Complex double* restrict aux_vec5, _Complex double* restrict aux_vec6, _Complex double* restrict aux_vec7,
+        _Complex double* restrict aux_vec8, jmtxd_solver_arguments* args)
+{
+    const uint32_t n = mtx->base.rows;
+
+    _Complex double rho = 1, alpha = 1, omega = 1;
+
+    _Complex double* const r = aux_vec1;
+    _Complex double* const rQ = aux_vec2;
+    _Complex double* const p = aux_vec3;
+    _Complex double* const Ap = aux_vec4;
+    _Complex double* const s = aux_vec5;
+    _Complex double* const As = aux_vec6;
+    _Complex double* const phat = aux_vec7;
+    _Complex double* const shat = aux_vec8;
+
+    double err = 0;
+
+    jmtxz_matrix_crs_vector_multiply(mtx, x, r);
+    double y_mag = 0;
+    for (uint32_t i = 0; i < n; ++i)
+    {
+        r[i] = y[i] - r[i];
+        rQ[i] = conj(r[i]);
+        p[i] = r[i];
+//        Ap[i] = 0;
+        y_mag += conj(y[i]) * y[i];
+        err += conj(r[i]) * r[i];
+    }
+    y_mag = sqrt(y_mag);
+    err = sqrt(err) / y_mag;
+    if (err < args->in_convergence_criterion)
+    {
+        args->out_last_error = err;
+        args->out_last_iteration = 0;
+        return JMTX_RESULT_SUCCESS;
+    }
+
+    uint32_t iter_count = 0;
+    for (;;)
+    {
+        jmtxz_solve_direct_lu_crs(l, u, p, phat);
+        jmtxz_matrix_crs_vector_multiply(mtx, phat, Ap);
+        _Complex double rQAp = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            rQAp += rQ[i] * Ap[i];
+        }
+        alpha = rho / rQAp;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            x[i] = x[i] + alpha * phat[i];
+        }
+        double sksk_dp = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            const _Complex double si = r[i] - alpha * Ap[i];
+            s[i] = si;
+            sksk_dp += conj(si) * si;
+        }
+        err = sqrt(sksk_dp) / y_mag;
+        if (err < args->in_convergence_criterion)
+        {
+            break;
+        }
+        jmtxz_solve_direct_lu_crs(l, u, s, shat);
+        jmtxz_matrix_crs_vector_multiply(mtx, shat, As);
+        _Complex double sAs_dp = 0;
+        double sAAs_dp = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            sAAs_dp += conj(As[i]) * As[i];
+            sAs_dp  += conj(s[i]) * As[i];
+        }
+        omega = sAs_dp / sAAs_dp;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            x[i] = x[i] + omega * shat[i];
+        }
+        double rkrk_dp = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            const _Complex double ri = s[i] - omega * As[i];
+            r[i] = ri;
+            rkrk_dp += conj(ri) * ri;
+        }
+        err = sqrt(rkrk_dp) / y_mag;
+        if (iter_count == args->in_max_iterations)
+        {
+            break;
+        }
+        if (args->opt_error_evolution)
+        {
+            args->opt_error_evolution[iter_count] = err;
+        }
+        iter_count += 1;
+        if (err < args->in_convergence_criterion)
+        {
+            break;
+        }
+
+        _Complex double rQrk_dp = 0;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            rQrk_dp += rQ[i] * r[i];
+        }
+        const double beta = rQrk_dp / rho * alpha / omega;
+        rho = rQrk_dp;
+        for (uint32_t i = 0; i < n; ++i)
+        {
+            p[i] = r[i] + beta * (p[i] - omega * Ap[i]);
+        }
+    }
+
+    args->out_last_iteration = iter_count;
+    args->out_last_error= err;
+    if (!isfinite(err) || err > args->in_convergence_criterion)
+    {
+        return JMTX_RESULT_NOT_CONVERGED;
+    }
+
+    return JMTX_RESULT_SUCCESS;
+}
+

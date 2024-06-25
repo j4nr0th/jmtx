@@ -26,7 +26,7 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxs_decompose_ilu_cds(
+jmtx_result jmtxs_decompose_ilu_crs(
         const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -56,10 +56,10 @@ jmtx_result jmtxs_decompose_ilu_cds(
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtx_decompose_ilu_cds(a, p_l, p_u, allocator_callbacks);
+    return jmtx_decompose_ilu_crs(a, p_l, p_u, allocator_callbacks);
 }
 
-jmtx_result jmtx_decompose_ilu_cds(
+jmtx_result jmtx_decompose_ilu_crs(
         const jmtx_matrix_crs* a, jmtx_matrix_crs** p_l, jmtx_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
@@ -77,20 +77,21 @@ jmtx_result jmtx_decompose_ilu_cds(
     jmtx_matrix_ccs* u = NULL;
     for (uint32_t i = 0; i < n; ++i)
     {
-        uint32_t n_dim = jmtx_matrix_crs_entries_in_col(a, i);
-        if (n_dim > max_elements_in_direction)
-        {
-            max_elements_in_direction = n_dim;
-        }
+        // uint32_t n_dim = jmtx_matrix_crs_entries_in_col(a, i);
+        // if (n_dim > max_elements_in_direction)
+        // {
+        //     max_elements_in_direction = n_dim;
+        // }
         uint32_t* unused_idx;
         float* unused_val;
-        n_dim = jmtx_matrix_crs_get_row(a, i, &unused_idx, &unused_val);
+        uint32_t n_dim = jmtx_matrix_crs_get_row(a, i, &unused_idx, &unused_val);
         n_dim += 1;
         if (n_dim > max_elements_in_direction)
         {
             max_elements_in_direction = n_dim;
         }
     }
+    max_elements_in_direction *= 2;
 
     uint32_t* p_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_indices) * 2 * max_elements_in_direction);
     if (!p_indices)
@@ -182,6 +183,33 @@ jmtx_result jmtx_decompose_ilu_cds(
 
         //  Get column values from the matrix A
         c = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, p_values, p_indices);
+        while (c > max_elements_in_direction)
+        {
+            max_elements_in_direction *= 2;
+            uint32_t* new_indices = allocator_callbacks->realloc(allocator_callbacks->state, p_indices, sizeof*p_indices * max_elements_in_direction * 2);
+            if (!new_indices)
+            {
+                allocator_callbacks->free(allocator_callbacks->state, p_values);
+                allocator_callbacks->free(allocator_callbacks->state, p_indices);
+                jmtx_matrix_ccs_destroy(u);
+                jmtx_matrix_crs_destroy(l);
+                return JMTX_RESULT_BAD_ALLOC;
+            }
+            p_indices = new_indices;
+            float* new_values = allocator_callbacks->realloc(allocator_callbacks->state, p_values, sizeof*p_values * max_elements_in_direction * 2);
+            if (!new_values)
+            {
+                allocator_callbacks->free(allocator_callbacks->state, p_values);
+                allocator_callbacks->free(allocator_callbacks->state, p_indices);
+                jmtx_matrix_ccs_destroy(u);
+                jmtx_matrix_crs_destroy(l);
+                return JMTX_RESULT_BAD_ALLOC;
+            }
+            p_values = new_values;
+
+            c = jmtx_matrix_crs_get_col(a, i, max_elements_in_direction, p_values, p_indices);
+
+        }
         float* const p_vu = p_values + max_elements_in_direction;
         uint32_t* const p_iu = p_indices + max_elements_in_direction;
         //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp

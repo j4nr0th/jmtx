@@ -16,7 +16,7 @@ int main()
 {
     jmtx_result mtx_res;
     jmtxz_matrix_drm* mtx1 = NULL;
-    MATRIX_TEST_CALL(jmtxz_matrix_drm_new(&mtx1, TEST_COLS1, TEST_ROWS1, NULL, NULL));
+    MATRIX_TEST_CALL(jmtxz_matrix_drm_new(&mtx1, TEST_ROWS1, TEST_COLS1, NULL, NULL));
     print_drmz_matrix(mtx1);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 

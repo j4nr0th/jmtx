@@ -669,7 +669,7 @@ jmtx_result jmtxz_solve_iterative_ilu_crs(
 
     jmtxz_matrix_crs* lower;
     jmtxz_matrix_ccs* upper_ccs;
-    jmtx_result res = jmtxz_decompose_ilu_cds(
+    jmtx_result res = jmtxz_decompose_ilu_crs(
             mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -765,7 +765,7 @@ jmtx_result jmtxzs_solve_iterative_ilu_crs(
 
     jmtxz_matrix_crs* lower;
     jmtxz_matrix_ccs* upper_ccs;
-    jmtx_result res = jmtxzs_decompose_ilu_cds(
+    jmtx_result res = jmtxzs_decompose_ilu_crs(
             mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -1339,7 +1339,7 @@ jmtx_result jmtxz_solve_iterative_ilu_crs_parallel(
 
     jmtxz_matrix_crs* lower;
     jmtxz_matrix_ccs* upper_ccs;
-    jmtx_result res = jmtxz_decompose_ilu_cds(
+    jmtx_result res = jmtxz_decompose_ilu_crs(
             mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -1438,7 +1438,7 @@ jmtx_result jmtxzs_solve_iterative_ilu_crs_parallel(
 
     jmtxz_matrix_crs* lower;
     jmtxz_matrix_ccs* upper_ccs;
-    jmtx_result res = jmtxzs_decompose_ilu_cds(
+    jmtx_result res = jmtxzs_decompose_ilu_crs(
             mtx, &lower, &upper_ccs, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {

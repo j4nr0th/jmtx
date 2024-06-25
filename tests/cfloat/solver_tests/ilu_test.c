@@ -108,7 +108,7 @@ int main()
     jmtxc_matrix_crs* lower = NULL;
     jmtxc_matrix_ccs* upper = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxc_decompose_ilu_cds(mtx, &lower, &upper, NULL));
+    MATRIX_TEST_CALL(jmtxc_decompose_ilu_crs(mtx, &lower, &upper, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED);
 

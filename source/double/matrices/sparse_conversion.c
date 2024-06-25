@@ -102,7 +102,6 @@ jmtx_result jmtxds_convert_crs_to_ccs(const jmtxd_matrix_crs* in, jmtxd_matrix_c
     *p_out = jmtxd_convert_crs_to_ccs_inplace_transpose(cpy);
     return JMTX_RESULT_SUCCESS;
 }
-
 /**
  * Converts a CCS matrix into the CRS format. Input matrix remains untouched.
  * @param in CCS matrix to convert
@@ -114,13 +113,63 @@ jmtx_result jmtxds_convert_crs_to_ccs(const jmtxd_matrix_crs* in, jmtxd_matrix_c
 jmtx_result jmtxd_convert_ccs_to_crs(
         const jmtxd_matrix_ccs* in, jmtxd_matrix_crs** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
 {
-    jmtxd_matrix_ccs* cpy;
-    jmtx_result res = jmtxd_matrix_ccs_transpose(in, &cpy, allocator_callbacks);
+    const uint32_t rows = in->base.rows;
+    jmtxd_matrix_crs* out;
+    jmtx_result res = jmtxd_matrix_crs_new(&out, rows, in->base.cols, in->n_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
-    *p_out = jmtxd_convert_ccs_to_crs_inplace_transpose(cpy);
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
+
+    uint32_t* row_counts = allocator_callbacks->alloc(allocator_callbacks->state, sizeof*row_counts * rows);
+    if (row_counts == NULL)
+    {
+        jmtxd_matrix_crs_destroy(out);
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    memset(row_counts, 0, sizeof*row_counts * rows);
+
+    uint32_t* row_ends = out->end_of_row_offsets;
+    for (uint32_t i = 0; i < in->n_entries; ++i)
+    {
+        row_counts[in->indices[i]] += 1;
+    }
+    row_ends[0] = row_counts[0];
+    //  Compute cumsums for offsets
+    for (uint32_t i = 1; i < rows; ++i)
+    {
+        row_ends[i] = row_counts[i] + row_ends[i-1];
+        row_counts[i] = 0; //   Zero the row counts so that they can be reused later for counting bucket sizes
+    }
+    row_counts[0] = 0;
+    row_counts[rows - 1] = 0;
+
+    for (uint32_t col = 0; col < in->base.cols; ++col)
+    {
+        uint32_t* in_rows;
+        double* in_vals;
+        uint32_t n_col = jmtxd_matrix_ccs_get_col(in, col, &in_rows, &in_vals);
+
+        for (uint32_t idx = 0; idx < n_col; ++idx)
+        {
+            const uint32_t row = in_rows[idx];
+            const uint32_t ip = row > 0 ? row_ends[row-1] : 0;
+            const uint32_t n_row = row_counts[row];//row == rows - 1 ? in->n_entries : row_ends[row + 1];
+
+            out->values[ip+n_row] = in_vals[idx];
+            out->indices[ip+n_row] = col;
+            row_counts[row] += 1;
+        }
+    }
+    out->n_entries = in->n_entries;
+
+    allocator_callbacks->free(allocator_callbacks->state, row_counts);
+    *p_out = out;
+
     return JMTX_RESULT_SUCCESS;
 }
 

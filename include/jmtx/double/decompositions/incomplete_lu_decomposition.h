@@ -12,6 +12,9 @@
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
     #include "../matrices/sparse_column_compressed.h"
 #endif
+#ifndef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
+    #include "../matrices/sparse_diagonal_compressed.h"
+#endif
 #ifndef JMTX_SOLVER_BASE_H
     #include "../../solver_base.h"
 #endif
@@ -33,7 +36,7 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxd_decompose_ilu_cds(
+jmtx_result jmtxd_decompose_ilu_crs(
         const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
@@ -54,7 +57,7 @@ jmtx_result jmtxd_decompose_ilu_cds(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxds_decompose_ilu_cds(
+jmtx_result jmtxds_decompose_ilu_crs(
         const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
