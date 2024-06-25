@@ -9,6 +9,7 @@
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_column_compressed_internal.h"
 #include "../../../tests/cfloat/test_common.h"
+#include "../../../include/jmtx/cfloat/matrices/sparse_multiplication.h"
 
 /**
  * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
@@ -60,6 +61,111 @@ jmtx_result jmtxcs_decompose_ilu_crs(
     return jmtxc_decompose_ilu_crs(a, p_l, p_u, allocator_callbacks);
 }
 
+
+jmtx_result jmtxc_decompose_ldu_split_crs(const jmtxc_matrix_crs* a, jmtxc_matrix_crs** p_l, jmtxc_matrix_ccs** p_u,
+    const jmtx_allocator_callbacks* allocator_callbacks)
+{
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
+
+    jmtxc_matrix_crs* l;
+    jmtxc_matrix_ccs* u;
+
+
+
+    uint32_t cols = a->base.cols;
+    uint32_t* count_u = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*count_u) * cols);
+    if (!count_u)
+    {
+        return JMTX_RESULT_BAD_ALLOC;
+    }
+    uint32_t rows = a->base.rows;
+    uint32_t total_count_l = 0, total_count_u = 0;
+    memset(count_u, 0, sizeof(*count_u) * cols);
+
+
+    for (uint32_t row = 0; row < rows; ++row)
+    {
+        uint32_t* pcols;
+        _Complex float* pvals;
+        uint32_t ncols = jmtxc_matrix_crs_get_row(a, row, &pcols, &pvals);
+        for (uint32_t n = 0; n < ncols; ++n)
+        {
+            uint32_t col = pcols[n];
+            count_u[col] += (col >= row);
+            total_count_u += (col >= row);
+            total_count_l += (col <= row);
+        }
+    }
+
+    jmtx_result res = jmtxc_matrix_crs_new(&l, rows, cols, total_count_l, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, count_u);
+        return res;
+    }
+    res = jmtxc_matrix_ccs_new(&u, rows, cols, total_count_u, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
+    {
+        allocator_callbacks->free(allocator_callbacks->state, count_u);
+        return res;
+    }
+    uint32_t* col_ends = u->end_of_column_offsets;
+    //  Create end of line offsets for the upper matrix
+    col_ends[0] = count_u[0];
+    //  Compute cumsums for offsets
+    for (uint32_t i = 1; i < cols; ++i)
+    {
+        col_ends[i] = count_u[i] + col_ends[i-1];
+        count_u[i] = 0; //   Zero the column counts so that they can be reused later for counting bucket sizes
+    }
+    count_u[0] = 0;
+    count_u[cols - 1] = 0;
+
+    uint32_t lcnt = 0;
+    for (uint32_t row = 0; row < rows; ++row)
+    {
+        uint32_t* in_cols;
+        _Complex float* in_vals;
+        uint32_t n_row = jmtxc_matrix_crs_get_row(a, row, &in_cols, &in_vals);
+
+        for (uint32_t idx = 0; idx < n_row; ++idx)
+        {
+            const uint32_t col = in_cols[idx];
+            const uint32_t ip = col > 0 ? col_ends[col-1] : 0;
+            const uint32_t n_col = count_u[col];
+
+            if (col >= row)
+            {
+                u->values[ip+n_col] = in_vals[idx];
+                u->indices[ip+n_col] = row;
+                count_u[col] += 1;
+            }
+            else
+            {
+                l->indices[lcnt] = col;
+                l->values[lcnt] = in_vals[idx];
+                lcnt += 1;
+            }
+        }
+        l->indices[lcnt] = row;
+        l->values[lcnt] = 1;
+        lcnt += 1;
+        l->end_of_row_offsets[row] = lcnt;
+    }
+    l->n_entries = l->end_of_row_offsets[rows - 1];
+    u->n_entries = u->end_of_column_offsets[cols - 1];
+
+
+    allocator_callbacks->free(allocator_callbacks->state, count_u);
+    *p_l = l;
+    *p_u = u;
+
+    return JMTX_RESULT_SUCCESS;
+}
+
 jmtx_result jmtxc_decompose_ilu_crs(
         const jmtxc_matrix_crs* a, jmtxc_matrix_crs** p_l, jmtxc_matrix_ccs** p_u,
         const jmtx_allocator_callbacks* allocator_callbacks)
@@ -70,201 +176,51 @@ jmtx_result jmtxc_decompose_ilu_crs(
     }
 
     //  L and U have at most this many entries (in the case that A is already triangular)
-    const uint32_t max_entries = a->n_entries;
     const uint32_t n = a->base.rows;
-    jmtx_result res;
-    uint32_t max_elements_in_direction = 0;
     jmtxc_matrix_crs* l = NULL;
     jmtxc_matrix_ccs* u = NULL;
-    for (uint32_t i = 0; i < n; ++i)
-    {
-        // uint32_t n_dim = jmtxc_matrix_crs_entries_in_col(a, i);
-        // if (n_dim > max_elements_in_direction)
-        // {
-        //     max_elements_in_direction = n_dim;
-        // }
-        uint32_t* unused_idx;
-        _Complex float* unused_val;
-        uint32_t n_dim = jmtxc_matrix_crs_get_row(a, i, &unused_idx, &unused_val);
-        n_dim += 1;
-        if (n_dim > max_elements_in_direction)
-        {
-            max_elements_in_direction = n_dim;
-        }
-    }
-    max_elements_in_direction *= 2;
-
-    uint32_t* p_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_indices) * 2 * max_elements_in_direction);
-    if (!p_indices)
-    {
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-    _Complex float* p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_elements_in_direction);
-    if (p_values == NULL)
-    {
-        allocator_callbacks->free(allocator_callbacks->state, p_indices);
-        return JMTX_RESULT_BAD_ALLOC;
-    }
-
-
-    res = jmtxc_matrix_crs_new(&l, n, n, max_entries, allocator_callbacks);
+    jmtx_result res = jmtxc_decompose_ldu_split_crs(a, &l, &u, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
-        //  Can't make matrix :(
-        allocator_callbacks->free(allocator_callbacks->state, p_values);
-        allocator_callbacks->free(allocator_callbacks->state, p_indices);
-        return res;
-    }
-    res = jmtxc_matrix_ccs_new(&u, n, n, max_entries, allocator_callbacks);
-    if (res != JMTX_RESULT_SUCCESS)
-    {
-        jmtxc_matrix_crs_destroy(l);
-        allocator_callbacks->free(allocator_callbacks->state, p_values);
-        allocator_callbacks->free(allocator_callbacks->state, p_indices);
-        //  Can't make matrix :(
         return res;
     }
 
-    for (uint32_t i = 0; i < n; ++i)
+    for (uint32_t idx = 0; idx < n; ++idx)
     {
-        uint32_t c;
-        uint32_t* indices;
-        _Complex float* values;
-        //  Get a row from A
-        c = jmtxc_matrix_crs_get_row(a, i, &indices, &values);
-        uint32_t r;
-        for (r = 0; r < c && indices[r] < i; ++r)
+        //  Compute the row idx for l
         {
-            const uint32_t m = indices[r];
-            _Complex float v = 0;
-            _Complex float va = values[r];
-
-            uint32_t u_col_count;
-            uint32_t* u_row_indices;
-            _Complex float* u_val;
-            //  Compute the product of row p of matrix L and column m of matrix U to update the entry L_pm
-            u_col_count = jmtxc_matrix_ccs_get_col(u, m, &u_row_indices, &u_val);
-            for (uint32_t k_l = 0, k_u = 0; k_l < r && k_u < u_col_count && p_indices[k_l] < m &&
-                                            u_row_indices[k_u] < m;)
-            {
-                if (p_indices[k_l] == u_row_indices[k_u])
-                {
-                    v += p_values[k_l] * u_val[k_u];
-                    k_l += 1;
-                    k_u += 1;
-                }
-                else if (p_indices[k_l] < u_row_indices[k_u])
-                {
-                    k_l += 1;
-                }
-                else
-                {
-                    // (l_col_indices[k_l] < u_row_indices[k_u])
-                    k_u += 1;
-                }
-            }
-            assert(u_row_indices[u_col_count - 1] == m);
-            v = (va - v) / u_val[u_col_count - 1];
-            p_values[r] = v;
-            p_indices[r] = m;
-        }
-        p_values[r] = 1.0f;
-        p_indices[r] = i;
-
-        //  Values bellow the diagonal go to L
-        res = jmtxc_matrix_crs_build_row(l, i, r + 1, p_indices, p_values);
-        if (res != JMTX_RESULT_SUCCESS)
-        {
-            allocator_callbacks->free(allocator_callbacks->state, p_values);
-            allocator_callbacks->free(allocator_callbacks->state, p_indices);
-            jmtxc_matrix_ccs_destroy(u);
-            jmtxc_matrix_crs_destroy(l);
-            return res;
-        }
-
-        //  Get column values from the matrix A
-        c = jmtxc_matrix_crs_get_col(a, i, max_elements_in_direction, p_values, p_indices);
-        while (c > max_elements_in_direction)
-        {
-            max_elements_in_direction *= 2;
-            uint32_t* new_indices = allocator_callbacks->realloc(allocator_callbacks->state, p_indices, sizeof*p_indices * max_elements_in_direction * 2);
-            if (!new_indices)
-            {
-                allocator_callbacks->free(allocator_callbacks->state, p_values);
-                allocator_callbacks->free(allocator_callbacks->state, p_indices);
-                jmtxc_matrix_ccs_destroy(u);
-                jmtxc_matrix_crs_destroy(l);
-                return JMTX_RESULT_BAD_ALLOC;
-            }
-            p_indices = new_indices;
-            _Complex float* new_values = allocator_callbacks->realloc(allocator_callbacks->state, p_values, sizeof*p_values * max_elements_in_direction * 2);
-            if (!new_values)
-            {
-                allocator_callbacks->free(allocator_callbacks->state, p_values);
-                allocator_callbacks->free(allocator_callbacks->state, p_indices);
-                jmtxc_matrix_ccs_destroy(u);
-                jmtxc_matrix_crs_destroy(l);
-                return JMTX_RESULT_BAD_ALLOC;
-            }
-            p_values = new_values;
-
-            c = jmtxc_matrix_crs_get_col(a, i, max_elements_in_direction, p_values, p_indices);
-
-        }
-        _Complex float* const p_vu = p_values + max_elements_in_direction;
-        uint32_t* const p_iu = p_indices + max_elements_in_direction;
-        //  Compute the product of row m of matrix L and column p of matrix U to update the entry U_mp
-//        const uint32_t r_before = r;
-        for (r = 0; r < c && p_indices[r] <= i; ++r)
-        {
-            const uint32_t m = p_indices[r];
-            _Complex float v = 0;
-            _Complex float va = p_values[r];
-            assert(va != 0.0f);
-            uint32_t* l_col_indices;
+            uint32_t* l_idx;
             _Complex float* l_val;
-            uint32_t l_row_count = jmtxc_matrix_crs_get_row(l, m, &l_col_indices, &l_val);
-            for (uint32_t k_l = 0, k_u = 0; k_l < l_row_count && k_u < r && l_col_indices[k_l] < m && p_indices[k_u] < m;)
+            const uint32_t l_cnt = jmtxc_matrix_crs_get_row(l, idx, &l_idx, &l_val);
+            for (uint32_t k = 0; k < l_cnt - 1; ++k)
             {
-                if (l_col_indices[k_l] == p_indices[k_u])
-                {
-                    v += l_val[k_l] * p_vu[k_u];
-                    k_l += 1;
-                    k_u += 1;
-                }
-                else if (l_col_indices[k_l] < p_indices[k_u])
-                {
-                    k_l += 1;
-                }
-                else
-                {
-                    // (l_col_indices[k_l] < u_row_indices[k_u])
-                    k_u += 1;
-                }
+                uint32_t col = l_idx[k];
+                uint32_t* u_idx;
+                _Complex float* u_val;
+                const uint32_t u_cnt = jmtxc_matrix_ccs_get_col(u, col, &u_idx, &u_val);
+                const _Complex float dp = jmtxc_multiply_matrix_sparse_vectors(k, l_idx, l_val, u_cnt, u_idx, u_val);
+                l_val[k] = (l_val[k] - dp) / u_val[u_cnt - 1];
+                assert(u_idx[u_cnt - 1] == col);
             }
-            v = (va - v);
-//                jmtxc_matrix_ccs_set_entry(u, m, p, v);
-            p_vu[r] = v;
-            p_iu[r] = m;
         }
-
-        assert(p_iu[r - 1] == i);
-        //  Values above the diagonal go to U
-        res = jmtxc_matrix_ccs_build_col(u, i, r, p_iu, p_vu);
-        if (res != JMTX_RESULT_SUCCESS)
+        //  Compute the column idx for u
         {
-            allocator_callbacks->free(allocator_callbacks->state, p_values);
-            allocator_callbacks->free(allocator_callbacks->state, p_indices);
-            jmtxc_matrix_ccs_destroy(u);
-            jmtxc_matrix_crs_destroy(l);
-            return res;
+            uint32_t* u_idx;
+            _Complex float* u_val;
+            const uint32_t u_cnt = jmtxc_matrix_ccs_get_col(u, idx, &u_idx, &u_val);
+            for (uint32_t k = 0; k < u_cnt; ++k)
+            {
+                uint32_t row = u_idx[k];
+                uint32_t* l_idx;
+                _Complex float* l_val;
+                const uint32_t l_cnt = jmtxc_matrix_crs_get_row(l, row, &l_idx, &l_val);
+                const _Complex float dp = jmtxc_multiply_matrix_sparse_vectors(k, u_idx, u_val, l_cnt, l_idx, l_val);
+                u_val[k] -= dp;
+                assert(l_idx[l_cnt - 1] == row);
+                assert(l_val[l_cnt - 1] == 1);
+            }
         }
     }
-
-    allocator_callbacks->free(allocator_callbacks->state, p_values);
-    allocator_callbacks->free(allocator_callbacks->state, p_indices);
-    p_values = NULL;
-    p_indices = NULL;
 
     *p_u = u;
     *p_l = l;
