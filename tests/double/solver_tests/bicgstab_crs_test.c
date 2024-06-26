@@ -14,7 +14,7 @@
 #include "../../../include/jmtx/double/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/double/solvers/bicgstab_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 14), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
+enum {PROBLEM_DIMS = (1 << 18), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
 
 int main()
 {
@@ -59,30 +59,37 @@ int main()
 
 
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3, (int32_t[]){-1, 0, +1}, NULL));
+    MATRIX_TEST_CALL(jmtxds_matrix_cds_new(&mtx, PROBLEM_DIMS, PROBLEM_DIMS, 3, (int32_t[]){-1, 0, +1}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     uint32_t len;
     double* dia = jmtxd_matrix_cds_allocate_diagonal(mtx, 0, &len);
     //  Main diagonal
-    for (uint_fast32_t i = 0; i < len; ++i)
+    dia[0] = 1;
+    for (uint_fast32_t i = 1; i < len-1; ++i)
     {
         dia[i] = -2.0f / (dx * dx);
     }
+    dia[len-1] = 1;
     dia = jmtxd_matrix_cds_allocate_diagonal(mtx, +1, &len);
     //  Superdiagonal
-    for (uint_fast32_t i = 0; i < len; ++i)
+    dia[0] = 0;
+    for (uint_fast32_t i = 1; i < len-1; ++i)
     {
         dia[i] = 1.0f / (dx * dx) + 1.0f / (2.0f * dx);
     }
+    dia[len-1] = 0;
     dia = jmtxd_matrix_cds_allocate_diagonal(mtx, -1, &len);
     //  Subdiagonal
-    for (uint_fast32_t i = 0; i < len; ++i)
+    dia[0] = 0;
+    for (uint_fast32_t i = 1; i < len-1; ++i)
     {
         dia[i] = 1.0f / (dx * dx) - 1.0f / (2.0f * dx);
     }
+    dia[len-1] = 0;
 
-    jmtxd_matrix_cds_vector_multiply(mtx, exact_solution + 1, forcing_vector + 1);
+    // print_cdsd_matrix(mtx);
+    jmtxd_matrix_cds_vector_multiply(mtx, exact_solution, forcing_vector);
     jmtxd_matrix_crs* newmtx;
     MATRIX_TEST_CALL(jmtxd_convert_cds_to_crs(mtx, &newmtx, NULL));
     jmtxd_matrix_crs* l, *u;
@@ -111,7 +118,7 @@ int main()
     {
         const double t0 = omp_get_wtime();
         mtx_res = jmtxd_solve_iterative_pilubicgstab_crs(
-                newmtx, l, u, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_v7, aux_v8, &solver_arguments);
+                newmtx, l, u, forcing_vector, iterative_solution, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_v7, aux_v8, &solver_arguments);
         // mtx_res = jmtxd_solve_iterative_bicgstab_crs(
         //         newmtx, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, &solver_arguments);
         const double t1 = omp_get_wtime();
@@ -141,8 +148,8 @@ int main()
 
     jmtxd_matrix_crs_destroy(l);
     jmtxd_matrix_crs_destroy(u);
-    iterative_solution[0] = 0;
-    iterative_solution[PROBLEM_DIMS - 1] = 0;
+    // iterative_solution[0] = 0;
+    // iterative_solution[PROBLEM_DIMS - 1] = 0;
     printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, total_iterations);
 
     double rms_error = 0;

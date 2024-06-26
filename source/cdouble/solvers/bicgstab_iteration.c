@@ -85,6 +85,10 @@ jmtx_result jmtxz_solve_iterative_bicgstab_crs(
         {
             rQAp += rQt[i] * Ap[i];
         }
+        if (rQAp == 0)
+        {
+            break;
+        }
         alpha = rho / rQAp;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -108,6 +112,10 @@ jmtx_result jmtxz_solve_iterative_bicgstab_crs(
         {
             sAAs_dp += conj(As[i]) * As[i];
             sAs_dp += conj(s[i]) * As[i];
+        }
+        if (sAs_dp == 0)
+        {
+            break;
         }
         omega = sAs_dp / sAAs_dp;
         for (uint32_t i = 0; i < n; ++i)
@@ -143,6 +151,10 @@ jmtx_result jmtxz_solve_iterative_bicgstab_crs(
         }
         const _Complex double beta = rQrk_dp / rho * alpha / omega;
         rho = rQrk_dp;
+        if (rQrk_dp == 0)
+        {
+            break;
+        }
         for (uint32_t i = 0; i < n; ++i)
         {
             p[i] = r[i] + beta * (p[i] - omega * Ap[i]);
