@@ -14,7 +14,7 @@
 #include "../../../include/jmtx/double/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/double/solvers/bicgstab_iteration.h"
 
-enum {PROBLEM_DIMS = (1 << 18), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
+enum {PROBLEM_DIMS = (1 << 20), MAX_ITERATIONS = PROBLEM_DIMS, CG_ITERATION_ROUND = 3};
 
 int main()
 {
@@ -117,7 +117,7 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxd_solve_iterative_pilubicgstab_crs(
+        mtx_res = jmtxd_solve_iterative_pilubicgstab_crs_parallel(
                 newmtx, l, u, forcing_vector, iterative_solution, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_v7, aux_v8, &solver_arguments);
         // mtx_res = jmtxd_solve_iterative_bicgstab_crs(
         //         newmtx, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, &solver_arguments);

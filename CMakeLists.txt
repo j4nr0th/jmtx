@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 project(jmtx)
 set(CMAKE_C_STANDARD 99)
 
+find_package(OpenMP REQUIRED)
+
 enable_testing()
 add_library(jmtx
     include/jmtx/common.h
@@ -30,10 +32,8 @@ target_sources(jmtx PRIVATE
 
 
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
+if (CMAKE_BUILD_TYPE STREQUAL Debug AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
-elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-    #    target_compile_definitions(jmtx PRIVATE JMTX_NO_VERIFY_PARAMS=1)
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL Release-Generate-Profile)
@@ -41,7 +41,12 @@ if (CMAKE_BUILD_TYPE STREQUAL Release-Generate-Profile)
     target_link_libraries(jmtx gcov)
 endif ()
 
+if (OpenMP_C_FOUND)
+    target_link_libraries(jmtx OpenMP::OpenMP_C ${OpenMP_C_LIBRARIES})
+    target_compile_options(jmtx PRIVATE ${OpenMP_C_FLAGS})
+    target_include_directories(jmtx PRIVATE OpenMP_C_INCLUDE_DIRS)
+endif ()
+
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries(jmtx gomp m)
-    target_compile_options(jmtx PRIVATE -fopenmp -fanalyzer -march=native -mtune=native)
+    target_link_libraries(jmtx m)
 endif ()
