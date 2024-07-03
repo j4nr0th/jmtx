@@ -148,7 +148,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(
  */
 jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y,
-        float* restrict x, double* restrict aux_vec1, float* restrict aux_vec2, float* restrict aux_vec3,
+        float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2, float* restrict aux_vec3,
         float* restrict aux_vec4, float* restrict aux_vec5, float* restrict aux_vec6, float* restrict aux_vec7,
         float* restrict aux_vec8, jmtx_solver_arguments* args);
 #endif
