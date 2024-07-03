@@ -172,6 +172,10 @@ add_executable(bicgstab_crs_test_double tests/double/solver_tests/bicgstab_crs_t
 target_link_libraries(bicgstab_crs_test_double PRIVATE jmtx)
 add_test(NAME bicgstab_crs_test_double COMMAND bicgstab_crs_test_double)
 
+add_executable(parallel_pilubicgstab_crs_test_double tests/double/solver_tests/parallel_bicgstab_crs.c tests/double/test_common.c)
+target_link_libraries(parallel_pilubicgstab_crs_test_double PRIVATE jmtx)
+add_test(NAME parallel_pilubicgstab_crs_test_double COMMAND parallel_pilubicgstab_crs_test_double)
+
 add_executable(gmres_test_double tests/double/solver_tests/gmres_test.c tests/double/test_common.c)
 target_link_libraries(gmres_test_double PRIVATE jmtx)
 add_test(NAME gmres_test_double COMMAND gmres_test_double)

@@ -2,7 +2,7 @@
 //
 // Created by jan on 17.6.2022.
 //
-
+#include <omp.h>
 #include <math.h>
 #include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
@@ -671,7 +671,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
 {
     const uint32_t n = mtx->base.rows;
 
-    double rho = 1, alpha = 1, omega = 1;
+
 
     double* const r = aux_vec1;
     double* const rQ = aux_vec2;
@@ -692,10 +692,11 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
     uint32_t iter_count = 0;
 
     double err = 0;
-#pragma omp parallel shared(err, y_mag, r, rQ, p, Ap, s, As, phat, shat, rho, alpha, omega, n, iter_count, rQAp, sksk_dp, sAs_dp, sAAs_dp, rkrk_dp)
+#pragma omp parallel default(none) shared(x, mtx, y, u, l, args, rQrk_dp, err, y_mag, r, rQ, p, Ap, s, As, phat, shat, n, iter_count, rQAp, sksk_dp, sAs_dp, sAAs_dp, rkrk_dp)
     {
+        double rho = 1, alpha = 1, omega = 1, beta = 1;
         // jmtxd_matrix_crs_vector_multiply(mtx, x, r);
-#pragma omp for reduction(+:err,y_mag)
+#pragma omp for reduction(+:err,y_mag) schedule(static)
         for (uint32_t i = 0; i < n; ++i)
         {
             const double yv = jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
@@ -712,7 +713,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             err = sqrt(err) / y_mag;
         }
 
-        for (;;)
+        while (err > args->in_convergence_criterion)
         {
 #pragma omp single
             {
@@ -723,11 +724,10 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
 
             // jmtxd_matrix_crs_vector_multiply(mtx, phat, Ap);
 
-#pragma omp for reduction(+:rQAp)
+#pragma omp for reduction(+:rQAp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const double ap = jmtxd_matrix_crs_vector_multiply_row(mtx, phat, i);
-                Ap[i] = ap;
+                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, phat, i);
                 rQAp += rQ[i] * Ap[i];
             }
 
@@ -735,22 +735,19 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-#pragma omp single
+// #pragma omp single
+
             alpha = rho / rQAp;
-#pragma omp for
+
+#pragma omp for reduction(+:sksk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 x[i] = x[i] + alpha * phat[i];
-            }
-#pragma omp for reduction(+:sksk_dp)
-            for (uint32_t i = 0; i < n; ++i)
-            {
-                const double si = r[i] - alpha * Ap[i];
-                s[i] = si;
-                sksk_dp += si * si;
+                s[i] = r[i] - alpha * Ap[i];
+                sksk_dp += s[i] * s[i];
             }
 
-#pragma omp single
+// #pragma omp single
             {
                 err = sqrt(sksk_dp) / y_mag;
             }
@@ -765,11 +762,10 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             }
 
             // jmtxd_matrix_crs_vector_multiply(mtx, shat, As);
-#pragma omp for reduction(+:sAs_dp,sAAs_dp)
+#pragma omp for reduction(+:sAs_dp,sAAs_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const double as = jmtxd_matrix_crs_vector_multiply_row(mtx, shat, i);
-                As[i] = as;
+                As[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, shat, i);
                 sAAs_dp += As[i] * As[i];
                 sAs_dp += s[i] * As[i];
             }
@@ -778,40 +774,40 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-#pragma omp single
-            omega = sAs_dp / sAAs_dp;
-#pragma omp for
+// #pragma omp single
+            {
+                omega = sAs_dp / sAAs_dp;
+            }
+#pragma omp for reduction(+:rkrk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 x[i] = x[i] + omega * shat[i];
+                r[i] = s[i] - omega * As[i];
+                rkrk_dp += r[i] * r[i];
             }
-#pragma omp for reduction(+:rkrk_dp)
-            for (uint32_t i = 0; i < n; ++i)
-            {
-                const double ri = s[i] - omega * As[i];
-                r[i] = ri;
-                rkrk_dp += ri * ri;
-            }
-#pragma omp single
+// #pragma omp single
             {
                 err = sqrt(rkrk_dp) / y_mag;
             }
-            if (iter_count == args->in_max_iterations)
+            if (iter_count >= args->in_max_iterations)
             {
                 break;
             }
-            if (args->opt_error_evolution)
+#pragma omp barrier
+#pragma omp master
             {
-                args->opt_error_evolution[iter_count] = err;
+                if (args->opt_error_evolution)
+                {
+                    args->opt_error_evolution[iter_count] = err;
+                }
+                iter_count += 1;
             }
-#pragma omp single
-            iter_count += 1;
             if (err < args->in_convergence_criterion)
             {
                 break;
             }
 
-#pragma omp for reduction(+:rQrk_dp)
+#pragma omp for reduction(+:rQrk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 rQrk_dp += rQ[i] * r[i];
@@ -821,10 +817,12 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-
-            const double beta = rQrk_dp / rho * alpha / omega;
-            rho = rQrk_dp;
-#pragma omp for
+// #pragma omp single
+            {
+                beta = rQrk_dp / rho * alpha / omega;
+                rho = rQrk_dp;
+            }
+#pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 p[i] = r[i] + beta * (p[i] - omega * Ap[i]);
