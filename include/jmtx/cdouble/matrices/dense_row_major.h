@@ -126,7 +126,7 @@ void jmtxz_matrix_drm_set_all_entries(const jmtxz_matrix_drm* mtx, _Complex doub
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
- * @param p_values a buffer of at least n values which receives the values of the column
+ * @param values a buffer of at least n values which receives the values of the column
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
@@ -215,5 +215,104 @@ void jmtxz_matrix_drm_commit_permutations(jmtxz_matrix_drm* mtx);
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
 void jmtxz_matrix_drm_commit_permutations2(jmtxz_matrix_drm* mtx, _Complex double* aux_row);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxz_matrix_drm_givens_rotation_left(jmtxz_matrix_drm* mtx, unsigned r1, unsigned r2, _Complex double ct,
+_Complex double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxzs_matrix_drm_givens_rotation_left(jmtxz_matrix_drm* mtx, unsigned r1, unsigned r2, _Complex double ct,
+ _Complex double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxz_matrix_drm_givens_rotation_right(jmtxz_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex double ct,
+_Complex double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxzs_matrix_drm_givens_rotation_right(jmtxz_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex double ct,
+ _Complex double st);
+
+/**
+ * Computes the matrix product of two matrices A and B as C = A B. This is can be written as:
+ * $$
+ *  C_{i,j} = \sum\limits_{k=0}^{N-1} A_{i,k} B_{k,j}
+ * $$
+ *
+ * This version of the function uses a pre-exsiting matrix as output.
+ *
+ * @param a matrix A
+ * @param b matrix B
+ * @param out Where the output should be returned. Should have all permutations committed.
+ * @return JMTX_RESULT_SUCCES if successful, JMTX_RESULT_DIMS_MISMATCH if the dimensions of a and b don't allow
+ * multiplication, or if c does not have correct dimensions
+ */
+jmtx_result jmtxz_matrix_drm_multiply_matrix(jmtxz_matrix_drm* a, jmtxz_matrix_drm* b, jmtxz_matrix_drm* out);
+
+/**
+ * Shifts the diagonal of the matrix mtx by the value v, so that: A_{i,i} = A_{i,i} + v for all i
+ * @param mtx matrix which should have its diagonal shifted
+ * @param v value by which to shift the diagonal
+ */
+void jmtxz_matrix_drm_shift_diagonal(jmtxz_matrix_drm* mtx, _Complex double v);
 
 #endif //JMTXZ_DENSE_ROW_MAJOR_H

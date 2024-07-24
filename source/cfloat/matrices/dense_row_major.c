@@ -274,7 +274,7 @@ void jmtxc_matrix_drm_set_all_entries(const jmtxc_matrix_drm* mtx, _Complex floa
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
- * @param p_values a buffer of at least n values which receives the values of the column
+ * @param values a buffer of at least n values which receives the values of the column
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
@@ -743,4 +743,272 @@ void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm* mtx, _Complex float
     mtx->permutations = NULL;
     mtx->rperm = NULL;
 }
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxc_matrix_drm_givens_rotation_left(
+    jmtxc_matrix_drm* mtx, unsigned r1, unsigned r2, const _Complex float ct, const _Complex float st)
+{
+    const unsigned n = mtx->base.cols;
+    if (mtx->permutations)
+    {
+        r1 = mtx->permutations[r1];
+        r2 = mtx->permutations[r2];
+    }
+    _Complex float* const row1 = mtx->values + n * r1;
+    _Complex float* const row2 = mtx->values + n * r2;
+
+    for (unsigned j = 0; j < n; ++j)
+    {
+        const _Complex float a = row1[j];
+        const _Complex float b = row2[j];
+        row1[j] = ct * a - st * b;
+        row2[j] = st * a + ct * b;
+    }
+}
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxcs_matrix_drm_givens_rotation_left(jmtxc_matrix_drm* mtx, const unsigned r1, const unsigned r2, _Complex float ct,
+ _Complex float st)
+{
+    if (r1 > mtx->base.rows || r2 > mtx->base.rows)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    jmtxc_matrix_drm_givens_rotation_left(mtx, r1, r2, ct, st);
+    return JMTX_RESULT_SUCCESS;
+}
+
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxc_matrix_drm_givens_rotation_right(jmtxc_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex float ct,
+_Complex float st)
+{
+    const unsigned n = mtx->base.rows;
+
+    _Complex float* const col1 = mtx->values + c1;
+    _Complex float* const col2 = mtx->values + c2;
+
+    if (!mtx->permutations)
+    {
+        for (unsigned i = 0; i < n; ++i)
+        {
+            const _Complex float a = col1[i * mtx->base.cols];
+            const _Complex float b = col2[i * mtx->base.cols];
+            col1[i * mtx->base.cols] = ct * a - st * b;
+            col2[i * mtx->base.cols] = st * a + ct * b;
+        }
+    }
+    else
+    {
+        for (unsigned i = 0; i < n; ++i)
+        {
+            const _Complex float a = col1[mtx->permutations[i] * mtx->base.cols];
+            const _Complex float b = col2[mtx->permutations[i] * mtx->base.cols];
+            col1[mtx->rperm[i] * mtx->base.cols] = ct * a - st * b;
+            col2[mtx->rperm[i] * mtx->base.cols] = st * a + ct * b;
+        }
+    }
+}
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxcs_matrix_drm_givens_rotation_right(jmtxc_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex float ct,
+_Complex float st)
+{
+    if (c1 > mtx->base.cols || c2 > mtx->base.cols)
+    {
+        return JMTX_RESULT_INDEX_OUT_OF_BOUNDS;
+    }
+    jmtxc_matrix_drm_givens_rotation_right(mtx, c1, c2, ct, st);
+    return JMTX_RESULT_SUCCESS;
+}
+
+/**
+ * Computes the matrix product of two matrices A and B as C = A B. This is can be written as:
+ * $$
+ *  C_{i,j} = \sum\limits_{k=0}^{N-1} A_{i,k} B_{k,j}
+ * $$
+ *
+ * This version of the function uses a pre-exsiting matrix as output.
+ *
+ * @param a matrix A
+ * @param b matrix B
+ * @param out where the output should be returned
+ * @return JMTX_RESULT_SUCCES if successful, JMTX_RESULT_DIMS_MISMATCH if the dimensions of a and b don't allow
+ * multiplication, or if c does not have correct dimensions
+ */
+jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_drm* b, jmtxc_matrix_drm* out)
+{
+    if (out->permutations)
+    {
+        return JMTX_RESULT_BAD_PARAM;
+    }
+    const unsigned n = a->base.cols;
+    if (n != b->base.rows)
+    {
+        return JMTX_RESULT_DIMS_MISMATCH;
+    }
+
+    const unsigned new_rows = out->base.rows;
+    const unsigned new_cols = out->base.cols;
+    if (a->base.rows != new_rows || b->base.cols != new_cols)
+    {
+        return JMTX_RESULT_DIMS_MISMATCH;
+    }
+    if (!b->permutations && !a->permutations)
+    {
+        for (unsigned i = 0; i < new_rows; ++i)
+        {
+            const _Complex float* restrict p_row = a->values + i * n;
+            for (unsigned j = 0; j < new_cols; ++j)
+            {
+                _Complex float v = 0;
+                const _Complex float* restrict p_col = b->values + j;
+                for (unsigned k = 0; k < n; ++k)
+                {
+                    v += p_row[k] * p_col[b->base.cols*k];
+                    out->values[j + i * new_cols] = v;
+                }
+            }
+        }
+    }
+    else if (a->permutations && b->permutations)
+    {
+        for (unsigned i = 0; i < new_rows; ++i)
+        {
+            const _Complex float* restrict p_row = a->values + n * a->permutations[i];
+            for (unsigned j = 0; j < new_cols; ++j)
+            {
+                _Complex float v = 0;
+                const _Complex float* restrict p_col = b->values + j;
+                for (unsigned k = 0; k < n; ++k)
+                {
+                    v += p_row[k] * p_col[b->base.cols * b->permutations[k]];
+                    out->values[j + i * new_cols] = v;
+                }
+            }
+        }
+    }
+    else if (a->permutations)
+    {
+        for (unsigned i = 0; i < new_rows; ++i)
+        {
+            const _Complex float* restrict p_row = a->values + n * a->permutations[i];
+            for (unsigned j = 0; j < new_cols; ++j)
+            {
+                _Complex float v = 0;
+                const _Complex float* restrict p_col = b->values + j;
+                for (unsigned k = 0; k < n; ++k)
+                {
+                    v += p_row[k] * p_col[b->base.cols * k];
+                    out->values[j + i * new_cols] = v;
+                }
+            }
+        }
+    }
+    else // if (b->permutations)
+    {
+        for (unsigned i = 0; i < new_rows; ++i)
+        {
+            const _Complex float* restrict p_row = a->values + n * i;
+            for (unsigned j = 0; j < new_cols; ++j)
+            {
+                _Complex float v = 0;
+                const _Complex float* restrict p_col = b->values + j;
+                for (unsigned k = 0; k < n; ++k)
+                {
+                    v += p_row[k] * p_col[b->base.cols * k];
+                    out->values[j + i * new_cols] = v;
+                }
+            }
+        }
+    }
+
+    return JMTX_RESULT_SUCCESS;
+}
+
+
+/**
+ * Shifts the diagonal of the matrix mtx by the value v, so that: A_{i,i} = A_{i,i} + v for all i
+ * @param mtx matrix which should have its diagonal shifted
+ * @param v value by which to shift the diagonal
+ */
+void jmtxc_matrix_drm_shift_diagonal(jmtxc_matrix_drm* mtx, _Complex float v)
+{
+    const unsigned n = mtx->base.rows > mtx->base.cols ? mtx->base.cols : mtx->base.rows;
+    if (!mtx->permutations)
+    {
+        for (unsigned i = 0; i < n; ++i)
+        {
+            mtx->values[i * (mtx->base.cols + 1)] += v;
+        }
+    }
+    else
+    {
+        for (unsigned i = 0; i < n; ++i)
+        {
+            mtx->values[mtx->rperm[i] * (mtx->base.cols) + i] += v;
+        }
+    }
+}
+
+
 

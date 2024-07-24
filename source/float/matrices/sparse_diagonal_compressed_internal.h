@@ -25,7 +25,7 @@ struct jmtx_matrix_cds_struct
     jmtx_matrix_base base;
     jmtx_matrix_cds_diagonal_array super_diagonals;
     jmtx_matrix_cds_diagonal_array sub_diagonals;
-    float*  main_diagonal;
+    float* restrict main_diagonal;
 };
 
 

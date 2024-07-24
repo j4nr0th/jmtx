@@ -190,7 +190,7 @@ uint32_t jmtxc_matrix_brm_entries_in_col(const jmtxc_matrix_brm* mtx, uint32_t c
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
- * @param p_values a buffer of at least n values which receives the values of the column
+ * @param values a buffer of at least n values which receives the values of the column
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */

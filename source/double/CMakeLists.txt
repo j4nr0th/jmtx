@@ -196,4 +196,8 @@ add_executable(drm_decompose_test_double tests/double/solver_tests/drm_decompose
 target_link_libraries(drm_decompose_test_double PRIVATE jmtx)
 add_test(NAME drm_decompose_test_double COMMAND drm_decompose_test_double)
 
+add_executable(drm_givens_rotations_double tests/double/matrix_ops_tests/drm_givens_rotations.c tests/double/test_common.c)
+target_link_libraries(drm_givens_rotations_double PRIVATE jmtx)
+add_test(NAME drm_givens_rotations_double COMMAND drm_givens_rotations_double)
+
 

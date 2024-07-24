@@ -17,11 +17,11 @@ struct jmtxz_matrix_crs_struct
 {
     jmtx_matrix_base base;
     //  end_of_row_offsets[i] has the number of values are there before the end of the row i
-    uint32_t* end_of_row_offsets;
+    uint32_t* restrict end_of_row_offsets;
     //  Column indices corresponding with the individual values
-    uint32_t* indices;
+    uint32_t* restrict indices;
     //  Values of values
-    _Complex double* values;
+    _Complex double* restrict values;
     uint32_t n_entries;
     uint32_t capacity;
 };

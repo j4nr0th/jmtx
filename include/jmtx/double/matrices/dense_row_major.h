@@ -126,7 +126,7 @@ void jmtxd_matrix_drm_set_all_entries(const jmtxd_matrix_drm* mtx, double x);
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
  * @param mtx pointer to the memory where the matrix is stored
  * @param col column index of the matrix to look at
- * @param p_values a buffer of at least n values which receives the values of the column
+ * @param values a buffer of at least n values which receives the values of the column
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
@@ -147,7 +147,6 @@ jmtx_result jmtxd_matrix_drm_transpose(
 /**
  * Creates a transpose of a matrix
  * @param mtx pointer to the memory where the input matrix is stored
- * @param p_out address where the pointer to the output matrix will be returned
  * @param aux_row auxiliary memory to use for intermediate storage
  * @return JMTX_RESULT_SUCCESS if successful
  */
@@ -203,7 +202,6 @@ jmtx_result jmtxd_matrix_drm_set_permutation(jmtxd_matrix_drm* mtx, const uint32
  * permuted matrix. Should not be done on decompositions. This function requires additional memory, but that allows
  * it to swap whole rows at once, which makes it more cache friendly and potentially faster for large matrices.
  * @param mtx pointer to the memory where the matrix is stored
- * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
 void jmtxd_matrix_drm_commit_permutations(jmtxd_matrix_drm* mtx);
 
@@ -215,5 +213,105 @@ void jmtxd_matrix_drm_commit_permutations(jmtxd_matrix_drm* mtx);
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
 void jmtxd_matrix_drm_commit_permutations2(jmtxd_matrix_drm* mtx, double* aux_row);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxd_matrix_drm_givens_rotation_left(jmtxd_matrix_drm* mtx, unsigned r1, unsigned r2, double ct,
+double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param r1 first integer characterizing the rotation
+ * @param r2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxds_matrix_drm_givens_rotation_left(jmtxd_matrix_drm* mtx, unsigned r1, unsigned r2, double ct,
+ double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ */
+void jmtxd_matrix_drm_givens_rotation_right(jmtxd_matrix_drm* mtx, unsigned c1, unsigned c2, double ct,
+double st);
+
+/**
+ * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
+ * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
+ * is applied to.
+ *
+ * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
+ * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
+ * an angle, then convert them back to sine and cosine.
+ *
+ * @param mtx input matrix, to which the Givens rotation is applied to
+ * @param c1 first integer characterizing the rotation
+ * @param c2 second integer characterizing the rotation
+ * @param ct value of cos(theta), which is used for the rotation
+ * @param st value of sin(theta), which is used for the rotation
+ *
+ * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
+ */
+jmtx_result jmtxds_matrix_drm_givens_rotation_right(jmtxd_matrix_drm* mtx, unsigned c1, unsigned c2, double ct,
+ double st);
+
+/**
+ * Computes the matrix product of two matrices A and B as C = A B. This is can be written as:
+ * $$
+ *  C_{i,j} = \sum\limits_{k=0}^{N-1} A_{i,k} B_{k,j}
+ * $$
+ *
+ * This version of the function uses a pre-exsiting matrix as output.
+ *
+ * @param a matrix A
+ * @param b matrix B
+ * @param out Where the output should be returned. Should have all permutations committed.
+ * @return JMTX_RESULT_SUCCES if successful, JMTX_RESULT_DIMS_MISMATCH if the dimensions of a and b don't allow
+ * multiplication, or if c does not have correct dimensions
+ */
+jmtx_result jmtxd_matrix_drm_multiply_matrix(jmtxd_matrix_drm* a, jmtxd_matrix_drm* b, jmtxd_matrix_drm* out);
+
+/**
+ * Shifts the diagonal of the matrix mtx by the value v, so that: A_{i,i} = A_{i,i} + v for all i
+ * @param mtx matrix which should have its diagonal shifted
+ * @param v value by which to shift the diagonal
+ */
+void jmtxd_matrix_drm_shift_diagonal(jmtxd_matrix_drm* mtx, double v);
+
 
 #endif //JMTXD_DENSE_ROW_MAJOR_H
