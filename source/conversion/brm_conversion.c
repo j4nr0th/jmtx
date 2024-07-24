@@ -8,8 +8,10 @@
 #include "../matrix_base_internal.h"
 #include "../float/matrices/band_row_major_internal.h"
 #include "../double/matrices/band_row_major_internal.h"
-#include "../cfloat/matrices/band_row_major_internal.h"
-#include "../cdouble/matrices/band_row_major_internal.h"
+#ifndef _MSC_BUILD
+    #include "../cfloat/matrices/band_row_major_internal.h"
+    #include "../cdouble/matrices/band_row_major_internal.h"
+#endif
 #include "../../include/jmtx/conversion/brm_conversion.h"
 
 static inline uint_fast32_t brm_row_offset(const jmtx_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
@@ -50,6 +52,8 @@ static inline uint_fast32_t brm_row_offsetd(const jmtxd_matrix_brm mtx[JMTX_ARRA
     return offset;
 }
 
+#ifndef _MSC_BUILD
+
 static inline uint_fast32_t brm_row_offsetc(const jmtxc_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
@@ -88,6 +92,7 @@ static inline uint_fast32_t brm_row_offsetz(const jmtxz_matrix_brm mtx[JMTX_ARRA
     return offset;
 }
 
+#endif
 
 /***********************************************************************************************************************
  *                                                                                                                     *
@@ -307,6 +312,7 @@ jmtx_result jmtxds_matrix_brm_from_float(jmtxd_matrix_brm** p_mtx, const jmtx_ma
     return jmtxd_matrix_brm_from_float(p_mtx, in, allocator_callbacks);
 }
 
+#ifndef _MSC_BUILD
 /***********************************************************************************************************************
  *                                                                                                                     *
  *                                          FLOAT <-> COMPLEX FLOAT                                                    *
@@ -1321,3 +1327,4 @@ jmtx_result jmtxzs_matrix_brm_from_cfloat(jmtxz_matrix_brm** p_mtx, const jmtxc_
 
     return jmtxz_matrix_brm_from_cfloat(p_mtx, in, allocator_callbacks);
 }
+#endif//!_MSC_BUILD

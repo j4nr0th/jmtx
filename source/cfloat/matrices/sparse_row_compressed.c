@@ -61,7 +61,7 @@ static jmtx_result crs_insert_entry_at(jmtxc_matrix_crs* mtx, uint32_t row, uint
             return JMTX_RESULT_BAD_ALLOC;
         }
         mtx->indices = new_indices;
-        mtx->capacity = new_capacity;
+        mtx->capacity = (uint32_t)new_capacity;
     }
 
     //  Check for numer of values after the position

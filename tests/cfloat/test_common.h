@@ -29,6 +29,9 @@ void print_vecc(unsigned n, const _Complex float x[JMTX_ARRAY_ATTRIB(static n)])
 #   ifdef __GNUC__
 #       define DBG_BREAK __builtin_trap()
 #   endif
+#   ifdef _MSC_BUILD
+#       define DBG_BREAK __debugbreak()
+#   endif
 #else
 #define DBG_BREAK (void)0
 #endif

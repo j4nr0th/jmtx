@@ -16,8 +16,11 @@ add_library(jmtx
 
 include(source/float/CMakeLists.txt)
 include(source/double/CMakeLists.txt)
-include(source/cfloat/CMakeLists.txt)
-include(source/cdouble/CMakeLists.txt)
+
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    include(source/cfloat/CMakeLists.txt)
+    include(source/cdouble/CMakeLists.txt)
+endif()
 include(source/conversion/CMakeLists.txt)
 
 
@@ -35,13 +38,8 @@ target_sources(jmtx PRIVATE
 if (CMAKE_BUILD_TYPE STREQUAL Debug AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
 endif ()
-
-if (CMAKE_BUILD_TYPE STREQUAL Release-Generate-Profile)
-    target_compile_options(jmtx PRIVATE -fprofile-use)
-    target_link_libraries(jmtx gcov)
-endif ()
-
-if (OpenMP_C_FOUND)
+#   MSVC support for OpenMP is only for C89, so don't include it for MSVC, since the project is written for C99
+if (OpenMP_C_FOUND AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(jmtx OpenMP::OpenMP_C ${OpenMP_C_LIBRARIES})
     target_compile_options(jmtx PRIVATE ${OpenMP_C_FLAGS})
     target_include_directories(jmtx PRIVATE OpenMP_C_INCLUDE_DIRS)
@@ -49,8 +47,9 @@ endif ()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(jmtx m)
-elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    target_compile_definitions(jmtx PRIVATE JMTX_NO_ARRAY_ATTRIBS)
+#elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+#    add_compile_definitions(jmtx JMTX_NO_ARRAY_ATTRIBS)
+#    add_compile_definitions(jmtx JMTX_MSVC)
 endif ()
 
 

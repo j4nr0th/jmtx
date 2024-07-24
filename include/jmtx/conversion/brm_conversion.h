@@ -93,7 +93,7 @@ jmtx_result jmtxds_matrix_brm_from_float(jmtxd_matrix_brm** p_mtx, const jmtx_ma
  *                                          FLOAT <-> COMPLEX FLOAT                                                    *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTX_BAND_ROW_MAJOR_H) && defined(JMTXC_BAND_ROW_MAJOR_H)
+#if defined(JMTX_BAND_ROW_MAJOR_H) && defined(JMTXC_BAND_ROW_MAJOR_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new BRM matrix with single precision from the real part of a complex BRM matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
@@ -203,7 +203,7 @@ jmtx_result jmtxcs_matrix_brm_from_float(jmtxc_matrix_brm** p_mtx, const jmtx_ma
  *                                          DOUBLE <-> COMPLEX DOUBLE                                                  *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTXD_BAND_ROW_MAJOR_H) && defined(JMTXZ_BAND_ROW_MAJOR_H)
+#if defined(JMTXD_BAND_ROW_MAJOR_H) && defined(JMTXZ_BAND_ROW_MAJOR_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new BRM matrix with double precision from the real part of a complex BRM matrix with double precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
@@ -313,7 +313,7 @@ jmtx_result jmtxzs_matrix_brm_from_double(jmtxz_matrix_brm** p_mtx, const jmtxd_
  *                                 COMPLEX FLOAT <->  COMPLEX DOUBLE                                                   *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTXC_BAND_ROW_MAJOR_H) && defined(JMTXZ_BAND_ROW_MAJOR_H)
+#if defined(JMTXC_BAND_ROW_MAJOR_H) && defined(JMTXZ_BAND_ROW_MAJOR_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new complex BRM matrix with single precision from a complex BRM matrix with double precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix

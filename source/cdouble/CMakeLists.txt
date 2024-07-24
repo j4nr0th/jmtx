@@ -172,8 +172,9 @@ add_executable(base_drm_test_cdouble tests/cdouble/matrix_ops_tests/base_drm_tes
 target_link_libraries(base_drm_test_cdouble PRIVATE jmtx)
 add_test(NAME base_drm_test_cdouble COMMAND base_drm_test_cdouble)
 
-add_executable(drm_decompose_test_cdouble tests/cdouble/solver_tests/drm_decompose_test.c tests/cdouble/test_common.c)
-target_link_libraries(drm_decompose_test_cdouble PRIVATE jmtx)
-add_test(NAME drm_decompose_test_cdouble COMMAND drm_decompose_test_cdouble)
-
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    add_executable(drm_decompose_test_cdouble tests/cdouble/solver_tests/drm_decompose_test.c tests/cdouble/test_common.c)
+    target_link_libraries(drm_decompose_test_cdouble PRIVATE jmtx)
+    add_test(NAME drm_decompose_test_cdouble COMMAND drm_decompose_test_cdouble)
+endif()
 

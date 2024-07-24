@@ -66,7 +66,7 @@ static jmtx_result ccs_insert_entry_at(jmtx_matrix_ccs* mtx, uint32_t col, uint3
         }
         mtx->indices = new_indices;
 
-        mtx->capacity = new_capacity;
+        mtx->capacity = (uint32_t)new_capacity;
     }
 
     //  Check for numer of values after the position

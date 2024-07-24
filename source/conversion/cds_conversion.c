@@ -8,8 +8,10 @@
 #include "../matrix_base_internal.h"
 #include "../float/matrices/sparse_diagonal_compressed_internal.h"
 #include "../double/matrices/sparse_diagonal_compressed_internal.h"
-#include "../cfloat/matrices/sparse_diagonal_compressed_internal.h"
-#include "../cdouble/matrices/sparse_diagonal_compressed_internal.h"
+#ifndef _MSC_BUILD
+    #include "../cfloat/matrices/sparse_diagonal_compressed_internal.h"
+    #include "../cdouble/matrices/sparse_diagonal_compressed_internal.h"
+#endif
 #include "../../include/jmtx/conversion/cds_conversion.h"
 
 /***********************************************************************************************************************
@@ -371,6 +373,7 @@ jmtx_result jmtxds_matrix_cds_from_float(jmtxd_matrix_cds** p_mtx, const jmtx_ma
 }
 
 
+#ifndef _MSC_BUILD
 /***********************************************************************************************************************
  *                                                                                                                     *
  *                                          FLOAT <-> COMPLEX FLOAT                                                    *
@@ -2043,3 +2046,4 @@ jmtx_result jmtxzs_matrix_cds_from_cfloat(jmtxz_matrix_cds** p_mtx, const jmtxc_
 
     return jmtxz_matrix_cds_from_cfloat(p_mtx, in, allocator_callbacks);
 }
+#endif//!_MSC_BUILD

@@ -46,10 +46,10 @@
     #define JMTX_INTERNAL_FUNCTION
 #endif
 
-#ifndef JMTX_NO_ARRAY_ATTRIBS
+#ifndef _MSC_BUILD
     #define JMTX_ARRAY_ATTRIB(x) x
-#else//JMTX_NO_ARRAY_ATTRIBS
+#else//_MSC_BUILD
     #define JMTX_ARRAY_ATTRIB(x)
-#endif//JMTX_NO_ARRAY_ATTRIBS
+#endif//_MSC_BUILD
 
 #endif //JMTX_COMMON_H

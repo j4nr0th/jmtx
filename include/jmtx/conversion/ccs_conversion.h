@@ -92,7 +92,7 @@ jmtx_result jmtxds_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_ma
  *                                          FLOAT <-> COMPLEX FLOAT                                                    *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTX_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTX_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new CCS matrix with single precision from the real part of a complex CCS matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
@@ -202,7 +202,7 @@ jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_ma
  *                                          DOUBLE <-> COMPLEX DOUBLE                                                  *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTXD_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXZ_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTXD_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXZ_SPARSE_COLUMN_COMPRESSED_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new CCS matrix with double precision from the real part of a complex CCS matrix with double precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
@@ -312,7 +312,7 @@ jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_
  *                                 COMPLEX FLOAT <->  COMPLEX DOUBLE                                                   *
  *                                                                                                                     *
  **********************************************************************************************************************/
-#if defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXZ_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXZ_SPARSE_COLUMN_COMPRESSED_H) && !defined(JMTX_MSVC)
 /**
  * Creates a new complex CCS matrix with single precision from a complex CCS matrix with double precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
