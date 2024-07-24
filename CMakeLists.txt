@@ -4,8 +4,9 @@ project(jmtx)
 set(CMAKE_C_STANDARD 99)
 
 find_package(OpenMP REQUIRED)
-
-enable_testing()
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
+    enable_testing()
+endif()
 add_library(jmtx
     include/jmtx/common.h
     source/matrix_base_internal.h

@@ -72,6 +72,7 @@ list(APPEND DECOMPOSITIONS_HEADER_FILES
 )
 
 
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
 add_executable(base_crs_test_cdouble tests/cdouble/matrix_ops_tests/base_crs_test.c tests/cdouble/test_common.c)
 target_link_libraries(base_crs_test_cdouble jmtx m)
 add_test(NAME base_crs_cdouble COMMAND base_crs_test_cdouble)
@@ -178,3 +179,4 @@ if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     add_test(NAME drm_decompose_test_cdouble COMMAND drm_decompose_test_cdouble)
 endif()
 
+endif()

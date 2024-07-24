@@ -71,6 +71,7 @@ list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/cfloat/decompositions/dense_lu_decomposition.h
 )
 
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
 
 add_executable(base_crs_test_cfloat tests/cfloat/matrix_ops_tests/base_crs_test.c tests/cfloat/test_common.c)
 target_link_libraries(base_crs_test_cfloat jmtx m)
@@ -177,4 +178,4 @@ if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     target_link_libraries(drm_decompose_test_cfloat PRIVATE jmtx)
     add_test(NAME drm_decompose_test_cfloat COMMAND drm_decompose_test_cfloat)
 endif()
-
+endif()

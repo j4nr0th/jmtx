@@ -71,7 +71,7 @@ list(APPEND DECOMPOSITIONS_HEADER_FILES
         include/jmtx/double/decompositions/dense_lu_decomposition.h
 )
 
-
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
 add_executable(base_crs_test_double tests/double/matrix_ops_tests/base_crs_test.c tests/double/test_common.c)
 target_link_libraries(base_crs_test_double jmtx m)
 add_test(NAME base_crs_double COMMAND base_crs_test_double)
@@ -202,3 +202,4 @@ if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     add_test(NAME drm_givens_rotations_double COMMAND drm_givens_rotations_double)
 endif()
 
+endif()
