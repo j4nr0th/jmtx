@@ -12,7 +12,7 @@
 #include "../cdouble/matrices/band_row_major_internal.h"
 #include "../../include/jmtx/conversion/brm_conversion.h"
 
-static inline uint_fast32_t brm_row_offset(const jmtx_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_offset(const jmtx_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
     if (row < mtx->lower_bandwidth)
@@ -31,7 +31,7 @@ static inline uint_fast32_t brm_row_offset(const jmtx_matrix_brm mtx[const stati
     return offset;
 }
 
-static inline uint_fast32_t brm_row_offsetd(const jmtxd_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_offsetd(const jmtxd_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
     if (row < mtx->lower_bandwidth)
@@ -50,7 +50,7 @@ static inline uint_fast32_t brm_row_offsetd(const jmtxd_matrix_brm mtx[const sta
     return offset;
 }
 
-static inline uint_fast32_t brm_row_offsetc(const jmtxc_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_offsetc(const jmtxc_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
     if (row < mtx->lower_bandwidth)
@@ -69,7 +69,7 @@ static inline uint_fast32_t brm_row_offsetc(const jmtxc_matrix_brm mtx[const sta
     return offset;
 }
 
-static inline uint_fast32_t brm_row_offsetz(const jmtxz_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_offsetz(const jmtxz_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
     if (row < mtx->lower_bandwidth)

@@ -52,7 +52,7 @@ jmtx_result jmtxs_matrix_crs_shrink(jmtx_matrix_crs* mtx);
  * @return JMTX_RESULT_SUCCESS if successful
  */
 JMTX_NODISCARD_FUNCTION
-jmtx_result jmtxs_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const float values[static n]);
+jmtx_result jmtxs_matrix_crs_set_row(jmtx_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[JMTX_ARRAY_ATTRIB(static n)], const float values[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -206,7 +206,7 @@ jmtx_result jmtxs_matrix_crs_entries_in_col(const jmtx_matrix_crs* mtx, uint32_t
  */
 JMTX_NODISCARD_FUNCTION
 jmtx_result jmtxs_matrix_crs_get_col(
-        const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, uint32_t* p_count, float p_values[n], uint32_t p_rows[n]);
+        const jmtx_matrix_crs* mtx, uint32_t col, uint32_t n, uint32_t* p_count, float p_values[JMTX_ARRAY_ATTRIB(n)], uint32_t p_rows[JMTX_ARRAY_ATTRIB(n)]);
 
 /**
  * Creates a transpose of a matrix
@@ -267,6 +267,6 @@ jmtx_result jmtxs_matrix_crs_remove_column(jmtx_matrix_crs* mtx, uint32_t col);
  * input matrices, return value of jmtx_matrix_crs_new if that fails
  */
 JMTX_NODISCARD_FUNCTION
-jmtx_result jmtxs_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtx_matrix_crs* matrix_list[static k]);
+jmtx_result jmtxs_matrix_crs_join_vertically(jmtx_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtx_matrix_crs* matrix_list[JMTX_ARRAY_ATTRIB(static k)]);
 
 #endif //JMTX_SPARSE_ROW_COMPRESSED_SAFE_H

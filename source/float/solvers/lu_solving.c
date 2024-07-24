@@ -92,7 +92,7 @@ void jmtx_solve_direct_lu_brm_inplace(const jmtx_matrix_brm* l, const jmtx_matri
     }
 }
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -127,7 +127,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxs_solve_direct_lu_brm(const jmtx_matrix_brm* l, const jmtx_matrix_brm* u, uint32_t n,
-                               const float y[static restrict n], float x[static restrict n])
+                               const float y[JMTX_ARRAY_ATTRIB(static restrict n)], float x[JMTX_ARRAY_ATTRIB(static restrict n)])
 {
     if (!l)
     {
@@ -174,7 +174,7 @@ jmtx_result jmtxs_solve_direct_lu_brm(const jmtx_matrix_brm* l, const jmtx_matri
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_solve_direct_lu_brm_inplace(const jmtx_matrix_brm* l, const jmtx_matrix_brm* u, uint32_t n, float x[static n])
+jmtx_result jmtxs_solve_direct_lu_brm_inplace(const jmtx_matrix_brm* l, const jmtx_matrix_brm* u, uint32_t n, float x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!l)
     {
@@ -226,8 +226,8 @@ jmtx_result jmtxs_solve_direct_lu_brm_inplace(const jmtx_matrix_brm* l, const jm
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtx_solve_iterative_lu_brm_refine(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l, const jmtx_matrix_brm* u,
-                                        const float y[restrict], float x[restrict],
-                                        float aux_vec[restrict], jmtx_solver_arguments* args)
+                                        const float y[JMTX_ARRAY_ATTRIB(restrict)], float x[JMTX_ARRAY_ATTRIB(restrict)],
+                                        float aux_vec[JMTX_ARRAY_ATTRIB(restrict)], jmtx_solver_arguments* args)
 {
     const uint_fast32_t n = l->base.cols;
     float y_magnitude2 = 0;
@@ -297,8 +297,8 @@ jmtx_result jmtx_solve_iterative_lu_brm_refine(const jmtx_matrix_brm* a, const j
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxs_solve_iterative_lu_brm_refine(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l, const jmtx_matrix_brm* u,
-                                         uint32_t n, const float y[restrict static n], float x[restrict n],
-                                         float aux_vec[restrict n], jmtx_solver_arguments* args)
+                                         uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)], float x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                         float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args)
 {
     float y_magnitude2 = 0;
     uint_fast32_t iteration_count = 0;
@@ -374,8 +374,8 @@ jmtx_result jmtxs_solve_iterative_lu_brm_refine(const jmtx_matrix_brm* a, const 
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtx_solve_iterative_lu_brm_refine_parallel(const jmtx_matrix_brm* a, const jmtx_matrix_brm* l,
-                                                 const jmtx_matrix_brm* u,  const float y[const restrict],
-                                                 float x[const restrict], float aux_vec[const restrict],
+                                                 const jmtx_matrix_brm* u,  const float y[JMTX_ARRAY_ATTRIB(const restrict)],
+                                                 float x[JMTX_ARRAY_ATTRIB(const restrict)], float aux_vec[JMTX_ARRAY_ATTRIB(const restrict)],
                                                  jmtx_solver_arguments* args)
 {
     const uint_fast32_t n = l->base.cols;
@@ -545,7 +545,7 @@ void jmtx_solve_direct_lu_crs_inplace(const jmtx_matrix_crs* l, const jmtx_matri
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxs_solve_direct_lu_crs(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n,
-                               const float y[static restrict n], float x[restrict n])
+                               const float y[JMTX_ARRAY_ATTRIB(static restrict n)], float x[JMTX_ARRAY_ATTRIB(restrict n)])
 {
     if (!l)
     {
@@ -596,7 +596,7 @@ jmtx_result jmtxs_solve_direct_lu_crs(const jmtx_matrix_crs* l, const jmtx_matri
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_solve_direct_lu_crs_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n, float x[static n])
+jmtx_result jmtxs_solve_direct_lu_crs_inplace(const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n, float x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!l)
     {
@@ -715,8 +715,8 @@ jmtx_result jmtx_solve_iterative_ilu_crs(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxs_solve_iterative_ilu_crs(
-        const jmtx_matrix_crs* mtx, uint32_t n, const float y[restrict static n], float x[restrict n],
-        float aux_vec[restrict n], jmtx_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks)
+        const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)], float x[JMTX_ARRAY_ATTRIB(restrict n)],
+        float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)
     {
@@ -911,8 +911,8 @@ jmtx_result jmtx_solve_iterative_ilu_crs_precomputed(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxs_solve_iterative_ilu_crs_precomputed(
-        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n, const float y[restrict static n],
-        float x[restrict n], float aux_vec[restrict n], jmtx_solver_arguments* args)
+        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -1171,7 +1171,7 @@ jmtx_result jmtx_solve_iterative_ilu_crs_precomputed_parallel(
  */
 jmtx_result jmtxs_solve_iterative_ilu_crs_precomputed_parallel(
         const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, uint32_t n,
-        const float y[restrict static n], float x[restrict n], float aux_vec[restrict n], jmtx_solver_arguments* args)
+        const float y[JMTX_ARRAY_ATTRIB(restrict static n)], float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args)
 {
 
     if (!mtx)
@@ -1390,8 +1390,8 @@ jmtx_result jmtx_solve_iterative_ilu_crs_parallel(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxs_solve_iterative_ilu_crs_parallel(
-        const jmtx_matrix_crs* mtx, uint32_t n, const float y[restrict static n],
-        float x[restrict n], float aux_vec[restrict n], jmtx_solver_arguments* args,
+        const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)

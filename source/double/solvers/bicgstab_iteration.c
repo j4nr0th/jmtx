@@ -161,7 +161,7 @@ jmtx_result jmtxd_solve_iterative_bicgstab_crs(
     return JMTX_RESULT_SUCCESS;
 }
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -214,9 +214,9 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxds_solve_iterative_bicgstab_crs(
-        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n], double x[restrict n], double aux_vec1[restrict n],
-        double aux_vec2[restrict n], double aux_vec3[restrict n], double aux_vec4[restrict n], double aux_vec5[restrict n],
-        double aux_vec6[restrict n], jmtxd_solver_arguments* args)
+        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+        double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+        double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -423,9 +423,9 @@ jmtx_result jmtxd_solve_iterative_bicgstab_cds(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxds_solve_iterative_bicgstab_cds(
-        const jmtxd_matrix_cds* mtx, uint32_t n, const double y[restrict static n], double x[restrict n], double aux_vec1[restrict n],
-        double aux_vec2[restrict n], double aux_vec3[restrict n], double aux_vec4[restrict n], double aux_vec5[restrict n],
-        double aux_vec6[restrict n], jmtxd_solver_arguments* args)
+        const jmtxd_matrix_cds* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+        double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+        double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
 {
     if (!mtx)
     {

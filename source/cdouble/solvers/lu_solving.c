@@ -93,7 +93,7 @@ void jmtxz_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const jmtxz_ma
     }
 }
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -128,7 +128,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxzs_solve_direct_lu_brm(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n,
-                               const _Complex double y[static restrict n], _Complex double x[static restrict n])
+                               const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(static restrict n)])
 {
     if (!l)
     {
@@ -175,7 +175,7 @@ jmtx_result jmtxzs_solve_direct_lu_brm(const jmtxz_matrix_brm* l, const jmtxz_ma
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n, _Complex double x[static n])
+jmtx_result jmtxzs_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u, uint32_t n, _Complex double x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!l)
     {
@@ -227,8 +227,8 @@ jmtx_result jmtxzs_solve_direct_lu_brm_inplace(const jmtxz_matrix_brm* l, const 
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxz_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
-                                        const _Complex double y[restrict], _Complex double x[restrict],
-                                        _Complex double aux_vec[restrict], jmtxd_solver_arguments* args)
+                                        const _Complex double y[JMTX_ARRAY_ATTRIB(restrict)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict)],
+                                        _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict)], jmtxd_solver_arguments* args)
 {
     const uint_fast32_t n = l->base.cols;
     double y_magnitude2 = 0;
@@ -298,8 +298,8 @@ jmtx_result jmtxz_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, const
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxzs_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l, const jmtxz_matrix_brm* u,
-                                         uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n],
-                                         _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args)
+                                         uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                         _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
 {
     double y_magnitude2 = 0;
     uint_fast32_t iteration_count = 0;
@@ -375,8 +375,8 @@ jmtx_result jmtxzs_solve_iterative_lu_brm_refine(const jmtxz_matrix_brm* a, cons
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxz_solve_iterative_lu_brm_refine_parallel(const jmtxz_matrix_brm* a, const jmtxz_matrix_brm* l,
-                                                 const jmtxz_matrix_brm* u,  const _Complex double y[const restrict],
-                                                 _Complex double x[const restrict], _Complex double aux_vec[const restrict],
+                                                 const jmtxz_matrix_brm* u,  const _Complex double y[JMTX_ARRAY_ATTRIB(const restrict)],
+                                                 _Complex double x[JMTX_ARRAY_ATTRIB(const restrict)], _Complex double aux_vec[JMTX_ARRAY_ATTRIB(const restrict)],
                                                  jmtxd_solver_arguments* args)
 {
     const uint_fast32_t n = l->base.cols;
@@ -546,7 +546,7 @@ void jmtxz_solve_direct_lu_crs_inplace(const jmtxz_matrix_crs* l, const jmtxz_ma
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxzs_solve_direct_lu_crs(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n,
-                               const _Complex double y[static restrict n], _Complex double x[restrict n])
+                               const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)])
 {
     if (!l)
     {
@@ -598,7 +598,7 @@ jmtx_result jmtxzs_solve_direct_lu_crs(const jmtxz_matrix_crs* l, const jmtxz_ma
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxzs_solve_direct_lu_crs_inplace(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, _Complex double x[static n])
+jmtx_result jmtxzs_solve_direct_lu_crs_inplace(const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, _Complex double x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!l)
     {
@@ -717,8 +717,8 @@ jmtx_result jmtxz_solve_iterative_ilu_crs(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxzs_solve_iterative_ilu_crs(
-        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[restrict static n], _Complex double x[restrict n],
-        _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks)
+        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)],
+        _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)
     {
@@ -912,8 +912,8 @@ jmtx_result jmtxz_solve_iterative_ilu_crs_precomputed(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxzs_solve_iterative_ilu_crs_precomputed(
-        const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, const _Complex double y[restrict static n],
-        _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args)
+        const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
 {
     if (!mtx)
     {
@@ -1171,7 +1171,7 @@ jmtx_result jmtxz_solve_iterative_ilu_crs_precomputed_parallel(
  */
 jmtx_result jmtxzs_solve_iterative_ilu_crs_precomputed_parallel(
         const jmtxz_matrix_crs* mtx, const jmtxz_matrix_crs* l, const jmtxz_matrix_crs* u, uint32_t n,
-        const _Complex double y[restrict static n], _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args)
+        const _Complex double y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
 {
 
     if (!mtx)
@@ -1389,8 +1389,8 @@ jmtx_result jmtxz_solve_iterative_ilu_crs_parallel(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxzs_solve_iterative_ilu_crs_parallel(
-        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[restrict static n],
-        _Complex double x[restrict n], _Complex double aux_vec[restrict n], jmtxd_solver_arguments* args,
+        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!mtx)

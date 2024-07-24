@@ -41,9 +41,9 @@
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtxd_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
-                                             uint32_t m, jmtxd_matrix_brm* r, double aux_vec1[restrict m],
-                                             double aux_vec2[restrict m], double aux_vec3[restrict m],
-                                             double aux_vec4[restrict m], double aux_vec5[restrict m],
+                                             uint32_t m, jmtxd_matrix_brm* r, double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
                                              double* restrict aux_vecs, jmtxd_solver_arguments* args);
 
 /**
@@ -74,11 +74,11 @@ jmtx_result jmtxd_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, const 
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxds_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n],
-                                              double x[restrict static n], uint32_t m, jmtxd_matrix_brm* r,
-                                              double aux_vec1[restrict m], double aux_vec2[restrict m],
-                                              double aux_vec3[restrict m], double aux_vec4[restrict m],
-                                              double aux_vec5[restrict m], double aux_vecs[restrict m * n],
+jmtx_result jmtxds_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+                                              double x[JMTX_ARRAY_ATTRIB(restrict static n)], uint32_t m, jmtxd_matrix_brm* r,
+                                              double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                              double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                              double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
                                               jmtxd_solver_arguments* args);
 #endif
 
@@ -113,9 +113,9 @@ jmtx_result jmtxds_solve_iterative_gmresm_crs(const jmtxd_matrix_crs* mtx, uint3
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtxd_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
-                                             uint32_t m, jmtxd_matrix_brm* r, double aux_vec1[restrict m],
-                                             double aux_vec2[restrict m], double aux_vec3[restrict m],
-                                             double aux_vec4[restrict m], double aux_vec5[restrict m],
+                                             uint32_t m, jmtxd_matrix_brm* r, double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
                                              double* restrict aux_vecs, jmtxd_solver_arguments* args);
 
 /**
@@ -146,11 +146,11 @@ jmtx_result jmtxd_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, const 
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxds_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, uint32_t n, const double y[static restrict n],
-                                              double x[static restrict n], uint32_t m, jmtxd_matrix_brm* r,
-                                              double aux_vec1[restrict m], double aux_vec2[restrict m],
-                                              double aux_vec3[restrict m], double aux_vec4[restrict m],
-                                              double aux_vec5[restrict m], double aux_vecs[restrict n * m],
+jmtx_result jmtxds_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                              double x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, jmtxd_matrix_brm* r,
+                                              double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                              double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                              double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
                                               jmtxd_solver_arguments* args);
 
 /**
@@ -190,9 +190,9 @@ jmtx_result jmtxds_solve_iterative_gmresm_cds(const jmtxd_matrix_cds* mtx, uint3
  */
 jmtx_result jmtxd_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxd_matrix_cds* mtx, const double* restrict y,
                                                         double* restrict x, uint32_t m, jmtxd_matrix_brm* r,
-                                                        double aux_vec1[restrict m], double aux_vec2[restrict m],
-                                                        double aux_vec3[restrict m], double aux_vec4[restrict m],
-                                                        double aux_vec5[restrict m], double* restrict aux_vec6,
+                                                        double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                                        double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                                        double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], double* restrict aux_vec6,
                                                         double* restrict aux_vec7, double* restrict aux_vecs,
                                                         jmtxd_solver_arguments* args);
 
@@ -233,9 +233,9 @@ jmtx_result jmtxd_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxd_matrix_cds* 
  */
 jmtx_result jmtxd_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxd_matrix_cds* mtx, const double* restrict y,
                                                         double* restrict x, uint32_t m, jmtxd_matrix_brm* r,
-                                                        double aux_vec1[restrict m], double aux_vec2[restrict m],
-                                                        double aux_vec3[restrict m], double aux_vec4[restrict m],
-                                                        double aux_vec5[restrict m], double* restrict aux_vec6,
+                                                        double aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                                        double aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                                        double aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], double* restrict aux_vec6,
                                                         double* restrict aux_vecs,
                                                         jmtxd_solver_arguments* args);
 

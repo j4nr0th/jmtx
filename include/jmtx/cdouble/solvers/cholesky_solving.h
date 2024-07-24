@@ -37,7 +37,7 @@ void jmtxz_solve_direct_cholesky_crs_inplace(const jmtxz_matrix_crs* c, const jm
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxzs_solve_direct_cholesky_crs(const jmtxz_matrix_crs* c, const jmtxz_matrix_crs* ct, uint32_t n,
-                                 const _Complex double y[static restrict n], _Complex double x[restrict n]);
+                                 const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)]);
 
 /**
  * Solves a problem A x = C C^T x = y, where C is a lower triangular matrix. This version of the function stores the
@@ -48,7 +48,7 @@ jmtx_result jmtxzs_solve_direct_cholesky_crs(const jmtxz_matrix_crs* c, const jm
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxzs_solve_direct_cholesky_crs_inplace(const jmtxz_matrix_crs* c, const jmtxz_matrix_crs* ct, uint32_t n,
-                                         _Complex double x[static n]);
+                                         _Complex double x[JMTX_ARRAY_ATTRIB(static n)]);
 
 #endif
 

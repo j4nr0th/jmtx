@@ -50,7 +50,8 @@ endif ()
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(jmtx m)
 elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    target_compile_definitions(jmtx PRIVATE JMTX_CPP_COMPATIBLE_DEFS)
+    target_compile_definitions(jmtx PRIVATE JMTX_NO_ARRAY_ATTRIBS)
 endif ()
+
 
 

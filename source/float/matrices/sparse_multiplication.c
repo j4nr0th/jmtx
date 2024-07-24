@@ -345,8 +345,8 @@ jmtx_result jmtxs_multiply_matrix_ccs(const jmtx_matrix_crs* a, const jmtx_matri
  * @param v_b values of non-zero entries of the second vector
  * @return inner product of the two vectors
  */
-float jmtx_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const float v_a[const static n_a],
-                                          uint32_t n_b, const uint32_t i_b[const static n_b], const float v_b[const static n_b])
+float jmtx_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMTX_ARRAY_ATTRIB(const static n_a)], const float v_a[JMTX_ARRAY_ATTRIB(const static n_a)],
+                                          uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(const static n_b)], const float v_b[JMTX_ARRAY_ATTRIB(const static n_b)])
 {
     float v = 0;
     uint32_t ia = 0, ib = 0;
@@ -384,9 +384,9 @@ float jmtx_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[const
  * @return inner product of the two vectors
  */
 float jmtx_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
-                                                const uint32_t i_a[static n_a], const float v_a[static max_a],
-                                                uint32_t n_b, const uint32_t i_b[static n_b],
-                                                const float v_b[static max_b])
+                                                const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const float v_a[JMTX_ARRAY_ATTRIB(static max_a)],
+                                                uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
+                                                const float v_b[JMTX_ARRAY_ATTRIB(static max_b)])
 {
     float v = 0;
     uint32_t ia = 0, ib = 0;

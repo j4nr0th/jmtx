@@ -12,7 +12,7 @@
 #include <complex.h>
 
 
-static inline uint_fast32_t brm_row_offset(const jmtxz_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_offset(const jmtxz_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t offset = (mtx->lower_bandwidth + 1 + mtx->upper_bandwidth) * row;
     if (row < mtx->lower_bandwidth)
@@ -31,7 +31,7 @@ static inline uint_fast32_t brm_row_offset(const jmtxz_matrix_brm mtx[const stat
     return offset;
 }
 
-static inline uint_fast32_t brm_row_len(const jmtxz_matrix_brm mtx[const static 1], const uint_fast32_t row)
+static inline uint_fast32_t brm_row_len(const jmtxz_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], const uint_fast32_t row)
 {
     uint_fast32_t width = mtx->lower_bandwidth + 1 + mtx->upper_bandwidth;
     if (row < mtx->lower_bandwidth)
@@ -380,7 +380,7 @@ jmtx_result jmtxzs_matrix_brm_count_values(const jmtxz_matrix_brm* mtx, _Complex
     return JMTX_RESULT_SUCCESS;
 }
 
-//static inline uint_fast32_t entries_above_diagonal(const jmtxz_matrix_brm mtx[const static 1], uint_fast32_t col)
+//static inline uint_fast32_t entries_above_diagonal(const jmtxz_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], uint_fast32_t col)
 //{
 //    if (col < mtx->base.rows -  mtx->upper_bandwidth - 1)
 //    {
@@ -389,7 +389,7 @@ jmtx_result jmtxzs_matrix_brm_count_values(const jmtxz_matrix_brm* mtx, _Complex
 //    return mtx->upper_bandwidth - (mtx->base.rows -  mtx->upper_bandwidth - col);
 //}
 //
-//static inline uint_fast32_t entries_bellow_diagonal(const jmtxz_matrix_brm mtx[const static 1], uint_fast32_t col)
+//static inline uint_fast32_t entries_bellow_diagonal(const jmtxz_matrix_brm mtx[JMTX_ARRAY_ATTRIB(const static 1)], uint_fast32_t col)
 //{
 //    if (col > mtx->lower_bandwidth)
 //    {

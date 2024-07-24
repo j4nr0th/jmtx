@@ -175,7 +175,7 @@ static inline uint_fast32_t cds_superdiagonal_length(const uint_fast32_t cols, c
  */
 jmtx_result jmtx_matrix_cds_new(
     jmtx_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
-    const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
+    const int32_t p_dia_idx[JMTX_ARRAY_ATTRIB(static n_diagonals)], const jmtx_allocator_callbacks* allocator_callbacks)
 {
     const int32_t backup_diag[1] = {0};
     if (allocator_callbacks == NULL)
@@ -307,7 +307,7 @@ void jmtx_matrix_cds_destroy(jmtx_matrix_cds* mtx)
  * @param values values of non-zero values
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_cds_set_diagonal_full(jmtx_matrix_cds* mtx, int32_t dia_idx, const float values[const])
+jmtx_result jmtx_matrix_cds_set_diagonal_full(jmtx_matrix_cds* mtx, int32_t dia_idx, const float values[JMTX_ARRAY_ATTRIB(const)])
 {
     uint32_t len;
     float* const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
@@ -332,7 +332,7 @@ jmtx_result jmtx_matrix_cds_set_diagonal_full(jmtx_matrix_cds* mtx, int32_t dia_
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_cds_set_diagonal_part(jmtx_matrix_cds* mtx, int32_t dia_idx, uint32_t offset, uint32_t n,
-                                              uint32_t* p_count, const float values[static n])
+                                              uint32_t* p_count, const float values[JMTX_ARRAY_ATTRIB(static n)])
 {
     uint32_t len;
     float* const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
@@ -587,8 +587,8 @@ uint32_t jmtx_matrix_cds_entries_in_row(const jmtx_matrix_cds* mtx, uint32_t row
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
-uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint32_t n, float p_values[restrict n],
-                                 uint32_t p_cols[restrict n])
+uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint32_t n, float p_values[JMTX_ARRAY_ATTRIB(restrict n)],
+                                 uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict n)])
 {
     uint_fast32_t k = 0;
     for (uint_fast32_t i = 0; i < mtx->sub_diagonals.count && k < n; ++i)
@@ -640,7 +640,7 @@ uint32_t jmtx_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint3
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtx_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t n,
-                                    const float p_values[restrict static n], const uint32_t p_cols[restrict static n])
+                                    const float p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict static n)])
 {
     jmtx_matrix_cds_zero_row(mtx, row);
     for (uint_fast32_t m = 0; m < n; ++m)
@@ -678,7 +678,7 @@ jmtx_result jmtx_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
 jmtx_result jmtx_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_t n,
-                                    const float p_values[restrict static n], const uint32_t p_rows[restrict static n])
+                                    const float p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict static n)])
 {
     jmtx_matrix_cds_zero_col(mtx, col);
     for (uint_fast32_t m = 0; m < n; ++m)
@@ -756,7 +756,7 @@ uint32_t jmtx_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t col
  * small)
  */
 uint32_t
-jmtx_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[restrict n], uint32_t p_rows[restrict n])
+jmtx_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[JMTX_ARRAY_ATTRIB(restrict n)], uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict n)])
 {
     uint_fast32_t k = 0;
     for (uint_fast32_t i = 0; i < mtx->super_diagonals.count && k < n; ++i)
@@ -1419,7 +1419,7 @@ void jmtx_matrix_cds_zero_col(const jmtx_matrix_cds* mtx, uint32_t col)
  */
 jmtx_result jmtxs_matrix_cds_new(
     jmtx_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
-    const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks)
+    const int32_t p_dia_idx[JMTX_ARRAY_ATTRIB(static n_diagonals)], const jmtx_allocator_callbacks* allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1564,7 +1564,7 @@ jmtx_result jmtxs_matrix_cds_set_diagonal_full(jmtx_matrix_cds* mtx, int32_t dia
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxs_matrix_cds_set_diagonal_part(jmtx_matrix_cds* mtx, int32_t dia_idx, uint32_t offset, uint32_t n,
-                                               uint32_t* p_count, const float values[static n])
+                                               uint32_t* p_count, const float values[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!mtx)
     {
@@ -1771,8 +1771,8 @@ jmtx_result jmtxs_matrix_cds_entries_in_row(const jmtx_matrix_cds* mtx, uint32_t
  * are really in the column if n was too small)
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint32_t n, float p_values[restrict n],
-                                     uint32_t p_cols[restrict n], uint32_t* p_count)
+jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, uint32_t n, float p_values[JMTX_ARRAY_ATTRIB(restrict n)],
+                                     uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict n)], uint32_t* p_count)
 {
     if (!mtx)
     {
@@ -1812,7 +1812,7 @@ jmtx_result jmtxs_matrix_cds_get_row(const jmtx_matrix_cds* mtx, uint32_t row, u
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxs_matrix_cds_set_row(jmtx_matrix_cds* mtx, uint32_t row, uint32_t n,
-                                     const float p_values[restrict static n], const uint32_t p_cols[restrict static n])
+                                     const float p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict static n)])
 {
     if (!mtx)
     {
@@ -1890,8 +1890,8 @@ jmtx_result jmtxs_matrix_cds_entries_in_col(const jmtx_matrix_cds* mtx, uint32_t
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result
-jmtxs_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[restrict n],
-                         uint32_t p_rows[restrict n], uint32_t* p_count)
+jmtxs_matrix_cds_get_col(const jmtx_matrix_cds* mtx, uint32_t col, uint32_t n, float p_values[JMTX_ARRAY_ATTRIB(restrict n)],
+                         uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict n)], uint32_t* p_count)
 {
     if (!mtx)
     {
@@ -2279,7 +2279,7 @@ jmtx_result jmtxs_matrix_cds_zero_diagonal(jmtx_matrix_cds* mtx, int32_t dia_idx
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxs_matrix_cds_set_col(jmtx_matrix_cds* mtx, uint32_t col, uint32_t n,
-                                     const float p_values[restrict static n], const uint32_t p_rows[restrict static n])
+                                     const float p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict static n)])
 {
     if (!mtx)
     {

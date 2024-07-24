@@ -177,7 +177,7 @@ static _Complex double get_rms_error_for_element_count_brm(const unsigned n)
     return rms;
 }
 
-int main(int argc, const char* argv[static argc])
+int main(int argc, const char* argv[])
 {
     (void)argc; (void)argv;
     //  Copied after work of Marc Gerritsma

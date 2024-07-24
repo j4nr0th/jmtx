@@ -6,7 +6,7 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/double/matrices/band_row_major_safe.h"
 
-static int are_arrays_the_same(unsigned len, const double a1[const static len], const double a2[const static len])
+static int are_arrays_the_same(unsigned len, const double a1[JMTX_ARRAY_ATTRIB(const static len)], const double a2[JMTX_ARRAY_ATTRIB(const static len)])
 {
     for (unsigned i = 0; i < len; ++i)
     {

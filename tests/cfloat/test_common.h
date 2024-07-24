@@ -8,6 +8,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef JMTX_COMMON_H
+#include "../../include/jmtx/common.h"
+#endif//!JMTX_COMMON_H
 
 struct jmtxc_matrix_crs_struct;
 struct jmtxc_matrix_ccs_struct;
@@ -20,7 +23,7 @@ void print_brmc_matrix(const struct jmtxc_matrix_brm_struct* mtx);
 void print_cdsc_matrix(const struct jmtxc_matrix_cds_struct* mtx);
 void print_drmc_matrix(const struct jmtxc_matrix_drm_struct* mtx);
 
-void print_vecc(unsigned n, const _Complex float x[static n]);
+void print_vecc(unsigned n, const _Complex float x[JMTX_ARRAY_ATTRIB(static n)]);
 
 #ifndef NDEBUG
 #   ifdef __GNUC__

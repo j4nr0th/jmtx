@@ -171,7 +171,7 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
     return rms;
 }
 
-int main(int argc, const char* argv[static argc])
+int main(int argc, const char* argv[])
 {
     (void)argv; (void)argc;
     //  Copied after work of Marc Gerritsma

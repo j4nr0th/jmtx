@@ -338,8 +338,8 @@ jmtx_result jmtxds_multiply_matrix_ccs(const jmtxd_matrix_crs* a, const jmtxd_ma
 }
 
 
-double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[const static n_a], const double v_a[const static n_a],
-                                          uint32_t n_b, const uint32_t i_b[const static n_b], const double v_b[const static n_b])
+double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMTX_ARRAY_ATTRIB(const static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(const static n_a)],
+                                          uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(const static n_b)], const double v_b[JMTX_ARRAY_ATTRIB(const static n_b)])
 {
     double v = 0;
     uint32_t ia = 0, ib = 0;
@@ -364,9 +364,9 @@ double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[con
 }
 
 double jmtxd_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
-                                                const uint32_t i_a[static n_a], const double v_a[static max_a],
-                                                uint32_t n_b, const uint32_t i_b[static n_b],
-                                                const double v_b[static max_b])
+                                                const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(static max_a)],
+                                                uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
+                                                const double v_b[JMTX_ARRAY_ATTRIB(static max_b)])
 {
     double v = 0;
     uint32_t ia = 0, ib = 0;

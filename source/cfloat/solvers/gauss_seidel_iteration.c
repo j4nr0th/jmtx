@@ -102,7 +102,7 @@ jmtx_result jmtxc_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, 
 }
 
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -144,8 +144,8 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxcs_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[static restrict n],
-                                   _Complex float x[restrict n], _Complex float aux_vec1[restrict n], jmtx_solver_arguments* args)
+jmtx_result jmtxcs_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                   _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args)
 {
     if (!mtx)
     {

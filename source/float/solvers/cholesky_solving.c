@@ -98,7 +98,7 @@ void jmtx_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs* c, const jmtx
     }
 }
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[static const n])
+static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -131,7 +131,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
-                                 const float y[static restrict n], float x[restrict n])
+                                 const float y[JMTX_ARRAY_ATTRIB(static restrict n)], float x[JMTX_ARRAY_ATTRIB(restrict n)])
 {
     if (!c)
     {
@@ -182,7 +182,7 @@ jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtx_matrix_crs* c, const jmtx
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxs_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs* c, const jmtx_matrix_crs* ct, uint32_t n,
-                                         float x[static n])
+                                         float x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!c)
     {

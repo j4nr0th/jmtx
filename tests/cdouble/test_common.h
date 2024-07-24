@@ -9,6 +9,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef JMTX_COMMON_H
+#include "../../include/jmtx/common.h"
+#endif//!JMTX_COMMON_H
 
 struct jmtxz_matrix_crs_struct;
 struct jmtxz_matrix_ccs_struct;
@@ -21,7 +24,7 @@ void print_brmz_matrix(const struct jmtxz_matrix_brm_struct* mtx);
 void print_cdsz_matrix(const struct jmtxz_matrix_cds_struct* mtx);
 void print_drmz_matrix(const struct jmtxz_matrix_drm_struct* mtx);
 
-void print_vecz(unsigned n, const _Complex double x[static n]);
+void print_vecz(unsigned n, const _Complex double x[JMTX_ARRAY_ATTRIB(static n)]);
 
 #ifndef NDEBUG
 #   ifdef __GNUC__

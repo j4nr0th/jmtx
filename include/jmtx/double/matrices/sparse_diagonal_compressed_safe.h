@@ -22,7 +22,7 @@
  */
 jmtx_result jmtxds_matrix_cds_new(
  jmtxd_matrix_cds** p_mtx, uint32_t rows, uint32_t cols, uint32_t n_diagonals,
- const int32_t p_dia_idx[static n_diagonals], const jmtx_allocator_callbacks* allocator_callbacks);
+ const int32_t p_dia_idx[JMTX_ARRAY_ATTRIB(static n_diagonals)], const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Cleans up the cds matrix and frees all of its memory
@@ -69,7 +69,7 @@ jmtx_result jmtxds_matrix_cds_set_diagonal_full(jmtxd_matrix_cds* mtx, int32_t d
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
 jmtx_result jmtxds_matrix_cds_set_diagonal_part(jmtxd_matrix_cds* mtx, int32_t dia_idx, uint32_t offset, uint32_t n,
-                                              uint32_t* p_count, const double values[static n]);
+                                              uint32_t* p_count, const double values[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Allocates a new diagonal if one does not already exits, otherwise it returns the pointer to the existing one.
@@ -138,8 +138,8 @@ jmtx_result jmtxds_matrix_cds_entries_in_row(const jmtxd_matrix_cds* mtx, uint32
  * are really in the row if n was too small)
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxds_matrix_cds_get_row(const jmtxd_matrix_cds* mtx, uint32_t row, uint32_t n, double p_values[restrict n],
-                          uint32_t p_cols[restrict n], uint32_t* p_count);
+jmtx_result jmtxds_matrix_cds_get_row(const jmtxd_matrix_cds* mtx, uint32_t row, uint32_t n, double p_values[JMTX_ARRAY_ATTRIB(restrict n)],
+                          uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict n)], uint32_t* p_count);
 
 /**
  * Returns the values of entries in the matrix, along with what column of the matrix they were located in
@@ -151,7 +151,7 @@ jmtx_result jmtxds_matrix_cds_get_row(const jmtxd_matrix_cds* mtx, uint32_t row,
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxds_matrix_cds_set_row(jmtxd_matrix_cds* mtx, uint32_t row, uint32_t n,
-                                    const double p_values[restrict static n], const uint32_t p_cols[restrict static n]);
+                                    const double p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_cols[JMTX_ARRAY_ATTRIB(restrict static n)]);
 
 /**
  * Returns the number of entries in the column of the matrix
@@ -174,8 +174,8 @@ jmtx_result jmtxds_matrix_cds_entries_in_col(const jmtxd_matrix_cds* mtx, uint32
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result
-jmtxds_matrix_cds_get_col(const jmtxd_matrix_cds* mtx, uint32_t col, uint32_t n, double p_values[restrict n],
-                         uint32_t p_rows[restrict n], uint32_t* p_count);
+jmtxds_matrix_cds_get_col(const jmtxd_matrix_cds* mtx, uint32_t col, uint32_t n, double p_values[JMTX_ARRAY_ATTRIB(restrict n)],
+                         uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict n)], uint32_t* p_count);
 
 /**
  * Sets all the entries in the column of the matrix, zeroing non-specified entries and allocating new diagonals as
@@ -188,7 +188,7 @@ jmtxds_matrix_cds_get_col(const jmtxd_matrix_cds* mtx, uint32_t col, uint32_t n,
  * @return JMTX_RESULT_SUCCESS if successful
  */
 jmtx_result jmtxds_matrix_cds_set_col(jmtxd_matrix_cds* mtx, uint32_t col, uint32_t n,
-                                    const double p_values[restrict static n], const uint32_t p_rows[restrict static n]);
+                                    const double p_values[JMTX_ARRAY_ATTRIB(restrict static n)], const uint32_t p_rows[JMTX_ARRAY_ATTRIB(restrict static n)]);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y

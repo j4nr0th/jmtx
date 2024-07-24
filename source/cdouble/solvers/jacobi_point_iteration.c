@@ -128,7 +128,7 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxzs_solve_iterative_jacobi_crs(
-        const jmtxz_matrix_crs* mtx, const uint32_t n, const _Complex double y[static restrict n], _Complex double x[restrict n], _Complex double aux_vec1[restrict n], _Complex double aux_vec2[restrict n],
+        const jmtxz_matrix_crs* mtx, const uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
         jmtxd_solver_arguments* args)
 {
     if (!mtx)

@@ -70,9 +70,9 @@ jmtx_result jmtxc_solve_iterative_bicgstab_crs(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxcs_solve_iterative_bicgstab_crs(
-        const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[restrict static n], _Complex float x[restrict n], _Complex float aux_vec1[restrict n],
-        _Complex float aux_vec2[restrict n], _Complex float aux_vec3[restrict n], _Complex float aux_vec4[restrict n], _Complex float aux_vec5[restrict n],
-        _Complex float aux_vec6[restrict n], jmtx_solver_arguments* args);
+        const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+        _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+        _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
  *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
@@ -215,9 +215,9 @@ jmtx_result jmtxc_solve_iterative_bicgstab_cds(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxcs_solve_iterative_bicgstab_cds(
-        const jmtxc_matrix_cds* mtx, uint32_t n, const _Complex float y[restrict static n], _Complex float x[restrict n], _Complex float aux_vec1[restrict n],
-        _Complex float aux_vec2[restrict n], _Complex float aux_vec3[restrict n], _Complex float aux_vec4[restrict n], _Complex float aux_vec5[restrict n],
-        _Complex float aux_vec6[restrict n], jmtx_solver_arguments* args);
+        const jmtxc_matrix_cds* mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+        _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+        _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
 #endif
 
 

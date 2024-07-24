@@ -53,8 +53,8 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, co
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, uint32_t n, const float y[static restrict n],
-                                   float x[restrict n], float aux_vec1[restrict n], jmtx_solver_arguments* args);
+jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                   float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
 
 #endif
 

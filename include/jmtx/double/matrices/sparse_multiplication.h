@@ -45,8 +45,8 @@ jmtx_result jmtxd_multiply_matrix_ccs(const jmtxd_matrix_crs* a, const jmtxd_mat
  * @param v_b values of non-zero entries of the second vector
  * @return inner product of the two vectors
  */
-double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[static n_a], const double v_a[static n_a],
-                                          uint32_t n_b, const uint32_t i_b[static n_b], const double v_b[static n_b]);
+double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(static n_a)],
+                                          uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)], const double v_b[JMTX_ARRAY_ATTRIB(static n_b)]);
 /**
  * Computes the inner product of two sparse vectors, but stops once it reaches a maximum value of the non-zero entry
  * indices (useful when inner product should be done for the first max_a/max_b components)
@@ -61,9 +61,9 @@ double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[sta
  * @return inner product of the two vectors
  */
 double jmtxd_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
-                                                const uint32_t i_a[static n_a], const double v_a[static max_a],
-                                                uint32_t n_b, const uint32_t i_b[static n_b],
-                                                const double v_b[static max_b]);
+                                                const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(static max_a)],
+                                                uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
+                                                const double v_b[JMTX_ARRAY_ATTRIB(static max_b)]);
 
 #ifdef JMTXD_BAND_ROW_MAJOR_H
 /**

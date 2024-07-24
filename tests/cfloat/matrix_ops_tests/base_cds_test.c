@@ -8,7 +8,7 @@
 #include "../../../include/jmtx/cfloat/matrices/sparse_diagonal_compressed_safe.h"
 #include <complex.h>
 
-static int are_value_arrays_the_same(unsigned len, const _Complex float a1[const static len], const _Complex float a2[const static len])
+static int are_value_arrays_the_same(unsigned len, const _Complex float a1[JMTX_ARRAY_ATTRIB(const static len)], const _Complex float a2[JMTX_ARRAY_ATTRIB(const static len)])
 {
     for (unsigned i = 0; i < len; ++i)
     {
@@ -20,7 +20,7 @@ static int are_value_arrays_the_same(unsigned len, const _Complex float a1[const
     return 1;
 }
 
-static int are_index_arrays_the_same(unsigned len, const uint32_t a1[const static len], const uint32_t a2[const static len])
+static int are_index_arrays_the_same(unsigned len, const uint32_t a1[JMTX_ARRAY_ATTRIB(const static len)], const uint32_t a2[JMTX_ARRAY_ATTRIB(const static len)])
 {
     for (unsigned i = 0; i < len; ++i)
     {

@@ -240,7 +240,7 @@ jmtx_result jmtxds_matrix_crs_shrink(jmtxd_matrix_crs* mtx)
     return jmtxd_matrix_crs_shrink(mtx);
 }
 
-jmtx_result jmtxd_matrix_crs_set_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const double values[static n])
+jmtx_result jmtxd_matrix_crs_set_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[JMTX_ARRAY_ATTRIB(static n)], const double values[JMTX_ARRAY_ATTRIB(static n)])
 {
 
     jmtx_result res = JMTX_RESULT_SUCCESS;
@@ -811,7 +811,7 @@ jmtx_result jmtxds_matrix_crs_entries_in_col(const jmtxd_matrix_crs* mtx, uint32
 }
 
 uint32_t
-jmtxd_matrix_crs_get_col(const jmtxd_matrix_crs* mtx, uint32_t col, uint32_t n, double p_values[n], uint32_t p_rows[n])
+jmtxd_matrix_crs_get_col(const jmtxd_matrix_crs* mtx, uint32_t col, uint32_t n, double p_values[JMTX_ARRAY_ATTRIB(n)], uint32_t p_rows[JMTX_ARRAY_ATTRIB(n)])
 {
     uint32_t k = 0;
     for (uint32_t row = 0; k < n && row < mtx->base.rows && (!row || (mtx->end_of_row_offsets[row - 1] != mtx->n_entries)); ++row)
@@ -1016,7 +1016,7 @@ jmtx_result jmtxds_matrix_crs_copy(const jmtxd_matrix_crs* mtx, jmtxd_matrix_crs
     return jmtxd_matrix_crs_copy(mtx, p_out, allocator_callbacks);
 }
 
-jmtx_result jmtxd_matrix_crs_build_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const double values[static n])
+jmtx_result jmtxd_matrix_crs_build_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[JMTX_ARRAY_ATTRIB(static n)], const double values[JMTX_ARRAY_ATTRIB(static n)])
 {
     jmtx_result res = JMTX_RESULT_SUCCESS;
     const uint32_t required_capacity = (uint32_t)((int32_t)mtx->n_entries + (int32_t)n);
@@ -1320,7 +1320,7 @@ jmtx_result jmtxds_matrix_crs_clear(jmtxd_matrix_crs* mtx)
 }
 
 jmtx_result jmtxd_matrix_crs_join_vertically(jmtxd_matrix_crs** output, const jmtx_allocator_callbacks* allocators,
-                                            unsigned k, const jmtxd_matrix_crs* matrix_list[static k])
+                                            unsigned k, const jmtxd_matrix_crs* matrix_list[JMTX_ARRAY_ATTRIB(static k)])
 {
     const uint32_t col_count = matrix_list[0]->base.cols;
     uint32_t n_rows = matrix_list[0]->base.rows;

@@ -56,7 +56,7 @@ jmtx_result jmtxd_matrix_crs_shrink(jmtxd_matrix_crs* mtx);
  * @param values values of non-zero entries
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_crs_set_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const double values[static n]);
+jmtx_result jmtxd_matrix_crs_set_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[JMTX_ARRAY_ATTRIB(static n)], const double values[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Version of jmtxd_matrix_crs_set_row which does not touch the count of entries after the current row. This is useful when
@@ -69,7 +69,7 @@ jmtx_result jmtxd_matrix_crs_set_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32
  * @param values values of non-zero values
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_crs_build_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[static n], const double values[static n]);
+jmtx_result jmtxd_matrix_crs_build_row(jmtxd_matrix_crs* mtx, uint32_t row, uint32_t n, const uint32_t indices[JMTX_ARRAY_ATTRIB(static n)], const double values[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -201,7 +201,7 @@ uint32_t jmtxd_matrix_crs_entries_in_col(const jmtxd_matrix_crs* mtx, uint32_t c
  * small)
  */
 uint32_t
-jmtxd_matrix_crs_get_col(const jmtxd_matrix_crs* mtx, uint32_t col, uint32_t n, double p_values[n], uint32_t p_rows[n]);
+jmtxd_matrix_crs_get_col(const jmtxd_matrix_crs* mtx, uint32_t col, uint32_t n, double p_values[JMTX_ARRAY_ATTRIB(n)], uint32_t p_rows[JMTX_ARRAY_ATTRIB(n)]);
 
 /**
  * Creates a transpose of a matrix
@@ -258,7 +258,7 @@ void jmtxd_matrix_crs_remove_column(jmtxd_matrix_crs* mtx, uint32_t col);
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_DIMS_MISMATCH if the number of columns is not the same for all
  * input matrices, return value of jmtxd_matrix_crs_new if that fails
  */
-jmtx_result jmtxd_matrix_crs_join_vertically(jmtxd_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtxd_matrix_crs* matrix_list[static k]);
+jmtx_result jmtxd_matrix_crs_join_vertically(jmtxd_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtxd_matrix_crs* matrix_list[JMTX_ARRAY_ATTRIB(static k)]);
 
 jmtx_result jmtxd_matrix_crs_new_like(const jmtxd_matrix_crs* mtx, jmtxd_matrix_crs** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks, const double* p_val);

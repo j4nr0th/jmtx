@@ -147,7 +147,7 @@ void print_drm_matrix(const struct jmtx_matrix_drm_struct* mtx)
     printf("]\n");
 }
 
-void print_vec(unsigned n, const float x[static n])
+void print_vec(unsigned n, const float x[JMTX_ARRAY_ATTRIB(static n)])
 {
     printf("\nVector:\n[\n");
     for (uint_fast32_t i = 0; i < n; ++i)

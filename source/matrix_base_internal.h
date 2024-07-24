@@ -55,7 +55,7 @@ struct jmtx_matrix_base_T
 };
 
 JMTX_INTERNAL_FUNCTION
-uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t p_indices[static n_indices], uint32_t value);
+uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices, const uint32_t p_indices[JMTX_ARRAY_ATTRIB(static n_indices)], uint32_t value);
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
 

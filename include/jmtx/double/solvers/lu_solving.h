@@ -42,7 +42,7 @@ void jmtxd_solve_direct_lu_brm_inplace(const jmtxd_matrix_brm* l, const jmtxd_ma
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxds_solve_direct_lu_brm(const jmtxd_matrix_brm* l, const jmtxd_matrix_brm* u, uint32_t n,
-                               const double y[static restrict n], double x[static restrict n]);
+                               const double y[JMTX_ARRAY_ATTRIB(static restrict n)], double x[JMTX_ARRAY_ATTRIB(static restrict n)]);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -54,7 +54,7 @@ jmtx_result jmtxds_solve_direct_lu_brm(const jmtxd_matrix_brm* l, const jmtxd_ma
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxds_solve_direct_lu_brm_inplace(const jmtxd_matrix_brm* l, const jmtxd_matrix_brm* u, uint32_t n, double x[static n]);
+jmtx_result jmtxds_solve_direct_lu_brm_inplace(const jmtxd_matrix_brm* l, const jmtxd_matrix_brm* u, uint32_t n, double x[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -76,8 +76,8 @@ jmtx_result jmtxds_solve_direct_lu_brm_inplace(const jmtxd_matrix_brm* l, const 
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxd_solve_iterative_lu_brm_refine(const jmtxd_matrix_brm* a, const jmtxd_matrix_brm* l, const jmtxd_matrix_brm* u,
-                                        const double y[restrict], double x[restrict],
-                                        double aux_vec[restrict], jmtxd_solver_arguments* args);
+                                        const double y[JMTX_ARRAY_ATTRIB(restrict)], double x[JMTX_ARRAY_ATTRIB(restrict)],
+                                        double aux_vec[JMTX_ARRAY_ATTRIB(restrict)], jmtxd_solver_arguments* args);
 
 
 /**
@@ -101,8 +101,8 @@ jmtx_result jmtxd_solve_iterative_lu_brm_refine(const jmtxd_matrix_brm* a, const
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxds_solve_iterative_lu_brm_refine(const jmtxd_matrix_brm* a, const jmtxd_matrix_brm* l, const jmtxd_matrix_brm* u,
-                                        uint32_t n, const double y[restrict static n], double x[restrict n],
-                                        double aux_vec[restrict n], jmtxd_solver_arguments* args);
+                                        uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                        double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -126,8 +126,8 @@ jmtx_result jmtxds_solve_iterative_lu_brm_refine(const jmtxd_matrix_brm* a, cons
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxd_solve_iterative_lu_brm_refine_parallel(const jmtxd_matrix_brm* a, const jmtxd_matrix_brm* l,
-                                                 const jmtxd_matrix_brm* u,  const double y[const restrict],
-                                                 double x[const restrict], double aux_vec[const restrict],
+                                                 const jmtxd_matrix_brm* u,  const double y[JMTX_ARRAY_ATTRIB(const restrict)],
+                                                 double x[JMTX_ARRAY_ATTRIB(const restrict)], double aux_vec[JMTX_ARRAY_ATTRIB(const restrict)],
                                                  jmtxd_solver_arguments* args);
 #endif
 #ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
@@ -163,7 +163,7 @@ void jmtxd_solve_direct_lu_crs_inplace(const jmtxd_matrix_crs* l, const jmtxd_ma
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
 jmtx_result jmtxds_solve_direct_lu_crs(const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n,
-                               const double y[static restrict n], double x[restrict n]);
+                               const double y[JMTX_ARRAY_ATTRIB(static restrict n)], double x[JMTX_ARRAY_ATTRIB(restrict n)]);
 
 /**
  * Solves a problem L U x = y, where L is a lower triangular matrix with the diagonal equal to 1 and U is an upper
@@ -175,7 +175,7 @@ jmtx_result jmtxds_solve_direct_lu_crs(const jmtxd_matrix_crs* l, const jmtxd_ma
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxds_solve_direct_lu_crs_inplace(const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n, double x[static n]);
+jmtx_result jmtxds_solve_direct_lu_crs_inplace(const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n, double x[JMTX_ARRAY_ATTRIB(static n)]);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -221,8 +221,8 @@ jmtx_result jmtxd_solve_iterative_ilu_crs(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxds_solve_iterative_ilu_crs(
-        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n], double x[restrict n],
-        double aux_vec[restrict n], jmtxd_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks);
+        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)],
+        double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args, const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -272,8 +272,8 @@ jmtx_result jmtxd_solve_iterative_ilu_crs_precomputed(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxds_solve_iterative_ilu_crs_precomputed(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n, const double y[restrict static n],
-        double x[restrict n], double aux_vec[restrict n], jmtxd_solver_arguments* args);
+        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -323,8 +323,8 @@ jmtx_result jmtxd_solve_iterative_ilu_crs_parallel(
  * in case of failure it returns the associated error code
  */
 jmtx_result jmtxds_solve_iterative_ilu_crs_parallel(
-        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[restrict static n],
-        double x[restrict n], double aux_vec[restrict n], jmtxd_solver_arguments* args,
+        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+        double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args,
         const jmtx_allocator_callbacks* allocator_callbacks);
 
 /**
@@ -380,7 +380,7 @@ jmtx_result jmtxd_solve_iterative_ilu_crs_precomputed_parallel(
  */
 jmtx_result jmtxds_solve_iterative_ilu_crs_precomputed_parallel(
         const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, uint32_t n,
-        const double y[restrict static n], double x[restrict n], double aux_vec[restrict n], jmtxd_solver_arguments* args);
+        const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args);
 
 #endif
 

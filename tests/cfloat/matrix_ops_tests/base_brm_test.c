@@ -7,7 +7,7 @@
 #include "../../../include/jmtx/cfloat/matrices/band_row_major_safe.h"
 #include <complex.h>
 
-static int are_arrays_the_same(unsigned len, const _Complex float a1[const static len], const _Complex float a2[const static len])
+static int are_arrays_the_same(unsigned len, const _Complex float a1[JMTX_ARRAY_ATTRIB(const static len)], const _Complex float a2[JMTX_ARRAY_ATTRIB(const static len)])
 {
     for (unsigned i = 0; i < len; ++i)
     {
