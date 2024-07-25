@@ -253,13 +253,13 @@ void jmtxz_matrix_crs_remove_column(jmtxz_matrix_crs* mtx, uint32_t col);
 /**
  * Combines k matrices of size N_i x M into a single Sum(N_i) x M matrix by vertically stacking them
  * @param output receives pointer to the resulting matrix
- * @param allocators memory allocators to use for the output matrix
+ * @param allocator_callbacks memory allocators to use for the output matrix
  * @param k number of the matrices
  * @param matrix_list array of matrices to be joined together. Must have the same number of columns.
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_DIMS_MISMATCH if the number of columns is not the same for all
  * input matrices, return value of jmtxz_matrix_crs_new if that fails
  */
-jmtx_result jmtxz_matrix_crs_join_vertically(jmtxz_matrix_crs** output, const jmtx_allocator_callbacks* allocators, unsigned k, const jmtxz_matrix_crs* matrix_list[JMTX_ARRAY_ATTRIB(static k)]);
+jmtx_result jmtxz_matrix_crs_join_vertically(jmtxz_matrix_crs** output, const jmtx_allocator_callbacks* allocator_callbacks, unsigned k, const jmtxz_matrix_crs* matrix_list[JMTX_ARRAY_ATTRIB(static k)]);
 
 jmtx_result jmtxz_matrix_crs_new_like(const jmtxz_matrix_crs* mtx, jmtxz_matrix_crs** p_out,
                                      const jmtx_allocator_callbacks* allocator_callbacks, const _Complex double* p_val);

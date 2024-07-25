@@ -543,7 +543,7 @@ jmtx_result jmtxs_matrix_ccs_count_values(const jmtx_matrix_ccs* mtx, float v, u
     }
     if (!p_count)
     {
-        return JMTX_RESULT_WRONG_TYPE;
+        return JMTX_RESULT_NULL_PARAM;
     }
 
     *p_count = jmtx_matrix_ccs_count_values(mtx, v);
@@ -575,7 +575,7 @@ jmtx_result jmtxs_matrix_ccs_count_indices(const jmtx_matrix_ccs* mtx, uint32_t 
     }
     if (!p_count)
     {
-        return JMTX_RESULT_WRONG_TYPE;
+        return JMTX_RESULT_NULL_PARAM;
     }
 
     *p_count = jmtx_matrix_ccs_count_indices(mtx, v);
@@ -864,63 +864,66 @@ jmtx_result jmtx_matrix_ccs_transpose(const jmtx_matrix_ccs* mtx, jmtx_matrix_cc
 {
     if (allocator_callbacks == NULL)
     {
-        allocator_callbacks = &mtx->base.allocator_callbacks;
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    const uint32_t n_elements = mtx->n_entries;
-    const uint32_t new_cols = mtx->base.rows;
-    const uint32_t new_rows = mtx->base.cols;
-
-    jmtx_matrix_ccs* const out = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*out));
-    if (!out)
+    const uint32_t rows = mtx->base.rows;
+    jmtx_matrix_ccs* out;
+    jmtx_result res = jmtx_matrix_ccs_new(&out, mtx->base.rows, mtx->base.cols, mtx->n_entries, allocator_callbacks);
+    if (res != JMTX_RESULT_SUCCESS)
     {
+        return res;
+    }
+    if (!allocator_callbacks)
+    {
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+    }
+
+    uint32_t* row_counts = allocator_callbacks->alloc(allocator_callbacks->state, sizeof*row_counts * rows);
+    if (row_counts == NULL)
+    {
+        jmtx_matrix_ccs_destroy(out);
         return JMTX_RESULT_BAD_ALLOC;
     }
+    memset(row_counts, 0, sizeof*row_counts * rows);
 
-    uint32_t* const row_cum_counts = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (new_cols) * sizeof(*row_cum_counts));
-    if (!row_cum_counts)
+    uint32_t* col_ends = out->end_of_column_offsets;
+    for (uint32_t i = 0; i < mtx->n_entries; ++i)
     {
-        allocator_callbacks->free(allocator_callbacks->state, out);
-        return JMTX_RESULT_BAD_ALLOC;
+        row_counts[mtx->indices[i]] += 1;
     }
-    uint32_t* const new_indices = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements) * sizeof(*new_indices));
-    if (!new_indices)
+    col_ends[0] = row_counts[0];
+    //  Compute cumsums for offsets
+    for (uint32_t i = 1; i < rows; ++i)
     {
-        mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, row_cum_counts);
-        allocator_callbacks->free(allocator_callbacks->state, out);
-        return JMTX_RESULT_BAD_ALLOC;
+        col_ends[i] = row_counts[i] + col_ends[i-1];
+        row_counts[i] = 0; //   Zero the row counts so that they can be reused later for counting bucket sizes
     }
-    memset(new_indices, 0, (n_elements) * sizeof*new_indices);
-    float* const new_elements = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, (n_elements) * sizeof*new_elements);
-    if (!new_elements)
-    {
-        mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, row_cum_counts);
-        mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, new_indices);
-        allocator_callbacks->free(allocator_callbacks->state, out);
-        return JMTX_RESULT_BAD_ALLOC;
-    }
+    row_counts[0] = 0;
+    row_counts[rows - 1] = 0;
 
-    *row_cum_counts = 0;
-
-    for (uint32_t j = 0, n, p = 0; j < mtx->base.rows; ++j)
+    for (uint32_t col = 0; col < mtx->base.cols; ++col)
     {
-        n = jmtx_matrix_ccs_elements_in_row(mtx, j);
-        uint32_t c = jmtx_matrix_ccs_get_row(mtx, j, n, new_elements + p, new_indices + p);
-        assert(c == n);
-        p += n;
-        row_cum_counts[j] = (j > 0 ? row_cum_counts[j - 1] : 0) + n;
-    }
+        uint32_t* in_rows;
+        float* in_vals;
+        uint32_t n_col = ccs_get_column_entries(mtx, col, &in_rows, &in_vals);
 
-    out->end_of_column_offsets = row_cum_counts;
-    out->values = new_elements;
-    out->indices = new_indices;
-    out->capacity = n_elements;
-    out->n_entries = n_elements;
-    out->base = mtx->base;
-    out->base.rows = new_rows;
-    out->base.cols = new_cols;
-    out->base.allocator_callbacks = *allocator_callbacks;
+        for (uint32_t idx = 0; idx < n_col; ++idx)
+        {
+            const uint32_t row = in_rows[idx];
+            const uint32_t ip = row > 0 ? col_ends[row-1] : 0;
+            const uint32_t n_rows = row_counts[row];
+
+            out->values[ip+n_rows] = in_vals[idx];
+            out->indices[ip+n_rows] = col;
+            row_counts[row] += 1;
+        }
+    }
+    out->n_entries = mtx->n_entries;
+
+    allocator_callbacks->free(allocator_callbacks->state, row_counts);
     *p_out = out;
+
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -950,7 +953,7 @@ jmtx_result jmtx_matrix_ccs_copy(const jmtx_matrix_ccs* mtx, jmtx_matrix_ccs** p
 {
     if (allocator_callbacks == NULL)
     {
-        allocator_callbacks = &mtx->base.allocator_callbacks;
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
     jmtx_matrix_ccs* const this = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*this));

@@ -373,7 +373,7 @@ jmtx_result jmtxzs_matrix_brm_count_values(const jmtxz_matrix_brm* mtx, _Complex
     }
     if (!p_count)
     {
-        return JMTX_RESULT_WRONG_TYPE;
+        return JMTX_RESULT_NULL_PARAM;
     }
 
     *p_count = jmtxz_matrix_brm_count_values(mtx, v);
@@ -493,7 +493,7 @@ jmtx_result jmtxz_matrix_brm_transpose(
 {
     if (allocator_callbacks == NULL)
     {
-        allocator_callbacks = &mtx->base.allocator_callbacks;
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
     const uint32_t n_elements = brm_row_offset(mtx, mtx->base.rows);
@@ -559,7 +559,7 @@ jmtx_result jmtxz_matrix_brm_copy(const jmtxz_matrix_brm* mtx, jmtxz_matrix_brm*
 {
     if (allocator_callbacks == NULL)
     {
-        allocator_callbacks = &mtx->base.allocator_callbacks;
+        allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
     jmtxz_matrix_brm* const out = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*out));
     if (!out)
