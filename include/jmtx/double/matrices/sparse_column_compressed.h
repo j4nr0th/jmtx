@@ -153,7 +153,7 @@ void jmtxd_matrix_ccs_remove_bellow(jmtxd_matrix_ccs* mtx, double v);
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  */
-void jmtxd_matrix_ccs_zero_all_elements(const jmtxd_matrix_ccs* mtx);
+void jmtxd_matrix_zero_all_entries(const jmtxd_matrix_ccs* mtx);
 
 /**
  * Similar to jmtxd_matrix_crs_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows for
@@ -161,7 +161,7 @@ void jmtxd_matrix_ccs_zero_all_elements(const jmtxd_matrix_ccs* mtx);
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  */
-void jmtxd_matrix_ccs_set_all_elements(const jmtxd_matrix_ccs* mtx, double x);
+void jmtxd_matrix_ccs_set_all_entries(const jmtxd_matrix_ccs* mtx, double x);
 
 /**
  * Returns the number of entries in the row of the matrix

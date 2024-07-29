@@ -59,15 +59,15 @@ void jmtxz_matrix_brm_destroy(jmtxz_matrix_brm* mtx);
  * @param row index of the row to set
  * @param values values of entries
  */
-void jmtxz_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, _Complex double values[]);
+void jmtxz_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, const _Complex double values[]);
 
 /**
  * Sets the column of the matrix. More efficient than setting it element by element
  * @param mtx pointer to the memory where the matrix is stored
- * @param row index of the column to set
+ * @param col index of the column to set
  * @param values values of entries
  */
-void jmtxz_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double* values);
+void jmtxz_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double values[]);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -185,7 +185,7 @@ void jmtxz_matrix_brm_set_all_entries(const jmtxz_matrix_brm* mtx, _Complex doub
  * @param col column index of the matrix to look at
  * @return number of entries in the column
  */
-uint32_t jmtxz_matrix_brm_entries_in_col(const jmtxz_matrix_brm* mtx, uint32_t col);
+uint32_t jmtxz_matrix_brm_length_of_col(const jmtxz_matrix_brm* mtx, uint32_t col);
 
 /**
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in

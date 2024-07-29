@@ -58,7 +58,7 @@ jmtx_result jmtxds_matrix_brm_destroy(jmtxd_matrix_brm* mtx);
  * @param values values of non-zero entries
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxds_matrix_brm_set_row(const jmtxd_matrix_brm* mtx, uint32_t row, double values[]);
+jmtx_result jmtxds_matrix_brm_set_row(const jmtxd_matrix_brm* mtx, uint32_t row, const double values[]);
 
 /**
  * Sets the column of the matrix. More efficient than setting it element by element
@@ -153,7 +153,7 @@ jmtx_result jmtxds_matrix_brm_set_all_entries(const jmtxd_matrix_brm* mtx, doubl
  * @param p_n pointer which receives the number of entries in the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxds_matrix_brm_entries_in_col(const jmtxd_matrix_brm* mtx, uint32_t col, uint32_t* p_n);
+jmtx_result jmtxds_matrix_brm_length_of_col(const jmtxd_matrix_brm* mtx, uint32_t col, uint32_t* p_n);
 
 /**
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in

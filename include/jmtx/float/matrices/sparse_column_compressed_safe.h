@@ -145,16 +145,16 @@ jmtx_result jmtxs_matrix_ccs_remove_bellow(jmtx_matrix_ccs* mtx, float v);
  * @param mtx matrix to zero
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_ccs_zero_all_elements(const jmtx_matrix_ccs* mtx);
+jmtx_result jmtxs_matrix_zero_all_entries(const jmtx_matrix_ccs* mtx);
 
 /**
- * Similar to jmtx_matrix_ccs_zero_all_elements, but slower, since it can not use memset. On the other hand, it allows for
+ * Similar to jmtx_matrix_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows for
  * the value to be other than 0
  * @param mtx matrix to set
  * @param x value to which to set to
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_ccs_set_all_elements(jmtx_matrix_ccs* mtx, float x);
+jmtx_result jmtxs_matrix_ccs_set_all_entries(jmtx_matrix_ccs* mtx, float x);
 
 /**
  * Returns the number of values in the column of the matrix

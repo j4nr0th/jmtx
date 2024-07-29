@@ -158,14 +158,14 @@ jmtx_result jmtxzs_matrix_brm_destroy(jmtxz_matrix_brm* mtx)
     return JMTX_RESULT_SUCCESS;
 }
 
-void jmtxz_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, _Complex double values[])
+void jmtxz_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, const _Complex double values[])
 {
     const uint_fast32_t offset = brm_row_offset(mtx, row);
     const uint_fast32_t len = brm_row_len(mtx, row);
     memcpy(mtx->values + offset, values, len * sizeof(*mtx->values));
 }
 
-jmtx_result jmtxzs_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, _Complex double values[])
+jmtx_result jmtxzs_matrix_brm_set_row(const jmtxz_matrix_brm* mtx, uint32_t row, const _Complex double values[])
 {
     if (!mtx)
     {
@@ -398,12 +398,12 @@ jmtx_result jmtxzs_matrix_brm_count_values(const jmtxz_matrix_brm* mtx, _Complex
 //    return mtx->lower_bandwidth;
 //}
 
-uint32_t jmtxz_matrix_brm_entries_in_col(const jmtxz_matrix_brm* mtx, uint32_t col)
+uint32_t jmtxz_matrix_brm_length_of_col(const jmtxz_matrix_brm* mtx, uint32_t col)
 {
     return jmtxz_matrix_brm_last_pos_in_col(mtx, col) - jmtxz_matrix_brm_first_pos_in_col(mtx, col) + 1;
 }
 
-jmtx_result jmtxzs_matrix_brm_entries_in_col(const jmtxz_matrix_brm* mtx, uint32_t col, uint32_t* p_n)
+jmtx_result jmtxzs_matrix_brm_length_of_col(const jmtxz_matrix_brm* mtx, uint32_t col, uint32_t* p_n)
 {
     if (!mtx)
     {
@@ -421,7 +421,7 @@ jmtx_result jmtxzs_matrix_brm_entries_in_col(const jmtxz_matrix_brm* mtx, uint32
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    *p_n = jmtxz_matrix_brm_entries_in_col(mtx, col);
+    *p_n = jmtxz_matrix_brm_length_of_col(mtx, col);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -749,7 +749,7 @@ uint_fast32_t jmtxz_matrix_brm_length_of_row(const jmtxz_matrix_brm* mtx, uint32
     return brm_row_len(mtx, row);
 }
 
-void jmtxz_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double* values)
+void jmtxz_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double values[])
 {
     uint_fast32_t first_row;
     if (col < mtx->upper_bandwidth)
@@ -803,7 +803,7 @@ jmtx_result jmtxzs_matrix_brm_set_all_entries(const jmtxz_matrix_brm* mtx, _Comp
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxzs_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double* values)
+jmtx_result jmtxzs_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col, const _Complex double values[])
 {
     if (!mtx)
     {
@@ -822,7 +822,7 @@ jmtx_result jmtxzs_matrix_brm_set_col(const jmtxz_matrix_brm* mtx, uint32_t col,
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    const uint_fast32_t len = jmtxz_matrix_brm_entries_in_col(mtx, col);
+    const uint_fast32_t len = jmtxz_matrix_brm_length_of_col(mtx, col);
     for (uint32_t i = 0; i < len; ++i)
     {
         if (!isfinite(creal(values[i])) || !isfinite(cimag(values[i])))
