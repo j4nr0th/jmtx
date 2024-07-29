@@ -93,6 +93,81 @@ static void construct_rows_of_matrix(jmtxd_matrix_crs* mtx, unsigned first, unsi
 
 }
 
+
+/* Same as construct_rows_of_matrix, but inserts zeros into the matrix far away from the diagonal to make ILU decomposition
+ * less sparse.
+ */
+static void construct_rows_of_matrix2(jmtxd_matrix_crs* mtx, unsigned first, unsigned count, const double rdy2, const double rdx2)
+{
+    unsigned i, j;
+    from_lexicographic(first, &i, &j);
+    for (unsigned k = first; k < first + count; ++k)
+    {
+        unsigned l = 0;
+        double values[7];
+        uint32_t positions[7];
+        if (i != 0)
+        {
+            // There's a bottom boundary
+            values[l] = - rdy2;
+            positions[l] = k - INTERNAL_SIZE_X;//lexicographic_position(i - 1, j);
+            l += 1;
+
+
+            values[l] = 0;
+            positions[l] = k - INTERNAL_SIZE_X + 1;
+            l += 1;
+        }
+
+        if (j != 0)
+        {
+            // There's a left boundary
+            values[l] = - rdx2;
+            positions[l] = k - 1;
+            l += 1;
+        }
+
+        values[l] = 2 * (rdx2 + rdy2);
+        positions[l] = k;
+        l += 1;
+
+        if (j != INTERNAL_SIZE_X - 1)
+        {
+            // There's a right boundary
+            values[l] = - rdx2;
+            positions[l] = k + 1;
+            l += 1;
+        }
+
+        if (i != INTERNAL_SIZE_Y - 1)
+        {
+            values[l] = 0;
+            positions[l] = k + INTERNAL_SIZE_X - 1;
+            l += 1;
+
+            // There's a top boundary
+            values[l] = - rdy2;
+            positions[l] = k + INTERNAL_SIZE_X;
+            l += 1;
+        }
+
+        //        MATRIX_TEST_CALL(
+        jmtxd_matrix_crs_build_row(mtx, k - first, l, positions, values);
+        //                );
+        //        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        //        int beef_stat;
+        //        ASSERT(mtx_res == jmtxds_matrix_crs_beef_check(mtx, &beef_stat));
+        //        ASSERT(beef_stat == 0xBeef);
+
+        if ((j += 1) == INTERNAL_SIZE_X)
+        {
+            j = 0;
+            i += 1;
+        }
+    }
+
+}
+
 int main()
 {
     jmtx_result mtx_res;
@@ -140,7 +215,7 @@ int main()
         for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
         {
 #pragma omp task default(none) shared(rdx2, rdy2, sizes, mtx_array) firstprivate(i)
-            construct_rows_of_matrix(mtx_array[i], sizes[i], sizes[i + 1] - sizes[i], rdy2, rdx2);
+            construct_rows_of_matrix2(mtx_array[i], sizes[i], sizes[i + 1] - sizes[i], rdy2, rdx2);
         }
     }
 
@@ -214,7 +289,7 @@ int main()
         .opt_error_evolution = NULL
         };
     const double t0 = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxd_solve_iterative_pilubicgstab_crs_parallel(joined, l, u, rhs, x, aux1, aux2, aux3, aux4, aux5, aux6, aux7, aux8, &args));
+    MATRIX_TEST_CALL(jmtxd_solve_iterative_pilubicgstab_crs(joined, l, u, rhs, x, aux1, aux2, aux3, aux4, aux5, aux6, aux7, aux8, &args));
     const double t1 = omp_get_wtime();
     printf("Iterative solver took %g seconds for %u iterations, with the final criterion at %g\n", (t1 - t0), args.out_last_iteration, args.out_last_error);
 
