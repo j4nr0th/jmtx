@@ -1,0 +1,13 @@
+sphinx
+pydata-sphinx-theme
+sphinx-favicon
+sphinx-design
+sphinx-gallery
+pypandoc
+sphinx-autobuild
+sphinx-copybutton
+sphinx-toolbox
+sphinxcontrib-websupport
+sphinxcontrib-asciinema
+sphinxcontrib-mermaid
+sphinx-c-autodoc
