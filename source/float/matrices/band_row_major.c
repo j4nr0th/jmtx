@@ -438,7 +438,9 @@ uint32_t jmtx_matrix_brm_get_col(const jmtx_matrix_brm *mtx, uint32_t col, float
 
     uint_fast32_t row;
     uint_fast32_t j, i, pos_rel;
+#ifndef NDEBUG
     const uint_fast32_t max = brm_row_offset(mtx, mtx->base.rows);
+#endif
     pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, first_row));
     i = brm_row_offset(mtx, first_row) + pos_rel;
     for (row = first_row, j = 0; row < last_row; ++row)
@@ -763,7 +765,9 @@ void jmtx_matrix_brm_set_col(const jmtx_matrix_brm *mtx, uint32_t col, const flo
 
     uint_fast32_t row;
     uint_fast32_t j, i, pos_rel;
+#ifndef NDEBUG
     const uint_fast32_t max = brm_row_offset(mtx, mtx->base.rows);
+#endif
     pos_rel = (col - jmtx_matrix_brm_first_pos_in_row(mtx, first_row));
     i = brm_row_offset(mtx, first_row) + pos_rel;
     for (row = first_row, j = 0; row < last_row; ++row)

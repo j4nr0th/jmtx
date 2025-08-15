@@ -73,6 +73,7 @@ static const char *const funny_string =
 #endif
 static void *default_alloc(void *state, uint64_t size)
 {
+    (void)state;
     assert(state == funny_string);
     void *const ptr = malloc(size);
 #ifndef NDEBUG
@@ -86,12 +87,14 @@ static void *default_alloc(void *state, uint64_t size)
 
 static void default_free(void *state, void *ptr)
 {
+    (void)state;
     assert(state == funny_string);
     free(ptr);
 }
 
 static void *default_realloc(void *state, void *ptr, uint64_t new_size)
 {
+    (void)state;
     assert(state == funny_string);
     void *const p_out = realloc(ptr, new_size);
     //    if (p_out) BEEF_FILL(p_out, new_size);    DO NOT BEEF THE NEW POINTER!

@@ -34,10 +34,13 @@ target_sources(jmtx PRIVATE
         ${DECOMPOSITIONS_SOURCE_FILES} ${DECOMPOSITIONS_HEADER_FILES}
         )
 
+set_property(TARGET jmtx PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-
-if (CMAKE_BUILD_TYPE STREQUAL Debug AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
+    if (CMAKE_BUILD_TYPE STREQUAL Debug)
+        target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra -fanalyzer)
+    endif ()
 endif ()
 #   MSVC support for OpenMP is only for C89, so don't include it for MSVC, since the project is written for C99
 if (OpenMP_C_FOUND AND NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
@@ -52,6 +55,3 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 #    add_compile_definitions(jmtx JMTX_NO_ARRAY_ATTRIBS)
 #    add_compile_definitions(jmtx JMTX_MSVC)
 endif ()
-
-
-
