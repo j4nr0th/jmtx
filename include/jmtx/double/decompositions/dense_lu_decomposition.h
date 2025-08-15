@@ -5,7 +5,7 @@
 #ifndef JMTXD_DENSE_LU_DECOMPOSITION_H
 #define JMTXD_DENSE_LU_DECOMPOSITION_H
 #ifndef JMTX_DENSE_ROW_MAJOR_H
-    #include "../matrices/dense_row_major.h"
+#    include "../matrices/dense_row_major.h"
 #endif
 
 /**
@@ -16,8 +16,7 @@
  * @param mtx square matrix to decompose
  * @param decomposed square matrix which receives the decomposition
  */
-void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed);
-
+void jmtxd_decompose_lu_drm(jmtxd_matrix_drm *mtx, jmtxd_matrix_drm *decomposed);
 
 /**
  * Decomposes a matrix into a lower triangular matrix L and upper triangular matrix U, storing the result in the
@@ -29,7 +28,6 @@ void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
  * @param decomposed square matrix which receives the decomposition
  * @return JMTX_RESULT_SUCCESS on success, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed);
+jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm *mtx, jmtxd_matrix_drm *decomposed);
 
-
-#endif //JMTXD_DENSE_LU_DECOMPOSITION_H
+#endif // JMTXD_DENSE_LU_DECOMPOSITION_H

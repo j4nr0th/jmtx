@@ -6,7 +6,7 @@
 #ifndef JMTX_BICGSTAB_ITERATION_H
 #define JMTX_BICGSTAB_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTX_SPARSE_ROW_COMPRESSED_H
@@ -16,7 +16,7 @@
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param y solution to the system A x = y
@@ -36,10 +36,11 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_bicgstab_crs(
-        const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1,
-        float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, float* restrict aux_vec5,
-        float* restrict aux_vec6, jmtx_solver_arguments* args);
+jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+                                              float *restrict aux_vec1, float *restrict aux_vec2,
+                                              float *restrict aux_vec3, float *restrict aux_vec4,
+                                              float *restrict aux_vec5, float *restrict aux_vec6,
+                                              jmtx_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -47,7 +48,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton checks for appropriate matrix type and dimensions, as well as for memory not
+ *  This version of the function checks for appropriate matrix type and dimensions, as well as for memory not
  *  overlapping.
  *
  * @param mtx system matrix A
@@ -69,9 +70,11 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxs_solve_iterative_bicgstab_crs(
-        const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)], float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-        float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-        float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
+    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args);
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
  *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
@@ -81,7 +84,7 @@ jmtx_result jmtxs_solve_iterative_bicgstab_crs(
  *  This version uses incomplete LU decomposition (ILU) of the matrix, which then allows for better convergence
  *  properties. The decomposition must be given to the function.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param l lower triangular matrix
@@ -105,11 +108,13 @@ jmtx_result jmtxs_solve_iterative_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs(
-        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y,
-        float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2, float* restrict aux_vec3,
-        float* restrict aux_vec4, float* restrict aux_vec5, float* restrict aux_vec6, float* restrict aux_vec7,
-        float* restrict aux_vec8, jmtx_solver_arguments* args);
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
+                                                  const jmtx_matrix_crs *u, const float *restrict y, float *restrict x,
+                                                  float *restrict aux_vec1, float *restrict aux_vec2,
+                                                  float *restrict aux_vec3, float *restrict aux_vec4,
+                                                  float *restrict aux_vec5, float *restrict aux_vec6,
+                                                  float *restrict aux_vec7, float *restrict aux_vec8,
+                                                  jmtx_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -120,7 +125,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(
  *  This version uses incomplete LU decomposition (ILU) of the matrix, which then allows for better convergence
  *  properties. The decomposition must be given to the function.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  *  This version uses OpenMP to solve the problem in parallel using multiple threads.
  *
@@ -146,13 +151,14 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(
-        const jmtx_matrix_crs* mtx, const jmtx_matrix_crs* l, const jmtx_matrix_crs* u, const float* restrict y,
-        float* restrict x, float* restrict aux_vec1, float* restrict aux_vec2, float* restrict aux_vec3,
-        float* restrict aux_vec4, float* restrict aux_vec5, float* restrict aux_vec6, float* restrict aux_vec7,
-        float* restrict aux_vec8, jmtx_solver_arguments* args);
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
+                                                           const jmtx_matrix_crs *u, const float *restrict y,
+                                                           float *restrict x, float *restrict aux_vec1,
+                                                           float *restrict aux_vec2, float *restrict aux_vec3,
+                                                           float *restrict aux_vec4, float *restrict aux_vec5,
+                                                           float *restrict aux_vec6, float *restrict aux_vec7,
+                                                           float *restrict aux_vec8, jmtx_solver_arguments *args);
 #endif
-
 
 #ifdef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
 /**
@@ -161,7 +167,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param y solution to the system A x = y
@@ -181,10 +187,11 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_bicgstab_cds(
-        const jmtx_matrix_cds* mtx, const float* restrict y, float* restrict x, float* restrict aux_vec1,
-        float* restrict aux_vec2, float* restrict aux_vec3, float* restrict aux_vec4, float* restrict aux_vec5,
-        float* restrict aux_vec6, jmtx_solver_arguments* args);
+jmtx_result jmtx_solve_iterative_bicgstab_cds(const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x,
+                                              float *restrict aux_vec1, float *restrict aux_vec2,
+                                              float *restrict aux_vec3, float *restrict aux_vec4,
+                                              float *restrict aux_vec5, float *restrict aux_vec6,
+                                              jmtx_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -192,7 +199,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_cds(
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton checks for appropriate matrix type and dimensions, as well as for memory not
+ *  This version of the function checks for appropriate matrix type and dimensions, as well as for memory not
  *  overlapping.
  *
  * @param mtx system matrix A
@@ -214,11 +221,11 @@ jmtx_result jmtx_solve_iterative_bicgstab_cds(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxs_solve_iterative_bicgstab_cds(
-        const jmtx_matrix_cds* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)], float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-        float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-        float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
+    const jmtx_matrix_cds *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args);
 #endif
 
-
-
-#endif //JMTX_BICGSTAB_ITERATION_H
+#endif // JMTX_BICGSTAB_ITERATION_H

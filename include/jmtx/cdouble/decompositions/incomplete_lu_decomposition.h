@@ -7,13 +7,13 @@
 #define JMTXZ_INCOMPLETE_LU_DECOMPOSITION_H
 
 #ifndef JMTXZ_SPARSE_ROW_COMPRESSED_H
-    #include "../matrices/sparse_row_compressed.h"
+#    include "../matrices/sparse_row_compressed.h"
 #endif
 #ifndef JMTXZ_SPARSE_COLUMN_COMPRESSED_H
-    #include "../matrices/sparse_column_compressed.h"
+#    include "../matrices/sparse_column_compressed.h"
 #endif
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 /**
@@ -33,9 +33,8 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxz_decompose_ilu_crs(
-        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_l, jmtxz_matrix_ccs** p_u,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxz_decompose_ilu_crs(const jmtxz_matrix_crs *a, jmtxz_matrix_crs **p_l, jmtxz_matrix_ccs **p_u,
+                                    const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
@@ -54,10 +53,7 @@ jmtx_result jmtxz_decompose_ilu_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxzs_decompose_ilu_crs(
-        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_l, jmtxz_matrix_ccs** p_u,
-        const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxzs_decompose_ilu_crs(const jmtxz_matrix_crs *a, jmtxz_matrix_crs **p_l, jmtxz_matrix_ccs **p_u,
+                                     const jmtx_allocator_callbacks *allocator_callbacks);
 
-
-
-#endif //JMTXZ_INCOMPLETE_LU_DECOMPOSITION_H
+#endif // JMTXZ_INCOMPLETE_LU_DECOMPOSITION_H

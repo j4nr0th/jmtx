@@ -4,17 +4,15 @@
 //
 /**
  * Functions declared here perform minimum checking of the parameters and assume that values that were passed to them
- * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these functions,
- * which do perform parameter validation are in the "sparse_row_compressed_safe.h" header.
+ * were valid (matrix have proper dimensions, indices are within required bounds, etc.). "Safe" versions of these
+ * functions, which do perform parameter validation are in the "sparse_row_compressed_safe.h" header.
  */
 
 #ifndef JMTXC_SPARSE_COLUMN_COMPRESSED_H
 #define JMTXC_SPARSE_COLUMN_COMPRESSED_H
 #ifndef JMTX_MATRIX_BASE_H
-    #include "../../matrix_base.h"
+#    include "../../matrix_base.h"
 #endif
-
-
 
 typedef struct jmtxc_matrix_ccs_struct jmtxc_matrix_ccs;
 
@@ -28,22 +26,21 @@ typedef struct jmtxc_matrix_ccs_struct jmtxc_matrix_ccs;
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_new(
- jmtxc_matrix_ccs** p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
- const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxc_matrix_ccs_new(jmtxc_matrix_ccs **p_mtx, uint32_t rows, uint32_t cols, uint32_t reserved_entries,
+                                 const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Cleans up the ccs matrix and frees all of its memory
  * @param mtx pointer to memory where the matrix is stored
  */
-void jmtxc_matrix_ccs_destroy(jmtxc_matrix_ccs* mtx);
+void jmtxc_matrix_ccs_destroy(jmtxc_matrix_ccs *mtx);
 
 /**
  * Frees up memory which the matrix is not currently using, which is was allocated in advance
  * @param mtx pointer to the memory where the matrix is stored
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_shrink(jmtxc_matrix_ccs* mtx);
+jmtx_result jmtxc_matrix_ccs_shrink(jmtxc_matrix_ccs *mtx);
 
 /**
  * Sets the column of the matrix. This is the most efficient way to build the matrix, as building it this way causes
@@ -55,12 +52,13 @@ jmtx_result jmtxc_matrix_ccs_shrink(jmtxc_matrix_ccs* mtx);
  * @param values values of non-zero entries
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_set_col(jmtxc_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const _Complex float* values);
+jmtx_result jmtxc_matrix_ccs_set_col(jmtxc_matrix_ccs *mtx, uint32_t col, uint32_t n, const uint32_t *indices,
+                                     const _Complex float *values);
 
 /**
- * Version of jmtxc_matrix_ccs_set_col which does not touch the count of entries after the current column. This is useful
- * when building a new matrix, as it avoids unnecessary setting and resetting of these entries. Must be called for each
- * column in order to ensure that the matrix is properly built. Makes no checks on the input parameters
+ * Version of jmtxc_matrix_ccs_set_col which does not touch the count of entries after the current column. This is
+ * useful when building a new matrix, as it avoids unnecessary setting and resetting of these entries. Must be called
+ * for each column in order to ensure that the matrix is properly built. Makes no checks on the input parameters
  * @param mtx pointer to the memory where the matrix is stored
  * @param col index of the column to set
  * @param n how many entries are in the column
@@ -68,7 +66,8 @@ jmtx_result jmtxc_matrix_ccs_set_col(jmtxc_matrix_ccs* mtx, uint32_t col, uint32
  * @param values values of non-zero values
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_build_col(jmtxc_matrix_ccs* mtx, uint32_t col, uint32_t n, const uint32_t* indices, const _Complex float* values);
+jmtx_result jmtxc_matrix_ccs_build_col(jmtxc_matrix_ccs *mtx, uint32_t col, uint32_t n, const uint32_t *indices,
+                                       const _Complex float *values);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that column
@@ -79,7 +78,8 @@ jmtx_result jmtxc_matrix_ccs_build_col(jmtxc_matrix_ccs* mtx, uint32_t col, uint
  * @return number of elements in the column, which is the number of valid elements in arrays given to p_indices and
  * p_elements
  */
-uint32_t jmtxc_matrix_ccs_get_col(const jmtxc_matrix_ccs* mtx, uint32_t col, uint32_t** p_indices, _Complex float** p_elements);
+uint32_t jmtxc_matrix_ccs_get_col(const jmtxc_matrix_ccs *mtx, uint32_t col, uint32_t **p_indices,
+                                  _Complex float **p_elements);
 
 /**
  * Multiplies a dense row vector x by the sparse matrix and stores the result at y
@@ -87,7 +87,8 @@ uint32_t jmtxc_matrix_ccs_get_col(const jmtxc_matrix_ccs* mtx, uint32_t col, uin
  * @param x pointer to vector to be multiplied
  * @param y pointer to vector where the result of multiplication is to be stored
  */
-void jmtxc_matrix_ccs_vector_multiply(const jmtxc_matrix_ccs* mtx, const _Complex float* restrict x, _Complex float* restrict y);
+void jmtxc_matrix_ccs_vector_multiply(const jmtxc_matrix_ccs *mtx, const _Complex float *restrict x,
+                                      _Complex float *restrict y);
 
 /**
  * Sets a single entry in the matrix. This is about as fast as setting the entire column of the matrix at once, if the
@@ -98,7 +99,7 @@ void jmtxc_matrix_ccs_vector_multiply(const jmtxc_matrix_ccs* mtx, const _Comple
  * @param value value to which the value is set
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_set_entry(jmtxc_matrix_ccs* mtx, uint32_t i, uint32_t j, _Complex float value);
+jmtx_result jmtxc_matrix_ccs_set_entry(jmtxc_matrix_ccs *mtx, uint32_t i, uint32_t j, _Complex float value);
 
 /**
  * Returns a single entry from the matrix.
@@ -107,7 +108,7 @@ jmtx_result jmtxc_matrix_ccs_set_entry(jmtxc_matrix_ccs* mtx, uint32_t i, uint32
  * @param j column index
  * @return value of the entry (0 if the entry was not manually set to anything else)
  */
-_Complex float jmtxc_matrix_ccs_get_entry(const jmtxc_matrix_ccs* mtx, uint32_t i, uint32_t j);
+_Complex float jmtxc_matrix_ccs_get_entry(const jmtxc_matrix_ccs *mtx, uint32_t i, uint32_t j);
 
 /**
  * Counts the number of times a specific value occurs in the matrix
@@ -115,7 +116,7 @@ _Complex float jmtxc_matrix_ccs_get_entry(const jmtxc_matrix_ccs* mtx, uint32_t 
  * @param v value which to search for
  * @return number of times the value appeared in the matrix
  */
-uint32_t jmtxc_matrix_ccs_count_values(const jmtxc_matrix_ccs* mtx, _Complex float v);
+uint32_t jmtxc_matrix_ccs_count_values(const jmtxc_matrix_ccs *mtx, _Complex float v);
 
 /**
  * Counts the number of times a specific row index occurs in the matrix
@@ -123,7 +124,7 @@ uint32_t jmtxc_matrix_ccs_count_values(const jmtxc_matrix_ccs* mtx, _Complex flo
  * @param v row index which to search for
  * @return number of times the row index appeared in the matrix
  */
-uint32_t jmtxc_matrix_ccs_count_indices(const jmtxc_matrix_ccs* mtx, uint32_t v);
+uint32_t jmtxc_matrix_ccs_count_indices(const jmtxc_matrix_ccs *mtx, uint32_t v);
 
 /**
  * Applies a unary function on the sparse matrix, only on its stored entries, which can be modified. If the user given
@@ -134,34 +135,37 @@ uint32_t jmtxc_matrix_ccs_count_indices(const jmtxc_matrix_ccs* mtx, uint32_t v)
  * @return JMTX_RESULT_SUCCESS if user function never returned non-zero, JMTX_RESULT_UNARY_RETURN as soon as the user
  * function returns non-zero
  */
-jmtx_result jmtxc_matrix_ccs_apply_unary_fn(const jmtxc_matrix_ccs* mtx, int (*unary_fn)(uint32_t i, uint32_t j, _Complex float* p_element, void* param), void* param);
+jmtx_result jmtxc_matrix_ccs_apply_unary_fn(const jmtxc_matrix_ccs *mtx,
+                                            int (*unary_fn)(uint32_t i, uint32_t j, _Complex float *p_element,
+                                                            void *param),
+                                            void *param);
 
 /**
  * Removes entries exactly equal to zero. If the element is indeed zero, it is compared to (_Complex float)0.0
  * @param mtx pointer to the memory where the matrix is stored
  */
-void jmtxc_matrix_ccs_remove_zeros(jmtxc_matrix_ccs* mtx);
+void jmtxc_matrix_ccs_remove_zeros(jmtxc_matrix_ccs *mtx);
 
 /**
  * Removes entries which have absolute value less than specified value
  * @param mtx pointer to the memory where the matrix is stored
  * @param v value to which to compare it to
  */
-void jmtxc_matrix_ccs_remove_bellow(jmtxc_matrix_ccs* mtx, float v);
+void jmtxc_matrix_ccs_remove_bellow(jmtxc_matrix_ccs *mtx, float v);
 
 /**
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  */
-void jmtxc_matrix_zero_all_entries(const jmtxc_matrix_ccs* mtx);
+void jmtxc_matrix_zero_all_entries(const jmtxc_matrix_ccs *mtx);
 
 /**
- * Similar to jmtxc_matrix_crs_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows for
- * the value to be other than 0
+ * Similar to jmtxc_matrix_crs_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows
+ * for the value to be other than 0
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  */
-void jmtxc_matrix_ccs_set_all_entries(const jmtxc_matrix_ccs* mtx, _Complex float x);
+void jmtxc_matrix_ccs_set_all_entries(const jmtxc_matrix_ccs *mtx, _Complex float x);
 
 /**
  * Returns the number of entries in the row of the matrix
@@ -169,7 +173,7 @@ void jmtxc_matrix_ccs_set_all_entries(const jmtxc_matrix_ccs* mtx, _Complex floa
  * @param row column index of the matrix to look at
  * @return number of entries in the row
  */
-uint32_t jmtxc_matrix_ccs_elements_in_row(const jmtxc_matrix_ccs* mtx, uint32_t row);
+uint32_t jmtxc_matrix_ccs_elements_in_row(const jmtxc_matrix_ccs *mtx, uint32_t row);
 
 /**
  * Returns the values of entries in the matrix, along with what column of the matrix they were located in
@@ -181,8 +185,8 @@ uint32_t jmtxc_matrix_ccs_elements_in_row(const jmtxc_matrix_ccs* mtx, uint32_t 
  * @return number of entries that were extracted from the row (may be less than are really in the row if n was too
  * small)
  */
-uint32_t jmtxc_matrix_ccs_get_row(
- const jmtxc_matrix_ccs* mtx, uint32_t row, uint32_t n, _Complex float* p_values, uint32_t* p_columns);
+uint32_t jmtxc_matrix_ccs_get_row(const jmtxc_matrix_ccs *mtx, uint32_t row, uint32_t n, _Complex float *p_values,
+                                  uint32_t *p_columns);
 
 /**
  * Creates a transpose of a matrix
@@ -192,8 +196,8 @@ uint32_t jmtxc_matrix_ccs_get_row(
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_transpose(const jmtxc_matrix_ccs* mtx, jmtxc_matrix_ccs** p_out,
-                                      const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxc_matrix_ccs_transpose(const jmtxc_matrix_ccs *mtx, jmtxc_matrix_ccs **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Creates a copy of the matrix
@@ -203,20 +207,21 @@ jmtx_result jmtxc_matrix_ccs_transpose(const jmtxc_matrix_ccs* mtx, jmtxc_matrix
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_copy(const jmtxc_matrix_ccs* restrict mtx, jmtxc_matrix_ccs** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxc_matrix_ccs_copy(const jmtxc_matrix_ccs *restrict mtx, jmtxc_matrix_ccs **p_out,
+                                  const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Finds the upper bandwidth of the matrix; what is the furthest distance of and entry above the main diagonal
  * @param mtx matrx to find the upper bandwidth of
  * @return upper bandwidth of the matrix
  */
-uint32_t jmtxc_matrix_ccs_find_upper_bandwidth(const jmtxc_matrix_ccs* mtx);
+uint32_t jmtxc_matrix_ccs_find_upper_bandwidth(const jmtxc_matrix_ccs *mtx);
 
 /**
- * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry bellow the main diagonal
+ * Finds the lower bandwidth of the matrix; what is the furthest distance of and entry below the main diagonal
  * @param mtx matrx to find the lower bandwidth of
  * @return lower bandwidth of the matrix
  */
-uint32_t jmtxc_matrix_ccs_find_lower_bandwidth(const jmtxc_matrix_ccs* mtx);
+uint32_t jmtxc_matrix_ccs_find_lower_bandwidth(const jmtxc_matrix_ccs *mtx);
 
-#endif //JMTXC_SPARSE_COLUMN_COMPRESSED_H
+#endif // JMTXC_SPARSE_COLUMN_COMPRESSED_H

@@ -7,7 +7,7 @@
 #define JMTXC_CONJUGATE_GRADIENT_ITERATION_H
 
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXC_SPARSE_ROW_COMPRESSED_H
@@ -26,16 +26,16 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(
-        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
-        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
-        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args);
-
+jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
+                                                         _Complex float *restrict x, _Complex float *restrict aux_vec1,
+                                                         _Complex float *restrict aux_vec2,
+                                                         _Complex float *restrict aux_vec3,
+                                                         jmtx_solver_arguments *args);
 
 /**
  * Parallel version of the function jmtxc_solve_iterative_conjugate_gradient_crs using OpenMP
@@ -57,17 +57,15 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
 jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs_parallel(
-        const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
-        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
-        _Complex float* restrict aux_vec3, jmtx_solver_arguments* args);
-
-
+    const jmtxc_matrix_crs *mtx, const _Complex float *restrict y, _Complex float *restrict x,
+    _Complex float *restrict aux_vec1, _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
+    jmtx_solver_arguments *args);
 
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
@@ -96,15 +94,16 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs_parallel(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
 jmtx_result jmtxc_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
-        const jmtxc_matrix_crs* mtx, const jmtxc_matrix_crs* cho, const jmtxc_matrix_crs* cho_t,  const _Complex float* restrict y,
-        _Complex float* restrict x, _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2,
-        _Complex float* restrict aux_vec3, _Complex float* restrict aux_vec4, jmtx_solver_arguments* args);
+    const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *cho, const jmtxc_matrix_crs *cho_t,
+    const _Complex float *restrict y, _Complex float *restrict x, _Complex float *restrict aux_vec1,
+    _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3, _Complex float *restrict aux_vec4,
+    jmtx_solver_arguments *args);
 #endif // JMTXC_SPARSE_ROW_COMPRESSED_H
 
 #ifdef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
@@ -126,14 +125,16 @@ jmtx_result jmtxc_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, JMTX_RESULT_STAGNATED if stagnation was detected, other error codes for other errors
  */
-jmtx_result jmtxc_solve_iterative_conjugate_gradient_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y, _Complex float* restrict x,
-                                        _Complex float* restrict aux_vec1, _Complex float* restrict aux_vec2, _Complex float* restrict aux_vec3,
-                                        jmtx_solver_arguments* args);
-#endif //JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
+jmtx_result jmtxc_solve_iterative_conjugate_gradient_cds(const jmtxc_matrix_cds *mtx, const _Complex float *restrict y,
+                                                         _Complex float *restrict x, _Complex float *restrict aux_vec1,
+                                                         _Complex float *restrict aux_vec2,
+                                                         _Complex float *restrict aux_vec3,
+                                                         jmtx_solver_arguments *args);
+#endif // JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
 
-#endif //JMTXC_CONJUGATE_GRADIENT_ITERATION_H
+#endif // JMTXC_CONJUGATE_GRADIENT_ITERATION_H

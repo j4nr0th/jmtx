@@ -3,16 +3,16 @@
 // Created by jan on 2.11.2023.
 //
 
+#include "../../../include/jmtx/double/decompositions/incomplete_lu_decomposition.h"
 #include <assert.h>
 #include <math.h>
-#include "../../../include/jmtx/double/decompositions/incomplete_lu_decomposition.h"
 
 #include "../../../include/jmtx/double/matrices/sparse_multiplication.h"
 #include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
-#include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../tests/double/test_common.h"
 #include "../matrices/sparse_column_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
-#include "../../../tests/double/test_common.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 
 /**
  * Uses relations for LU decomposition to compute an approximate decomposition with L' and U' such that the matrix
@@ -31,9 +31,8 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxds_decompose_ilu_crs(
-        const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxds_decompose_ilu_crs(const jmtxd_matrix_crs *a, jmtxd_matrix_crs **p_l, jmtxd_matrix_ccs **p_u,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!a)
     {
@@ -64,22 +63,19 @@ jmtx_result jmtxds_decompose_ilu_crs(
     return jmtxd_decompose_ilu_crs(a, p_l, p_u, allocator_callbacks);
 }
 
-
-jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
-    const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs *a, jmtxd_matrix_crs **p_l, jmtxd_matrix_ccs **p_u,
+                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    jmtxd_matrix_crs* l;
-    jmtxd_matrix_ccs* u;
-
-
+    jmtxd_matrix_crs *l;
+    jmtxd_matrix_ccs *u;
 
     uint32_t cols = a->base.cols;
-    uint32_t* count_u = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*count_u) * cols);
+    uint32_t *count_u = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*count_u) * cols);
     if (!count_u)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -88,11 +84,10 @@ jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matri
     uint32_t total_count_l = 0, total_count_u = 0;
     memset(count_u, 0, sizeof(*count_u) * cols);
 
-
     for (uint32_t row = 0; row < rows; ++row)
     {
-        uint32_t* pcols;
-        double* pvals;
+        uint32_t *pcols;
+        double *pvals;
         uint32_t ncols = jmtxd_matrix_crs_get_row(a, row, &pcols, &pvals);
         for (uint32_t n = 0; n < ncols; ++n)
         {
@@ -115,13 +110,13 @@ jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matri
         allocator_callbacks->free(allocator_callbacks->state, count_u);
         return res;
     }
-    uint32_t* col_ends = u->end_of_column_offsets;
+    uint32_t *col_ends = u->end_of_column_offsets;
     //  Create end of line offsets for the upper matrix
     col_ends[0] = count_u[0];
     //  Compute cumsums for offsets
     for (uint32_t i = 1; i < cols; ++i)
     {
-        col_ends[i] = count_u[i] + col_ends[i-1];
+        col_ends[i] = count_u[i] + col_ends[i - 1];
         count_u[i] = 0; //   Zero the column counts so that they can be reused later for counting bucket sizes
     }
     count_u[0] = 0;
@@ -130,20 +125,20 @@ jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matri
     uint32_t lcnt = 0;
     for (uint32_t row = 0; row < rows; ++row)
     {
-        uint32_t* in_cols;
-        double* in_vals;
+        uint32_t *in_cols;
+        double *in_vals;
         uint32_t n_row = jmtxd_matrix_crs_get_row(a, row, &in_cols, &in_vals);
 
         for (uint32_t idx = 0; idx < n_row; ++idx)
         {
             const uint32_t col = in_cols[idx];
-            const uint32_t ip = col > 0 ? col_ends[col-1] : 0;
+            const uint32_t ip = col > 0 ? col_ends[col - 1] : 0;
             const uint32_t n_col = count_u[col];
 
             if (col >= row)
             {
-                u->values[ip+n_col] = in_vals[idx];
-                u->indices[ip+n_col] = row;
+                u->values[ip + n_col] = in_vals[idx];
+                u->indices[ip + n_col] = row;
                 count_u[col] += 1;
             }
             else
@@ -161,7 +156,6 @@ jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matri
     l->n_entries = l->end_of_row_offsets[rows - 1];
     u->n_entries = u->end_of_column_offsets[cols - 1];
 
-
     allocator_callbacks->free(allocator_callbacks->state, count_u);
     *p_l = l;
     *p_u = u;
@@ -169,9 +163,8 @@ jmtx_result jmtxd_decompose_ldu_split_crs(const jmtxd_matrix_crs* a, jmtxd_matri
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_decompose_ilu_crs(
-        const jmtxd_matrix_crs* a, jmtxd_matrix_crs** p_l, jmtxd_matrix_ccs** p_u,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_decompose_ilu_crs(const jmtxd_matrix_crs *a, jmtxd_matrix_crs **p_l, jmtxd_matrix_ccs **p_u,
+                                    const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -180,8 +173,8 @@ jmtx_result jmtxd_decompose_ilu_crs(
 
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
-    jmtxd_matrix_crs* l = NULL;
-    jmtxd_matrix_ccs* u = NULL;
+    jmtxd_matrix_crs *l = NULL;
+    jmtxd_matrix_ccs *u = NULL;
     jmtx_result res = jmtxd_decompose_ldu_split_crs(a, &l, &u, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -192,14 +185,14 @@ jmtx_result jmtxd_decompose_ilu_crs(
     {
         //  Compute the row idx for l
         {
-            uint32_t* l_idx;
-            double* l_val;
+            uint32_t *l_idx;
+            double *l_val;
             const uint32_t l_cnt = jmtxd_matrix_crs_get_row(l, idx, &l_idx, &l_val);
             for (uint32_t k = 0; k < l_cnt - 1; ++k)
             {
                 uint32_t col = l_idx[k];
-                uint32_t* u_idx;
-                double* u_val;
+                uint32_t *u_idx;
+                double *u_val;
                 const uint32_t u_cnt = jmtxd_matrix_ccs_get_col(u, col, &u_idx, &u_val);
                 const double dp = jmtxd_multiply_matrix_sparse_vectors(k, l_idx, l_val, u_cnt, u_idx, u_val);
                 l_val[k] = (l_val[k] - dp) / u_val[u_cnt - 1];
@@ -208,14 +201,14 @@ jmtx_result jmtxd_decompose_ilu_crs(
         }
         //  Compute the column idx for u
         {
-            uint32_t* u_idx;
-            double* u_val;
+            uint32_t *u_idx;
+            double *u_val;
             const uint32_t u_cnt = jmtxd_matrix_ccs_get_col(u, idx, &u_idx, &u_val);
             for (uint32_t k = 0; k < u_cnt; ++k)
             {
                 uint32_t row = u_idx[k];
-                uint32_t* l_idx;
-                double* l_val;
+                uint32_t *l_idx;
+                double *l_val;
                 const uint32_t l_cnt = jmtxd_matrix_crs_get_row(l, row, &l_idx, &l_val);
                 const double dp = jmtxd_multiply_matrix_sparse_vectors(k, u_idx, u_val, l_cnt, l_idx, l_val);
                 u_val[k] -= dp;

@@ -3,10 +3,10 @@
 //
 #include <math.h>
 
+#include "../../../include/jmtx/float/solvers/recursive_generalized_minimum_residual_iteration.h"
+#include "../matrices/band_row_major_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/band_row_major_internal.h"
-#include "../../../include/jmtx/float/solvers/recursive_generalized_minimum_residual_iteration.h"
 
 #include "gmres_internal.h"
 
@@ -37,22 +37,24 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, const float* restrict y, float* restrict x,
-                                             uint32_t m, uint32_t l, jmtx_matrix_brm* r_mtx,
-                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float* restrict aux_vec6,
-                                             float* restrict aux_vecs1, float* restrict aux_vecs2,
-                                             float* restrict aux_vecs3, jmtx_solver_arguments* args)
+jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x,
+                                            uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+                                            float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6,
+                                            float *restrict aux_vecs1, float *restrict aux_vecs2,
+                                            float *restrict aux_vecs3, jmtx_solver_arguments *args)
 {
     float err, r_mag, y_mag;
     const uint32_t n = mtx->base.rows;
-    float* const r = aux_vec6;
+    float *const r = aux_vec6;
     jmtx_matrix_cds_vector_multiply(mtx, x, r);
     y_mag = 0;
     r_mag = 0;
@@ -74,21 +76,20 @@ jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, const fl
     }
 
     uint32_t n_iter = 0, vec_idx = 0, vec_cnt = 0;
-    float* const s_vectors = aux_vecs2;
-    float* const p_vectors = aux_vecs3;
+    float *const s_vectors = aux_vecs2;
+    float *const p_vectors = aux_vecs3;
     //  Begin iterations
     for (;;)
     {
-        float* const s = s_vectors + n * vec_idx;
-        float* const p = p_vectors + n * vec_idx;
+        float *const s = s_vectors + n * vec_idx;
+        float *const p = p_vectors + n * vec_idx;
         for (uint32_t i = 0; i < n; ++i)
         {
             p[i] = 0;
         }
         //  Use GMRES(m) to generate a correction to the current error
-        (void)jmtx_gmresm_round_cds(mtx, n, m, y_mag, args->in_convergence_criterion, r,
-                               p, r_mtx, aux_vec1, aux_vec2, aux_vec3,
-                               aux_vec4, aux_vec5, aux_vecs1);
+        (void)jmtx_gmresm_round_cds(mtx, n, m, y_mag, args->in_convergence_criterion, r, p, r_mtx, aux_vec1, aux_vec2,
+                                    aux_vec3, aux_vec4, aux_vec5, aux_vecs1);
         //  Generate conjugate vector
         jmtx_matrix_cds_vector_multiply(mtx, p, s);
 
@@ -100,8 +101,8 @@ jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, const fl
                 continue;
             }
             float dp = 0;
-            const float* other_s = s_vectors + i * n;
-            const float* other_p = p_vectors + i * n;
+            const float *other_s = s_vectors + i * n;
+            const float *other_p = p_vectors + i * n;
             for (uint32_t j = 0; j < n; ++j)
             {
                 dp += other_s[j] * s[j];
@@ -198,18 +199,19 @@ jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, const fl
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxs_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-                                             float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm* r_mtx,
-                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
-                                             float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-                                             float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments* args)
+jmtx_result jmtxs_solve_iterative_gmresr_cds(
+    const jmtx_matrix_cds *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+    float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+    float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
+    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args)
 {
     if (mtx->base.type != JMTX_TYPE_CDS)
     {
@@ -235,10 +237,9 @@ jmtx_result jmtxs_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, uint32_
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_solve_iterative_gmresr_cds(mtx, y, x, m ,l, r_mtx, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5,
+    return jmtx_solve_iterative_gmresr_cds(mtx, y, x, m, l, r_mtx, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5,
                                            aux_vec6, aux_vecs1, aux_vecs2, aux_vecs3, args);
 }
-
 
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
@@ -267,22 +268,24 @@ jmtx_result jmtxs_solve_iterative_gmresr_cds(const jmtx_matrix_cds* mtx, uint32_
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                             uint32_t m, uint32_t l, jmtx_matrix_brm* r_mtx,
-                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float* restrict aux_vec6,
-                                             float* restrict aux_vecs1, float* restrict aux_vecs2,
-                                             float* restrict aux_vecs3, jmtx_solver_arguments* args)
+jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+                                            uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+                                            float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                            float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6,
+                                            float *restrict aux_vecs1, float *restrict aux_vecs2,
+                                            float *restrict aux_vecs3, jmtx_solver_arguments *args)
 {
     float err, r_mag, y_mag;
     const uint32_t n = mtx->base.rows;
-    float* const r = aux_vec6;
+    float *const r = aux_vec6;
     jmtx_matrix_crs_vector_multiply(mtx, x, r);
     y_mag = 0;
     r_mag = 0;
@@ -304,21 +307,20 @@ jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, const fl
     }
 
     uint32_t n_iter = 0, vec_idx = 0, vec_cnt = 0;
-    float* const s_vectors = aux_vecs2;
-    float* const p_vectors = aux_vecs3;
+    float *const s_vectors = aux_vecs2;
+    float *const p_vectors = aux_vecs3;
     //  Begin iterations
     for (;;)
     {
-        float* const s = s_vectors + n * vec_idx;
-        float* const p = p_vectors + n * vec_idx;
+        float *const s = s_vectors + n * vec_idx;
+        float *const p = p_vectors + n * vec_idx;
         for (uint32_t i = 0; i < n; ++i)
         {
             p[i] = 0;
         }
         //  Use GMRES(m) to generate a correction to the current error
-        (void)jmtx_gmresm_round_crs(mtx, n, m, y_mag, args->in_convergence_criterion, r,
-                               p, r_mtx, aux_vec1, aux_vec2, aux_vec3,
-                               aux_vec4, aux_vec5, aux_vecs1);
+        (void)jmtx_gmresm_round_crs(mtx, n, m, y_mag, args->in_convergence_criterion, r, p, r_mtx, aux_vec1, aux_vec2,
+                                    aux_vec3, aux_vec4, aux_vec5, aux_vecs1);
         //  Generate conjugate vector
         jmtx_matrix_crs_vector_multiply(mtx, p, s);
 
@@ -330,8 +332,8 @@ jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, const fl
                 continue;
             }
             float dp = 0;
-            const float* other_s = s_vectors + i * n;
-            const float* other_p = p_vectors + i * n;
+            const float *other_s = s_vectors + i * n;
+            const float *other_p = p_vectors + i * n;
             for (uint32_t j = 0; j < n; ++j)
             {
                 dp += other_s[j] * s[j];
@@ -428,18 +430,19 @@ jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, const fl
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxs_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-                                             float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm* r_mtx,
-                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
-                                             float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-                                             float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments* args)
+jmtx_result jmtxs_solve_iterative_gmresr_crs(
+    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+    float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+    float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
+    float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
+    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args)
 {
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
@@ -465,7 +468,6 @@ jmtx_result jmtxs_solve_iterative_gmresr_crs(const jmtx_matrix_crs* mtx, uint32_
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_solve_iterative_gmresr_crs(mtx, y, x, m ,l, r_mtx, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5,
+    return jmtx_solve_iterative_gmresr_crs(mtx, y, x, m, l, r_mtx, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5,
                                            aux_vec6, aux_vecs1, aux_vecs2, aux_vecs3, args);
 }
-

@@ -2,13 +2,10 @@
 // Created by jan on 16.6.2022.
 //
 
-#include "../matrices/sparse_row_compressed_internal.h"
 #include "../../../include/jmtx/float/solvers/gauss_seidel_iteration.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 
 #include <math.h>
-
-
-
 
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
@@ -29,17 +26,18 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                  float* restrict aux_vec1, jmtx_solver_arguments* args)
+jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+                                                  float *restrict x, float *restrict aux_vec1,
+                                                  jmtx_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    float* const div_factors = aux_vec1;
+    float *const div_factors = aux_vec1;
     float mag_y = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -49,10 +47,9 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, co
     }
     mag_y = sqrtf(mag_y);
 
-
     float err;
     uint32_t n_iterations = 0;
-    for(;;)
+    for (;;)
     {
 
         for (uint32_t i = 0; i < n; ++i)
@@ -100,8 +97,8 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, co
     return JMTX_RESULT_SUCCESS;
 }
 
-
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
+static inline int check_vector_overlaps(const unsigned n, const size_t size,
+                                        const void *ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -138,13 +135,16 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-                                   float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args)
+jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+                                                   const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                                   float x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                                   float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+                                                   jmtx_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -170,8 +170,8 @@ jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, u
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    const void* ptrs[] = {y, x, aux_vec1};
-    if (check_vector_overlaps(sizeof(ptrs)/sizeof(*ptrs), n * sizeof(*x), ptrs))
+    const void *ptrs[] = {y, x, aux_vec1};
+    if (check_vector_overlaps(sizeof(ptrs) / sizeof(*ptrs), n * sizeof(*x), ptrs))
     {
         return JMTX_RESULT_BAD_PARAM;
     }

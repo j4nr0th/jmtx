@@ -5,7 +5,7 @@
 #ifndef JMTX_GAUSS_SEIDEL_ITERATION_H
 #define JMTX_GAUSS_SEIDEL_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTX_SPARSE_ROW_COMPRESSED_H
@@ -28,13 +28,14 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, const float* restrict y, float* restrict x,
-                                  float* restrict aux_vec1, jmtx_solver_arguments* args);
+jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+                                                  float *restrict x, float *restrict aux_vec1,
+                                                  jmtx_solver_arguments *args);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)
@@ -48,14 +49,17 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, co
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs* mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-                                   float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments* args);
+jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+                                                   const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                                   float x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                                   float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+                                                   jmtx_solver_arguments *args);
 
 #endif
 
-#endif //JMTX_GAUSS_SEIDEL_ITERATION_H
+#endif // JMTX_GAUSS_SEIDEL_ITERATION_H

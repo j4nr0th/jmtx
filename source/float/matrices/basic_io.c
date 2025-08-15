@@ -3,13 +3,13 @@
 //
 
 #include "basic_io.h"
-#include "sparse_row_compressed_internal.h"
 #include "sparse_column_compressed_internal.h"
+#include "sparse_row_compressed_internal.h"
 
-#include <stdio.h>
 #include <inttypes.h>
+#include <stdio.h>
 
-jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs* mtx, const char* filename)
+jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -24,23 +24,23 @@ jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs* mtx, const char* file
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    FILE* const f_out = fopen(filename, "w");
+    FILE *const f_out = fopen(filename, "w");
     if (!f_out)
     {
         return JMTX_RESULT_NO_FILE;
     }
 
-    fprintf(f_out, "Matrix of type %s %"PRIu32" x %"PRIu32" with %"PRIu32" entries",
+    fprintf(f_out, "Matrix of type %s %" PRIu32 " x %" PRIu32 " with %" PRIu32 " entries",
             jmtx_matrix_type_to_str(mtx->base.type), mtx->base.rows, mtx->base.cols, mtx->n_entries);
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        float* elements = NULL;
-        uint32_t* indices = NULL;
+        float *elements = NULL;
+        uint32_t *indices = NULL;
         const uint32_t count = jmtx_matrix_crs_get_row(mtx, i, &indices, &elements);
-        fprintf(f_out, "\nRow %"PRIu32":", i);
+        fprintf(f_out, "\nRow %" PRIu32 ":", i);
         for (uint32_t j = 0; j < count; ++j)
         {
-            fprintf(f_out, "\t(%"PRIu32", %+.8e)", indices[j], elements[j]);
+            fprintf(f_out, "\t(%" PRIu32 ", %+.8e)", indices[j], elements[j]);
         }
     }
     fprintf(f_out, "\n");
@@ -50,7 +50,7 @@ jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs* mtx, const char* file
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs* mtx, const char* filename)
+jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -65,7 +65,7 @@ jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs* mtx, const c
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    FILE* const f_out = fopen(filename, "w");
+    FILE *const f_out = fopen(filename, "w");
     if (!f_out)
     {
         return JMTX_RESULT_NO_FILE;
@@ -73,8 +73,8 @@ jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs* mtx, const c
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        float* elements = NULL;
-        uint32_t* indices = NULL;
+        float *elements = NULL;
+        uint32_t *indices = NULL;
         const uint32_t count = jmtx_matrix_crs_get_row(mtx, i, &indices, &elements);
         for (uint32_t j = 0, k = 0; j < mtx->base.cols; ++j)
         {
@@ -95,8 +95,7 @@ jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs* mtx, const c
     return JMTX_RESULT_SUCCESS;
 }
 
-
-jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs* mtx, const char* filename)
+jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -111,23 +110,23 @@ jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs* mtx, const char* file
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    FILE* const f_out = fopen(filename, "w");
+    FILE *const f_out = fopen(filename, "w");
     if (!f_out)
     {
         return JMTX_RESULT_NO_FILE;
     }
 
-    fprintf(f_out, "Matrix of type %s %"PRIu32" x %"PRIu32" with %"PRIu32" entries",
+    fprintf(f_out, "Matrix of type %s %" PRIu32 " x %" PRIu32 " with %" PRIu32 " entries",
             jmtx_matrix_type_to_str(mtx->base.type), mtx->base.rows, mtx->base.cols, mtx->n_entries);
     for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
-        float* elements = NULL;
-        uint32_t* indices = NULL;
+        float *elements = NULL;
+        uint32_t *indices = NULL;
         const uint32_t count = jmtx_matrix_ccs_get_col(mtx, i, &indices, &elements);
-        fprintf(f_out, "\nCol %"PRIu32":", i);
+        fprintf(f_out, "\nCol %" PRIu32 ":", i);
         for (uint32_t j = 0; j < count; ++j)
         {
-            fprintf(f_out, "\t(%"PRIu32", %+.8e)", indices[j], elements[j]);
+            fprintf(f_out, "\t(%" PRIu32 ", %+.8e)", indices[j], elements[j]);
         }
     }
     fprintf(f_out, "\n");
@@ -137,7 +136,7 @@ jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs* mtx, const char* file
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs* mtx, const char* filename)
+jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs *mtx, const char *filename)
 
 {
     if (!mtx)
@@ -153,7 +152,7 @@ jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs* mtx, const c
         return JMTX_RESULT_NULL_PARAM;
     }
 
-    FILE* const f_out = fopen(filename, "w");
+    FILE *const f_out = fopen(filename, "w");
     if (!f_out)
     {
         return JMTX_RESULT_NO_FILE;

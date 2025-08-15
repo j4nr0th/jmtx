@@ -2,19 +2,22 @@
 // Created by jan on 1.1.2024.
 //
 
-#include <math.h>
-#include <complex.h>
-#include <assert.h>
-#include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/sparse_diagonal_compressed_internal.h"
-#include "../matrices/band_row_major_internal.h"
 #include "../../../include/jmtx/cfloat/solvers/generalized_minimum_residual_iteration.h"
+#include "../matrices/band_row_major_internal.h"
+#include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
+#include <assert.h>
+#include <complex.h>
+#include <math.h>
 
-jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const _Complex float* restrict y, _Complex float* restrict x,
-                                             uint32_t m, jmtxc_matrix_brm* r, _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float* restrict aux_vecs, jmtx_solver_arguments* args)
+jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
+                                             _Complex float *restrict x, uint32_t m, jmtxc_matrix_brm *r,
+                                             _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float *restrict aux_vecs, jmtx_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
@@ -28,13 +31,13 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const 
     const uint32_t round_count = args->in_max_iterations / m;
     for (uint32_t round = 0; round < round_count; ++round)
     {
-        _Complex float* const q = aux_vecs;
-        _Complex float* const ck = aux_vec1;
-        _Complex float* const sk = aux_vec2;
-        _Complex float* const g = aux_vec3;
-        _Complex float* const alpha = aux_vec4;
-        _Complex float* const h = aux_vec5;
-        _Complex float* p = q;
+        _Complex float *const q = aux_vecs;
+        _Complex float *const ck = aux_vec1;
+        _Complex float *const sk = aux_vec2;
+        _Complex float *const g = aux_vec3;
+        _Complex float *const alpha = aux_vec4;
+        _Complex float *const h = aux_vec5;
+        _Complex float *p = q;
         for (uint32_t i = 0; i < n; ++i)
         {
             const _Complex float res = y[i] - jmtxc_matrix_crs_vector_multiply_row(mtx, x, i);
@@ -64,7 +67,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const 
             for (uint32_t l = 0; l < k; ++l)
             {
                 h[l] = 0;
-                const _Complex float* old_p = q + n * l;
+                const _Complex float *old_p = q + n * l;
                 for (uint32_t i = 0; i < n; ++i)
                 {
                     h[l] += conjf(old_p[i]) * p[i];
@@ -128,8 +131,8 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const 
         for (uint_fast32_t row = 0; row < k; ++row)
         {
             const uint_fast32_t i = k - 1 - row;
-            _Complex float* elements;
-            jmtxc_matrix_brm_get_row(r,  i, &elements);
+            _Complex float *elements;
+            jmtxc_matrix_brm_get_row(r, i, &elements);
             _Complex float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -158,8 +161,6 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const 
     return JMTX_RESULT_NOT_CONVERGED;
 }
 
-
-
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
  * orthonormal basis for the Krylov subspace, then solves a least squares problem to minimize the residual using these
@@ -183,17 +184,18 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, const 
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxcs_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
-                                             _Complex float x[JMTX_ARRAY_ATTRIB(restrict static n)], uint32_t m, jmtxc_matrix_brm* r,
-                                             _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-                                             jmtx_solver_arguments* args)
+jmtx_result jmtxcs_solve_iterative_gmresm_crs(
+    const jmtxc_matrix_crs *mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    _Complex float x[JMTX_ARRAY_ATTRIB(restrict static n)], uint32_t m, jmtxc_matrix_brm *r,
+    _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
+    jmtx_solver_arguments *args)
 {
     if (mtx->base.type != JMTXC_TYPE_CRS)
     {
@@ -219,18 +221,19 @@ jmtx_result jmtxcs_solve_iterative_gmresm_crs(const jmtxc_matrix_crs* mtx, uint3
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtxc_solve_iterative_gmresm_crs(mtx, y, x, m ,r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
-                                           args);
+    return jmtxc_solve_iterative_gmresm_crs(mtx, y, x, m, r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
+                                            args);
 }
 
-
-uint32_t jmtxc_gmresm_round_cds(const jmtxc_matrix_cds* mtx, const uint32_t n, const uint32_t m, const _Complex float y_mag,
-                                const float tol, const _Complex float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
-                                _Complex float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxc_matrix_brm* r, _Complex float ck[JMTX_ARRAY_ATTRIB(const restrict m)],
-                                _Complex float sk[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float g[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float alpha[JMTX_ARRAY_ATTRIB(const restrict m)],
-                                _Complex float h[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float p_mat[JMTX_ARRAY_ATTRIB(const restrict m * n)])
+uint32_t jmtxc_gmresm_round_cds(
+    const jmtxc_matrix_cds *mtx, const uint32_t n, const uint32_t m, const _Complex float y_mag, const float tol,
+    const _Complex float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
+    _Complex float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxc_matrix_brm *r,
+    _Complex float ck[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float sk[JMTX_ARRAY_ATTRIB(const restrict m)],
+    _Complex float g[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float alpha[JMTX_ARRAY_ATTRIB(const restrict m)],
+    _Complex float h[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float p_mat[JMTX_ARRAY_ATTRIB(const restrict m *n)])
 {
-    _Complex float* p = p_mat;
+    _Complex float *p = p_mat;
     uint32_t n_iteration = 0;
     float err, r_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
@@ -259,7 +262,7 @@ uint32_t jmtxc_gmresm_round_cds(const jmtxc_matrix_cds* mtx, const uint32_t n, c
         for (uint32_t l = 0; l < k; ++l)
         {
             h[l] = 0;
-            const _Complex float* old_p = p_mat + n * l;
+            const _Complex float *old_p = p_mat + n * l;
             for (uint32_t i = 0; i < n; ++i)
             {
                 h[l] += conjf(old_p[i]) * p[i];
@@ -319,8 +322,8 @@ uint32_t jmtxc_gmresm_round_cds(const jmtxc_matrix_cds* mtx, const uint32_t n, c
     for (uint_fast32_t row = 0; row < k; ++row)
     {
         const uint_fast32_t i = k - 1 - row;
-        _Complex float* elements;
-        jmtxc_matrix_brm_get_row(r,  i, &elements);
+        _Complex float *elements;
+        jmtxc_matrix_brm_get_row(r, i, &elements);
         _Complex float sum = 0;
         for (uint_fast32_t j = 1; j < row + 1; ++j)
         {
@@ -341,14 +344,15 @@ uint32_t jmtxc_gmresm_round_cds(const jmtxc_matrix_cds* mtx, const uint32_t n, c
     return n_iteration;
 }
 
-
-uint32_t jmtxc_gmresm_round_crs(const jmtxc_matrix_crs* mtx, const uint32_t n, const uint32_t m, const _Complex float y_mag,
-                                const float tol, const _Complex float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
-                                _Complex float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxc_matrix_brm* r, _Complex float ck[JMTX_ARRAY_ATTRIB(const restrict m)],
-                                _Complex float sk[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float g[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float alpha[JMTX_ARRAY_ATTRIB(const restrict m)],
-                                _Complex float h[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float p_mat[JMTX_ARRAY_ATTRIB(const restrict m * n)])
+uint32_t jmtxc_gmresm_round_crs(
+    const jmtxc_matrix_crs *mtx, const uint32_t n, const uint32_t m, const _Complex float y_mag, const float tol,
+    const _Complex float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
+    _Complex float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxc_matrix_brm *r,
+    _Complex float ck[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float sk[JMTX_ARRAY_ATTRIB(const restrict m)],
+    _Complex float g[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float alpha[JMTX_ARRAY_ATTRIB(const restrict m)],
+    _Complex float h[JMTX_ARRAY_ATTRIB(const restrict m)], _Complex float p_mat[JMTX_ARRAY_ATTRIB(const restrict m *n)])
 {
-    _Complex float* p = p_mat;
+    _Complex float *p = p_mat;
     uint32_t n_iteration = 0;
     float err, r_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
@@ -377,7 +381,7 @@ uint32_t jmtxc_gmresm_round_crs(const jmtxc_matrix_crs* mtx, const uint32_t n, c
         for (uint32_t l = 0; l < k; ++l)
         {
             h[l] = 0;
-            const _Complex float* old_p = p_mat + n * l;
+            const _Complex float *old_p = p_mat + n * l;
             for (uint32_t i = 0; i < n; ++i)
             {
                 h[l] += conjf(old_p[i]) * p[i];
@@ -437,8 +441,8 @@ uint32_t jmtxc_gmresm_round_crs(const jmtxc_matrix_crs* mtx, const uint32_t n, c
     for (uint_fast32_t row = 0; row < k; ++row)
     {
         const uint_fast32_t i = k - 1 - row;
-        _Complex float* elements;
-        jmtxc_matrix_brm_get_row(r,  i, &elements);
+        _Complex float *elements;
+        jmtxc_matrix_brm_get_row(r, i, &elements);
         _Complex float sum = 0;
         for (uint_fast32_t j = 1; j < row + 1; ++j)
         {
@@ -458,7 +462,6 @@ uint32_t jmtxc_gmresm_round_crs(const jmtxc_matrix_crs* mtx, const uint32_t n, c
 
     return n_iteration;
 }
-
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -482,16 +485,20 @@ uint32_t jmtxc_gmresm_round_crs(const jmtxc_matrix_crs* mtx, const uint32_t n, c
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y, _Complex float* restrict x,
-                                             uint32_t m, jmtxc_matrix_brm* r, _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float* restrict aux_vecs, jmtx_solver_arguments* args){
+jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds *mtx, const _Complex float *restrict y,
+                                             _Complex float *restrict x, uint32_t m, jmtxc_matrix_brm *r,
+                                             _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
+                                             _Complex float *restrict aux_vecs, jmtx_solver_arguments *args)
+{
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
     const uint32_t n = mtx->base.rows;
@@ -504,13 +511,13 @@ jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, const 
     const uint32_t round_count = args->in_max_iterations / m;
     for (uint32_t round = 0; round < round_count; ++round)
     {
-        _Complex float* const q = aux_vecs;
-        _Complex float* const ck = aux_vec1;
-        _Complex float* const sk = aux_vec2;
-        _Complex float* const g = aux_vec3;
-        _Complex float* const alpha = aux_vec4;
-        _Complex float* const h = aux_vec5;
-        _Complex float* p = q;
+        _Complex float *const q = aux_vecs;
+        _Complex float *const ck = aux_vec1;
+        _Complex float *const sk = aux_vec2;
+        _Complex float *const g = aux_vec3;
+        _Complex float *const alpha = aux_vec4;
+        _Complex float *const h = aux_vec5;
+        _Complex float *p = q;
         jmtxc_matrix_cds_vector_multiply(mtx, x, p);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -541,7 +548,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, const 
             for (uint32_t l = 0; l < k; ++l)
             {
                 h[l] = 0;
-                const _Complex float* old_p = q + n * l;
+                const _Complex float *old_p = q + n * l;
                 for (uint32_t i = 0; i < n; ++i)
                 {
                     h[l] += conjf(old_p[i]) * p[i];
@@ -605,8 +612,8 @@ jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, const 
         for (uint_fast32_t row = 0; row < k; ++row)
         {
             const uint_fast32_t i = k - 1 - row;
-            _Complex float* elements;
-            jmtxc_matrix_brm_get_row(r,  i, &elements);
+            _Complex float *elements;
+            jmtxc_matrix_brm_get_row(r, i, &elements);
             _Complex float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -658,17 +665,18 @@ jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, const 
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxcs_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-                                             _Complex float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, jmtxc_matrix_brm* r,
-                                             _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-                                             jmtx_solver_arguments* args)
+jmtx_result jmtxcs_solve_iterative_gmresm_cds(
+    const jmtxc_matrix_cds *mtx, uint32_t n, const _Complex float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+    _Complex float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, jmtxc_matrix_brm *r,
+    _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
+    jmtx_solver_arguments *args)
 {
     if (mtx->base.type != JMTXC_TYPE_CDS)
     {
@@ -694,10 +702,9 @@ jmtx_result jmtxcs_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, uint3
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtxc_solve_iterative_gmresm_cds(mtx, y, x, m ,r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
-                                           args);
+    return jmtxc_solve_iterative_gmresm_cds(mtx, y, x, m, r, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vecs,
+                                            args);
 }
-
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -729,22 +736,22 @@ jmtx_result jmtxcs_solve_iterative_gmresm_cds(const jmtxc_matrix_cds* mtx, uint3
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y,
-                                                        _Complex float* restrict x, uint32_t m, jmtxc_matrix_brm* r,
-                                                        _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                                        _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                                        _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float* restrict aux_vec6,
-                                                        _Complex float* restrict aux_vec7, _Complex float* restrict aux_vecs,
-                                                        jmtx_solver_arguments* args)
+jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(
+    const jmtxc_matrix_cds *mtx, const _Complex float *restrict y, _Complex float *restrict x, uint32_t m,
+    jmtxc_matrix_brm *r, _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float *restrict aux_vec6, _Complex float *restrict aux_vec7, _Complex float *restrict aux_vecs,
+    jmtx_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
-    _Complex float* const d_inv = aux_vec6;
+    _Complex float *const d_inv = aux_vec6;
     const uint32_t n = mtx->base.rows;
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -756,13 +763,13 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* 
     const uint32_t round_count = args->in_max_iterations / m;
     for (uint32_t round = 0; round < round_count; ++round)
     {
-        _Complex float* const q = aux_vecs;
-        _Complex float* const ck = aux_vec1;
-        _Complex float* const sk = aux_vec2;
-        _Complex float* const g = aux_vec3;
-        _Complex float* const alpha = aux_vec4;
-        _Complex float* const h = aux_vec5;
-        _Complex float* p = q;
+        _Complex float *const q = aux_vecs;
+        _Complex float *const ck = aux_vec1;
+        _Complex float *const sk = aux_vec2;
+        _Complex float *const g = aux_vec3;
+        _Complex float *const alpha = aux_vec4;
+        _Complex float *const h = aux_vec5;
+        _Complex float *p = q;
 
         jmtxc_matrix_cds_vector_multiply(mtx, x, p);
         for (uint32_t i = 0; i < n; ++i)
@@ -798,7 +805,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* 
             for (uint32_t l = 0; l < k; ++l)
             {
                 h[l] = 0;
-                const _Complex float* old_p = q + n * l;
+                const _Complex float *old_p = q + n * l;
                 for (uint32_t i = 0; i < n; ++i)
                 {
                     h[l] += conjf(old_p[i]) * p[i];
@@ -862,8 +869,8 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* 
         for (uint_fast32_t row = 0; row < k; ++row)
         {
             const uint_fast32_t i = k - 1 - row;
-            _Complex float* elements;
-            jmtxc_matrix_brm_get_row(r,  i, &elements);
+            _Complex float *elements;
+            jmtxc_matrix_brm_get_row(r, i, &elements);
             _Complex float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -911,8 +918,8 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* 
  *
  * Uses Left Preconditioning with the Jacobi iteration, meaning it uses the it actually solves a different system:
  *                                            D⁻¹ A x = D⁻¹ y
- * This is done in hopes of D⁻¹ A having a lower condition number than A. Left preconditioning has a the consequence of 
- * not actually using/minimizing the real residual but instead the residual of the preconditioned system. This may or 
+ * This is done in hopes of D⁻¹ A having a lower condition number than A. Left preconditioning has a the consequence of
+ * not actually using/minimizing the real residual but instead the residual of the preconditioned system. This may or
  * may not be desired.
  *
  *
@@ -933,21 +940,21 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(const jmtxc_matrix_cds* 
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxc_matrix_cds* mtx, const _Complex float* restrict y,
-                                                        _Complex float* restrict x, uint32_t m, jmtxc_matrix_brm* r,
-                                                        _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
-                                                        _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-                                                        _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float* restrict aux_vec6,
-                                                        _Complex float* restrict aux_vecs, jmtx_solver_arguments* args)
+jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(
+    const jmtxc_matrix_cds *mtx, const _Complex float *restrict y, _Complex float *restrict x, uint32_t m,
+    jmtxc_matrix_brm *r, _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
+    _Complex float *restrict aux_vec6, _Complex float *restrict aux_vecs, jmtx_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
-    _Complex float* const d_inv = aux_vec6;
+    _Complex float *const d_inv = aux_vec6;
     const uint32_t n = mtx->base.rows;
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -960,13 +967,13 @@ jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxc_matrix_cds* 
     const uint32_t round_count = args->in_max_iterations / m;
     for (uint32_t round = 0; round < round_count; ++round)
     {
-        _Complex float* const q = aux_vecs;
-        _Complex float* const ck = aux_vec1;
-        _Complex float* const sk = aux_vec2;
-        _Complex float* const g = aux_vec3;
-        _Complex float* const alpha = aux_vec4;
-        _Complex float* const h = aux_vec5;
-        _Complex float* p = q;
+        _Complex float *const q = aux_vecs;
+        _Complex float *const ck = aux_vec1;
+        _Complex float *const sk = aux_vec2;
+        _Complex float *const g = aux_vec3;
+        _Complex float *const alpha = aux_vec4;
+        _Complex float *const h = aux_vec5;
+        _Complex float *p = q;
 
         jmtxc_matrix_cds_vector_multiply(mtx, x, p);
         for (uint32_t i = 0; i < n; ++i)
@@ -1006,7 +1013,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxc_matrix_cds* 
             for (uint32_t l = 0; l < k; ++l)
             {
                 h[l] = 0;
-                const _Complex float* old_p = q + n * l;
+                const _Complex float *old_p = q + n * l;
                 for (uint32_t i = 0; i < n; ++i)
                 {
                     h[l] += conjf(old_p[i]) * p[i];
@@ -1070,8 +1077,8 @@ jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxc_matrix_cds* 
         for (uint_fast32_t row = 0; row < k; ++row)
         {
             const uint_fast32_t i = k - 1 - row;
-            _Complex float* elements;
-            jmtxc_matrix_brm_get_row(r,  i, &elements);
+            _Complex float *elements;
+            jmtxc_matrix_brm_get_row(r, i, &elements);
             _Complex float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -1100,4 +1107,3 @@ jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(const jmtxc_matrix_cds* 
     args->out_last_iteration = n_iteration;
     return JMTX_RESULT_NOT_CONVERGED;
 }
-

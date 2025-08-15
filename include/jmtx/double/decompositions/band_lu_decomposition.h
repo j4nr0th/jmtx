@@ -7,7 +7,7 @@
 #define JMTXD_BAND_LU_DECOMPOSITION_H
 
 #ifndef JMTXD_BAND_ROW_MAJOR_H
-    #include "../matrices/band_row_major.h"
+#    include "../matrices/band_row_major.h"
 #endif
 /**
  * Uses relations for LU decomposition to compute the full decomposition for the A, such that LU = A. For banded
@@ -24,7 +24,7 @@
  * and free are used.
  * @return JMTX_RESULT_SUCCESS if successfully
  */
-jmtx_result jmtxd_decompose_lu_brm(const jmtxd_matrix_brm* a, jmtxd_matrix_brm** p_l, jmtxd_matrix_brm** p_u,
-                                           const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxd_decompose_lu_brm(const jmtxd_matrix_brm *a, jmtxd_matrix_brm **p_l, jmtxd_matrix_brm **p_u,
+                                   const jmtx_allocator_callbacks *allocator_callbacks);
 
-#endif //JMTXD_BAND_LU_DECOMPOSITION_H
+#endif // JMTXD_BAND_LU_DECOMPOSITION_H
