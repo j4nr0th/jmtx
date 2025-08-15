@@ -6,7 +6,7 @@
 #ifndef JMTXD_SPARSE_MULTIPLICATION_H
 #define JMTXD_SPARSE_MULTIPLICATION_H
 #ifndef JMTX_COMMON_H
-    #include "../../common.h"
+#include "../../common.h"
 #endif
 
 #if defined(JMTXD_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXD_SPARSE_ROW_COMPRESSED_H)
@@ -19,8 +19,8 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxd_multiply_matrix_crs(const jmtxd_matrix_crs* a, const jmtxd_matrix_ccs* b, jmtxd_matrix_crs** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxd_multiply_matrix_crs(const jmtxd_matrix_crs *a, const jmtxd_matrix_ccs *b, jmtxd_matrix_crs **p_out,
+                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Multiplies CRS and CCS matrix together and saves the result into a CCS matrix
@@ -31,8 +31,8 @@ jmtx_result jmtxd_multiply_matrix_crs(const jmtxd_matrix_crs* a, const jmtxd_mat
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxd_multiply_matrix_ccs(const jmtxd_matrix_crs* a, const jmtxd_matrix_ccs* b, jmtxd_matrix_ccs** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxd_multiply_matrix_ccs(const jmtxd_matrix_crs *a, const jmtxd_matrix_ccs *b, jmtxd_matrix_ccs **p_out,
+                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
 /**
@@ -45,8 +45,10 @@ jmtx_result jmtxd_multiply_matrix_ccs(const jmtxd_matrix_crs* a, const jmtxd_mat
  * @param v_b values of non-zero entries of the second vector
  * @return inner product of the two vectors
  */
-double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(static n_a)],
-                                          uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)], const double v_b[JMTX_ARRAY_ATTRIB(static n_b)]);
+double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)],
+                                            const double v_a[JMTX_ARRAY_ATTRIB(static n_a)], uint32_t n_b,
+                                            const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
+                                            const double v_b[JMTX_ARRAY_ATTRIB(static n_b)]);
 /**
  * Computes the inner product of two sparse vectors, but stops once it reaches a maximum value of the non-zero entry
  * indices (useful when inner product should be done for the first max_a/max_b components)
@@ -61,9 +63,10 @@ double jmtxd_multiply_matrix_sparse_vectors(uint32_t n_a, const uint32_t i_a[JMT
  * @return inner product of the two vectors
  */
 double jmtxd_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b, uint32_t n_a,
-                                                const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)], const double v_a[JMTX_ARRAY_ATTRIB(static max_a)],
-                                                uint32_t n_b, const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
-                                                const double v_b[JMTX_ARRAY_ATTRIB(static max_b)]);
+                                                  const uint32_t i_a[JMTX_ARRAY_ATTRIB(static n_a)],
+                                                  const double v_a[JMTX_ARRAY_ATTRIB(static max_a)], uint32_t n_b,
+                                                  const uint32_t i_b[JMTX_ARRAY_ATTRIB(static n_b)],
+                                                  const double v_b[JMTX_ARRAY_ATTRIB(static max_b)]);
 
 #ifdef JMTXD_BAND_ROW_MAJOR_H
 /**
@@ -75,8 +78,8 @@ double jmtxd_multiply_matrix_sparse_vectors_limit(uint32_t max_a, uint32_t max_b
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxd_multiply_matrix_brm(const jmtxd_matrix_brm* a, const jmtxd_matrix_brm* b, jmtxd_matrix_brm** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxd_multiply_matrix_brm(const jmtxd_matrix_brm *a, const jmtxd_matrix_brm *b, jmtxd_matrix_brm **p_out,
+                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
 #ifdef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
@@ -89,8 +92,8 @@ jmtx_result jmtxd_multiply_matrix_brm(const jmtxd_matrix_brm* a, const jmtxd_mat
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxd_multiply_matrix_cds(const jmtxd_matrix_cds* a, const jmtxd_matrix_cds* b, jmtxd_matrix_cds** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxd_multiply_matrix_cds(const jmtxd_matrix_cds *a, const jmtxd_matrix_cds *b, jmtxd_matrix_cds **p_out,
+                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#endif //JMTXD_SPARSE_MULTIPLICATION_H
+#endif // JMTXD_SPARSE_MULTIPLICATION_H

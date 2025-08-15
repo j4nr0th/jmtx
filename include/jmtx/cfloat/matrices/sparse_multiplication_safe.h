@@ -5,7 +5,7 @@
 #ifndef JMTXC_SPARSE_MULTIPLICATION_SAFE_H
 #define JMTXC_SPARSE_MULTIPLICATION_SAFE_H
 #ifndef JMTX_COMMON_H
-    #include "../../common.h"
+#include "../../common.h"
 #endif
 
 #if defined(JMTXC_SPARSE_ROW_COMPRESSED_H) && defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H)
@@ -18,8 +18,8 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_multiply_matrix_crs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_crs** p_out,
-                                 const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxcs_multiply_matrix_crs(const jmtxc_matrix_crs *a, const jmtxc_matrix_ccs *b, jmtxc_matrix_crs **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Multiplies CRS and CCS matrix together and saves the result into a CCS matrix
@@ -30,8 +30,8 @@ jmtx_result jmtxcs_multiply_matrix_crs(const jmtxc_matrix_crs* a, const jmtxc_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_multiply_matrix_ccs(const jmtxc_matrix_crs* a, const jmtxc_matrix_ccs* b, jmtxc_matrix_ccs** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxcs_multiply_matrix_ccs(const jmtxc_matrix_crs *a, const jmtxc_matrix_ccs *b, jmtxc_matrix_ccs **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
 #ifdef JMTXC_BAND_ROW_MAJOR_H
@@ -44,8 +44,8 @@ jmtx_result jmtxcs_multiply_matrix_ccs(const jmtxc_matrix_crs* a, const jmtxc_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_multiply_matrix_brm(const jmtxc_matrix_brm* a, const jmtxc_matrix_brm* b, jmtxc_matrix_brm** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxcs_multiply_matrix_brm(const jmtxc_matrix_brm *a, const jmtxc_matrix_brm *b, jmtxc_matrix_brm **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
 #ifdef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
@@ -58,8 +58,8 @@ jmtx_result jmtxcs_multiply_matrix_brm(const jmtxc_matrix_brm* a, const jmtxc_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxcs_multiply_matrix_cds(const jmtxc_matrix_cds* a, const jmtxc_matrix_cds* b, jmtxc_matrix_cds** p_out,
-                                     const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxcs_multiply_matrix_cds(const jmtxc_matrix_cds *a, const jmtxc_matrix_cds *b, jmtxc_matrix_cds **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#endif //JMTXC_SPARSE_MULTIPLICATION_SAFE_H
+#endif // JMTXC_SPARSE_MULTIPLICATION_SAFE_H

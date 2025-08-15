@@ -4,19 +4,19 @@
 //
 
 #ifndef JMTXD_SOLVER_BASE_H
-    #include "../../../include/jmtx/solver_base.h"
+#include "../../../include/jmtx/solver_base.h"
 #endif
-#include <math.h>
-#include <stdio.h>
-#include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../../../include/jmtx/double/solvers/cholesky_solving.h"
 #include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
+#include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
+#include <math.h>
+#include <stdio.h>
 
-jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x,
-        double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(const jmtxd_matrix_crs *mtx, const double *restrict y,
+                                                         double *restrict x, double *restrict aux_vec1,
+                                                         double *restrict aux_vec2, double *restrict aux_vec3,
+                                                         jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -57,9 +57,9 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
+    double *const r = aux_vec1;
+    double *const p = aux_vec2;
+    double *const Ap = aux_vec3;
     uint32_t n_iterations = 0;
     double alpha, beta;
 
@@ -93,7 +93,6 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
             return JMTX_RESULT_SUCCESS;
         }
 
-
         for (;;)
         {
             //  Compute Ap
@@ -104,8 +103,8 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
                 pAp_dp += p[i] * Ap[i];
             }
 
-            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
-            //  go forward anymore
+            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't
+            //  progress go forward anymore
 
             alpha = rk_dp / pAp_dp;
             err = 0;
@@ -124,7 +123,6 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
                 r[i] = r[i] - alpha * Ap[i];
                 new_rk_dp += r[i] * r[i];
             }
-
 
             err = sqrt(new_rk_dp) / mag_y;
             if (args->opt_error_evolution)
@@ -155,7 +153,6 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
         }
     }
 
-
     args->out_last_error = err;
     args->out_last_iteration = n_iterations;
     if (!isfinite(err) || err >= args->in_convergence_criterion)
@@ -165,9 +162,10 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(
     return err < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2,
-        double* restrict aux_vec3, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(const jmtxd_matrix_crs *mtx, const double *restrict y,
+                                                                  double *restrict x, double *restrict aux_vec1,
+                                                                  double *restrict aux_vec2, double *restrict aux_vec3,
+                                                                  jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -208,9 +206,9 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
+    double *const r = aux_vec1;
+    double *const p = aux_vec2;
+    double *const Ap = aux_vec3;
     double alpha = 0, beta = 0;
 
     double rk_dp = 0;
@@ -218,12 +216,12 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
     double err = 0;
     double new_rk_dp = 0;
     double mag_y = 0;
-    double* const err_evolution = args->opt_error_evolution;
+    double *const err_evolution = args->opt_error_evolution;
     const double tolerance = args->in_convergence_criterion;
     const uint32_t max_iterations = args->in_max_iterations;
     uint32_t n_iterations = 0;
-#pragma omp parallel default(none) shared(n, rk_dp, r, mtx, p, Ap, alpha, err, x, y, n_iterations,\
-                                          err_evolution, tolerance, beta, max_iterations, pAp_dp, new_rk_dp, mag_y)
+#pragma omp parallel default(none) shared(n, rk_dp, r, mtx, p, Ap, alpha, err, x, y, n_iterations, err_evolution,      \
+                                              tolerance, beta, max_iterations, pAp_dp, new_rk_dp, mag_y)
     {
 #pragma omp for
         for (unsigned i = 0; i < n; ++i)
@@ -232,7 +230,7 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
             p[i] = r[i];
         }
 
-#pragma omp for reduction(+:rk_dp, mag_y)
+#pragma omp for reduction(+ : rk_dp, mag_y)
         for (unsigned i = 0; i < n; ++i)
         {
             rk_dp += r[i] * r[i];
@@ -249,15 +247,15 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
         {
 #pragma omp barrier
             //  Compute Ap
-#pragma omp for reduction(+:pAp_dp)
+#pragma omp for reduction(+ : pAp_dp)
             for (unsigned i = 0; i < n; ++i)
             {
                 Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
-            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
-            //  go forward anymore
+            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't
+            //  progress go forward anymore
 
 #pragma omp single
             {
@@ -266,7 +264,6 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
                 new_rk_dp = 0;
                 pAp_dp = 0;
             }
-
 
             //  Update guess of x
 #pragma omp for
@@ -277,12 +274,11 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
 
             //  Update guess of r
 
-#pragma omp for reduction(+:new_rk_dp)
+#pragma omp for reduction(+ : new_rk_dp)
             for (unsigned i = 0; i < n; ++i)
             {
                 r[i] = r[i] - alpha * Ap[i];
                 new_rk_dp += r[i] * r[i];
-
             }
 
 #pragma omp single
@@ -319,14 +315,14 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
 #pragma omp single
             {
                 n_iterations += 1;
-
             }
 #pragma omp barrier
         }
     }
 
     args->out_last_error = err;
-    args->out_last_iteration = n_iterations;if (!isfinite(err) || err >= args->in_convergence_criterion)
+    args->out_last_iteration = n_iterations;
+    if (!isfinite(err) || err >= args->in_convergence_criterion)
     {
         return JMTX_RESULT_NOT_CONVERGED;
     }
@@ -334,9 +330,9 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs_parallel(
 }
 
 jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* cho, const jmtxd_matrix_crs* cho_t, const double* restrict y,
-        double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-        double* restrict aux_vec4, jmtxd_solver_arguments* args)
+    const jmtxd_matrix_crs *mtx, const jmtxd_matrix_crs *cho, const jmtxd_matrix_crs *cho_t, const double *restrict y,
+    double *restrict x, double *restrict aux_vec1, double *restrict aux_vec2, double *restrict aux_vec3,
+    double *restrict aux_vec4, jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -417,10 +413,10 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
     }
 
     const uint32_t n = mtx->base.rows;
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
-    double* const z = aux_vec4;
+    double *const r = aux_vec1;
+    double *const p = aux_vec2;
+    double *const Ap = aux_vec3;
+    double *const z = aux_vec4;
     uint32_t n_iterations = 0;
     double alpha, beta;
 
@@ -462,12 +458,11 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
                 pAp_dp += p[i] * Ap[i];
             }
 
-            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't progress
-            //  go forward anymore
+            //  Once alpha goes too low (which happens when p vectors become more and more co-linear), solution won't
+            //  progress go forward anymore
 
             alpha = rkzk_dp / pAp_dp;
             rk_dp = 0;
-
 
             //  Update guess of x
             for (unsigned i = 0; i < n; ++i)
@@ -483,7 +478,6 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
                 r[i] = r[i] - alpha * Ap[i];
                 rk_dp += r[i] * r[i];
             }
-
 
             err = sqrt(rk_dp) / mag_y;
             if (args->opt_error_evolution)
@@ -521,7 +515,6 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
         }
     }
 
-
     args->out_last_error = sqrt(rk_dp / mag_y);
     args->out_last_iteration = n_iterations;
     if (!isfinite(err) || err >= args->in_convergence_criterion)
@@ -531,9 +524,10 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtxd_solve_iterative_conjugate_gradient_cds(const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x,
-                                        double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-                                        jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_conjugate_gradient_cds(const jmtxd_matrix_cds *mtx, const double *restrict y,
+                                                         double *restrict x, double *restrict aux_vec1,
+                                                         double *restrict aux_vec2, double *restrict aux_vec3,
+                                                         jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -585,9 +579,9 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_cds(const jmtxd_matrix_cds*
         }
     }
 
-    double* const r = aux_vec1;
-    double* const p = aux_vec2;
-    double* const Ap = aux_vec3;
+    double *const r = aux_vec1;
+    double *const p = aux_vec2;
+    double *const Ap = aux_vec3;
     double rkrk, new_rkrk;
     double mag_y = 0;
     double pkApk = 0;
@@ -668,7 +662,6 @@ jmtx_result jmtxd_solve_iterative_conjugate_gradient_cds(const jmtxd_matrix_cds*
             }
         }
     }
-
 
     args->out_last_error = error;
     args->out_last_iteration = n_iteration;

@@ -3,14 +3,12 @@
 // Created by jan on 24.11.2023.
 //
 
-#include <assert.h>
 #include "../../../include/jmtx/double/decompositions/band_lu_decomposition.h"
 #include "../matrices/band_row_major_internal.h"
+#include <assert.h>
 
-
-jmtx_result jmtxd_decompose_lu_brm(
-        const jmtxd_matrix_brm* a, jmtxd_matrix_brm** p_l, jmtxd_matrix_brm** p_u,
-        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_decompose_lu_brm(const jmtxd_matrix_brm *a, jmtxd_matrix_brm **p_l, jmtxd_matrix_brm **p_u,
+                                   const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!a)
     {
@@ -48,10 +46,11 @@ jmtx_result jmtxd_decompose_lu_brm(
     const uint_fast32_t ubw = a->upper_bandwidth;
     const uint32_t max_entries = lbw + ubw + 1;
     const uint32_t n = a->base.rows;
-    jmtxd_matrix_brm* l = NULL;
-    jmtxd_matrix_brm* u = NULL;
+    jmtxd_matrix_brm *l = NULL;
+    jmtxd_matrix_brm *u = NULL;
 
-    double* const p_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_entries);
+    double *const p_values =
+        allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*p_values) * 2 * max_entries);
     if (p_values == NULL)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -76,12 +75,12 @@ jmtx_result jmtxd_decompose_lu_brm(
     for (uint_fast32_t i = 0; i < n; ++i)
     {
         uint_fast32_t first_l = jmtxd_matrix_brm_first_pos_in_row(l, i);
-        double* lwr_elements = NULL;
+        double *lwr_elements = NULL;
         jmtxd_matrix_brm_get_row(l, i, &lwr_elements);
         uint_fast32_t k = 0;
-        double* a_elements;
+        double *a_elements;
         (void)jmtxd_matrix_brm_get_row(a, i, &a_elements);
-        double* const upr_elements = p_values + max_entries;
+        double *const upr_elements = p_values + max_entries;
         for (uint_fast32_t pl = first_l; pl < i; ++pl)
         {
             const uint_fast32_t count_upr = jmtxd_matrix_brm_get_col(u, pl, upr_elements);
@@ -92,7 +91,7 @@ jmtx_result jmtxd_decompose_lu_brm(
             {
                 begin = first_u;
             }
-            else //if (first_l >= first_u)
+            else // if (first_l >= first_u)
             {
                 begin = first_l;
             }
@@ -100,7 +99,7 @@ jmtx_result jmtxd_decompose_lu_brm(
             {
                 end = pl;
             }
-            else //if (pl >= i)
+            else // if (pl >= i)
             {
                 end = i;
             }
@@ -130,7 +129,7 @@ jmtx_result jmtxd_decompose_lu_brm(
             {
                 begin = first_u;
             }
-            else //if (first_l >= first_u)
+            else // if (first_l >= first_u)
             {
                 begin = first_l;
             }
@@ -138,7 +137,7 @@ jmtx_result jmtxd_decompose_lu_brm(
             {
                 end = pu;
             }
-            else //if (pu >= i)
+            else // if (pu >= i)
             {
                 end = i;
             }

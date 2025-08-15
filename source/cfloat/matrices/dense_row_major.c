@@ -1,9 +1,8 @@
 //
 // Created by jan on 3.1.2024.
 //
-#include <assert.h>
 #include "dense_row_major_internal.h"
-
+#include <assert.h>
 
 /**
  * Initializes a new Dense Row-Major matrix
@@ -15,31 +14,29 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_drm_new(
-    jmtxc_matrix_drm** p_mtx, uint32_t rows, uint32_t cols, const _Complex float* set_value,
-    const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_matrix_drm_new(jmtxc_matrix_drm **p_mtx, uint32_t rows, uint32_t cols,
+                                 const _Complex float *set_value, const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-
-    jmtxc_matrix_drm* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxc_matrix_drm *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-
-    memset(mtx, 0xCC, sizeof*mtx);
+    memset(mtx, 0xCC, sizeof *mtx);
     mtx->base.cols = cols;
     mtx->base.type = JMTX_TYPE_DRM;
     mtx->base.rows = rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     const uint64_t entry_count = rows * cols;
 
-    _Complex float* const values = allocator_callbacks->alloc(allocator_callbacks->state, entry_count * sizeof(*values));
+    _Complex float *const values =
+        allocator_callbacks->alloc(allocator_callbacks->state, entry_count * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -70,12 +67,11 @@ jmtx_result jmtxc_matrix_drm_new(
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Cleans up the DRM matrix and frees all of its memory
  * @param mtx pointer to memory where the matrix is stored
  */
-void jmtxc_matrix_drm_destroy(jmtxc_matrix_drm* mtx)
+void jmtxc_matrix_drm_destroy(jmtxc_matrix_drm *mtx)
 {
     jmtx_allocator_callbacks callbacks = mtx->base.allocator_callbacks;
     if (mtx->permutations)
@@ -96,9 +92,9 @@ void jmtxc_matrix_drm_destroy(jmtxc_matrix_drm* mtx)
  * @param row index of the row to set
  * @param values values of entries
  */
-void jmtxc_matrix_drm_set_row(const jmtxc_matrix_drm* mtx, uint32_t row, const _Complex float values[])
+void jmtxc_matrix_drm_set_row(const jmtxc_matrix_drm *mtx, uint32_t row, const _Complex float values[])
 {
-    _Complex float* ptr = mtx->values + mtx->base.cols * (mtx->permutations ? mtx->permutations[row] : row);
+    _Complex float *ptr = mtx->values + mtx->base.cols * (mtx->permutations ? mtx->permutations[row] : row);
     for (uint32_t i = 0; i < mtx->base.cols; ++i)
     {
         ptr[i] = values[i];
@@ -111,11 +107,11 @@ void jmtxc_matrix_drm_set_row(const jmtxc_matrix_drm* mtx, uint32_t row, const _
  * @param col index of the column to set
  * @param values values of entries
  */
-void jmtxc_matrix_drm_set_col(const jmtxc_matrix_drm* mtx, uint32_t col, const _Complex float values[])
+void jmtxc_matrix_drm_set_col(const jmtxc_matrix_drm *mtx, uint32_t col, const _Complex float values[])
 {
     if (mtx->permutations)
     {
-        _Complex float* const ptr = mtx->values + col;
+        _Complex float *const ptr = mtx->values + col;
         for (uint32_t i = 0; i < mtx->base.rows; ++i)
         {
             ptr[mtx->base.cols * mtx->permutations[i]] = values[i];
@@ -123,7 +119,7 @@ void jmtxc_matrix_drm_set_col(const jmtxc_matrix_drm* mtx, uint32_t col, const _
     }
     else
     {
-        _Complex float* const ptr = mtx->values + col;
+        _Complex float *const ptr = mtx->values + col;
         for (uint32_t i = 0; i < mtx->base.rows; ++i)
         {
             ptr[mtx->base.cols * i] = values[i];
@@ -139,7 +135,7 @@ void jmtxc_matrix_drm_set_col(const jmtxc_matrix_drm* mtx, uint32_t col, const _
  * @return number of elements in the row, which is the number of valid elements in arrays given to p_indices and
  * p_elements
  */
-uint_fast32_t jmtxc_matrix_drm_get_row(const jmtxc_matrix_drm* mtx, uint32_t row, _Complex float* p_elements[1])
+uint_fast32_t jmtxc_matrix_drm_get_row(const jmtxc_matrix_drm *mtx, uint32_t row, _Complex float *p_elements[1])
 {
     if (mtx->permutations)
     {
@@ -158,13 +154,14 @@ uint_fast32_t jmtxc_matrix_drm_get_row(const jmtxc_matrix_drm* mtx, uint32_t row
  * @param x pointer to vector to be multiplied
  * @param y pointer to vector where the result of multiplication is to be stored
  */
-void jmtxc_matrix_drm_vector_multiply(const jmtxc_matrix_drm* mtx, const _Complex float* restrict x, _Complex float* restrict y)
+void jmtxc_matrix_drm_vector_multiply(const jmtxc_matrix_drm *mtx, const _Complex float *restrict x,
+                                      _Complex float *restrict y)
 {
     if (mtx->permutations)
     {
         for (uint32_t i = 0; i < mtx->base.rows; ++i)
         {
-            const _Complex float* const ptr = mtx->values + mtx->base.cols * mtx->permutations[i];
+            const _Complex float *const ptr = mtx->values + mtx->base.cols * mtx->permutations[i];
             _Complex float v = 0;
             for (uint32_t j = 0; j < mtx->base.cols; ++j)
             {
@@ -178,7 +175,7 @@ void jmtxc_matrix_drm_vector_multiply(const jmtxc_matrix_drm* mtx, const _Comple
 
         for (uint32_t i = 0; i < mtx->base.rows; ++i)
         {
-            const _Complex float* const ptr = mtx->values + mtx->base.cols * i;
+            const _Complex float *const ptr = mtx->values + mtx->base.cols * i;
             _Complex float v = 0;
             for (uint32_t j = 0; j < mtx->base.cols; ++j)
             {
@@ -196,16 +193,16 @@ void jmtxc_matrix_drm_vector_multiply(const jmtxc_matrix_drm* mtx, const _Comple
  * @param j column index
  * @param value value to which the value is set
  */
-void jmtxc_matrix_drm_set_entry(const jmtxc_matrix_drm* mtx, uint32_t i, uint32_t j, _Complex float value)
+void jmtxc_matrix_drm_set_entry(const jmtxc_matrix_drm *mtx, uint32_t i, uint32_t j, _Complex float value)
 {
     if (mtx->permutations)
     {
-        _Complex float* const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
+        _Complex float *const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
         ptr[j] = value;
     }
     else
     {
-        _Complex float* const ptr = mtx->values + i * mtx->base.cols;
+        _Complex float *const ptr = mtx->values + i * mtx->base.cols;
         ptr[j] = value;
     }
 }
@@ -217,14 +214,14 @@ void jmtxc_matrix_drm_set_entry(const jmtxc_matrix_drm* mtx, uint32_t i, uint32_
  * @param j column index
  * @return value of the entry
  */
-_Complex float jmtxc_matrix_drm_get_entry(const jmtxc_matrix_drm* mtx, uint32_t i, uint32_t j)
+_Complex float jmtxc_matrix_drm_get_entry(const jmtxc_matrix_drm *mtx, uint32_t i, uint32_t j)
 {
     if (mtx->permutations)
     {
-        const _Complex float* const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
+        const _Complex float *const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
         return ptr[j];
     }
-    const _Complex float* const ptr = mtx->values + i * mtx->base.cols;
+    const _Complex float *const ptr = mtx->values + i * mtx->base.cols;
     return ptr[j];
 }
 
@@ -235,34 +232,33 @@ _Complex float jmtxc_matrix_drm_get_entry(const jmtxc_matrix_drm* mtx, uint32_t 
  * @param j column index
  * @return pointer to an entry
  */
-_Complex float* jmtxc_matrix_drm_entry_ptr(const jmtxc_matrix_drm* mtx, uint32_t i, uint32_t j)
+_Complex float *jmtxc_matrix_drm_entry_ptr(const jmtxc_matrix_drm *mtx, uint32_t i, uint32_t j)
 {
     if (mtx->permutations)
     {
-        _Complex float* const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
+        _Complex float *const ptr = mtx->values + mtx->permutations[i] * mtx->base.cols;
         return ptr + j;
     }
-    _Complex float* const ptr = mtx->values + i * mtx->base.cols;
+    _Complex float *const ptr = mtx->values + i * mtx->base.cols;
     return ptr + j;
 }
-
 
 /**
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  */
-void jmtxc_matrix_drm_zero_all_entries(const jmtxc_matrix_drm* mtx)
+void jmtxc_matrix_drm_zero_all_entries(const jmtxc_matrix_drm *mtx)
 {
     memset(mtx->values, 0, sizeof(*mtx->values) * mtx->base.cols * mtx->base.rows);
 }
 
 /**
- * Similar to jmtxc_matrix_drm_set_all_entries, but slower, since it can not use memset. On the other hand, it allows for
- * the value to be other than 0
+ * Similar to jmtxc_matrix_drm_set_all_entries, but slower, since it can not use memset. On the other hand, it allows
+ * for the value to be other than 0
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  */
-void jmtxc_matrix_drm_set_all_entries(const jmtxc_matrix_drm* mtx, _Complex float x)
+void jmtxc_matrix_drm_set_all_entries(const jmtxc_matrix_drm *mtx, _Complex float x)
 {
     for (uint32_t i = 0; i < mtx->base.cols * mtx->base.rows; ++i)
     {
@@ -278,8 +274,7 @@ void jmtxc_matrix_drm_set_all_entries(const jmtxc_matrix_drm* mtx, _Complex floa
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
-uint32_t
-jmtxc_matrix_drm_get_col(const jmtxc_matrix_drm* mtx, uint32_t col, _Complex float values[])
+uint32_t jmtxc_matrix_drm_get_col(const jmtxc_matrix_drm *mtx, uint32_t col, _Complex float values[])
 {
     if (mtx->permutations)
     {
@@ -306,10 +301,10 @@ jmtxc_matrix_drm_get_col(const jmtxc_matrix_drm* mtx, uint32_t col, _Complex flo
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_drm_transpose(
-        const jmtxc_matrix_drm* mtx, jmtxc_matrix_drm** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_matrix_drm_transpose(const jmtxc_matrix_drm *mtx, jmtxc_matrix_drm **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks)
 {
-    jmtxc_matrix_drm* new;
+    jmtxc_matrix_drm *new;
     const uint32_t new_cols = mtx->base.rows, new_rows = mtx->base.cols;
     jmtx_result res = jmtxc_matrix_drm_new(&new, new_rows, new_cols, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
@@ -350,7 +345,7 @@ jmtx_result jmtxc_matrix_drm_transpose(
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_drm_transpose_inplace(jmtxc_matrix_drm* mtx, _Complex float* aux_row)
+jmtx_result jmtxc_matrix_drm_transpose_inplace(jmtxc_matrix_drm *mtx, _Complex float *aux_row)
 {
     const uint32_t new_cols = mtx->base.rows, new_rows = mtx->base.cols;
 
@@ -371,7 +366,6 @@ jmtx_result jmtxc_matrix_drm_transpose_inplace(jmtxc_matrix_drm* mtx, _Complex f
         }
     }
 
-
     mtx->base.rows = new_rows;
     mtx->base.cols = new_cols;
     return JMTX_RESULT_SUCCESS;
@@ -385,9 +379,10 @@ jmtx_result jmtxc_matrix_drm_transpose_inplace(jmtxc_matrix_drm* mtx, _Complex f
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_drm_copy(const jmtxc_matrix_drm* mtx, jmtxc_matrix_drm** p_out, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_matrix_drm_copy(const jmtxc_matrix_drm *mtx, jmtxc_matrix_drm **p_out,
+                                  const jmtx_allocator_callbacks *allocator_callbacks)
 {
-    jmtxc_matrix_drm* new;
+    jmtxc_matrix_drm *new;
     jmtx_result res = jmtxc_matrix_drm_new(&new, mtx->base.rows, mtx->base.cols, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -419,7 +414,6 @@ jmtx_result jmtxc_matrix_drm_copy(const jmtxc_matrix_drm* mtx, jmtxc_matrix_drm*
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel.
  * @param mtx pointer to the memory where the matrix A is stored.
@@ -427,9 +421,9 @@ jmtx_result jmtxc_matrix_drm_copy(const jmtxc_matrix_drm* mtx, jmtxc_matrix_drm*
  * @param i what entry of the residual to compute
  * @return result of the multiplication
  */
-_Complex float jmtxc_matrix_drm_vector_multiply_row(const jmtxc_matrix_drm* mtx, const _Complex float* x, uint32_t i)
+_Complex float jmtxc_matrix_drm_vector_multiply_row(const jmtxc_matrix_drm *mtx, const _Complex float *x, uint32_t i)
 {
-    const _Complex float* ptr;
+    const _Complex float *ptr;
     if (mtx->permutations)
     {
         ptr = mtx->values + mtx->base.cols * mtx->permutations[i];
@@ -452,7 +446,7 @@ _Complex float jmtxc_matrix_drm_vector_multiply_row(const jmtxc_matrix_drm* mtx,
  * @param ubw pointer which receives the upper bandwidth of the matrix
  * @param lbw pointer which receives the lower bandwidth of the matrix
  */
-void jmtxc_matrix_drm_get_bandwidths(const jmtxc_matrix_drm* mtx, uint32_t* ubw, uint32_t* lbw)
+void jmtxc_matrix_drm_get_bandwidths(const jmtxc_matrix_drm *mtx, uint32_t *ubw, uint32_t *lbw)
 {
     uint32_t l = 0, u = 0;
     //  Quick check for extreme case
@@ -465,7 +459,8 @@ void jmtxc_matrix_drm_get_bandwidths(const jmtxc_matrix_drm* mtx, uint32_t* ubw,
 
     for (uint32_t i = 0; i < mtx->base.rows; ++i)
     {
-        const _Complex float* const row_ptr = mtx->values + mtx->base.cols * (mtx->permutations ? mtx->permutations[i] : i);
+        const _Complex float *const row_ptr =
+            mtx->values + mtx->base.cols * (mtx->permutations ? mtx->permutations[i] : i);
         //  Check if ubw is greater
         for (uint32_t j = i + u; j < mtx->base.cols; ++j)
         {
@@ -493,17 +488,19 @@ void jmtxc_matrix_drm_get_bandwidths(const jmtxc_matrix_drm* mtx, uint32_t* ubw,
  * @param row1 index of a row to exchange with row2
  * @param row2 index of a row to exchange with row1
  */
-jmtx_result jmtxc_matrix_drm_swap_rows(jmtxc_matrix_drm* mtx, uint32_t row1, uint32_t row2)
+jmtx_result jmtxc_matrix_drm_swap_rows(jmtxc_matrix_drm *mtx, uint32_t row1, uint32_t row2)
 {
     if (!mtx->permutations)
     {
-        mtx->permutations = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->permutations) * mtx->base.rows);
+        mtx->permutations = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state,
+                                                                sizeof(*mtx->permutations) * mtx->base.rows);
         if (!mtx->permutations)
         {
             return JMTX_RESULT_BAD_ALLOC;
         }
 
-        mtx->rperm = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->rperm) * mtx->base.rows);
+        mtx->rperm = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state,
+                                                         sizeof(*mtx->rperm) * mtx->base.rows);
         if (!mtx->rperm)
         {
             mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->permutations);
@@ -528,7 +525,6 @@ jmtx_result jmtxc_matrix_drm_swap_rows(jmtxc_matrix_drm* mtx, uint32_t row1, uin
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Permutes all rows at once. The provided list must contain all entries in the set [0, n) exactly once, where n is the
  * number or rows of the matrix.
@@ -536,17 +532,19 @@ jmtx_result jmtxc_matrix_drm_swap_rows(jmtxc_matrix_drm* mtx, uint32_t row1, uin
  * @param perm list of permutation indices
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxc_matrix_drm_set_permutation(jmtxc_matrix_drm* mtx, const uint32_t* perm)
+jmtx_result jmtxc_matrix_drm_set_permutation(jmtxc_matrix_drm *mtx, const uint32_t *perm)
 {
     if (!mtx->permutations)
     {
-        mtx->permutations = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->permutations) * mtx->base.rows);
+        mtx->permutations = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state,
+                                                                sizeof(*mtx->permutations) * mtx->base.rows);
         if (!mtx->permutations)
         {
             return JMTX_RESULT_BAD_ALLOC;
         }
 
-        mtx->rperm = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state, sizeof(*mtx->rperm) * mtx->base.rows);
+        mtx->rperm = mtx->base.allocator_callbacks.alloc(mtx->base.allocator_callbacks.state,
+                                                         sizeof(*mtx->rperm) * mtx->base.rows);
         if (!mtx->rperm)
         {
             mtx->base.allocator_callbacks.free(mtx->base.allocator_callbacks.state, mtx->permutations);
@@ -590,7 +588,7 @@ jmtx_result jmtxc_matrix_drm_set_permutation(jmtxc_matrix_drm* mtx, const uint32
  * @param mtx pointer to the memory where the matrix is stored
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
-void jmtxc_matrix_drm_commit_permutations(jmtxc_matrix_drm* mtx)
+void jmtxc_matrix_drm_commit_permutations(jmtxc_matrix_drm *mtx)
 {
     uint32_t pos;
     const uint32_t n = mtx->base.cols;
@@ -607,8 +605,8 @@ void jmtxc_matrix_drm_commit_permutations(jmtxc_matrix_drm* mtx)
         {
             assert(mtx->permutations[src] == dst);
             //  Simple swap
-            _Complex float* const p1 = mtx->values + n * dst;
-            _Complex float* const p2 = mtx->values + n * src;
+            _Complex float *const p1 = mtx->values + n * dst;
+            _Complex float *const p2 = mtx->values + n * src;
             for (uint32_t i = 0; i < n; ++i)
             {
                 const _Complex float tmp = p1[i];
@@ -675,7 +673,7 @@ void jmtxc_matrix_drm_commit_permutations(jmtxc_matrix_drm* mtx)
  * @param mtx pointer to the memory where the matrix is stored
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
-void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm* mtx, _Complex float* aux_row)
+void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm *mtx, _Complex float *aux_row)
 {
     uint32_t pos;
     const uint32_t n = mtx->base.cols;
@@ -692,8 +690,8 @@ void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm* mtx, _Complex float
         {
             assert(mtx->permutations[src] == dst);
             //  Simple swap
-            _Complex float* const p1 = mtx->values + n * dst;
-            _Complex float* const p2 = mtx->values + n * src;
+            _Complex float *const p1 = mtx->values + n * dst;
+            _Complex float *const p2 = mtx->values + n * src;
             for (uint32_t i = 0; i < n; ++i)
             {
                 const _Complex float tmp = p1[i];
@@ -745,7 +743,7 @@ void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm* mtx, _Complex float
 }
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two rows the rotation
  * is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
@@ -758,8 +756,8 @@ void jmtxc_matrix_drm_commit_permutations2(jmtxc_matrix_drm* mtx, _Complex float
  * @param ct value of cos(theta), which is used for the rotation
  * @param st value of sin(theta), which is used for the rotation
  */
-void jmtxc_matrix_drm_givens_rotation_left(
-    jmtxc_matrix_drm* mtx, unsigned r1, unsigned r2, const _Complex float ct, const _Complex float st)
+void jmtxc_matrix_drm_givens_rotation_left(jmtxc_matrix_drm *mtx, unsigned r1, unsigned r2, const _Complex float ct,
+                                           const _Complex float st)
 {
     const unsigned n = mtx->base.cols;
     if (mtx->permutations)
@@ -767,8 +765,8 @@ void jmtxc_matrix_drm_givens_rotation_left(
         r1 = mtx->permutations[r1];
         r2 = mtx->permutations[r2];
     }
-    _Complex float* const row1 = mtx->values + n * r1;
-    _Complex float* const row2 = mtx->values + n * r2;
+    _Complex float *const row1 = mtx->values + n * r1;
+    _Complex float *const row2 = mtx->values + n * r2;
 
     for (unsigned j = 0; j < n; ++j)
     {
@@ -781,7 +779,7 @@ void jmtxc_matrix_drm_givens_rotation_left(
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two rows the rotation
  * is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
@@ -796,8 +794,8 @@ void jmtxc_matrix_drm_givens_rotation_left(
  *
  * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
  */
-jmtx_result jmtxcs_matrix_drm_givens_rotation_left(jmtxc_matrix_drm* mtx, const unsigned r1, const unsigned r2, _Complex float ct,
- _Complex float st)
+jmtx_result jmtxcs_matrix_drm_givens_rotation_left(jmtxc_matrix_drm *mtx, const unsigned r1, const unsigned r2,
+                                                   _Complex float ct, _Complex float st)
 {
     if (r1 > mtx->base.rows || r2 > mtx->base.rows)
     {
@@ -807,11 +805,10 @@ jmtx_result jmtxcs_matrix_drm_givens_rotation_left(jmtxc_matrix_drm* mtx, const 
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
- * is applied to.
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two columns the
+ * rotation is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
  * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
@@ -823,13 +820,13 @@ jmtx_result jmtxcs_matrix_drm_givens_rotation_left(jmtxc_matrix_drm* mtx, const 
  * @param ct value of cos(theta), which is used for the rotation
  * @param st value of sin(theta), which is used for the rotation
  */
-void jmtxc_matrix_drm_givens_rotation_right(jmtxc_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex float ct,
-_Complex float st)
+void jmtxc_matrix_drm_givens_rotation_right(jmtxc_matrix_drm *mtx, unsigned c1, unsigned c2, _Complex float ct,
+                                            _Complex float st)
 {
     const unsigned n = mtx->base.rows;
 
-    _Complex float* const col1 = mtx->values + c1;
-    _Complex float* const col2 = mtx->values + c2;
+    _Complex float *const col1 = mtx->values + c1;
+    _Complex float *const col2 = mtx->values + c2;
 
     if (!mtx->permutations)
     {
@@ -855,8 +852,8 @@ _Complex float st)
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
- * is applied to.
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two columns the
+ * rotation is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
  * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
@@ -870,8 +867,8 @@ _Complex float st)
  *
  * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
  */
-jmtx_result jmtxcs_matrix_drm_givens_rotation_right(jmtxc_matrix_drm* mtx, unsigned c1, unsigned c2, _Complex float ct,
-_Complex float st)
+jmtx_result jmtxcs_matrix_drm_givens_rotation_right(jmtxc_matrix_drm *mtx, unsigned c1, unsigned c2, _Complex float ct,
+                                                    _Complex float st)
 {
     if (c1 > mtx->base.cols || c2 > mtx->base.cols)
     {
@@ -895,7 +892,7 @@ _Complex float st)
  * @return JMTX_RESULT_SUCCES if successful, JMTX_RESULT_DIMS_MISMATCH if the dimensions of a and b don't allow
  * multiplication, or if c does not have correct dimensions
  */
-jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_drm* b, jmtxc_matrix_drm* out)
+jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm *a, jmtxc_matrix_drm *b, jmtxc_matrix_drm *out)
 {
     if (out->permutations)
     {
@@ -917,14 +914,14 @@ jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_d
     {
         for (unsigned i = 0; i < new_rows; ++i)
         {
-            const _Complex float* restrict p_row = a->values + i * n;
+            const _Complex float *restrict p_row = a->values + i * n;
             for (unsigned j = 0; j < new_cols; ++j)
             {
                 _Complex float v = 0;
-                const _Complex float* restrict p_col = b->values + j;
+                const _Complex float *restrict p_col = b->values + j;
                 for (unsigned k = 0; k < n; ++k)
                 {
-                    v += p_row[k] * p_col[b->base.cols*k];
+                    v += p_row[k] * p_col[b->base.cols * k];
                     out->values[j + i * new_cols] = v;
                 }
             }
@@ -934,11 +931,11 @@ jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_d
     {
         for (unsigned i = 0; i < new_rows; ++i)
         {
-            const _Complex float* restrict p_row = a->values + n * a->permutations[i];
+            const _Complex float *restrict p_row = a->values + n * a->permutations[i];
             for (unsigned j = 0; j < new_cols; ++j)
             {
                 _Complex float v = 0;
-                const _Complex float* restrict p_col = b->values + j;
+                const _Complex float *restrict p_col = b->values + j;
                 for (unsigned k = 0; k < n; ++k)
                 {
                     v += p_row[k] * p_col[b->base.cols * b->permutations[k]];
@@ -951,11 +948,11 @@ jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_d
     {
         for (unsigned i = 0; i < new_rows; ++i)
         {
-            const _Complex float* restrict p_row = a->values + n * a->permutations[i];
+            const _Complex float *restrict p_row = a->values + n * a->permutations[i];
             for (unsigned j = 0; j < new_cols; ++j)
             {
                 _Complex float v = 0;
-                const _Complex float* restrict p_col = b->values + j;
+                const _Complex float *restrict p_col = b->values + j;
                 for (unsigned k = 0; k < n; ++k)
                 {
                     v += p_row[k] * p_col[b->base.cols * k];
@@ -968,11 +965,11 @@ jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_d
     {
         for (unsigned i = 0; i < new_rows; ++i)
         {
-            const _Complex float* restrict p_row = a->values + n * i;
+            const _Complex float *restrict p_row = a->values + n * i;
             for (unsigned j = 0; j < new_cols; ++j)
             {
                 _Complex float v = 0;
-                const _Complex float* restrict p_col = b->values + j;
+                const _Complex float *restrict p_col = b->values + j;
                 for (unsigned k = 0; k < n; ++k)
                 {
                     v += p_row[k] * p_col[b->base.cols * k];
@@ -985,13 +982,12 @@ jmtx_result jmtxc_matrix_drm_multiply_matrix(jmtxc_matrix_drm* a, jmtxc_matrix_d
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Shifts the diagonal of the matrix mtx by the value v, so that: A_{i,i} = A_{i,i} + v for all i
  * @param mtx matrix which should have its diagonal shifted
  * @param v value by which to shift the diagonal
  */
-void jmtxc_matrix_drm_shift_diagonal(jmtxc_matrix_drm* mtx, _Complex float v)
+void jmtxc_matrix_drm_shift_diagonal(jmtxc_matrix_drm *mtx, _Complex float v)
 {
     const unsigned n = mtx->base.rows > mtx->base.cols ? mtx->base.cols : mtx->base.rows;
     if (!mtx->permutations)
@@ -1009,6 +1005,3 @@ void jmtxc_matrix_drm_shift_diagonal(jmtxc_matrix_drm* mtx, _Complex float v)
         }
     }
 }
-
-
-

@@ -13,7 +13,7 @@
  * @param mtx square matrix to decompose
  * @param decomposed square matrix which receives the decomposition
  */
-void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
+void jmtxd_decompose_lu_drm(jmtxd_matrix_drm *mtx, jmtxd_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
     if (decomposed->rperm)
@@ -44,9 +44,9 @@ void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
         {
             double v = 0;
             //  Row of L
-            const double* li = decomposed->values + n * i;
+            const double *li = decomposed->values + n * i;
             //  Column of U
-            const double* uj = decomposed->values + j;
+            const double *uj = decomposed->values + j;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += li[k] * uj[k * n];
@@ -59,9 +59,9 @@ void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
         {
             double v = 0;
             //  Row of L
-            const double* lj = decomposed->values + n * j;
+            const double *lj = decomposed->values + n * j;
             //  Column of U
-            const double* ui = decomposed->values + i;
+            const double *ui = decomposed->values + i;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += lj[k] * ui[k * n];
@@ -70,7 +70,6 @@ void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
         }
     }
 }
-
 
 /**
  * Decomposes a matrix into a lower triangular matrix L and upper triangular matrix U, storing the result in the
@@ -82,7 +81,7 @@ void jmtxd_decompose_lu_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
  * @param decomposed square matrix which receives the decomposition
  * @return JMTX_RESULT_SUCCESS on success, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm* decomposed)
+jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm *mtx, jmtxd_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
     if (decomposed->rperm)
@@ -95,15 +94,18 @@ jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm
     }
     else
     {
-        decomposed->permutations = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state, sizeof(*decomposed->permutations) * n);
+        decomposed->permutations = decomposed->base.allocator_callbacks.alloc(
+            decomposed->base.allocator_callbacks.state, sizeof(*decomposed->permutations) * n);
         if (!decomposed->permutations)
         {
             return JMTX_RESULT_BAD_ALLOC;
         }
-        decomposed->rperm = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state, sizeof(*decomposed->rperm) * n);
+        decomposed->rperm = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state,
+                                                                       sizeof(*decomposed->rperm) * n);
         if (!decomposed->rperm)
         {
-            decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state, decomposed->permutations);
+            decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state,
+                                                      decomposed->permutations);
             return JMTX_RESULT_BAD_ALLOC;
         }
         for (uint32_t i = 0; i < n; ++i)
@@ -129,7 +131,8 @@ jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm
         uint32_t pivot = i;
         for (uint32_t j = i; j < n; ++j)
         {
-            if (fabs(decomposed->values[n * decomposed->permutations[j] + i]) > fabs(decomposed->values[n * decomposed->permutations[pivot] + i]))
+            if (fabs(decomposed->values[n * decomposed->permutations[j] + i]) >
+                fabs(decomposed->values[n * decomposed->permutations[pivot] + i]))
             {
                 pivot = j;
             }
@@ -144,14 +147,14 @@ jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm
         {
             double v = 0;
             //  Row of L
-            double* li = decomposed->values + n * decomposed->permutations[i];
+            double *li = decomposed->values + n * decomposed->permutations[i];
             //  Column of U
-            const double* uj = decomposed->values + j;
+            const double *uj = decomposed->values + j;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += li[k] * uj[decomposed->permutations[k] * n];
             }
-            //decomposed->values[n * decomposed->permutations[i] + j]
+            // decomposed->values[n * decomposed->permutations[i] + j]
             li[j] = (li[j] - v) / uj[n * decomposed->permutations[j]];
         }
 
@@ -160,14 +163,15 @@ jmtx_result jmtxd_decompose_lu_pivot_drm(jmtxd_matrix_drm* mtx, jmtxd_matrix_drm
         {
             double v = 0;
             //  Row of L
-            const double* lj = decomposed->values + n * decomposed->permutations[j];
+            const double *lj = decomposed->values + n * decomposed->permutations[j];
             //  Column of U
-            double* ui = decomposed->values + i;
+            double *ui = decomposed->values + i;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += lj[k] * ui[decomposed->permutations[k] * n];
             }
-            //decomposed->values[n * decomposed->permutations[j] + i] = (decomposed->values[n * decomposed->permutations[j] + i] - v);
+            // decomposed->values[n * decomposed->permutations[j] + i] = (decomposed->values[n *
+            // decomposed->permutations[j] + i] - v);
             ui[n * decomposed->permutations[j]] = (ui[n * decomposed->permutations[j]] - v);
         }
     }

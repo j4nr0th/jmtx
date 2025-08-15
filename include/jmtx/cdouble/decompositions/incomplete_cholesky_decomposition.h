@@ -1,5 +1,6 @@
-// Automatically generated from include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 18:48:13 2023
-// Automatically generated from include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 17:35:57 2023
+// Automatically generated from include/jmtx/cfloat/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1 18:48:13
+// 2023 Automatically generated from include/jmtx/cdouble/solvers/incomplete_cholesky_decomposition.h on Fri Dec  1
+// 17:35:57 2023
 //
 // Created by jan on 2.11.2023.
 //
@@ -8,7 +9,7 @@
 #define JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#include "../../solver_base.h"
 #endif
 
 #ifdef JMTXZ_SPARSE_ROW_COMPRESSED_H
@@ -26,8 +27,8 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxz_decompose_icho_crs(
-        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxz_decompose_icho_crs(const jmtxz_matrix_crs *a, jmtxz_matrix_crs **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
 #ifdef JMTXZ_SPARSE_DIAGONAL_COMPRESSED_H
@@ -45,9 +46,8 @@ jmtx_result jmtxz_decompose_icho_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxz_decompose_icho_cds(
-        const jmtxz_matrix_cds* a, jmtxz_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtxz_decompose_icho_cds(const jmtxz_matrix_cds *a, jmtxz_matrix_cds **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-
-#endif //JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
+#endif // JMTXZ_INCOMPLETE_CHOLESKY_DECOMPOSITION_H

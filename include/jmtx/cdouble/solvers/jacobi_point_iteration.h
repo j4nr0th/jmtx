@@ -6,7 +6,7 @@
 #ifndef JMTXZ_JACOBI_POINT_ITERATION_H
 #define JMTXZ_JACOBI_POINT_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-    #include "../../solver_base.h"
+#include "../../solver_base.h"
 #endif
 
 /*
@@ -15,7 +15,6 @@
  * that A = D + L + U. The equation is then expressed as x_(n+1) = D^{-1} (y - (L + U)x_(n)). This means that all the
  * functions in this file require that the diagonals of the matrices are non-zero.
  */
-
 
 #ifdef JMTXZ_SPARSE_ROW_COMPRESSED_H
 /**
@@ -31,14 +30,14 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_crs(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_crs(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -54,14 +53,17 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_solve_iterative_jacobi_crs(
-        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxzs_solve_iterative_jacobi_crs(const jmtxz_matrix_crs *mtx, uint32_t n,
+                                              const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                              _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              _Complex double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              _Complex double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -81,15 +83,15 @@ jmtx_result jmtxzs_solve_iterative_jacobi_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args);
-
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -106,17 +108,17 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vector1, _Complex double* restrict aux_vector2,
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                                      _Complex double *restrict x,
+                                                      _Complex double *restrict aux_vector1,
+                                                      _Complex double *restrict aux_vector2,
+                                                      jmtxd_solver_arguments *args);
 #endif
-
-
 
 #ifdef JMTXZ_SPARSE_DIAGONAL_COMPRESSED_H
 /**
@@ -132,14 +134,14 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_cds(
-        const jmtxz_matrix_cds* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_cds(const jmtxz_matrix_cds *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -159,18 +161,16 @@ jmtx_result jmtxz_solve_iterative_jacobi_cds(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
-        const jmtxz_matrix_cds* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(const jmtxz_matrix_cds *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 #endif
-
-
-
 
 #ifdef JMTXZ_BAND_ROW_MAJOR_H
 /**
@@ -186,14 +186,14 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_brm(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_brm(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -213,15 +213,15 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args);
-
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -238,14 +238,16 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vector1, _Complex double* restrict aux_vector2,
-        jmtxd_solver_arguments* args);
+jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                                      _Complex double *restrict x,
+                                                      _Complex double *restrict aux_vector1,
+                                                      _Complex double *restrict aux_vector2,
+                                                      jmtxd_solver_arguments *args);
 #endif
 
-#endif //JMTXZ_JACOBI_POINT_ITERATION_H
+#endif // JMTXZ_JACOBI_POINT_ITERATION_H

@@ -3,8 +3,8 @@
 //
 #include "../../../include/jmtx/cdouble/decompositions/dense_lu_decomposition.h"
 #include "../matrices/dense_row_major_internal.h"
-#include <math.h>
 #include <complex.h>
+#include <math.h>
 
 /**
  * Decomposes a matrix into a lower triangular matrix L and upper triangular matrix U, storing the result in the
@@ -14,7 +14,7 @@
  * @param mtx square matrix to decompose
  * @param decomposed square matrix which receives the decomposition
  */
-void jmtxz_decompose_lu_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
+void jmtxz_decompose_lu_drm(jmtxz_matrix_drm *mtx, jmtxz_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
     if (decomposed->rperm)
@@ -45,9 +45,9 @@ void jmtxz_decompose_lu_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
         {
             _Complex double v = 0;
             //  Row of L
-            const _Complex double* li = decomposed->values + n * i;
+            const _Complex double *li = decomposed->values + n * i;
             //  Column of U
-            const _Complex double* uj = decomposed->values + j;
+            const _Complex double *uj = decomposed->values + j;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += li[k] * uj[k * n];
@@ -60,9 +60,9 @@ void jmtxz_decompose_lu_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
         {
             _Complex double v = 0;
             //  Row of L
-            const _Complex double* lj = decomposed->values + n * j;
+            const _Complex double *lj = decomposed->values + n * j;
             //  Column of U
-            const _Complex double* ui = decomposed->values + i;
+            const _Complex double *ui = decomposed->values + i;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += lj[k] * ui[k * n];
@@ -71,7 +71,6 @@ void jmtxz_decompose_lu_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
         }
     }
 }
-
 
 /**
  * Decomposes a matrix into a lower triangular matrix L and upper triangular matrix U, storing the result in the
@@ -83,7 +82,7 @@ void jmtxz_decompose_lu_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
  * @param decomposed square matrix which receives the decomposition
  * @return JMTX_RESULT_SUCCESS on success, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm* decomposed)
+jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm *mtx, jmtxz_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
     if (decomposed->rperm)
@@ -96,15 +95,18 @@ jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm
     }
     else
     {
-        decomposed->permutations = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state, sizeof(*decomposed->permutations) * n);
+        decomposed->permutations = decomposed->base.allocator_callbacks.alloc(
+            decomposed->base.allocator_callbacks.state, sizeof(*decomposed->permutations) * n);
         if (!decomposed->permutations)
         {
             return JMTX_RESULT_BAD_ALLOC;
         }
-        decomposed->rperm = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state, sizeof(*decomposed->rperm) * n);
+        decomposed->rperm = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state,
+                                                                       sizeof(*decomposed->rperm) * n);
         if (!decomposed->rperm)
         {
-            decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state, decomposed->permutations);
+            decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state,
+                                                      decomposed->permutations);
             return JMTX_RESULT_BAD_ALLOC;
         }
         for (uint32_t i = 0; i < n; ++i)
@@ -130,7 +132,8 @@ jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm
         uint32_t pivot = i;
         for (uint32_t j = i; j < n; ++j)
         {
-            if (cabs(decomposed->values[n * decomposed->permutations[j] + i]) > cabs(decomposed->values[n * decomposed->permutations[pivot] + i]))
+            if (cabs(decomposed->values[n * decomposed->permutations[j] + i]) >
+                cabs(decomposed->values[n * decomposed->permutations[pivot] + i]))
             {
                 pivot = j;
             }
@@ -145,14 +148,14 @@ jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm
         {
             _Complex double v = 0;
             //  Row of L
-            _Complex double* li = decomposed->values + n * decomposed->permutations[i];
+            _Complex double *li = decomposed->values + n * decomposed->permutations[i];
             //  Column of U
-            const _Complex double* uj = decomposed->values + j;
+            const _Complex double *uj = decomposed->values + j;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += li[k] * uj[decomposed->permutations[k] * n];
             }
-            //decomposed->values[n * decomposed->permutations[i] + j]
+            // decomposed->values[n * decomposed->permutations[i] + j]
             li[j] = (li[j] - v) / uj[n * decomposed->permutations[j]];
         }
 
@@ -161,14 +164,15 @@ jmtx_result jmtxz_decompose_lu_pivot_drm(jmtxz_matrix_drm* mtx, jmtxz_matrix_drm
         {
             _Complex double v = 0;
             //  Row of L
-            const _Complex double* lj = decomposed->values + n * decomposed->permutations[j];
+            const _Complex double *lj = decomposed->values + n * decomposed->permutations[j];
             //  Column of U
-            _Complex double* ui = decomposed->values + i;
+            _Complex double *ui = decomposed->values + i;
             for (uint_fast32_t k = 0; k < j; ++k)
             {
                 v += lj[k] * ui[decomposed->permutations[k] * n];
             }
-            //decomposed->values[n * decomposed->permutations[j] + i] = (decomposed->values[n * decomposed->permutations[j] + i] - v);
+            // decomposed->values[n * decomposed->permutations[j] + i] = (decomposed->values[n *
+            // decomposed->permutations[j] + i] - v);
             ui[n * decomposed->permutations[j]] = (ui[n * decomposed->permutations[j]] - v);
         }
     }

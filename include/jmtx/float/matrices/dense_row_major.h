@@ -10,7 +10,7 @@
 #ifndef JMTX_DENSE_ROW_MAJOR_H
 #define JMTX_DENSE_ROW_MAJOR_H
 #ifndef JMTX_MATRIX_BASE_H
-    #include "../../matrix_base.h"
+#include "../../matrix_base.h"
 #endif
 /**
  * @paragraph
@@ -24,7 +24,6 @@
  */
 typedef struct jmtx_matrix_drm_struct jmtx_matrix_drm;
 
-
 /**
  * Initializes a new Dense Row-Major matrix
  * @param p_mtx address that receives the pointer to the matrix
@@ -35,16 +34,14 @@ typedef struct jmtx_matrix_drm_struct jmtx_matrix_drm;
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_drm_new(
- jmtx_matrix_drm** p_mtx, uint32_t rows, uint32_t cols, const float* set_value,
- const jmtx_allocator_callbacks* allocator_callbacks);
-
+jmtx_result jmtx_matrix_drm_new(jmtx_matrix_drm **p_mtx, uint32_t rows, uint32_t cols, const float *set_value,
+                                const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Cleans up the DRM matrix and frees all of its memory
  * @param mtx pointer to memory where the matrix is stored
  */
-void jmtx_matrix_drm_destroy(jmtx_matrix_drm* mtx);
+void jmtx_matrix_drm_destroy(jmtx_matrix_drm *mtx);
 
 /**
  * Sets the row of the matrix. More efficient than setting it element by element
@@ -52,7 +49,7 @@ void jmtx_matrix_drm_destroy(jmtx_matrix_drm* mtx);
  * @param row index of the row to set
  * @param values values of entries
  */
-void jmtx_matrix_drm_set_row(const jmtx_matrix_drm* mtx, uint32_t row, const float values[]);
+void jmtx_matrix_drm_set_row(const jmtx_matrix_drm *mtx, uint32_t row, const float values[]);
 
 /**
  * Sets the column of the matrix. More efficient than setting it element by element
@@ -60,7 +57,7 @@ void jmtx_matrix_drm_set_row(const jmtx_matrix_drm* mtx, uint32_t row, const flo
  * @param col index of the column to set
  * @param values values of entries
  */
-void jmtx_matrix_drm_set_col(const jmtx_matrix_drm* mtx, uint32_t col, const float values[]);
+void jmtx_matrix_drm_set_col(const jmtx_matrix_drm *mtx, uint32_t col, const float values[]);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -70,7 +67,7 @@ void jmtx_matrix_drm_set_col(const jmtx_matrix_drm* mtx, uint32_t col, const flo
  * @return number of elements in the row, which is the number of valid elements in arrays given to p_indices and
  * p_elements
  */
-uint_fast32_t jmtx_matrix_drm_get_row(const jmtx_matrix_drm* mtx, uint32_t row, float* p_elements[1]);
+uint_fast32_t jmtx_matrix_drm_get_row(const jmtx_matrix_drm *mtx, uint32_t row, float *p_elements[1]);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y
@@ -78,7 +75,7 @@ uint_fast32_t jmtx_matrix_drm_get_row(const jmtx_matrix_drm* mtx, uint32_t row, 
  * @param x pointer to vector to be multiplied
  * @param y pointer to vector where the result of multiplication is to be stored
  */
-void jmtx_matrix_drm_vector_multiply(const jmtx_matrix_drm* mtx, const float* restrict x, float* restrict y);
+void jmtx_matrix_drm_vector_multiply(const jmtx_matrix_drm *mtx, const float *restrict x, float *restrict y);
 
 /**
  * Sets a single entry in the matrix.
@@ -87,7 +84,7 @@ void jmtx_matrix_drm_vector_multiply(const jmtx_matrix_drm* mtx, const float* re
  * @param j column index
  * @param value value to which the value is set
  */
-void jmtx_matrix_drm_set_entry(const jmtx_matrix_drm* mtx, uint32_t i, uint32_t j, float value);
+void jmtx_matrix_drm_set_entry(const jmtx_matrix_drm *mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Returns a single entry from the matrix.
@@ -96,7 +93,7 @@ void jmtx_matrix_drm_set_entry(const jmtx_matrix_drm* mtx, uint32_t i, uint32_t 
  * @param j column index
  * @return value of the entry
  */
-float jmtx_matrix_drm_get_entry(const jmtx_matrix_drm* mtx, uint32_t i, uint32_t j);
+float jmtx_matrix_drm_get_entry(const jmtx_matrix_drm *mtx, uint32_t i, uint32_t j);
 
 /**
  * Returns a pointer to an entry in the matrix.
@@ -105,14 +102,13 @@ float jmtx_matrix_drm_get_entry(const jmtx_matrix_drm* mtx, uint32_t i, uint32_t
  * @param j column index
  * @return pointer to an entry
  */
-float* jmtx_matrix_drm_entry_ptr(const jmtx_matrix_drm* mtx, uint32_t i, uint32_t j);
-
+float *jmtx_matrix_drm_entry_ptr(const jmtx_matrix_drm *mtx, uint32_t i, uint32_t j);
 
 /**
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  */
-void jmtx_matrix_drm_zero_all_entries(const jmtx_matrix_drm* mtx);
+void jmtx_matrix_drm_zero_all_entries(const jmtx_matrix_drm *mtx);
 
 /**
  * Similar to jmtx_matrix_drm_set_all_entries, but slower, since it can not use memset. On the other hand, it allows for
@@ -120,7 +116,7 @@ void jmtx_matrix_drm_zero_all_entries(const jmtx_matrix_drm* mtx);
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  */
-void jmtx_matrix_drm_set_all_entries(const jmtx_matrix_drm* mtx, float x);
+void jmtx_matrix_drm_set_all_entries(const jmtx_matrix_drm *mtx, float x);
 
 /**
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
@@ -130,8 +126,7 @@ void jmtx_matrix_drm_set_all_entries(const jmtx_matrix_drm* mtx, float x);
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
-uint32_t
-jmtx_matrix_drm_get_col(const jmtx_matrix_drm* mtx, uint32_t col, float values[]);
+uint32_t jmtx_matrix_drm_get_col(const jmtx_matrix_drm *mtx, uint32_t col, float values[]);
 
 /**
  * Creates a transpose of a matrix
@@ -141,8 +136,8 @@ jmtx_matrix_drm_get_col(const jmtx_matrix_drm* mtx, uint32_t col, float values[]
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_drm_transpose(
-        const jmtx_matrix_drm* mtx, jmtx_matrix_drm** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
+jmtx_result jmtx_matrix_drm_transpose(const jmtx_matrix_drm *mtx, jmtx_matrix_drm **p_out,
+                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Creates a transpose of a matrix
@@ -151,7 +146,7 @@ jmtx_result jmtx_matrix_drm_transpose(
  * @param aux_row auxiliary memory to use for intermediate storage
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtx_matrix_drm_transpose_inplace(jmtx_matrix_drm* mtx, float* aux_row);
+jmtx_result jmtx_matrix_drm_transpose_inplace(jmtx_matrix_drm *mtx, float *aux_row);
 
 /**
  * Creates a copy of the matrix
@@ -161,8 +156,8 @@ jmtx_result jmtx_matrix_drm_transpose_inplace(jmtx_matrix_drm* mtx, float* aux_r
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_drm_copy(const jmtx_matrix_drm* mtx, jmtx_matrix_drm** p_out, const jmtx_allocator_callbacks* allocator_callbacks);
-
+jmtx_result jmtx_matrix_drm_copy(const jmtx_matrix_drm *mtx, jmtx_matrix_drm **p_out,
+                                 const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel.
@@ -171,7 +166,7 @@ jmtx_result jmtx_matrix_drm_copy(const jmtx_matrix_drm* mtx, jmtx_matrix_drm** p
  * @param i what entry of the residual to compute
  * @return result of the multiplication
  */
-float jmtx_matrix_drm_vector_multiply_row(const jmtx_matrix_drm* mtx, const float* x, uint32_t i);
+float jmtx_matrix_drm_vector_multiply_row(const jmtx_matrix_drm *mtx, const float *x, uint32_t i);
 
 /**
  * Returns the upper bandwidth and the lower bandwidth of the BRM matrix
@@ -179,7 +174,7 @@ float jmtx_matrix_drm_vector_multiply_row(const jmtx_matrix_drm* mtx, const floa
  * @param ubw pointer which receives the upper bandwidth of the matrix
  * @param lbw pointer which receives the lower bandwidth of the matrix
  */
-void jmtx_matrix_drm_get_bandwidths(const jmtx_matrix_drm* mtx, uint32_t* ubw, uint32_t* lbw);
+void jmtx_matrix_drm_get_bandwidths(const jmtx_matrix_drm *mtx, uint32_t *ubw, uint32_t *lbw);
 
 /**
  * Exchanges row of matrix through the use of a permutation matrix. This does not cause memory copying and is thus fast
@@ -187,7 +182,7 @@ void jmtx_matrix_drm_get_bandwidths(const jmtx_matrix_drm* mtx, uint32_t* ubw, u
  * @param row1 index of a row to exchange with row2
  * @param row2 index of a row to exchange with row1
  */
-jmtx_result jmtx_matrix_drm_swap_rows(jmtx_matrix_drm* mtx, uint32_t row1, uint32_t row2);
+jmtx_result jmtx_matrix_drm_swap_rows(jmtx_matrix_drm *mtx, uint32_t row1, uint32_t row2);
 
 /**
  * Permutes all rows at once. The provided list must contain all entries in the set [0, n) exactly once, where n is the
@@ -196,7 +191,7 @@ jmtx_result jmtx_matrix_drm_swap_rows(jmtx_matrix_drm* mtx, uint32_t row1, uint3
  * @param perm list of permutation indices
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_matrix_drm_set_permutation(jmtx_matrix_drm* mtx, const uint32_t* perm);
+jmtx_result jmtx_matrix_drm_set_permutation(jmtx_matrix_drm *mtx, const uint32_t *perm);
 
 /**
  * Executes permutations of matrix rows and reorders rows in memory. This may allow for better memory access on a
@@ -205,7 +200,7 @@ jmtx_result jmtx_matrix_drm_set_permutation(jmtx_matrix_drm* mtx, const uint32_t
  * @param mtx pointer to the memory where the matrix is stored
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
-void jmtx_matrix_drm_commit_permutations(jmtx_matrix_drm* mtx);
+void jmtx_matrix_drm_commit_permutations(jmtx_matrix_drm *mtx);
 
 /**
  * Executes permutations of matrix rows and reorders rows in memory. This may allow for better memory access on a
@@ -214,11 +209,11 @@ void jmtx_matrix_drm_commit_permutations(jmtx_matrix_drm* mtx);
  * @param mtx pointer to the memory where the matrix is stored
  * @param aux_row memory that can be used by the function to store an intermediate matrix row
  */
-void jmtx_matrix_drm_commit_permutations2(jmtx_matrix_drm* mtx, float* aux_row);
+void jmtx_matrix_drm_commit_permutations2(jmtx_matrix_drm *mtx, float *aux_row);
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two rows the rotation
  * is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
@@ -231,12 +226,11 @@ void jmtx_matrix_drm_commit_permutations2(jmtx_matrix_drm* mtx, float* aux_row);
  * @param ct value of cos(theta), which is used for the rotation
  * @param st value of sin(theta), which is used for the rotation
  */
-void jmtx_matrix_drm_givens_rotation_left(jmtx_matrix_drm* mtx, unsigned r1, unsigned r2, float ct,
-float st);
+void jmtx_matrix_drm_givens_rotation_left(jmtx_matrix_drm *mtx, unsigned r1, unsigned r2, float ct, float st);
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the left.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two rows the rotation
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two rows the rotation
  * is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
@@ -251,13 +245,12 @@ float st);
  *
  * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
  */
-jmtx_result jmtxs_matrix_drm_givens_rotation_left(jmtx_matrix_drm* mtx, unsigned r1, unsigned r2, float ct,
- float st);
+jmtx_result jmtxs_matrix_drm_givens_rotation_left(jmtx_matrix_drm *mtx, unsigned r1, unsigned r2, float ct, float st);
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
- * is applied to.
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two columns the
+ * rotation is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
  * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
@@ -269,13 +262,12 @@ jmtx_result jmtxs_matrix_drm_givens_rotation_left(jmtx_matrix_drm* mtx, unsigned
  * @param ct value of cos(theta), which is used for the rotation
  * @param st value of sin(theta), which is used for the rotation
  */
-void jmtx_matrix_drm_givens_rotation_right(jmtx_matrix_drm* mtx, unsigned c1, unsigned c2, float ct,
-float st);
+void jmtx_matrix_drm_givens_rotation_right(jmtx_matrix_drm *mtx, unsigned c1, unsigned c2, float ct, float st);
 
 /**
  * Computes the result of a Givens rotation being applied on a (square) matrix as multiplication on the right.
- * The roation is characterized by a rotaiton angle theta and two indices, which indicate which two columns the rotation
- * is applied to.
+ * The rotation is characterized by a rotation angle theta and two indices, which indicate which two columns the
+ * rotation is applied to.
  *
  * This function takes cos(theta) and sin(theta) instead of just the angle directly, because in some cases sine and
  * cosine may be computed directly without computing the angle. In that case it would be redundant to convert those into
@@ -289,8 +281,7 @@ float st);
  *
  * @return JMTX_RESULT_INDEX_OUT_OF_BOUNDS if either r1 or r2 are out of bounds for the matrix.
  */
-jmtx_result jmtxs_matrix_drm_givens_rotation_right(jmtx_matrix_drm* mtx, unsigned c1, unsigned c2, float ct,
- float st);
+jmtx_result jmtxs_matrix_drm_givens_rotation_right(jmtx_matrix_drm *mtx, unsigned c1, unsigned c2, float ct, float st);
 
 /**
  * Computes the matrix product of two matrices A and B as C = A B. This is can be written as:
@@ -306,14 +297,13 @@ jmtx_result jmtxs_matrix_drm_givens_rotation_right(jmtx_matrix_drm* mtx, unsigne
  * @return JMTX_RESULT_SUCCES if successful, JMTX_RESULT_DIMS_MISMATCH if the dimensions of a and b don't allow
  * multiplication, or if c does not have correct dimensions
  */
-jmtx_result jmtx_matrix_drm_multiply_matrix(jmtx_matrix_drm* a, jmtx_matrix_drm* b, jmtx_matrix_drm* out);
+jmtx_result jmtx_matrix_drm_multiply_matrix(jmtx_matrix_drm *a, jmtx_matrix_drm *b, jmtx_matrix_drm *out);
 
 /**
  * Shifts the diagonal of the matrix mtx by the value v, so that: A_{i,i} = A_{i,i} + v for all i
  * @param mtx matrix which should have its diagonal shifted
  * @param v value by which to shift the diagonal
  */
-void jmtx_matrix_drm_shift_diagonal(jmtx_matrix_drm* mtx, float v);
+void jmtx_matrix_drm_shift_diagonal(jmtx_matrix_drm *mtx, float v);
 
-
-#endif //JMTX_DENSE_ROW_MAJOR_H
+#endif // JMTX_DENSE_ROW_MAJOR_H

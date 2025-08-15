@@ -2,17 +2,16 @@
 //
 // Created by jan on 17.6.2022.
 //
-#include <omp.h>
-#include <math.h>
-#include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/sparse_diagonal_compressed_internal.h"
-#include "../matrices/band_row_major_internal.h"
 #include "../../../include/jmtx/double/solvers/bicgstab_iteration.h"
+#include "../matrices/band_row_major_internal.h"
+#include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
+#include <math.h>
+#include <omp.h>
 
 #include <stdio.h>
 
 #include "../../../include/jmtx/double/solvers/lu_solving.h"
-
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -20,7 +19,7 @@
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param y solution to the system A x = y
@@ -40,21 +39,22 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_solve_iterative_bicgstab_crs(
-        const jmtxd_matrix_crs* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1,
-        double* restrict aux_vec2, double* restrict aux_vec3, double* restrict aux_vec4, double* restrict aux_vec5,
-        double* restrict aux_vec6, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_bicgstab_crs(const jmtxd_matrix_crs *mtx, const double *restrict y,
+                                               double *restrict x, double *restrict aux_vec1, double *restrict aux_vec2,
+                                               double *restrict aux_vec3, double *restrict aux_vec4,
+                                               double *restrict aux_vec5, double *restrict aux_vec6,
+                                               jmtxd_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
     double rho = 1, alpha = 1, omega = 1;
 
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
+    double *const r = aux_vec1;
+    double *const rQ = aux_vec2;
+    double *const p = aux_vec3;
+    double *const Ap = aux_vec4;
+    double *const s = aux_vec5;
+    double *const As = aux_vec6;
 
     double err = 0;
 
@@ -65,7 +65,7 @@ jmtx_result jmtxd_solve_iterative_bicgstab_crs(
         r[i] = y[i] - r[i];
         rQ[i] = r[i];
         p[i] = r[i];
-//        Ap[i] = 0;
+        //        Ap[i] = 0;
         y_mag += y[i] * y[i];
         err += r[i] * r[i];
     }
@@ -152,7 +152,7 @@ jmtx_result jmtxd_solve_iterative_bicgstab_crs(
     }
 
     args->out_last_iteration = iter_count;
-    args->out_last_error= err;
+    args->out_last_error = err;
     if (!isfinite(err) || err > args->in_convergence_criterion)
     {
         return JMTX_RESULT_NOT_CONVERGED;
@@ -161,7 +161,8 @@ jmtx_result jmtxd_solve_iterative_bicgstab_crs(
     return JMTX_RESULT_SUCCESS;
 }
 
-static inline int check_vector_overlaps(const unsigned n, const size_t size, const void* ptrs[JMTX_ARRAY_ATTRIB(static const n)])
+static inline int check_vector_overlaps(const unsigned n, const size_t size,
+                                        const void *ptrs[JMTX_ARRAY_ATTRIB(static const n)])
 {
     for (unsigned i = 0; i < n; ++i)
     {
@@ -192,7 +193,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton checks for appropriate matrix type and dimensions, as well as for memory not
+ *  This version of the function checks for appropriate matrix type and dimensions, as well as for memory not
  *  overlapping.
  *
  * @param mtx system matrix A
@@ -214,9 +215,11 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size, con
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxds_solve_iterative_bicgstab_crs(
-        const jmtxd_matrix_crs* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-        double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-        double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
+    const jmtxd_matrix_crs *mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -239,13 +242,14 @@ jmtx_result jmtxds_solve_iterative_bicgstab_crs(
         return JMTX_RESULT_BAD_PARAM;
     }
     //  Check if any of the vectors overlap
-    const void* memory_addresses[] = { x, y, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6 };
+    const void *memory_addresses[] = {x, y, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6};
     if (check_vector_overlaps(sizeof(memory_addresses) / sizeof(*memory_addresses), n * sizeof(*x), memory_addresses))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxd_solve_iterative_bicgstab_crs(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
+    return jmtxd_solve_iterative_bicgstab_crs(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6,
+                                              args);
 }
 
 /**
@@ -254,7 +258,7 @@ jmtx_result jmtxds_solve_iterative_bicgstab_crs(
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param y solution to the system A x = y
@@ -274,21 +278,22 @@ jmtx_result jmtxds_solve_iterative_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_solve_iterative_bicgstab_cds(
-        const jmtxd_matrix_cds* mtx, const double* restrict y, double* restrict x, double* restrict aux_vec1,
-        double* restrict aux_vec2, double* restrict aux_vec3, double* restrict aux_vec4, double* restrict aux_vec5,
-        double* restrict aux_vec6, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_bicgstab_cds(const jmtxd_matrix_cds *mtx, const double *restrict y,
+                                               double *restrict x, double *restrict aux_vec1, double *restrict aux_vec2,
+                                               double *restrict aux_vec3, double *restrict aux_vec4,
+                                               double *restrict aux_vec5, double *restrict aux_vec6,
+                                               jmtxd_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
     double rho = 1, alpha = 1, omega = 1;
 
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
+    double *const r = aux_vec1;
+    double *const rQ = aux_vec2;
+    double *const p = aux_vec3;
+    double *const Ap = aux_vec4;
+    double *const s = aux_vec5;
+    double *const As = aux_vec6;
 
     double err = 0;
 
@@ -299,7 +304,7 @@ jmtx_result jmtxd_solve_iterative_bicgstab_cds(
         r[i] = y[i] - r[i];
         rQ[i] = r[i];
         p[i] = r[i];
-//        Ap[i] = 0;
+        //        Ap[i] = 0;
         y_mag += y[i] * y[i];
         err += r[i] * r[i];
     }
@@ -401,7 +406,7 @@ jmtx_result jmtxd_solve_iterative_bicgstab_cds(
  *  Stabilized method also computes these indirectly by using a polynomial with a lower condition number, giving better
  *  convergence behaviour.
  *
- *  This version of the funciton checks for appropriate matrix type and dimensions, as well as for memory not
+ *  This version of the function checks for appropriate matrix type and dimensions, as well as for memory not
  *  overlapping.
  *
  * @param mtx system matrix A
@@ -423,9 +428,11 @@ jmtx_result jmtxd_solve_iterative_bicgstab_cds(
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxds_solve_iterative_bicgstab_cds(
-        const jmtxd_matrix_cds* mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)], double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-        double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-        double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments* args)
+    const jmtxd_matrix_cds *mtx, uint32_t n, const double y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    double x[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], double aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
+    double aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -448,13 +455,14 @@ jmtx_result jmtxds_solve_iterative_bicgstab_cds(
         return JMTX_RESULT_BAD_PARAM;
     }
     //  Check if any of the vectors overlap
-    const void* memory_addresses[] = { x, y, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6 };
+    const void *memory_addresses[] = {x, y, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6};
     if (check_vector_overlaps(sizeof(memory_addresses) / sizeof(*memory_addresses), n * sizeof(*x), memory_addresses))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtxd_solve_iterative_bicgstab_cds(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6, args);
+    return jmtxd_solve_iterative_bicgstab_cds(mtx, y, x, aux_vec1, aux_vec2, aux_vec3, aux_vec4, aux_vec5, aux_vec6,
+                                              args);
 }
 
 /**
@@ -466,7 +474,7 @@ jmtx_result jmtxds_solve_iterative_bicgstab_cds(
  *  This version uses incomplete LU decomposition (ILU) of the matrix, which then allows for better convergence
  *  properties. The decomposition must be given to the function.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  * @param mtx system matrix A
  * @param l lower triangular matrix
@@ -490,24 +498,26 @@ jmtx_result jmtxds_solve_iterative_bicgstab_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, const double* restrict y,
-        double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-        double* restrict aux_vec4, double* restrict aux_vec5, double* restrict aux_vec6, double* restrict aux_vec7,
-        double* restrict aux_vec8, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(const jmtxd_matrix_crs *mtx, const jmtxd_matrix_crs *l,
+                                                   const jmtxd_matrix_crs *u, const double *restrict y,
+                                                   double *restrict x, double *restrict aux_vec1,
+                                                   double *restrict aux_vec2, double *restrict aux_vec3,
+                                                   double *restrict aux_vec4, double *restrict aux_vec5,
+                                                   double *restrict aux_vec6, double *restrict aux_vec7,
+                                                   double *restrict aux_vec8, jmtxd_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
     double rho = 1, alpha = 1, omega = 1;
 
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
-    double* const phat = aux_vec7;
-    double* const shat = aux_vec8;
+    double *const r = aux_vec1;
+    double *const rQ = aux_vec2;
+    double *const p = aux_vec3;
+    double *const Ap = aux_vec4;
+    double *const s = aux_vec5;
+    double *const As = aux_vec6;
+    double *const p_hat = aux_vec7;
+    double *const s_hat = aux_vec8;
 
     double err = 0;
 
@@ -518,7 +528,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
         r[i] = y[i] - r[i];
         rQ[i] = r[i];
         p[i] = r[i];
-//        Ap[i] = 0;
+        //        Ap[i] = 0;
         y_mag += y[i] * y[i];
         err += r[i] * r[i];
     }
@@ -534,8 +544,8 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
     uint32_t iter_count = 0;
     for (;;)
     {
-        jmtxd_solve_direct_lu_crs(l, u, p, phat);
-        jmtxd_matrix_crs_vector_multiply(mtx, phat, Ap);
+        jmtxd_solve_direct_lu_crs(l, u, p, p_hat);
+        jmtxd_matrix_crs_vector_multiply(mtx, p_hat, Ap);
         double rQAp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -548,7 +558,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
         alpha = rho / rQAp;
         for (uint32_t i = 0; i < n; ++i)
         {
-            x[i] = x[i] + alpha * phat[i];
+            x[i] = x[i] + alpha * p_hat[i];
         }
         double sksk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
@@ -562,8 +572,8 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
         {
             break;
         }
-        jmtxd_solve_direct_lu_crs(l, u, s, shat);
-        jmtxd_matrix_crs_vector_multiply(mtx, shat, As);
+        jmtxd_solve_direct_lu_crs(l, u, s, s_hat);
+        jmtxd_matrix_crs_vector_multiply(mtx, s_hat, As);
         double sAs_dp = 0, sAAs_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -577,7 +587,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
         omega = sAs_dp / sAAs_dp;
         for (uint32_t i = 0; i < n; ++i)
         {
-            x[i] = x[i] + omega * shat[i];
+            x[i] = x[i] + omega * s_hat[i];
         }
         double rkrk_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
@@ -619,7 +629,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
     }
 
     args->out_last_iteration = iter_count;
-    args->out_last_error= err;
+    args->out_last_error = err;
     if (!isfinite(err) || err > args->in_convergence_criterion)
     {
         return JMTX_RESULT_NOT_CONVERGED;
@@ -637,7 +647,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
  *  This version uses incomplete LU decomposition (ILU) of the matrix, which then allows for better convergence
  *  properties. The decomposition must be given to the function.
  *
- *  This version of the funciton does not check if its inputs are valid and just assumes they are.
+ *  This version of the function does not check if its inputs are valid and just assumes they are.
  *
  *  This version uses OpenMP to solve the problem in parallel using multiple threads.
  *
@@ -663,24 +673,24 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
-        const jmtxd_matrix_crs* mtx, const jmtxd_matrix_crs* l, const jmtxd_matrix_crs* u, const double* restrict y,
-        double* restrict x, double* restrict aux_vec1, double* restrict aux_vec2, double* restrict aux_vec3,
-        double* restrict aux_vec4, double* restrict aux_vec5, double* restrict aux_vec6, double* restrict aux_vec7,
-        double* restrict aux_vec8, jmtxd_solver_arguments* args)
+jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(const jmtxd_matrix_crs *mtx, const jmtxd_matrix_crs *l,
+                                                            const jmtxd_matrix_crs *u, const double *restrict y,
+                                                            double *restrict x, double *restrict aux_vec1,
+                                                            double *restrict aux_vec2, double *restrict aux_vec3,
+                                                            double *restrict aux_vec4, double *restrict aux_vec5,
+                                                            double *restrict aux_vec6, double *restrict aux_vec7,
+                                                            double *restrict aux_vec8, jmtxd_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
-
-
-    double* const r = aux_vec1;
-    double* const rQ = aux_vec2;
-    double* const p = aux_vec3;
-    double* const Ap = aux_vec4;
-    double* const s = aux_vec5;
-    double* const As = aux_vec6;
-    double* const phat = aux_vec7;
-    double* const shat = aux_vec8;
+    double *const r = aux_vec1;
+    double *const rQ = aux_vec2;
+    double *const p = aux_vec3;
+    double *const Ap = aux_vec4;
+    double *const s = aux_vec5;
+    double *const As = aux_vec6;
+    double *const p_hat = aux_vec7;
+    double *const s_hat = aux_vec8;
 
     double rQAp = 0;
     double sksk_dp = 0;
@@ -692,11 +702,12 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
     uint32_t iter_count = 0;
 
     double err = 0;
-#pragma omp parallel default(none) shared(x, mtx, y, u, l, args, rQrk_dp, err, y_mag, r, rQ, p, Ap, s, As, phat, shat, n, iter_count, rQAp, sksk_dp, sAs_dp, sAAs_dp, rkrk_dp)
+#pragma omp parallel default(none) shared(x, mtx, y, u, l, args, rQrk_dp, err, y_mag, r, rQ, p, Ap, s, As, p_hat,      \
+                                              s_hat, n, iter_count, rQAp, sksk_dp, sAs_dp, sAAs_dp, rkrk_dp)
     {
         double rho = 1, alpha = 1, omega = 1, beta = 1;
         // jmtxd_matrix_crs_vector_multiply(mtx, x, r);
-#pragma omp for reduction(+:err,y_mag) schedule(static)
+#pragma omp for reduction(+ : err, y_mag) schedule(static)
         for (uint32_t i = 0; i < n; ++i)
         {
             const double yv = jmtxd_matrix_crs_vector_multiply_row(mtx, x, i);
@@ -717,17 +728,17 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
         {
 #pragma omp single
             {
-                jmtxd_solve_direct_lu_crs(l, u, p, phat);
+                jmtxd_solve_direct_lu_crs(l, u, p, p_hat);
                 rQAp = 0;
                 sksk_dp = 0;
             }
 
-            // jmtxd_matrix_crs_vector_multiply(mtx, phat, Ap);
+            // jmtxd_matrix_crs_vector_multiply(mtx, p_hat, Ap);
 
-#pragma omp for reduction(+:rQAp) schedule(static)
+#pragma omp for reduction(+ : rQAp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, phat, i);
+                Ap[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, p_hat, i);
                 rQAp += rQ[i] * Ap[i];
             }
 
@@ -735,19 +746,19 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-// #pragma omp single
+            // #pragma omp single
 
             alpha = rho / rQAp;
 
-#pragma omp for reduction(+:sksk_dp) schedule(static)
+#pragma omp for reduction(+ : sksk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x[i] = x[i] + alpha * phat[i];
+                x[i] = x[i] + alpha * p_hat[i];
                 s[i] = r[i] - alpha * Ap[i];
                 sksk_dp += s[i] * s[i];
             }
 
-// #pragma omp single
+            // #pragma omp single
             {
                 err = sqrt(sksk_dp) / y_mag;
             }
@@ -757,15 +768,15 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             }
 #pragma omp single
             {
-                jmtxd_solve_direct_lu_crs(l, u, s, shat);
+                jmtxd_solve_direct_lu_crs(l, u, s, s_hat);
                 sAs_dp = 0, sAAs_dp = 0, rkrk_dp = 0, rQrk_dp = 0;
             }
 
-            // jmtxd_matrix_crs_vector_multiply(mtx, shat, As);
-#pragma omp for reduction(+:sAs_dp,sAAs_dp) schedule(static)
+            // jmtxd_matrix_crs_vector_multiply(mtx, s_hat, As);
+#pragma omp for reduction(+ : sAs_dp, sAAs_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                As[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, shat, i);
+                As[i] = jmtxd_matrix_crs_vector_multiply_row(mtx, s_hat, i);
                 sAAs_dp += As[i] * As[i];
                 sAs_dp += s[i] * As[i];
             }
@@ -774,18 +785,18 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-// #pragma omp single
+            // #pragma omp single
             {
                 omega = sAs_dp / sAAs_dp;
             }
-#pragma omp for reduction(+:rkrk_dp) schedule(static)
+#pragma omp for reduction(+ : rkrk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x[i] = x[i] + omega * shat[i];
+                x[i] = x[i] + omega * s_hat[i];
                 r[i] = s[i] - omega * As[i];
                 rkrk_dp += r[i] * r[i];
             }
-// #pragma omp single
+            // #pragma omp single
             {
                 err = sqrt(rkrk_dp) / y_mag;
             }
@@ -807,7 +818,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
                 break;
             }
 
-#pragma omp for reduction(+:rQrk_dp) schedule(static)
+#pragma omp for reduction(+ : rQrk_dp) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 rQrk_dp += rQ[i] * r[i];
@@ -817,7 +828,7 @@ jmtx_result jmtxd_solve_iterative_pilubicgstab_crs_parallel(
             {
                 break;
             }
-// #pragma omp single
+            // #pragma omp single
             {
                 beta = rQrk_dp / rho * alpha / omega;
                 rho = rQrk_dp;

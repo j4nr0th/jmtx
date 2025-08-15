@@ -6,25 +6,25 @@
 #ifndef JMTXD_BASIC_IO_H
 #define JMTXD_BASIC_IO_H
 #ifndef JMTX_MATRIX_BASE_H
-    #include "../../../include/jmtx/matrix_base.h"
+#include "../../../include/jmtx/matrix_base.h"
 #endif
 #ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
 
-jmtx_result jmtxd_matrix_crs_to_file(const jmtxd_matrix_crs* mtx, const char* filename);
+jmtx_result jmtxd_matrix_crs_to_file(const jmtxd_matrix_crs *mtx, const char *filename);
 
-jmtx_result jmtxd_matrix_crs_to_file_explicit(const jmtxd_matrix_crs* mtx, const char* filename);
+jmtx_result jmtxd_matrix_crs_to_file_explicit(const jmtxd_matrix_crs *mtx, const char *filename);
 
-//jmtx_result jmtxd_matrix_crs_from_file(jmtxd_matrix_crs** mtx, const char* filename, jmtx_allocator_callbacks* allocator_callbacks);
+// jmtx_result jmtxd_matrix_crs_from_file(jmtxd_matrix_crs** mtx, const char* filename, jmtx_allocator_callbacks*
+// allocator_callbacks);
 
 #endif
-
 
 #ifdef JMTXD_SPARSE_COLUMN_COMPRESSED_H
 
-jmtx_result jmtxd_matrix_ccs_to_file(const jmtxd_matrix_ccs* mtx, const char* filename);
+jmtx_result jmtxd_matrix_ccs_to_file(const jmtxd_matrix_ccs *mtx, const char *filename);
 
-jmtx_result jmtxd_matrix_ccs_to_file_explicit(const jmtxd_matrix_ccs* mtx, const char* filename);
+jmtx_result jmtxd_matrix_ccs_to_file_explicit(const jmtxd_matrix_ccs *mtx, const char *filename);
 
 #endif
 
-#endif //JMTXD_BASIC_IO_H
+#endif // JMTXD_BASIC_IO_H

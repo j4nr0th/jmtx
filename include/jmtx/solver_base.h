@@ -6,7 +6,7 @@
 #define JMTX_SOLVER_BASE_H
 
 #ifndef JMTX_COMMON_H
-    #include "common.h"
+#include "common.h"
 #endif
 
 /**
@@ -40,7 +40,7 @@ struct jmtx_solver_arguments_T
      * Pointer may be optionally specified to point to an array of the same length as the maximum number of iterations.
      * Each iteration, the error measure for computed for that iteration i will be written array[i].
      */
-    float* opt_error_evolution;
+    float *opt_error_evolution;
 };
 typedef struct jmtx_solver_arguments_T jmtx_solver_arguments;
 
@@ -75,10 +75,8 @@ struct jmtxd_solver_arguments_T
      * Pointer may be optionally specified to point to an array of the same length as the maximum number of iterations.
      * Each iteration, the error measure for computed for that iteration i will be written array[i].
      */
-    double* opt_error_evolution;
+    double *opt_error_evolution;
 };
 typedef struct jmtxd_solver_arguments_T jmtxd_solver_arguments;
 
-
-
-#endif //JMTX_SOLVER_BASE_H
+#endif // JMTX_SOLVER_BASE_H

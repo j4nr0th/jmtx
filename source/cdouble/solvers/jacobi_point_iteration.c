@@ -3,12 +3,12 @@
 // Created by jan on 15.6.2022.
 //
 
-#include "../matrices/sparse_row_compressed_internal.h"
-#include "../matrices/sparse_diagonal_compressed_internal.h"
-#include "../matrices/band_row_major_internal.h"
 #include "../../../include/jmtx/cdouble/solvers/jacobi_point_iteration.h"
-#include <math.h>
+#include "../matrices/band_row_major_internal.h"
+#include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 #include <complex.h>
+#include <math.h>
 #include <stdio.h>
 
 /**
@@ -24,18 +24,18 @@
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_crs(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_crs(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* const div_factor = aux_vec1;
+    _Complex double *const div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -48,26 +48,27 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         for (uint32_t i = 0; i < n; ++i)
         {
-            _Complex double* row_ptr;
-            uint32_t* index_ptr;
+            _Complex double *row_ptr;
+            uint32_t *index_ptr;
             uint32_t n_elements = jmtxz_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
             _Complex double res = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
@@ -94,17 +95,16 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_error = err;
     args->out_last_iteration = n_iterations;
-//    LEAVE_FUNCTION();
+    //    LEAVE_FUNCTION();
     return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
 
@@ -122,14 +122,17 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxzs_solve_iterative_jacobi_crs(
-        const jmtxz_matrix_crs* mtx, uint32_t n, const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)], _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)], _Complex double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxzs_solve_iterative_jacobi_crs(const jmtxz_matrix_crs *mtx, uint32_t n,
+                                              const _Complex double y[JMTX_ARRAY_ATTRIB(static restrict n)],
+                                              _Complex double x[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              _Complex double aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              _Complex double aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
+                                              jmtxd_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -160,10 +163,8 @@ jmtx_result jmtxzs_solve_iterative_jacobi_crs(
         return JMTX_RESULT_NULL_PARAM;
     }
 
-
-
     //  Length of x and y
-    _Complex double* const div_factor = aux_vec1;
+    _Complex double *const div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -182,22 +183,23 @@ jmtx_result jmtxzs_solve_iterative_jacobi_crs(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint_fast32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         for (uint_fast32_t i = 0; i < n; ++i)
         {
             const _Complex double res = jmtxz_matrix_crs_vector_multiply_row(mtx, x0, i);
@@ -220,12 +222,11 @@ jmtx_result jmtxzs_solve_iterative_jacobi_crs(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_error = err;
@@ -252,18 +253,19 @@ jmtx_result jmtxzs_solve_iterative_jacobi_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* div_factor = aux_vec1;
+    _Complex double *div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -276,22 +278,23 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         for (uint32_t i = 0; i < n; ++i)
         {
             const _Complex double res = jmtxz_matrix_crs_vector_multiply_row(mtx, x0, i);
@@ -310,12 +313,11 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_iteration = n_iterations;
@@ -323,7 +325,6 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
 
     return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
-
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -340,28 +341,30 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_crs(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
-        const jmtxz_matrix_crs* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vector1, _Complex double* restrict aux_vector2,
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(const jmtxz_matrix_crs *mtx, const _Complex double *restrict y,
+                                                      _Complex double *restrict x,
+                                                      _Complex double *restrict aux_vector1,
+                                                      _Complex double *restrict aux_vector2,
+                                                      jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     double y_mag = 0;
     //  Memory used to store result of the current iteration
-    _Complex double* x0 = aux_vector2;
-    _Complex double* x1 = x;
+    _Complex double *x0 = aux_vector2;
+    _Complex double *x1 = x;
     double err = 0.0f;
     uint32_t n_iterations = 0;
-    double* const p_error_evolution = args->opt_error_evolution;
+    double *const p_error_evolution = args->opt_error_evolution;
     const double convergence_dif = args->in_convergence_criterion;
     const uint32_t max_iterations = args->in_max_iterations;
-#pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,\
-    convergence_dif, max_iterations, n)
+#pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,    \
+                                              convergence_dif, max_iterations, n)
     {
 #pragma omp for schedule(static)
         for (uint32_t i = 0; i < n; ++i)
@@ -383,30 +386,30 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
 #pragma omp master
             {
                 err = 0.0f;
-                _Complex double* tmp = x1;
+                _Complex double *tmp = x1;
                 x1 = x0;
                 x0 = tmp;
             }
 #pragma omp barrier
 
-            //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+            //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and
+            //  that row
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 x1[i] = x0[i] + (y[i] - jmtxz_matrix_crs_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
             }
 
-#pragma omp for reduction(+:err) schedule(static)
+#pragma omp for reduction(+ : err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 const _Complex double val = jmtxz_matrix_crs_vector_multiply_row(mtx, x1, i) - y[i];
                 err += conj(val) * val;
             }
 
-
 #pragma omp master
             {
-                err = sqrt(err) / (_Complex double) y_mag;
+                err = sqrt(err) / (_Complex double)y_mag;
                 if (p_error_evolution != NULL)
                 {
                     p_error_evolution[n_iterations] = err;
@@ -417,10 +420,9 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
         } while (err > convergence_dif && n_iterations < max_iterations);
     }
 
-
     if (x1 == aux_vector2)
     {
-        memcpy(x, aux_vector2, sizeof*x * n);
+        memcpy(x, aux_vector2, sizeof *x * n);
     }
     args->out_last_iteration = n_iterations;
     args->out_last_error = err;
@@ -441,18 +443,18 @@ jmtx_result jmtxz_solve_iterative_jacobi_crs_parallel(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_cds(
-        const jmtxz_matrix_cds* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_cds(const jmtxz_matrix_cds *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* const div_factor = aux_vec1;
+    _Complex double *const div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -465,22 +467,23 @@ jmtx_result jmtxz_solve_iterative_jacobi_cds(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         jmtxz_matrix_cds_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -501,12 +504,11 @@ jmtx_result jmtxz_solve_iterative_jacobi_cds(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_error = err;
@@ -533,18 +535,19 @@ jmtx_result jmtxz_solve_iterative_jacobi_cds(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
-        const jmtxz_matrix_cds* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(const jmtxz_matrix_cds *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* div_factor = aux_vec1;
+    _Complex double *div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -557,22 +560,23 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         jmtxz_matrix_cds_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -591,12 +595,11 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_iteration = n_iterations;
@@ -604,7 +607,6 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
 
     return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
-
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -619,18 +621,18 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_cds(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_brm(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vec1, _Complex double* restrict aux_vec2,
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_brm(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                             _Complex double *restrict x, _Complex double *restrict aux_vec1,
+                                             _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* const div_factor = aux_vec1;
+    _Complex double *const div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -643,22 +645,23 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         jmtxz_matrix_brm_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -679,12 +682,11 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_error = err;
@@ -711,18 +713,19 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double relaxation_factor, _Complex double* restrict aux_vec1,
-        _Complex double* restrict aux_vec2, jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                                     _Complex double *restrict x, _Complex double relaxation_factor,
+                                                     _Complex double *restrict aux_vec1,
+                                                     _Complex double *restrict aux_vec2, jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
-    _Complex double* div_factor = aux_vec1;
+    _Complex double *div_factor = aux_vec1;
     double y_mag = 0;
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
@@ -735,22 +738,23 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
     y_mag = sqrt(y_mag);
 
     //  Memory used to store result of the current iteration
-    _Complex double* const auxiliary_x = aux_vec2;
+    _Complex double *const auxiliary_x = aux_vec2;
 
-    _Complex double* x0 = auxiliary_x;
-    _Complex double* x1 = x;
+    _Complex double *x0 = auxiliary_x;
+    _Complex double *x1 = x;
     double err;
     uint32_t n_iterations = 0;
     do
     {
         err = 0.0f;
         {
-            _Complex double* tmp = x1;
+            _Complex double *tmp = x1;
             x1 = x0;
             x0 = tmp;
         }
 
-        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+        //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
+        //  row
         jmtxz_matrix_brm_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -769,12 +773,11 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
             args->opt_error_evolution[n_iterations] = err;
         }
         n_iterations += 1;
-    } while(err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
-
+    } while (err > args->in_convergence_criterion && n_iterations < args->in_max_iterations);
 
     if (x1 == auxiliary_x)
     {
-        memcpy(x, auxiliary_x, sizeof*x * n);
+        memcpy(x, auxiliary_x, sizeof *x * n);
     }
 
     args->out_last_iteration = n_iterations;
@@ -782,7 +785,6 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
 
     return n_iterations == args->in_max_iterations ? JMTX_RESULT_NOT_CONVERGED : JMTX_RESULT_SUCCESS;
 }
-
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -799,28 +801,30 @@ jmtx_result jmtxz_solve_iterative_jacobi_relaxed_brm(
  * @param args::in_max_iterations number of iterations to stop at
  * @param args::out_last_error receives the value of the error criterion at the final iteration
  * @param args::out_last_iteration receives the number of the final iteration
- * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error value of each
- * iteration
+ * @param args::opt_error_evolution (optional) pointer to an array of length max_iterations, that receives the error
+ * value of each iteration
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(
-        const jmtxz_matrix_brm* mtx, const _Complex double* restrict y, _Complex double* restrict x, _Complex double* restrict aux_vector1, _Complex double* restrict aux_vector2,
-        jmtxd_solver_arguments* args)
+jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(const jmtxz_matrix_brm *mtx, const _Complex double *restrict y,
+                                                      _Complex double *restrict x,
+                                                      _Complex double *restrict aux_vector1,
+                                                      _Complex double *restrict aux_vector2,
+                                                      jmtxd_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
     double y_mag = 0;
     //  Memory used to store result of the current iteration
-    _Complex double* x0 = aux_vector2;
-    _Complex double* x1 = x;
+    _Complex double *x0 = aux_vector2;
+    _Complex double *x1 = x;
     double err = 0.0f;
     uint32_t n_iterations = 0;
-    double* const p_error_evolution = args->opt_error_evolution;
+    double *const p_error_evolution = args->opt_error_evolution;
     const double convergence_dif = args->in_convergence_criterion;
     const uint32_t max_iterations = args->in_max_iterations;
-#pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,\
-    convergence_dif, max_iterations, n)
+#pragma omp parallel default(none) shared(err, x0, x1, y, mtx, aux_vector1, y_mag, p_error_evolution, n_iterations,    \
+                                              convergence_dif, max_iterations, n)
     {
 #pragma omp for schedule(static)
         for (uint32_t i = 0; i < n; ++i)
@@ -842,30 +846,30 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(
 #pragma omp master
             {
                 err = 0.0f;
-                _Complex double* tmp = x1;
+                _Complex double *tmp = x1;
                 x1 = x0;
                 x0 = tmp;
             }
 #pragma omp barrier
 
-            //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that row
+            //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and
+            //  that row
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 x1[i] = x0[i] + (y[i] - jmtxz_matrix_brm_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
             }
 
-#pragma omp for reduction(+:err) schedule(static)
+#pragma omp for reduction(+ : err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
                 const _Complex double val = jmtxz_matrix_brm_vector_multiply_row(mtx, x1, i) - y[i];
                 err += conj(val) * val;
             }
 
-
 #pragma omp master
             {
-                err = sqrt(err) / (_Complex double) y_mag;
+                err = sqrt(err) / (_Complex double)y_mag;
                 if (p_error_evolution != NULL)
                 {
                     p_error_evolution[n_iterations] = err;
@@ -876,10 +880,9 @@ jmtx_result jmtxz_solve_iterative_jacobi_brm_parallel(
         } while (err > convergence_dif && n_iterations < max_iterations);
     }
 
-
     if (x1 == aux_vector2)
     {
-        memcpy(x, aux_vector2, sizeof*x * n);
+        memcpy(x, aux_vector2, sizeof *x * n);
     }
     args->out_last_iteration = n_iterations;
     args->out_last_error = err;

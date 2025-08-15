@@ -3,15 +3,15 @@
 //
 // Created by jan on 21.11.2023.
 //
-#include <assert.h>
-#include <math.h>
-#include <complex.h>
 #include "../../../include/jmtx/cdouble/decompositions/incomplete_cholesky_decomposition.h"
-#include "../matrices/sparse_row_compressed_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
+#include <assert.h>
+#include <complex.h>
+#include <math.h>
 
-jmtx_result jmtxz_decompose_icho_crs(
-        const jmtxz_matrix_crs* a, jmtxz_matrix_crs** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxz_decompose_icho_crs(const jmtxz_matrix_crs *a, jmtxz_matrix_crs **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!a)
     {
@@ -43,24 +43,24 @@ jmtx_result jmtxz_decompose_icho_crs(
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
 
-    jmtxz_matrix_crs* c = NULL;
+    jmtxz_matrix_crs *c = NULL;
     jmtx_result res = jmtxz_matrix_crs_copy(a, &c, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
-    
+
     for (uint32_t i = 0; i < n; ++i)
     {
-        uint32_t* i_idx = NULL;
-        _Complex double* i_val = NULL;
+        uint32_t *i_idx = NULL;
+        _Complex double *i_val = NULL;
         const uint32_t i_cnt = jmtxz_matrix_crs_get_row(c, i, &i_idx, &i_val);
         uint32_t j = 0, p;
         for (p = 0; p < i_cnt && j <= i; ++p)
         {
             j = i_idx[p];
-            uint32_t* j_idx;
-            _Complex double* j_val;
+            uint32_t *j_idx;
+            _Complex double *j_val;
             const uint32_t j_cnt = jmtxz_matrix_crs_get_row(c, j, &j_idx, &j_val);
             _Complex double v = 0.0f;
             uint32_t ki, kj;
@@ -123,7 +123,6 @@ jmtx_result jmtxz_decompose_icho_crs(
     return JMTX_RESULT_SUCCESS;
 }
 
-
 /**
  * Uses relations for Cholesky decomposition to compute an approximate decomposition with C' such that the matrix
  * C'C'^T has the same sparsity as the starting matrix. This decomposition can be used as a preconditioner or directly.
@@ -138,8 +137,8 @@ jmtx_result jmtxz_decompose_icho_crs(
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxz_decompose_icho_cds(
-        const jmtxz_matrix_cds* a, jmtxz_matrix_cds** p_c, const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxz_decompose_icho_cds(const jmtxz_matrix_cds *a, jmtxz_matrix_cds **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 
 {
     if (!a)
@@ -172,26 +171,30 @@ jmtx_result jmtxz_decompose_icho_cds(
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
     const uint_fast32_t max_per_row = jmtxz_matrix_cds_diagonal_count(a);
-    uint32_t* const i_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_indices) * max_per_row);
+    uint32_t *const i_indices =
+        allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_indices) * max_per_row);
     if (!i_indices)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    _Complex double* const i_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_values) * max_per_row);
+    _Complex double *const i_values =
+        allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*i_values) * max_per_row);
     if (!i_values)
     {
         allocator_callbacks->free(allocator_callbacks->state, i_indices);
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    uint32_t* const j_indices = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_indices) * max_per_row);
+    uint32_t *const j_indices =
+        allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_indices) * max_per_row);
     if (!j_indices)
     {
         allocator_callbacks->free(allocator_callbacks->state, i_values);
         allocator_callbacks->free(allocator_callbacks->state, i_indices);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    _Complex double* const j_values = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_values) * max_per_row);
+    _Complex double *const j_values =
+        allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*j_values) * max_per_row);
     if (!j_values)
     {
         allocator_callbacks->free(allocator_callbacks->state, j_indices);
@@ -200,7 +203,7 @@ jmtx_result jmtxz_decompose_icho_cds(
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    jmtxz_matrix_cds* c = NULL;
+    jmtxz_matrix_cds *c = NULL;
     jmtx_result res = jmtxz_matrix_cds_copy(a, &c, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
@@ -210,7 +213,6 @@ jmtx_result jmtxz_decompose_icho_cds(
         allocator_callbacks->free(allocator_callbacks->state, i_indices);
         return res;
     }
-
 
     for (uint_fast32_t i = 0; i < n; ++i)
     {
@@ -249,11 +251,11 @@ jmtx_result jmtxz_decompose_icho_cds(
                 kj += 1;
             }
             //  Zero on diagonal should not happen because it would've been encountered by now
-//            if (i_idx[kj] != j)
-//            {
-//                jmtxz_matrix_crs_destroy(c);
-//                return JMTX_RESULT_BAD_MATRIX;
-//            }
+            //            if (i_idx[kj] != j)
+            //            {
+            //                jmtxz_matrix_crs_destroy(c);
+            //                return JMTX_RESULT_BAD_MATRIX;
+            //            }
             assert(j_indices[kj] == j);
 
             if (i != j)
@@ -282,7 +284,7 @@ jmtx_result jmtxz_decompose_icho_cds(
             return JMTX_RESULT_BAD_MATRIX;
         }
 
-//        uint_fast32_t k = p;
+        //        uint_fast32_t k = p;
         //  Zero the rest of the row out
         while (p < i_cnt)
         {
@@ -291,16 +293,16 @@ jmtx_result jmtxz_decompose_icho_cds(
             p += 1;
         }
 
-//        res = jmtxz_matrix_cds_set_row(c, i, p, i_values, i_indices);
-//        if (res != JMTX_RESULT_SUCCESS)
-//        {
-//            allocator_callbacks->free(allocator_callbacks->state, j_values);
-//            allocator_callbacks->free(allocator_callbacks->state, j_indices);
-//            allocator_callbacks->free(allocator_callbacks->state, i_values);
-//            allocator_callbacks->free(allocator_callbacks->state, i_indices);
-//            jmtxz_matrix_cds_destroy(c);
-//            return res;
-//        }
+        //        res = jmtxz_matrix_cds_set_row(c, i, p, i_values, i_indices);
+        //        if (res != JMTX_RESULT_SUCCESS)
+        //        {
+        //            allocator_callbacks->free(allocator_callbacks->state, j_values);
+        //            allocator_callbacks->free(allocator_callbacks->state, j_indices);
+        //            allocator_callbacks->free(allocator_callbacks->state, i_values);
+        //            allocator_callbacks->free(allocator_callbacks->state, i_indices);
+        //            jmtxz_matrix_cds_destroy(c);
+        //            return res;
+        //        }
     }
     allocator_callbacks->free(allocator_callbacks->state, j_values);
     allocator_callbacks->free(allocator_callbacks->state, j_indices);
@@ -312,7 +314,7 @@ jmtx_result jmtxz_decompose_icho_cds(
     {
         c->base.allocator_callbacks.free(c->base.allocator_callbacks.state, c->super_diagonals.diagonals[i]);
 #ifndef NDEBUG
-        c->super_diagonals.diagonals[i] = (void*)0xCCCCCCCCCCCCCCCC;
+        c->super_diagonals.diagonals[i] = (void *)0xCCCCCCCCCCCCCCCC;
 #endif
     }
     c->super_diagonals.count = 0;

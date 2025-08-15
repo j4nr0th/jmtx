@@ -2,15 +2,15 @@
 // Created by jan on 1.12.2023.
 //
 
-#include <complex.h>
 #include <assert.h>
+#include <complex.h>
 
-#include "../matrix_base_internal.h"
-#include "../float/matrices/sparse_column_compressed_internal.h"
 #include "../double/matrices/sparse_column_compressed_internal.h"
+#include "../float/matrices/sparse_column_compressed_internal.h"
+#include "../matrix_base_internal.h"
 #ifndef _MSC_BUILD
-    #include "../cfloat/matrices/sparse_column_compressed_internal.h"
-    #include "../cdouble/matrices/sparse_column_compressed_internal.h"
+#include "../cdouble/matrices/sparse_column_compressed_internal.h"
+#include "../cfloat/matrices/sparse_column_compressed_internal.h"
 #endif
 #include "../../include/jmtx/conversion/ccs_conversion.h"
 
@@ -28,24 +28,24 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_matrix_ccs* in,
-                                        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtx_matrix_ccs_from_double(jmtx_matrix_ccs **p_mtx, const jmtxd_matrix_ccs *in,
+                                        const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtx_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtx_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    float *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -87,7 +87,6 @@ jmtx_result jmtx_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_mat
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -100,9 +99,9 @@ jmtx_result jmtx_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_mat
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_matrix_ccs* jmtx_matrix_ccs_from_double_inplace(jmtxd_matrix_ccs* in)
+jmtx_matrix_ccs *jmtx_matrix_ccs_from_double_inplace(jmtxd_matrix_ccs *in)
 {
-    float* const values = (float*)in->values;
+    float *const values = (float *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -112,8 +111,7 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_double_inplace(jmtxd_matrix_ccs* in)
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTX_TYPE_CCS;
 
-    return (jmtx_matrix_ccs*)in;
-
+    return (jmtx_matrix_ccs *)in;
 }
 
 /**
@@ -124,8 +122,8 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_double_inplace(jmtxd_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_matrix_ccs* in,
-                                         const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxs_matrix_ccs_from_double(jmtx_matrix_ccs **p_mtx, const jmtxd_matrix_ccs *in,
+                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -135,7 +133,8 @@ jmtx_result jmtxs_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -155,24 +154,24 @@ jmtx_result jmtxs_matrix_ccs_from_double(jmtx_matrix_ccs** p_mtx, const jmtxd_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_matrix_ccs* in,
-                                        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_matrix_ccs_from_float(jmtxd_matrix_ccs **p_mtx, const jmtx_matrix_ccs *in,
+                                        const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtxd_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxd_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    double *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -223,22 +222,23 @@ jmtx_result jmtxd_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_mat
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_float_inplace(jmtx_matrix_ccs* in)
+jmtxd_matrix_ccs *jmtxd_matrix_ccs_from_float_inplace(jmtx_matrix_ccs *in)
 {
-    double* vals = NULL;
+    double *vals = NULL;
     uint32_t capacity_for_doubles = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_doubles < in->n_entries)
     {
         capacity_for_doubles = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_doubles);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_doubles);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (float*)vals;
+        in->values = (float *)vals;
     }
 
-    vals = (double*)in->values;
+    vals = (double *)in->values;
     in->capacity = capacity_for_doubles;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -247,7 +247,7 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_float_inplace(jmtx_matrix_ccs* in)
     }
     in->base.type = JMTXD_TYPE_CCS;
 
-    return (jmtxd_matrix_ccs*)in;
+    return (jmtxd_matrix_ccs *)in;
 }
 
 /**
@@ -258,8 +258,8 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_float_inplace(jmtx_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_matrix_ccs* in,
-                                         const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxds_matrix_ccs_from_float(jmtxd_matrix_ccs **p_mtx, const jmtx_matrix_ccs *in,
+                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -269,7 +269,8 @@ jmtx_result jmtxds_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -296,24 +297,24 @@ jmtx_result jmtxds_matrix_ccs_from_float(jmtxd_matrix_ccs** p_mtx, const jmtx_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                             const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtx_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                             const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtx_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtx_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    float *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -355,7 +356,6 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmtx
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 /**
@@ -366,24 +366,24 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmtx
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                             const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtx_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                             const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtx_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtx_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    float *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -425,7 +425,6 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmtx
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -435,9 +434,9 @@ jmtx_result jmtx_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmtx
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_real_inplace(jmtxc_matrix_ccs* in)
+jmtx_matrix_ccs *jmtx_matrix_ccs_from_cfloat_real_inplace(jmtxc_matrix_ccs *in)
 {
-    float* const values = (float*)in->values;
+    float *const values = (float *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -447,7 +446,7 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_real_inplace(jmtxc_matrix_ccs* in)
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTX_TYPE_CCS;
 
-    return (jmtx_matrix_ccs*)in;
+    return (jmtx_matrix_ccs *)in;
 }
 
 /**
@@ -456,9 +455,9 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_real_inplace(jmtxc_matrix_ccs* in)
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_imag_inplace(jmtxc_matrix_ccs* in)
+jmtx_matrix_ccs *jmtx_matrix_ccs_from_cfloat_imag_inplace(jmtxc_matrix_ccs *in)
 {
-    float* const values = (float*)in->values;
+    float *const values = (float *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -468,7 +467,7 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_imag_inplace(jmtxc_matrix_ccs* in)
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTX_TYPE_CCS;
 
-    return (jmtx_matrix_ccs*)in;
+    return (jmtx_matrix_ccs *)in;
 }
 
 /**
@@ -479,8 +478,8 @@ jmtx_matrix_ccs* jmtx_matrix_ccs_from_cfloat_imag_inplace(jmtxc_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                              const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxs_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                              const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -490,7 +489,8 @@ jmtx_result jmtxs_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmt
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -510,8 +510,8 @@ jmtx_result jmtxs_matrix_ccs_from_cfloat_real(jmtx_matrix_ccs** p_mtx, const jmt
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                              const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxs_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                              const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -521,7 +521,8 @@ jmtx_result jmtxs_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmt
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -542,17 +543,17 @@ jmtx_result jmtxs_matrix_ccs_from_cfloat_imag(jmtx_matrix_ccs** p_mtx, const jmt
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_matrix_ccs* in_real,
-                                        const jmtx_matrix_ccs* in_imag,
-                                        const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs **p_mtx, const jmtx_matrix_ccs *in_real,
+                                        const jmtx_matrix_ccs *in_imag,
+                                        const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
     uint32_t r, c;
 
     assert(in_real || in_imag);
@@ -567,7 +568,7 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
         r = in_imag->base.rows;
         c = in_imag->base.cols;
     }
-    jmtxc_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxc_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -577,8 +578,8 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
     {
         const uint32_t needed_capacity = in_real->n_entries + in_imag->n_entries;
 
-
-        _Complex float* values = allocator_callbacks->alloc(allocator_callbacks->state, (needed_capacity) * sizeof(*values));
+        _Complex float *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (needed_capacity) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -604,8 +605,8 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
         uint32_t i, j;
         for (i = 0, j = 0; i < c; ++i)
         {
-            float* v_r, *v_i;
-            uint32_t* i_r, *i_i;
+            float *v_r, *v_i;
+            uint32_t *i_r, *i_i;
             const uint32_t c_r = jmtx_matrix_ccs_get_col(in_real, i, &i_r, &v_r);
             const uint32_t c_i = jmtx_matrix_ccs_get_col(in_imag, i, &i_i, &v_i);
             uint32_t k_r, k_i;
@@ -623,7 +624,7 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
                     indices[j] = i_i[k_r];
                     k_i += 1;
                 }
-                else //if (i_r[k_r] == i_i[k_i])
+                else // if (i_r[k_r] == i_i[k_i])
                 {
                     values[j] = v_i[k_i] * _Complex_I + v_r[k_r];
                     indices[j] = i_i[k_r];
@@ -663,11 +664,11 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
         mtx->capacity = needed_capacity;
         mtx->n_entries = j;
         mtx->end_of_column_offsets = offsets;
-
     }
     else if (in_imag)
     {
-        _Complex float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in_imag->n_entries) * sizeof(*values));
+        _Complex float *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (in_imag->n_entries) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -706,7 +707,8 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
     }
     else // if (in_real)
     {
-        _Complex float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in_real->n_entries) * sizeof(*values));
+        _Complex float *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (in_real->n_entries) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -742,7 +744,6 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
         mtx->capacity = in_real->n_entries;
         mtx->n_entries = in_real->n_entries;
         mtx->end_of_column_offsets = offsets;
-
     }
 
     mtx->base.cols = c;
@@ -761,22 +762,23 @@ jmtx_result jmtxc_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_mat
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_real_inplace(jmtx_matrix_ccs* in)
+jmtxc_matrix_ccs *jmtxc_matrix_ccs_from_float_real_inplace(jmtx_matrix_ccs *in)
 {
-    _Complex float* vals = NULL;
+    _Complex float *vals = NULL;
     uint32_t capacity_for_complex = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_complex < in->n_entries)
     {
         capacity_for_complex = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_complex);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_complex);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (float*)vals;
+        in->values = (float *)vals;
     }
 
-    vals = (_Complex float*)in->values;
+    vals = (_Complex float *)in->values;
     in->capacity = capacity_for_complex;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -785,7 +787,7 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_real_inplace(jmtx_matrix_ccs* in)
     }
     in->base.type = JMTXC_TYPE_CCS;
 
-    return (jmtxc_matrix_ccs*)in;
+    return (jmtxc_matrix_ccs *)in;
 }
 
 /**
@@ -795,22 +797,23 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_real_inplace(jmtx_matrix_ccs* in)
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_imag_inplace(jmtx_matrix_ccs* in)
+jmtxc_matrix_ccs *jmtxc_matrix_ccs_from_float_imag_inplace(jmtx_matrix_ccs *in)
 {
-    _Complex float* vals = NULL;
+    _Complex float *vals = NULL;
     uint32_t capacity_for_complex = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_complex < in->n_entries)
     {
         capacity_for_complex = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_complex);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_complex);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (float*)vals;
+        in->values = (float *)vals;
     }
 
-    vals = (_Complex float*)in->values;
+    vals = (_Complex float *)in->values;
     in->capacity = capacity_for_complex;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -819,7 +822,7 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_imag_inplace(jmtx_matrix_ccs* in)
     }
     in->base.type = JMTXC_TYPE_CCS;
 
-    return (jmtxc_matrix_ccs*)in;
+    return (jmtxc_matrix_ccs *)in;
 }
 
 /**
@@ -831,9 +834,9 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_float_imag_inplace(jmtx_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_matrix_ccs* in_real,
-                                         const jmtx_matrix_ccs* in_imag,
-                                         const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs **p_mtx, const jmtx_matrix_ccs *in_real,
+                                         const jmtx_matrix_ccs *in_imag,
+                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -843,12 +846,12 @@ jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_ma
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    if ((in_real && in_real->base.type != JMTX_TYPE_CCS) ||
-        (in_imag && in_imag->base.type != JMTX_TYPE_CCS))
+    if ((in_real && in_real->base.type != JMTX_TYPE_CCS) || (in_imag && in_imag->base.type != JMTX_TYPE_CCS))
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -874,24 +877,24 @@ jmtx_result jmtxcs_matrix_ccs_from_float(jmtxc_matrix_ccs** p_mtx, const jmtx_ma
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                               const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                               const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtxd_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxd_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    double *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -933,7 +936,6 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const j
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 /**
@@ -944,24 +946,24 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const j
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                               const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxd_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                               const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtxd_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxd_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    double *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1003,7 +1005,6 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const j
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -1013,9 +1014,9 @@ jmtx_result jmtxd_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const j
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_real_inplace(jmtxz_matrix_ccs* in)
+jmtxd_matrix_ccs *jmtxd_matrix_ccs_from_cdouble_real_inplace(jmtxz_matrix_ccs *in)
 {
-    double* const values = (double*)in->values;
+    double *const values = (double *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -1025,7 +1026,7 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_real_inplace(jmtxz_matrix_ccs* i
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTXD_TYPE_CCS;
 
-    return (jmtxd_matrix_ccs*)in;
+    return (jmtxd_matrix_ccs *)in;
 }
 
 /**
@@ -1034,9 +1035,9 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_real_inplace(jmtxz_matrix_ccs* i
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_imag_inplace(jmtxz_matrix_ccs* in)
+jmtxd_matrix_ccs *jmtxd_matrix_ccs_from_cdouble_imag_inplace(jmtxz_matrix_ccs *in)
 {
-    double* const values = (double*)in->values;
+    double *const values = (double *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -1046,7 +1047,7 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_imag_inplace(jmtxz_matrix_ccs* i
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTX_TYPE_CCS;
 
-    return (jmtxd_matrix_ccs*)in;
+    return (jmtxd_matrix_ccs *)in;
 }
 
 /**
@@ -1057,8 +1058,8 @@ jmtxd_matrix_ccs* jmtxd_matrix_ccs_from_cdouble_imag_inplace(jmtxz_matrix_ccs* i
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                                const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxds_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                                const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1068,7 +1069,8 @@ jmtx_result jmtxds_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const 
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -1088,8 +1090,8 @@ jmtx_result jmtxds_matrix_ccs_from_cdouble_real(jmtxd_matrix_ccs** p_mtx, const 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                                const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxds_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                                const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1099,7 +1101,8 @@ jmtx_result jmtxds_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const 
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -1120,17 +1123,17 @@ jmtx_result jmtxds_matrix_ccs_from_cdouble_imag(jmtxd_matrix_ccs** p_mtx, const 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_matrix_ccs* in_real,
-                                         const jmtxd_matrix_ccs* in_imag,
-                                         const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs **p_mtx, const jmtxd_matrix_ccs *in_real,
+                                         const jmtxd_matrix_ccs *in_imag,
+                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
     uint32_t r, c;
 
     assert(in_real || in_imag);
@@ -1145,7 +1148,7 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
         r = in_imag->base.rows;
         c = in_imag->base.cols;
     }
-    jmtxz_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxz_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
@@ -1155,8 +1158,8 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
     {
         const uint32_t needed_capacity = in_real->n_entries + in_imag->n_entries;
 
-
-        _Complex double* values = allocator_callbacks->alloc(allocator_callbacks->state, (needed_capacity) * sizeof(*values));
+        _Complex double *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (needed_capacity) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1182,8 +1185,8 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
         uint32_t i, j;
         for (i = 0, j = 0; i < c; ++i)
         {
-            double* v_r, *v_i;
-            uint32_t* i_r, *i_i;
+            double *v_r, *v_i;
+            uint32_t *i_r, *i_i;
             const uint32_t c_r = jmtxd_matrix_ccs_get_col(in_real, i, &i_r, &v_r);
             const uint32_t c_i = jmtxd_matrix_ccs_get_col(in_imag, i, &i_i, &v_i);
             uint32_t k_r, k_i;
@@ -1201,7 +1204,7 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
                     indices[j] = i_i[k_r];
                     k_i += 1;
                 }
-                else //if (i_r[k_r] == i_i[k_i])
+                else // if (i_r[k_r] == i_i[k_i])
                 {
                     values[j] = v_i[k_i] * _Complex_I + v_r[k_r];
                     indices[j] = i_i[k_r];
@@ -1241,11 +1244,11 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
         mtx->capacity = needed_capacity;
         mtx->n_entries = j;
         mtx->end_of_column_offsets = offsets;
-
     }
     else if (in_imag)
     {
-        _Complex double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in_imag->n_entries) * sizeof(*values));
+        _Complex double *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (in_imag->n_entries) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1284,7 +1287,8 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
     }
     else // if (in_real)
     {
-        _Complex double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in_real->n_entries) * sizeof(*values));
+        _Complex double *values =
+            allocator_callbacks->alloc(allocator_callbacks->state, (in_real->n_entries) * sizeof(*values));
         if (!values)
         {
             allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1320,7 +1324,6 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
         mtx->capacity = in_real->n_entries;
         mtx->n_entries = in_real->n_entries;
         mtx->end_of_column_offsets = offsets;
-
     }
 
     mtx->base.cols = c;
@@ -1339,22 +1342,23 @@ jmtx_result jmtxz_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_m
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_real_inplace(jmtxd_matrix_ccs* in)
+jmtxz_matrix_ccs *jmtxz_matrix_ccs_from_double_real_inplace(jmtxd_matrix_ccs *in)
 {
-    _Complex double* vals = NULL;
+    _Complex double *vals = NULL;
     uint32_t capacity_for_complex = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_complex < in->n_entries)
     {
         capacity_for_complex = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_complex);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_complex);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (double*)vals;
+        in->values = (double *)vals;
     }
 
-    vals = (_Complex double*)in->values;
+    vals = (_Complex double *)in->values;
     in->capacity = capacity_for_complex;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -1363,7 +1367,7 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_real_inplace(jmtxd_matrix_ccs* in
     }
     in->base.type = JMTXZ_TYPE_CCS;
 
-    return (jmtxz_matrix_ccs*)in;
+    return (jmtxz_matrix_ccs *)in;
 }
 
 /**
@@ -1373,22 +1377,23 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_real_inplace(jmtxd_matrix_ccs* in
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_imag_inplace(jmtxd_matrix_ccs* in)
+jmtxz_matrix_ccs *jmtxz_matrix_ccs_from_double_imag_inplace(jmtxd_matrix_ccs *in)
 {
-    _Complex double* vals = NULL;
+    _Complex double *vals = NULL;
     uint32_t capacity_for_complex = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_complex < in->n_entries)
     {
         capacity_for_complex = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_complex);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_complex);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (double*)vals;
+        in->values = (double *)vals;
     }
 
-    vals = (_Complex double*)in->values;
+    vals = (_Complex double *)in->values;
     in->capacity = capacity_for_complex;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -1397,7 +1402,7 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_imag_inplace(jmtxd_matrix_ccs* in
     }
     in->base.type = JMTXZ_TYPE_CCS;
 
-    return (jmtxz_matrix_ccs*)in;
+    return (jmtxz_matrix_ccs *)in;
 }
 
 /**
@@ -1409,9 +1414,9 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_double_imag_inplace(jmtxd_matrix_ccs* in
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_matrix_ccs* in_real,
-                                          const jmtxd_matrix_ccs* in_imag,
-                                          const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs **p_mtx, const jmtxd_matrix_ccs *in_real,
+                                          const jmtxd_matrix_ccs *in_imag,
+                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1421,12 +1426,12 @@ jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    if ((in_real && in_real->base.type != JMTXD_TYPE_CCS) ||
-        (in_imag && in_imag->base.type != JMTXD_TYPE_CCS))
+    if ((in_real && in_real->base.type != JMTXD_TYPE_CCS) || (in_imag && in_imag->base.type != JMTXD_TYPE_CCS))
     {
         return JMTX_RESULT_WRONG_TYPE;
     }
@@ -1451,24 +1456,24 @@ jmtx_result jmtxzs_matrix_ccs_from_double(jmtxz_matrix_ccs** p_mtx, const jmtxd_
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxc_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                          const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxc_matrix_ccs_from_cdouble(jmtxc_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtxc_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxc_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    _Complex float* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    _Complex float *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1510,18 +1515,17 @@ jmtx_result jmtxc_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz_
     mtx->end_of_column_offsets = offsets;
     *p_mtx = mtx;
 
-
     return JMTX_RESULT_SUCCESS;
 }
 /**
- * Creates a new complex CCS matrix with single precision from a complex CCS matrix with double precision. Requires no memory
- * allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
+ * Creates a new complex CCS matrix with single precision from a complex CCS matrix with double precision. Requires no
+ * memory allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_cdouble_inplace(jmtxz_matrix_ccs* in)
+jmtxc_matrix_ccs *jmtxc_matrix_ccs_from_cdouble_inplace(jmtxz_matrix_ccs *in)
 {
-    _Complex float* const values = (_Complex float*)in->values;
+    _Complex float *const values = (_Complex float *)in->values;
 
     for (uint_fast32_t i = 0; i < in->n_entries; ++i)
     {
@@ -1531,7 +1535,7 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_cdouble_inplace(jmtxz_matrix_ccs* in)
     in->capacity = (in->capacity * sizeof(*in->values)) / sizeof(*values);
     in->base.type = JMTXC_TYPE_CCS;
 
-    return (jmtxc_matrix_ccs*)in;
+    return (jmtxc_matrix_ccs *)in;
 }
 
 /**
@@ -1542,8 +1546,8 @@ jmtxc_matrix_ccs* jmtxc_matrix_ccs_from_cdouble_inplace(jmtxz_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxcs_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz_matrix_ccs* in,
-                                           const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxcs_matrix_ccs_from_cdouble(jmtxc_matrix_ccs **p_mtx, const jmtxz_matrix_ccs *in,
+                                           const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1553,7 +1557,8 @@ jmtx_result jmtxcs_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -1573,24 +1578,24 @@ jmtx_result jmtxcs_matrix_ccs_from_cdouble(jmtxc_matrix_ccs** p_mtx, const jmtxz
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxz_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                         const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxz_matrix_ccs_from_cfloat(jmtxz_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    uint32_t* offsets = NULL;
-    uint32_t* indices = NULL;
+    uint32_t *offsets = NULL;
+    uint32_t *indices = NULL;
 
-    jmtxz_matrix_ccs* mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
+    jmtxz_matrix_ccs *mtx = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*mtx));
     if (!mtx)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
 
-    _Complex double* values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
+    _Complex double *values = allocator_callbacks->alloc(allocator_callbacks->state, (in->n_entries) * sizeof(*values));
     if (!values)
     {
         allocator_callbacks->free(allocator_callbacks->state, mtx);
@@ -1636,27 +1641,28 @@ jmtx_result jmtxz_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_m
 }
 
 /**
- * Creates a new complex CCS matrix with double precision from a complex CCS matrix with single precision. Only one memory reallocation
- * may be needed. Can not fail if the input matrix is valid.
+ * Creates a new complex CCS matrix with double precision from a complex CCS matrix with single precision. Only one
+ * memory reallocation may be needed. Can not fail if the input matrix is valid.
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_cfloat_inplace(jmtxc_matrix_ccs* in)
+jmtxz_matrix_ccs *jmtxz_matrix_ccs_from_cfloat_inplace(jmtxc_matrix_ccs *in)
 {
-    _Complex double* vals = NULL;
+    _Complex double *vals = NULL;
     uint32_t capacity_for_doubles = in->capacity * sizeof(*in->values) / sizeof(*vals);
     if (capacity_for_doubles < in->n_entries)
     {
         capacity_for_doubles = in->n_entries;
-        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values, sizeof(*vals) * capacity_for_doubles);
+        vals = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state, in->values,
+                                                    sizeof(*vals) * capacity_for_doubles);
         if (!vals)
         {
             return NULL;
         }
-        in->values = (_Complex float*)vals;
+        in->values = (_Complex float *)vals;
     }
 
-    vals = (_Complex double*)in->values;
+    vals = (_Complex double *)in->values;
     in->capacity = capacity_for_doubles;
 
     for (uint32_t i = 0; i < in->n_entries; ++i)
@@ -1665,7 +1671,7 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_cfloat_inplace(jmtxc_matrix_ccs* in)
     }
     in->base.type = JMTXD_TYPE_CCS;
 
-    return (jmtxz_matrix_ccs*)in;
+    return (jmtxz_matrix_ccs *)in;
 }
 
 /**
@@ -1676,8 +1682,8 @@ jmtxz_matrix_ccs* jmtxz_matrix_ccs_from_cfloat_inplace(jmtxc_matrix_ccs* in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxzs_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_matrix_ccs* in,
-                                          const jmtx_allocator_callbacks* allocator_callbacks)
+jmtx_result jmtxzs_matrix_ccs_from_cfloat(jmtxz_matrix_ccs **p_mtx, const jmtxc_matrix_ccs *in,
+                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
     {
@@ -1687,7 +1693,8 @@ jmtx_result jmtxzs_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    if (allocator_callbacks && (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
+    if (allocator_callbacks &&
+        (!allocator_callbacks->free || !allocator_callbacks->alloc || !allocator_callbacks->realloc))
     {
         return JMTX_RESULT_BAD_PARAM;
     }
@@ -1699,4 +1706,4 @@ jmtx_result jmtxzs_matrix_ccs_from_cfloat(jmtxz_matrix_ccs** p_mtx, const jmtxc_
     return jmtxz_matrix_ccs_from_cfloat(p_mtx, in, allocator_callbacks);
 }
 
-#endif//!_MSC_BUILD
+#endif //!_MSC_BUILD
