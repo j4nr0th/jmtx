@@ -10,7 +10,7 @@
 #ifndef JMTXC_DENSE_ROW_MAJOR_H
 #define JMTXC_DENSE_ROW_MAJOR_H
 #ifndef JMTX_MATRIX_BASE_H
-#include "../../matrix_base.h"
+#    include "../../matrix_base.h"
 #endif
 /**
  * @paragraph

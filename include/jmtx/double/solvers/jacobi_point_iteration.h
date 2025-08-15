@@ -6,7 +6,7 @@
 #ifndef JMTXD_JACOBI_POINT_ITERATION_H
 #define JMTXD_JACOBI_POINT_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 /*

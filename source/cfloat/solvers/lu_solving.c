@@ -3,13 +3,13 @@
 // Created by jan on 6.11.2023.
 //
 
+#include "../matrices/band_row_major_internal.h"
+#include "../matrices/dense_row_major_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 #include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../../../include/jmtx/cfloat/decompositions/incomplete_lu_decomposition.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/cfloat/matrices/sparse_conversion_safe.h"
-#include "../matrices/band_row_major_internal.h"
-#include "../matrices/dense_row_major_internal.h"
-#include "../matrices/sparse_row_compressed_internal.h"
 #include <assert.h>
 #include <complex.h>
 #include <math.h>
@@ -1175,7 +1175,6 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs_precomputed_parallel(
     const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
 {
-
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;

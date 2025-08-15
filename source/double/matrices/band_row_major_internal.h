@@ -6,10 +6,10 @@
 #ifndef JMTXD_BAND_ROW_MAJOR_INTERNAL_H
 #define JMTXD_BAND_ROW_MAJOR_INTERNAL_H
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
-#include "../../matrix_base_internal.h"
+#    include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXD_BAND_ROW_MAJOR_H
-#include "../../../include/jmtx/double/matrices/band_row_major.h"
+#    include "../../../include/jmtx/double/matrices/band_row_major.h"
 #endif
 struct jmtxd_matrix_brm_struct
 {

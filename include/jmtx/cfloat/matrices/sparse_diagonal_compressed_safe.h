@@ -7,7 +7,7 @@
 #ifndef JMTXC_SPARSE_DIAGONAL_COMPRESSED_SAFE_H
 #define JMTXC_SPARSE_DIAGONAL_COMPRESSED_SAFE_H
 #ifndef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
-#include "sparse_diagonal_compressed.h"
+#    include "sparse_diagonal_compressed.h"
 #endif
 
 /**

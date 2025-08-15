@@ -2,13 +2,13 @@
 // Created by jan on 6.11.2023.
 //
 
+#include "../matrices/band_row_major_internal.h"
+#include "../matrices/dense_row_major_internal.h"
+#include "../matrices/sparse_row_compressed_internal.h"
 #include "../../../include/jmtx/float/solvers/lu_solving.h"
 #include "../../../include/jmtx/float/decompositions/incomplete_lu_decomposition.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion.h"
 #include "../../../include/jmtx/float/matrices/sparse_conversion_safe.h"
-#include "../matrices/band_row_major_internal.h"
-#include "../matrices/dense_row_major_internal.h"
-#include "../matrices/sparse_row_compressed_internal.h"
 #include <assert.h>
 #include <math.h>
 
@@ -1172,7 +1172,6 @@ jmtx_result jmtxs_solve_iterative_ilu_crs_precomputed_parallel(const jmtx_matrix
                                                                float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)],
                                                                jmtx_solver_arguments *args)
 {
-
     if (!mtx)
     {
         return JMTX_RESULT_NULL_PARAM;

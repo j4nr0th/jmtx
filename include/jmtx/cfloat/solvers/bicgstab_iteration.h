@@ -7,7 +7,7 @@
 #ifndef JMTXC_BICGSTAB_ITERATION_H
 #define JMTXC_BICGSTAB_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXC_SPARSE_ROW_COMPRESSED_H

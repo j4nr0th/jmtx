@@ -7,7 +7,7 @@
 #define JMTXZ_CONJUGATE_GRADIENT_ITERATION_H
 
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXZ_SPARSE_ROW_COMPRESSED_H

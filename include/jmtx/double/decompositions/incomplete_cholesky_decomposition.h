@@ -8,7 +8,7 @@
 #define JMTXD_INCOMPLETE_CHOLESKY_DECOMPOSITION_H
 
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXD_SPARSE_ROW_COMPRESSED_H

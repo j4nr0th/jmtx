@@ -3,14 +3,13 @@
 //
 
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../../include/jmtx/solver_base.h"
+#    include "../../../include/jmtx/solver_base.h"
 #endif
-#include "../../../include/jmtx/float/solvers/cholesky_solving.h"
-#include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../include/jmtx/float/solvers/cholesky_solving.h"
+#include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
 #include <math.h>
-#include <stdio.h>
 
 jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
                                                         float *restrict x, float *restrict aux_vec1,
@@ -449,7 +448,6 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
 
         for (;;)
         {
-
             //  Compute Ap
             pAp_dp = 0;
             for (unsigned i = 0; i < n; ++i)

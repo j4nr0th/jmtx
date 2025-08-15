@@ -5,7 +5,7 @@
 #ifndef JMTX_DENSE_LU_DECOMPOSITION_H
 #define JMTX_DENSE_LU_DECOMPOSITION_H
 #ifndef JMTX_DENSE_ROW_MAJOR_H
-#include "../matrices/dense_row_major.h"
+#    include "../matrices/dense_row_major.h"
 #endif
 
 /**

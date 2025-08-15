@@ -7,10 +7,10 @@
 #ifndef JMTXZ_BAND_ROW_MAJOR_INTERNAL_H
 #define JMTXZ_BAND_ROW_MAJOR_INTERNAL_H
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
-#include "../../matrix_base_internal.h"
+#    include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXZ_BAND_ROW_MAJOR_H
-#include "../../../include/jmtx/cdouble/matrices/band_row_major.h"
+#    include "../../../include/jmtx/cdouble/matrices/band_row_major.h"
 #endif
 struct jmtxz_matrix_brm_struct
 {

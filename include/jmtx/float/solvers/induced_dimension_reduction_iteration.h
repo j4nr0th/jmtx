@@ -5,7 +5,7 @@
 #ifndef JMTX_INDUCED_DIMENSION_REDUCTION_ITERATION_H
 #define JMTX_INDUCED_DIMENSION_REDUCTION_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #include "../matrices/dense_row_major.h"

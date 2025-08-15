@@ -3,11 +3,11 @@
 // Created by jan on 17.6.2022.
 //
 
-#include "../../../include/jmtx/cfloat/solvers/bicgstab_iteration.h"
-#include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include "../matrices/band_row_major_internal.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../include/jmtx/cfloat/solvers/bicgstab_iteration.h"
+#include "../../../include/jmtx/cfloat/solvers/lu_solving.h"
 #include <complex.h>
 #include <math.h>
 

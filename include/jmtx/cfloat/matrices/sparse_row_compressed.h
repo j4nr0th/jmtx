@@ -11,7 +11,7 @@
 #ifndef JMTXC_SPARSE_ROW_COMPRESSED_H
 #define JMTXC_SPARSE_ROW_COMPRESSED_H
 #ifndef JMTX_MATRIX_BASE_H
-#include "../../matrix_base.h"
+#    include "../../matrix_base.h"
 #endif
 
 typedef struct jmtxc_matrix_crs_struct jmtxc_matrix_crs;

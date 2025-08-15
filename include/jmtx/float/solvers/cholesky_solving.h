@@ -5,7 +5,7 @@
 #ifndef JMTX_CHOLESKY_SOLVING_H
 #define JMTX_CHOLESKY_SOLVING_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTX_SPARSE_ROW_COMPRESSED_H

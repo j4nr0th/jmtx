@@ -6,7 +6,7 @@
 #define JMTX_SOLVER_BASE_H
 
 #ifndef JMTX_COMMON_H
-#include "common.h"
+#    include "common.h"
 #endif
 
 /**

@@ -9,8 +9,8 @@
 #include "../float/matrices/sparse_column_compressed_internal.h"
 #include "../matrix_base_internal.h"
 #ifndef _MSC_BUILD
-#include "../cdouble/matrices/sparse_column_compressed_internal.h"
-#include "../cfloat/matrices/sparse_column_compressed_internal.h"
+#    include "../cdouble/matrices/sparse_column_compressed_internal.h"
+#    include "../cfloat/matrices/sparse_column_compressed_internal.h"
 #endif
 #include "../../include/jmtx/conversion/ccs_conversion.h"
 

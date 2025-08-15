@@ -12,7 +12,7 @@
 #ifndef JMTXZ_SPARSE_COLUMN_COMPRESSED_H
 #define JMTXZ_SPARSE_COLUMN_COMPRESSED_H
 #ifndef JMTX_MATRIX_BASE_H
-#include "../../matrix_base.h"
+#    include "../../matrix_base.h"
 #endif
 
 typedef struct jmtxz_matrix_ccs_struct jmtxz_matrix_ccs;

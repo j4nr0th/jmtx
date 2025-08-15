@@ -9,8 +9,8 @@
 #include "../float/matrices/band_row_major_internal.h"
 #include "../matrix_base_internal.h"
 #ifndef _MSC_BUILD
-#include "../cdouble/matrices/band_row_major_internal.h"
-#include "../cfloat/matrices/band_row_major_internal.h"
+#    include "../cdouble/matrices/band_row_major_internal.h"
+#    include "../cfloat/matrices/band_row_major_internal.h"
 #endif
 #include "../../include/jmtx/conversion/brm_conversion.h"
 

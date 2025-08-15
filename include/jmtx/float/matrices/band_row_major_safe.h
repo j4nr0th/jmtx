@@ -9,7 +9,7 @@
 #ifndef JMTX_BAND_ROW_MAJOR_SAFE_H
 #define JMTX_BAND_ROW_MAJOR_SAFE_H
 #ifndef JMTX_BAND_ROW_MAJOR_H
-#include "band_row_major.h"
+#    include "band_row_major.h"
 #endif
 /**
  * @paragraph

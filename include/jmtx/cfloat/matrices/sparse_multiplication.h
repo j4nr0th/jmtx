@@ -6,7 +6,7 @@
 #ifndef JMTXC_SPARSE_MULTIPLICATION_H
 #define JMTXC_SPARSE_MULTIPLICATION_H
 #ifndef JMTX_COMMON_H
-#include "../../common.h"
+#    include "../../common.h"
 #endif
 
 #if defined(JMTXC_SPARSE_ROW_COMPRESSED_H) && defined(JMTXC_SPARSE_COLUMN_COMPRESSED_H)

@@ -2,7 +2,7 @@
 #define JMTX_MATRIX_BASE_H
 #define JMTX_MATRIX_BASE_H
 #ifndef JMTX_COMMON_H
-#include "common.h"
+#    include "common.h"
 #endif
 #include <stddef.h>
 #include <stdint.h>

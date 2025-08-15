@@ -6,10 +6,10 @@
 #ifndef JMTXC_SPARSE_DIAGONAL_COMPRESSED_INTERNAL_H
 #define JMTXC_SPARSE_DIAGONAL_COMPRESSED_INTERNAL_H
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
-#include "../../matrix_base_internal.h"
+#    include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
-#include "../../../include/jmtx/cfloat/matrices/sparse_diagonal_compressed.h"
+#    include "../../../include/jmtx/cfloat/matrices/sparse_diagonal_compressed.h"
 #endif
 
 struct jmtxc_matrix_cds_diagonal_array_T

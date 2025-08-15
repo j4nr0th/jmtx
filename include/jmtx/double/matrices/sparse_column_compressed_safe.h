@@ -11,7 +11,7 @@
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_SAFE_H
 #define JMTXD_SPARSE_COLUMN_COMPRESSED_SAFE_H
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
-#include "sparse_column_compressed.h"
+#    include "sparse_column_compressed.h"
 #endif
 
 /**

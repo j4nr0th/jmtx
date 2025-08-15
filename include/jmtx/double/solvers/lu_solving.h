@@ -6,7 +6,7 @@
 #ifndef JMTXD_LU_SOLVING_H
 #define JMTXD_LU_SOLVING_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXD_BAND_ROW_MAJOR_H

@@ -11,42 +11,42 @@
 //  Use standard C if possible
 #if __STDC_VERSION__ > 201710L
 //    #if __has_c_attribute(nodiscard)
-#define JMTX_NODISCARD_FUNCTION [[nodiscard]]
+#    define JMTX_NODISCARD_FUNCTION [[nodiscard]]
 //    #endif
 #endif
 
 //  Compiler specific
 #ifdef __GNUC__
-#ifndef JMTX_NODISCARD_FUNCTION
-#define JMTX_NODISCARD_FUNCTION __attribute__((warn_unused_result))
-#endif
+#    ifndef JMTX_NODISCARD_FUNCTION
+#        define JMTX_NODISCARD_FUNCTION __attribute__((warn_unused_result))
+#    endif
 
-#ifndef JMTX_HOT_FUNCTION
-#define JMTX_HOT_FUNCTION __attribute__((hot))
-#endif
+#    ifndef JMTX_HOT_FUNCTION
+#        define JMTX_HOT_FUNCTION __attribute__((hot))
+#    endif
 #endif
 
 //  Fallback
 #ifndef JMTX_NODISCARD_FUNCTION
-#define JMTX_NODISCARD_FUNCTION
+#    define JMTX_NODISCARD_FUNCTION
 #endif
 
 #ifndef JMTX_HOT_FUNCTION
-#define JMTX_HOT_FUNCTION
+#    define JMTX_HOT_FUNCTION
 #endif
 
 #ifndef JMTX_EXTERNAL_FUNCTION
-#define JMTX_EXTERNAL_FUNCTION
+#    define JMTX_EXTERNAL_FUNCTION
 #endif
 
 #ifndef JMTX_INTERNAL_FUNCTION
-#define JMTX_INTERNAL_FUNCTION
+#    define JMTX_INTERNAL_FUNCTION
 #endif
 
 #if defined(_MSC_BUILD) || defined(__cplusplus)
-#define JMTX_ARRAY_ATTRIB(x)
+#    define JMTX_ARRAY_ATTRIB(x)
 #else //_MSC_BUILD || __cplusplus
-#define JMTX_ARRAY_ATTRIB(x) x
+#    define JMTX_ARRAY_ATTRIB(x) x
 #endif //_MSC_BUILD || __cplusplus
 
 #endif // JMTX_COMMON_H

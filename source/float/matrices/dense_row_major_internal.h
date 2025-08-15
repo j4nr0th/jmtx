@@ -5,10 +5,10 @@
 #ifndef JMTX_DENSE_ROW_MAJOR_INTERNAL_H
 #define JMTX_DENSE_ROW_MAJOR_INTERNAL_H
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
-#include "../../matrix_base_internal.h"
+#    include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTX_DENSE_ROW_MAJOR_H
-#include "../../../include/jmtx/float/matrices/dense_row_major.h"
+#    include "../../../include/jmtx/float/matrices/dense_row_major.h"
 #endif
 struct jmtx_matrix_drm_struct
 {

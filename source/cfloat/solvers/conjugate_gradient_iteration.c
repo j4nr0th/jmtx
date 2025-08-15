@@ -4,12 +4,12 @@
 //
 
 #ifndef JMTXC_SOLVER_BASE_H
-#include "../../../include/jmtx/solver_base.h"
+#    include "../../../include/jmtx/solver_base.h"
 #endif
-#include "../../../include/jmtx/cfloat/solvers/cholesky_solving.h"
-#include "../../../include/jmtx/cfloat/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../include/jmtx/cfloat/solvers/cholesky_solving.h"
+#include "../../../include/jmtx/cfloat/solvers/conjugate_gradient_iteration.h"
 #include <complex.h>
 #include <math.h>
 

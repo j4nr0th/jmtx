@@ -7,16 +7,16 @@
 #define JMTXD_INCOMPLETE_LU_DECOMPOSITION_H
 
 #ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
-#include "../matrices/sparse_row_compressed.h"
+#    include "../matrices/sparse_row_compressed.h"
 #endif
 #ifndef JMTXD_SPARSE_COLUMN_COMPRESSED_H
-#include "../matrices/sparse_column_compressed.h"
+#    include "../matrices/sparse_column_compressed.h"
 #endif
 #ifndef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
-#include "../matrices/sparse_diagonal_compressed.h"
+#    include "../matrices/sparse_diagonal_compressed.h"
 #endif
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 /**

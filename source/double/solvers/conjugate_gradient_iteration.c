@@ -4,14 +4,13 @@
 //
 
 #ifndef JMTXD_SOLVER_BASE_H
-#include "../../../include/jmtx/solver_base.h"
+#    include "../../../include/jmtx/solver_base.h"
 #endif
-#include "../../../include/jmtx/double/solvers/cholesky_solving.h"
-#include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
 #include "../matrices/sparse_diagonal_compressed_internal.h"
 #include "../matrices/sparse_row_compressed_internal.h"
+#include "../../../include/jmtx/double/solvers/cholesky_solving.h"
+#include "../../../include/jmtx/double/solvers/conjugate_gradient_iteration.h"
 #include <math.h>
-#include <stdio.h>
 
 jmtx_result jmtxd_solve_iterative_conjugate_gradient_crs(const jmtxd_matrix_crs *mtx, const double *restrict y,
                                                          double *restrict x, double *restrict aux_vec1,
@@ -449,7 +448,6 @@ jmtx_result jmtxd_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
 
         for (;;)
         {
-
             //  Compute Ap
             pAp_dp = 0;
             for (unsigned i = 0; i < n; ++i)

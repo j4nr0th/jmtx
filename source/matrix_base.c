@@ -69,7 +69,7 @@ const char *jmtx_matrix_type_to_str(jmtx_matrix_type type)
 static const char *const funny_string =
     "Why are FEM engineers bad at deadlifting?\nTheir problem is in their weak form!\n";
 #else
-#define funny_string "Why are FEM engineers bad at deadlifting?\nTheir problem is in their weak form!\n"
+#    define funny_string "Why are FEM engineers bad at deadlifting?\nTheir problem is in their weak form!\n"
 #endif
 static void *default_alloc(void *state, uint64_t size)
 {

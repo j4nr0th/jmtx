@@ -7,10 +7,10 @@
 #ifndef JMTXZ_SPARSE_ROW_COMPRESSED_INTERNAL_H
 #define JMTXZ_SPARSE_ROW_COMPRESSED_INTERNAL_H
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
-#include "../../matrix_base_internal.h"
+#    include "../../matrix_base_internal.h"
 #endif
 #ifndef JMTXZ_SPARSE_ROW_COMPRESSED_H
-#include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed.h"
+#    include "../../../include/jmtx/cdouble/matrices/sparse_row_compressed.h"
 #endif
 
 struct jmtxz_matrix_crs_struct

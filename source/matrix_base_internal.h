@@ -2,7 +2,7 @@
 #define JMTX_MATRIX_BASE_INTERNAL_H
 
 #ifndef JMTX_MATRIX_BASE_H
-#include "../include/jmtx/matrix_base.h"
+#    include "../include/jmtx/matrix_base.h"
 #endif
 
 enum jmtx_matrix_type_T

@@ -8,7 +8,7 @@
 #define JMTXZ_BAND_LU_DECOMPOSITION_H
 
 #ifndef JMTXZ_BAND_ROW_MAJOR_H
-#include "../matrices/band_row_major.h"
+#    include "../matrices/band_row_major.h"
 #endif
 /**
  * Uses relations for LU decomposition to compute the full decomposition for the A, such that LU = A. For banded

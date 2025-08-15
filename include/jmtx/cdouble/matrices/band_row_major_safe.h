@@ -11,7 +11,7 @@
 #ifndef JMTXZ_BAND_ROW_MAJOR_SAFE_H
 #define JMTXZ_BAND_ROW_MAJOR_SAFE_H
 #ifndef JMTXZ_BAND_ROW_MAJOR_H
-#include "band_row_major.h"
+#    include "band_row_major.h"
 #endif
 /**
  * @paragraph

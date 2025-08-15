@@ -5,13 +5,13 @@
 #ifndef JMTXD_RECURSIVE_GENERALIZED_MINIMUM_RESIDUAL_ITERATION_H
 #define JMTXD_RECURSIVE_GENERALIZED_MINIMUM_RESIDUAL_ITERATION_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 
 #ifdef JMTXD_SPARSE_DIAGONAL_COMPRESSED_H
-#ifndef JMTXD_BAND_ROW_MAJOR_H
-#include "../matrices/band_row_major.h"
-#endif
+#    ifndef JMTXD_BAND_ROW_MAJOR_H
+#        include "../matrices/band_row_major.h"
+#    endif
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
  * Builds up a set of m orthonormal basis for the Krylov subspace in order to find an optimal search direction, then
@@ -97,9 +97,9 @@ jmtx_result jmtxds_solve_iterative_gmresr_cds(
 #endif
 
 #ifdef JMTXD_SPARSE_ROW_COMPRESSED_H
-#ifndef JMTXD_BAND_ROW_MAJOR_H
-#include "../matrices/band_row_major.h"
-#endif
+#    ifndef JMTXD_BAND_ROW_MAJOR_H
+#        include "../matrices/band_row_major.h"
+#    endif
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
  * Builds up a set of m orthonormal basis for the Krylov subspace in order to find an optimal search direction, then

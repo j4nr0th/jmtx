@@ -11,7 +11,7 @@
 #ifndef JMTXD_SPARSE_ROW_COMPRESSED_SAFE_H
 #define JMTXD_SPARSE_ROW_COMPRESSED_SAFE_H
 #ifndef JMTXD_SPARSE_ROW_COMPRESSED_H
-#include "sparse_row_compressed.h"
+#    include "sparse_row_compressed.h"
 #endif
 
 /**

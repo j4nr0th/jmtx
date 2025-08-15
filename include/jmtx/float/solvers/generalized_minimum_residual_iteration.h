@@ -5,10 +5,10 @@
 #ifndef JMTX_GENERALIZED_MINIMUM_RESIDUAL_H
 #define JMTX_GENERALIZED_MINIMUM_RESIDUAL_H
 #ifndef JMTX_SOLVER_BASE_H
-#include "../../solver_base.h"
+#    include "../../solver_base.h"
 #endif
 #ifndef JMTX_BAND_ROW_MAJOR_H
-#include "../matrices/band_row_major.h"
+#    include "../matrices/band_row_major.h"
 #endif
 
 #ifdef JMTX_SPARSE_ROW_COMPRESSED_H

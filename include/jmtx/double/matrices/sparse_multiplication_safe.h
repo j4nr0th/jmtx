@@ -5,7 +5,7 @@
 #ifndef JMTXD_SPARSE_MULTIPLICATION_SAFE_H
 #define JMTXD_SPARSE_MULTIPLICATION_SAFE_H
 #ifndef JMTX_COMMON_H
-#include "../../common.h"
+#    include "../../common.h"
 #endif
 
 #if defined(JMTXD_SPARSE_ROW_COMPRESSED_H) && defined(JMTXD_SPARSE_COLUMN_COMPRESSED_H)
