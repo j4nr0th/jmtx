@@ -36,6 +36,12 @@ target_sources(jmtx PRIVATE
 
 set_property(TARGET jmtx PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT result LANGUAGES C)
+if(result)
+    set_property(TARGET jmtx PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
     if (CMAKE_BUILD_TYPE STREQUAL Debug)
