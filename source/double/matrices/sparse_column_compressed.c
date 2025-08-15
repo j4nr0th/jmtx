@@ -883,7 +883,7 @@ jmtx_result jmtxd_matrix_ccs_transpose(const jmtxd_matrix_ccs *mtx, jmtxd_matrix
 
     const uint32_t rows = mtx->base.rows;
     jmtxd_matrix_ccs *out;
-    jmtx_result res = jmtxd_matrix_ccs_new(&out, mtx->base.rows, mtx->base.cols, mtx->n_entries, allocator_callbacks);
+    jmtx_result res = jmtxd_matrix_ccs_new(&out, mtx->base.cols, mtx->base.rows, mtx->n_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
