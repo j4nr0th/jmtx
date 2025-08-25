@@ -1006,3 +1006,15 @@ void jmtxz_matrix_drm_shift_diagonal(jmtxz_matrix_drm *mtx, _Complex double v)
         }
     }
 }
+
+jmtxz_matrix_drm jmtxz_matrix_drm_from_data(const unsigned rows, const unsigned cols,
+                                            _Complex double values[JMTX_ARRAY_ATTRIB(static rows * cols)])
+{
+    return (jmtxz_matrix_drm){.base = {.type = JMTXZ_TYPE_DRM,
+                                       .rows = rows,
+                                       .cols = cols,
+                                       .allocator_callbacks = {.state = NULL, .alloc = NULL, .free = NULL}},
+                              .permutations = NULL,
+                              .rperm = NULL,
+                              .values = values};
+}

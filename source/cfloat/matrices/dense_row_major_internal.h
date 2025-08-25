@@ -20,4 +20,23 @@ struct jmtxc_matrix_drm_struct
     //  Length this->base.rows * this->base.cols, contains every entry in row-major ordering.
     _Complex float *restrict values;
 };
+
+/**
+ * @brief Constructs a dense row-major matrix from the provided data.
+ *
+ * This function initializes a dense row-major matrix with specified dimensions and values.
+ * It sets up the base structure with the appropriate type and dimensions. This matrix
+ * cannot be destroyed, permuted, or resized, since allocator callbacks are not valid.
+ *
+ * The purpose of this function is to create inputs for functions by wrapping a raw pointer.
+ *
+ * @param rows The number of rows in the matrix.
+ * @param cols The number of columns in the matrix.
+ * @param values A pointer to an array of size (rows * cols) that contains the matrix elements in row-major order.
+ *               The array must remain valid for the lifetime of the returned matrix.
+ *
+ * @return An initialized dense row-major matrix.
+ */
+jmtxc_matrix_drm jmtxc_matrix_drm_from_data(unsigned rows, unsigned cols,
+                                            _Complex float values[JMTX_ARRAY_ATTRIB(static rows * cols)]);
 #endif // JMTXC_DENSE_ROW_MAJOR_INTERNAL_H
