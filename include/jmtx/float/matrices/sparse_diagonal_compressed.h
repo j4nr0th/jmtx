@@ -2,8 +2,8 @@
 // Created by jan on 27.11.2023.
 //
 
-#ifndef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
-#define JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#ifndef JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
+#define JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
 #ifndef JMTX_MATRIX_BASE_H
 #    include "../../matrix_base.h"
 #endif
@@ -291,4 +291,4 @@ void jmtx_matrix_cds_set_diagonal(jmtx_matrix_cds *mtx, int32_t dia_idx, float v
  */
 void jmtx_matrix_cds_zero_diagonal(jmtx_matrix_cds *mtx, int32_t dia_idx);
 
-#endif // JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#endif // JMTXF_SPARSE_DIAGONAL_COMPRESSED_H

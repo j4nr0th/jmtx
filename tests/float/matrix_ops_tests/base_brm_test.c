@@ -5,7 +5,8 @@
 #include "../test_common.h"
 #include "../../../include/jmtx/float/matrices/band_row_major_safe.h"
 
-static int are_arrays_the_same(unsigned len, const float a1[JMTX_ARRAY_ATTRIB(const static len)], const float a2[JMTX_ARRAY_ATTRIB(const static len)])
+static int are_arrays_the_same(unsigned len, const float a1[JMTX_ARRAY_ATTRIB(const static len)],
+                               const float a2[JMTX_ARRAY_ATTRIB(const static len)])
 {
     for (unsigned i = 0; i < len; ++i)
     {
@@ -19,7 +20,7 @@ static int are_arrays_the_same(unsigned len, const float a1[JMTX_ARRAY_ATTRIB(co
 
 int main()
 {
-    jmtx_matrix_brm* test_matrix;
+    jmtxf_matrix_brm *test_matrix;
     jmtx_result mtx_res;
     MATRIX_TEST_CALL(jmtxs_matrix_brm_new(&test_matrix, 5, 5, 2, 1, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -54,64 +55,64 @@ int main()
     float column_vals[4];
     uint_fast32_t cnt;
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(test_matrix, 0, column_vals)) == 2);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(test_matrix, 0, column_vals)) == 2);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){1.0f, -1.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(test_matrix, 1, column_vals)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(test_matrix, 1, column_vals)) == 3);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){2.0f, -2.0f, 1.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(test_matrix, 2, column_vals)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(test_matrix, 2, column_vals)) == 4);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){3.0f, -3.0f, 2.0f, -5.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(test_matrix, 3, column_vals)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(test_matrix, 3, column_vals)) == 4);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){-4.0f, 3.0f, -6.0f, 69.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(test_matrix, 4, column_vals)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(test_matrix, 4, column_vals)) == 3);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){4.0f, -7.0f, 420.0f}));
 
     const float test_vec[5] = {1.0f, -1.0f, 3.0f, 0.0f, -3.0f};
     float out_vec[5];
 
-    jmtx_matrix_brm_vector_multiply(test_matrix, test_vec, out_vec);
+    jmtxf_matrix_brm_vector_multiply(test_matrix, test_vec, out_vec);
     for (unsigned i = 0; i < 5; ++i)
     {
         printf("%g ", out_vec[i]);
     }
     printf("\n");
 
-    jmtx_matrix_brm* transpose = NULL;
+    jmtxf_matrix_brm *transpose = NULL;
     MATRIX_TEST_CALL(jmtxs_matrix_brm_transpose(test_matrix, &transpose, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     print_brm_matrix(transpose);
-    float* pv;
-    ASSERT((cnt = jmtx_matrix_brm_get_row(transpose, 0, &pv)) == 2);
+    float *pv;
+    ASSERT((cnt = jmtxf_matrix_brm_get_row(transpose, 0, &pv)) == 2);
     ASSERT(are_arrays_the_same(cnt, pv, (float[]){1.0f, -1.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_row(transpose, 1, &pv)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_row(transpose, 1, &pv)) == 3);
     ASSERT(are_arrays_the_same(cnt, pv, (float[]){2.0f, -2.0f, 1.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_row(transpose, 2, &pv)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_row(transpose, 2, &pv)) == 4);
     ASSERT(are_arrays_the_same(cnt, pv, (float[]){3.0f, -3.0f, 2.0f, -5.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_row(transpose, 3, &pv)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_row(transpose, 3, &pv)) == 4);
     ASSERT(are_arrays_the_same(cnt, pv, (float[]){-4.0f, 3.0f, -6.0f, 69.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_row(transpose, 4, &pv)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_row(transpose, 4, &pv)) == 3);
     ASSERT(are_arrays_the_same(cnt, pv, (float[]){4.0f, -7.0f, 420.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(transpose, 0, column_vals)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(transpose, 0, column_vals)) == 3);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){1.0f, 2.0f, 3.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(transpose, 1, column_vals)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(transpose, 1, column_vals)) == 4);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){-1.0f, -2.0f, -3.0f, -4.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(transpose, 2, column_vals)) == 4);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(transpose, 2, column_vals)) == 4);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){1.0f, 2.0f, 3.0f, 4.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(transpose, 3, column_vals)) == 3);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(transpose, 3, column_vals)) == 3);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){-5.0f, -6.0f, -7.0f}));
 
-    ASSERT((cnt = jmtx_matrix_brm_get_col(transpose, 4, column_vals)) == 2);
+    ASSERT((cnt = jmtxf_matrix_brm_get_col(transpose, 4, column_vals)) == 2);
     ASSERT(are_arrays_the_same(cnt, column_vals, (float[]){69.0f, 420.0f}));
 
     for (unsigned i = 0; i < 5; ++i)

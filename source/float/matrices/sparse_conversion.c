@@ -14,19 +14,19 @@
 #include "sparse_row_compressed_internal.h"
 #include <assert.h>
 
-jmtx_matrix_ccs *jmtx_convert_crs_to_ccs_inplace_transpose(jmtx_matrix_crs *in)
+jmtxf_matrix_ccs *jmtxf_convert_crs_to_ccs_inplace_transpose(jmtxf_matrix_crs *in)
 {
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CCS;
 
-    return (jmtx_matrix_ccs *)in;
+    return (jmtxf_matrix_ccs *)in;
 }
 
-jmtx_matrix_crs *jmtx_convert_ccs_to_crs_inplace_transpose(jmtx_matrix_ccs *in)
+jmtxf_matrix_crs *jmtxf_convert_ccs_to_crs_inplace_transpose(jmtxf_matrix_ccs *in)
 {
     //  Lol, lmao even
     in->base.type = JMTX_TYPE_CRS;
-    return (jmtx_matrix_crs *)in;
+    return (jmtxf_matrix_crs *)in;
 }
 
 /**
@@ -37,16 +37,16 @@ jmtx_matrix_crs *jmtx_convert_ccs_to_crs_inplace_transpose(jmtx_matrix_ccs *in)
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_crs_to_ccs(const jmtxf_matrix_crs *in, jmtxf_matrix_ccs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
-    jmtx_matrix_crs *cpy;
-    jmtx_result res = jmtx_matrix_crs_transpose(in, &cpy, allocator_callbacks);
+    jmtxf_matrix_crs *cpy;
+    jmtx_result res = jmtxf_matrix_crs_transpose(in, &cpy, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
-    *p_out = jmtx_convert_crs_to_ccs_inplace_transpose(cpy);
+    *p_out = jmtxf_convert_crs_to_ccs_inplace_transpose(cpy);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -58,7 +58,7 @@ jmtx_result jmtx_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxs_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_crs_to_ccs(const jmtxf_matrix_crs *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -81,7 +81,7 @@ jmtx_result jmtxs_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_crs_to_ccs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_crs_to_ccs(in, p_out, allocator_callbacks);
 }
 /**
  * Converts a CCS matrix into the CRS format. Input matrix remains untouched.
@@ -91,16 +91,16 @@ jmtx_result jmtxs_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_ccs_to_crs(const jmtxf_matrix_ccs *in, jmtxf_matrix_crs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
-    jmtx_matrix_ccs *cpy;
+    jmtxf_matrix_ccs *cpy;
     jmtx_result res = jmtxs_matrix_ccs_transpose(in, &cpy, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
-    *p_out = jmtx_convert_ccs_to_crs_inplace_transpose(cpy);
+    *p_out = jmtxf_convert_ccs_to_crs_inplace_transpose(cpy);
     return JMTX_RESULT_SUCCESS;
 }
 
@@ -112,7 +112,7 @@ jmtx_result jmtx_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtxs_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_ccs_to_crs(const jmtxf_matrix_ccs *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -135,7 +135,7 @@ jmtx_result jmtxs_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_ccs_to_crs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_ccs_to_crs(in, p_out, allocator_callbacks);
 }
 /**
  * Converts a CDS matrix into the CRS format. Input matrix remains untouched.
@@ -145,13 +145,13 @@ jmtx_result jmtxs_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtxf_matrix_crs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     const uint_fast32_t max_dia_len = in->base.rows > in->base.cols ? in->base.cols : in->base.rows;
-    jmtx_matrix_crs *mtx;
+    jmtxf_matrix_crs *mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
-    jmtx_result res = jmtx_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
+    jmtx_result res = jmtxf_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -164,7 +164,7 @@ jmtx_result jmtx_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs *
         mtx->end_of_row_offsets[i] = p;
     }
     mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
-    (void)jmtx_matrix_crs_shrink(mtx);
+    (void)jmtxf_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
 }
@@ -177,7 +177,7 @@ jmtx_result jmtx_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -200,7 +200,7 @@ jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_cds_to_crs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_cds_to_crs(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -211,13 +211,13 @@ jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtxf_matrix_ccs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     const uint_fast32_t max_dia_len = in->base.rows > in->base.cols ? in->base.cols : in->base.rows;
-    jmtx_matrix_ccs *mtx;
+    jmtxf_matrix_ccs *mtx;
     const uint_fast32_t max_entries = max_dia_len * jmtx_matrix_cds_diagonal_count(in);
-    jmtx_result res = jmtx_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
+    jmtx_result res = jmtxf_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -230,7 +230,7 @@ jmtx_result jmtx_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs *
         mtx->end_of_column_offsets[i] = p;
     }
     mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
-    (void)jmtx_matrix_ccs_shrink(mtx);
+    (void)jmtxf_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
 }
@@ -242,7 +242,7 @@ jmtx_result jmtx_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -265,7 +265,7 @@ jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_cds_to_ccs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_cds_to_ccs(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -276,8 +276,8 @@ jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_crs_to_cds(const jmtxf_matrix_crs *in, jmtx_matrix_cds **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     jmtx_matrix_cds *mtx;
     jmtx_result res =
@@ -290,7 +290,7 @@ jmtx_result jmtx_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds *
     {
         uint32_t *indices;
         float *values;
-        const uint32_t count = jmtx_matrix_crs_get_row(in, i, &indices, &values);
+        const uint32_t count = jmtxf_matrix_crs_get_row(in, i, &indices, &values);
         res = jmtx_matrix_cds_set_row(mtx, i, count, values, indices);
         if (res != JMTX_RESULT_SUCCESS)
         {
@@ -310,7 +310,7 @@ jmtx_result jmtx_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_crs_to_cds(const jmtxf_matrix_crs *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -333,7 +333,7 @@ jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_crs_to_cds(in, p_out, allocator_callbacks);
+    return jmtxf_convert_crs_to_cds(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -344,8 +344,8 @@ jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_ccs_to_cds(const jmtxf_matrix_ccs *in, jmtx_matrix_cds **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     jmtx_matrix_cds *mtx;
     jmtx_result res =
@@ -358,7 +358,7 @@ jmtx_result jmtx_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds *
     {
         uint32_t *indices;
         float *values;
-        const uint32_t count = jmtx_matrix_ccs_get_col(in, i, &indices, &values);
+        const uint32_t count = jmtxf_matrix_ccs_get_col(in, i, &indices, &values);
         res = jmtx_matrix_cds_set_col(mtx, i, count, values, indices);
         if (res != JMTX_RESULT_SUCCESS)
         {
@@ -379,7 +379,7 @@ jmtx_result jmtx_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_ccs_to_cds(const jmtxf_matrix_ccs *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -402,7 +402,7 @@ jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_ccs_to_cds(in, p_out, allocator_callbacks);
+    return jmtxf_convert_ccs_to_cds(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -413,12 +413,12 @@ jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_brm_to_crs(const jmtxf_matrix_brm *in, jmtxf_matrix_crs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
-    jmtx_matrix_crs *mtx;
-    jmtx_result res = jmtx_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
+    jmtxf_matrix_crs *mtx;
+    jmtx_result res = jmtxf_matrix_crs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -426,9 +426,9 @@ jmtx_result jmtx_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs *
     for (uint_fast32_t i = 0, p = 0; i < in->base.rows; ++i)
     {
         float *elements;
-        const uint_fast32_t count = jmtx_matrix_brm_get_row(in, i, &elements);
+        const uint_fast32_t count = jmtxf_matrix_brm_get_row(in, i, &elements);
         memcpy(mtx->values + p, elements, sizeof(*elements) * count);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(in, i);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_row(in, i);
         for (uint_fast32_t j = 0; j < count; ++j)
         {
             mtx->indices[i + j] = first + j;
@@ -439,7 +439,7 @@ jmtx_result jmtx_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs *
         mtx->end_of_row_offsets[i] = p;
     }
     mtx->n_entries = mtx->end_of_row_offsets[mtx->base.rows - 1];
-    jmtx_matrix_crs_shrink(mtx);
+    jmtxf_matrix_crs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
 }
@@ -451,7 +451,7 @@ jmtx_result jmtx_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_brm_to_crs(const jmtxf_matrix_brm *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -474,7 +474,7 @@ jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_brm_to_crs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_brm_to_crs(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -485,20 +485,20 @@ jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_brm_to_ccs(const jmtxf_matrix_brm *in, jmtxf_matrix_ccs **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     const uint_fast32_t max_entries = (in->lower_bandwidth + in->upper_bandwidth + 1) * in->base.rows;
-    jmtx_matrix_ccs *mtx;
-    jmtx_result res = jmtx_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
+    jmtxf_matrix_ccs *mtx;
+    jmtx_result res = jmtxf_matrix_ccs_new(&mtx, in->base.rows, in->base.cols, max_entries, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
     for (uint_fast32_t i = 0, p = 0; i < in->base.rows; ++i)
     {
-        const uint_fast32_t count = jmtx_matrix_brm_get_col(in, i, mtx->values + p);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_col(in, i);
+        const uint_fast32_t count = jmtxf_matrix_brm_get_col(in, i, mtx->values + p);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_col(in, i);
         for (uint_fast32_t j = 0; j < count; ++j)
         {
             mtx->indices[i + j] = first + j;
@@ -509,7 +509,7 @@ jmtx_result jmtx_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs *
         mtx->end_of_column_offsets[i] = p;
     }
     mtx->n_entries = mtx->end_of_column_offsets[mtx->base.cols - 1];
-    jmtx_matrix_ccs_shrink(mtx);
+    jmtxf_matrix_ccs_shrink(mtx);
     *p_out = mtx;
     return JMTX_RESULT_SUCCESS;
 }
@@ -521,7 +521,7 @@ jmtx_result jmtx_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_brm_to_ccs(const jmtxf_matrix_brm *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -544,7 +544,7 @@ jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_brm_to_ccs(in, p_out, allocator_callbacks);
+    return jmtxf_convert_brm_to_ccs(in, p_out, allocator_callbacks);
 }
 /**
  * Converts a BRM matrix into the CDS format. Input matrix remains untouched.
@@ -554,8 +554,8 @@ jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_brm_to_cds(const jmtxf_matrix_brm *in, jmtx_matrix_cds **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -587,8 +587,8 @@ jmtx_result jmtx_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds *
     for (uint_fast32_t i = 0, p = 0; i < in->base.rows; ++i)
     {
         float *elements;
-        const uint_fast32_t count = jmtx_matrix_brm_get_row(in, i, &elements);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(in, i);
+        const uint_fast32_t count = jmtxf_matrix_brm_get_row(in, i, &elements);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_row(in, i);
         uint_fast32_t k = 0;
         for (uint_fast32_t j = 0; j < count; ++j)
         {
@@ -618,7 +618,7 @@ jmtx_result jmtx_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_brm_to_cds(const jmtxf_matrix_brm *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -641,7 +641,7 @@ jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_brm_to_cds(in, p_out, allocator_callbacks);
+    return jmtxf_convert_brm_to_cds(in, p_out, allocator_callbacks);
 }
 /**
  * Converts a CRS matrix into the BRM format. Input matrix remains untouched.
@@ -651,17 +651,17 @@ jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_crs_to_brm(const jmtxf_matrix_crs *in, jmtxf_matrix_brm **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtx_matrix_brm *mtx;
-    const uint32_t lbw = jmtx_matrix_crs_find_lower_bandwidth(in);
-    const uint32_t ubw = jmtx_matrix_crs_find_upper_bandwidth(in);
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
+    jmtxf_matrix_brm *mtx;
+    const uint32_t lbw = jmtxf_matrix_crs_find_lower_bandwidth(in);
+    const uint32_t ubw = jmtxf_matrix_crs_find_upper_bandwidth(in);
+    jmtx_result res = jmtxf_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -670,9 +670,9 @@ jmtx_result jmtx_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm *
     {
         uint32_t *indices;
         float *elements;
-        const uint_fast32_t count = jmtx_matrix_crs_get_row(in, i, &indices, &elements);
-        const uint_fast32_t row_len = jmtx_matrix_brm_length_of_row(mtx, i);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(mtx, i);
+        const uint_fast32_t count = jmtxf_matrix_crs_get_row(in, i, &indices, &elements);
+        const uint_fast32_t row_len = jmtxf_matrix_brm_length_of_row(mtx, i);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_row(mtx, i);
         for (uint32_t k = 0, l = 0; k < row_len; ++k)
         {
             if (l < count && indices[l] == k + first)
@@ -700,7 +700,7 @@ jmtx_result jmtx_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_crs_to_brm(const jmtxf_matrix_crs *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -724,7 +724,7 @@ jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm 
         return JMTX_RESULT_BAD_PARAM;
     }
 
-    return jmtx_convert_crs_to_brm(in, p_out, allocator_callbacks);
+    return jmtxf_convert_crs_to_brm(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -735,22 +735,22 @@ jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_ccs_to_brm(const jmtxf_matrix_ccs *in, jmtxf_matrix_brm **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtx_matrix_brm *mtx;
-    const uint32_t lbw = jmtx_matrix_ccs_find_lower_bandwidth(in);
-    const uint32_t ubw = jmtx_matrix_ccs_find_upper_bandwidth(in);
+    jmtxf_matrix_brm *mtx;
+    const uint32_t lbw = jmtxf_matrix_ccs_find_lower_bandwidth(in);
+    const uint32_t ubw = jmtxf_matrix_ccs_find_upper_bandwidth(in);
     float *const values = allocator_callbacks->alloc(allocator_callbacks->state, (lbw + ubw + 1) * sizeof(*values));
     if (!values)
     {
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxf_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, values);
@@ -760,9 +760,9 @@ jmtx_result jmtx_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm *
     {
         uint32_t *indices;
         float *elements;
-        const uint_fast32_t count = jmtx_matrix_ccs_get_col(in, i, &indices, &elements);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_col(mtx, i);
-        const uint_fast32_t last = jmtx_matrix_brm_last_pos_in_col(mtx, i);
+        const uint_fast32_t count = jmtxf_matrix_ccs_get_col(in, i, &indices, &elements);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_col(mtx, i);
+        const uint_fast32_t last = jmtxf_matrix_brm_last_pos_in_col(mtx, i);
         for (uint32_t k = first, l = 0; k <= last; ++k)
         {
             if (l < count && indices[l] == k)
@@ -775,7 +775,7 @@ jmtx_result jmtx_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm *
                 values[k - first] = 0;
             }
         }
-        jmtx_matrix_brm_set_col(mtx, i, values);
+        jmtxf_matrix_brm_set_col(mtx, i, values);
     }
 
     allocator_callbacks->free(allocator_callbacks->state, values);
@@ -791,7 +791,7 @@ jmtx_result jmtx_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_ccs_to_brm(const jmtxf_matrix_ccs *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -814,7 +814,7 @@ jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_ccs_to_brm(in, p_out, allocator_callbacks);
+    return jmtxf_convert_ccs_to_brm(in, p_out, allocator_callbacks);
 }
 
 /**
@@ -825,14 +825,14 @@ jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on allocation failure
  */
-jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm **p_out,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtxf_matrix_brm **p_out,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtx_matrix_brm *mtx;
+    jmtxf_matrix_brm *mtx;
     const uint32_t lbw = in->sub_diagonals.count == 0 ? 0 : in->sub_diagonals.indices[in->sub_diagonals.count - 1];
     const uint32_t ubw =
         in->super_diagonals.count == 0 ? 0 : in->super_diagonals.indices[in->super_diagonals.count - 1];
@@ -856,7 +856,7 @@ jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm *
         allocator_callbacks->free(allocator_callbacks->state, values);
         return JMTX_RESULT_BAD_ALLOC;
     }
-    jmtx_result res = jmtx_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
+    jmtx_result res = jmtxf_matrix_brm_new(&mtx, in->base.rows, in->base.cols, ubw, lbw, NULL, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, indices);
@@ -867,8 +867,8 @@ jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm *
     for (uint_fast32_t i = 0; i < in->base.cols; ++i)
     {
         const uint_fast32_t count = jmtx_matrix_cds_get_row(in, i, (1 + lbw + ubw), values_in, indices);
-        const uint_fast32_t row_len = jmtx_matrix_brm_length_of_row(mtx, i);
-        const uint_fast32_t first = jmtx_matrix_brm_first_pos_in_row(mtx, i);
+        const uint_fast32_t row_len = jmtxf_matrix_brm_length_of_row(mtx, i);
+        const uint_fast32_t first = jmtxf_matrix_brm_first_pos_in_row(mtx, i);
         for (uint32_t k = 0, l = 0; k < row_len; ++k)
         {
             if (l < count && indices[l] == k + first)
@@ -881,7 +881,7 @@ jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm *
                 values[k] = 0;
             }
         }
-        jmtx_matrix_brm_set_row(mtx, i, values);
+        jmtxf_matrix_brm_set_row(mtx, i, values);
     }
 
     allocator_callbacks->free(allocator_callbacks->state, indices);
@@ -899,7 +899,7 @@ jmtx_result jmtx_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm *
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!in)
@@ -922,5 +922,5 @@ jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm 
     {
         return JMTX_RESULT_BAD_PARAM;
     }
-    return jmtx_convert_cds_to_brm(in, p_out, allocator_callbacks);
+    return jmtxf_convert_cds_to_brm(in, p_out, allocator_callbacks);
 }

@@ -13,19 +13,11 @@
  * @param mtx square matrix to decompose
  * @param decomposed square matrix which receives the decomposition
  */
-void jmtx_decompose_lu_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed)
+void jmtxf_decompose_lu_drm(jmtxf_matrix_drm *mtx, jmtxf_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
-    if (decomposed->rperm)
-    {
-        decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state, decomposed->rperm);
-        decomposed->rperm = NULL;
-    }
-    if (decomposed->permutations)
-    {
-        decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state, decomposed->permutations);
-        decomposed->permutations = NULL;
-    }
+    jmtxf_matrix_drm_clear_permutations(decomposed);
+
     if (mtx->permutations)
     {
         for (uint32_t i = 0; i < n; ++i)
@@ -81,53 +73,30 @@ void jmtx_decompose_lu_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed)
  * @param decomposed square matrix which receives the decomposition
  * @return JMTX_RESULT_SUCCESS on success, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_decompose_lu_pivot_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed)
+jmtx_result jmtxf_decompose_lu_pivot_drm(jmtxf_matrix_drm *mtx, jmtxf_matrix_drm *decomposed)
 {
     const uint32_t n = mtx->base.rows;
-    if (decomposed->rperm)
-    {
-        for (uint_fast32_t i = 0; i < n; ++i)
-        {
-            decomposed->rperm[i] = i;
-            decomposed->permutations[i] = i;
-        }
-    }
-    else
-    {
-        decomposed->permutations = decomposed->base.allocator_callbacks.alloc(
-            decomposed->base.allocator_callbacks.state, sizeof(*decomposed->permutations) * n);
-        if (!decomposed->permutations)
-        {
-            return JMTX_RESULT_BAD_ALLOC;
-        }
-        decomposed->rperm = decomposed->base.allocator_callbacks.alloc(decomposed->base.allocator_callbacks.state,
-                                                                       sizeof(*decomposed->rperm) * n);
-        if (!decomposed->rperm)
-        {
-            decomposed->base.allocator_callbacks.free(decomposed->base.allocator_callbacks.state,
-                                                      decomposed->permutations);
-            return JMTX_RESULT_BAD_ALLOC;
-        }
-        for (uint32_t i = 0; i < n; ++i)
-        {
-            decomposed->permutations[i] = i;
-            decomposed->rperm[i] = i;
-        }
-    }
+    jmtx_result res;
+    if ((res = jmtxf_matrix_drm_set_default_permutations(decomposed)) != JMTX_RESULT_SUCCESS)
+        return res;
+
+    // Copy data from the initial matrix to the decomposed matrix
     if (mtx->permutations)
     {
         for (uint32_t i = 0; i < n; ++i)
         {
-            memcpy(decomposed->values + n * i, mtx->values + n * mtx->permutations[i], n * sizeof(*decomposed->values));
+            memcpy(decomposed->values + n * i, MATRIX_DRM_ENTRY_READ(mtx, mtx->permutations[i], 0),
+                   n * sizeof(*decomposed->values));
         }
     }
     else
     {
         memcpy(decomposed->values, mtx->values, n * n * sizeof(*decomposed->values));
     }
+
     for (uint32_t i = 0; i < n; ++i)
     {
-        //  Find best pivot in the matrix for the current sub-block
+        //  Find the best pivot in the matrix for the current sub-block
         uint32_t pivot = i;
         for (uint32_t j = i; j < n; ++j)
         {
@@ -137,9 +106,10 @@ jmtx_result jmtx_decompose_lu_pivot_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *d
                 pivot = j;
             }
         }
-        if (pivot != i && pivot != n)
+
+        if (pivot != i)
         {
-            (void)jmtx_matrix_drm_swap_rows(decomposed, i, pivot);
+            (void)jmtxf_matrix_drm_swap_rows(decomposed, i, pivot);
         }
 
         //  Deal with a row of L

@@ -7,8 +7,8 @@
 #include <assert.h>
 #include <math.h>
 
-jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p_c,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_decompose_icho_crs(const jmtxf_matrix_crs *a, jmtxf_matrix_crs **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!a)
     {
@@ -40,8 +40,8 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
 
-    jmtx_matrix_crs *c = NULL;
-    jmtx_result res = jmtx_matrix_crs_copy(a, &c, allocator_callbacks);
+    jmtxf_matrix_crs *c = NULL;
+    jmtx_result res = jmtxf_matrix_crs_copy(a, &c, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -51,7 +51,7 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
     {
         uint32_t *i_idx = NULL;
         float *i_val = NULL;
-        const uint32_t i_cnt = jmtx_matrix_crs_get_row(c, i, &i_idx, &i_val);
+        const uint32_t i_cnt = jmtxf_matrix_crs_get_row(c, i, &i_idx, &i_val);
         uint32_t j = 0, p;
         for (p = 0; p < i_cnt && j <= i; ++p)
         {
@@ -62,7 +62,7 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
             //            }
             uint32_t *j_idx;
             float *j_val;
-            const uint32_t j_cnt = jmtx_matrix_crs_get_row(c, j, &j_idx, &j_val);
+            const uint32_t j_cnt = jmtxf_matrix_crs_get_row(c, j, &j_idx, &j_val);
             float v = 0.0f;
             uint32_t ki, kj;
             for (ki = 0, kj = 0; ki < i_cnt && kj < j_cnt && i_idx[ki] < j && j_idx[kj] < j;)
@@ -90,7 +90,7 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
             //  Zero on diagonal should not happen because it would've been encountered by now
             //            if (i_idx[kj] != j)
             //            {
-            //                jmtx_matrix_crs_destroy(c);
+            //                jmtxf_matrix_crs_destroy(c);
             //                return JMTX_RESULT_BAD_MATRIX;
             //            }
             assert(j_idx[kj] == j);
@@ -111,7 +111,7 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
         if (j != i)
         {
             //  There was no diagonal entry!
-            jmtx_matrix_crs_destroy(c);
+            jmtxf_matrix_crs_destroy(c);
             return JMTX_RESULT_BAD_MATRIX;
         }
 
@@ -123,7 +123,7 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
         }
     }
 
-    jmtx_matrix_crs_remove_zeros(c);
+    jmtxf_matrix_crs_remove_zeros(c);
     *p_c = c;
 
     return JMTX_RESULT_SUCCESS;
@@ -143,8 +143,8 @@ jmtx_result jmtx_decompose_icho_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtx_decompose_icho_cds(const jmtx_matrix_cds *a, jmtx_matrix_cds **p_c,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_decompose_icho_cds(const jmtx_matrix_cds *a, jmtx_matrix_cds **p_c,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 
 {
     if (!a)
@@ -257,7 +257,7 @@ jmtx_result jmtx_decompose_icho_cds(const jmtx_matrix_cds *a, jmtx_matrix_cds **
             //  Zero on diagonal should not happen because it would've been encountered by now
             //            if (i_idx[kj] != j)
             //            {
-            //                jmtx_matrix_crs_destroy(c);
+            //                jmtxf_matrix_crs_destroy(c);
             //                return JMTX_RESULT_BAD_MATRIX;
             //            }
             assert(j_indices[kj] == j);

@@ -27,8 +27,8 @@
  * JMTX_RESULT_NOT_CONVERGED if convergence was not achieved in number of specified iterations,
  * other jmtx_result values on other failures.
  */
-jmtx_result jmtxs_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p_l, jmtx_matrix_ccs **p_u,
-                                    const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxfs_decompose_ilu_crs(const jmtxf_matrix_crs *a, jmtxf_matrix_crs **p_l, jmtxf_matrix_ccs **p_u,
+                                     const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!a)
     {
@@ -56,19 +56,19 @@ jmtx_result jmtxs_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **
     {
         return JMTX_RESULT_NULL_PARAM;
     }
-    return jmtx_decompose_ilu_crs(a, p_l, p_u, allocator_callbacks);
+    return jmtxf_decompose_ilu_crs(a, p_l, p_u, allocator_callbacks);
 }
 
-jmtx_result jmtx_decompose_ldu_split_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p_l, jmtx_matrix_ccs **p_u,
-                                         const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_decompose_ldu_split_crs(const jmtxf_matrix_crs *a, jmtxf_matrix_crs **p_l, jmtxf_matrix_ccs **p_u,
+                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!allocator_callbacks)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
 
-    jmtx_matrix_crs *l;
-    jmtx_matrix_ccs *u;
+    jmtxf_matrix_crs *l;
+    jmtxf_matrix_ccs *u;
 
     uint32_t cols = a->base.cols;
     uint32_t *count_u = allocator_callbacks->alloc(allocator_callbacks->state, sizeof(*count_u) * cols);
@@ -84,7 +84,7 @@ jmtx_result jmtx_decompose_ldu_split_crs(const jmtx_matrix_crs *a, jmtx_matrix_c
     {
         uint32_t *pcols;
         float *pvals;
-        uint32_t ncols = jmtx_matrix_crs_get_row(a, row, &pcols, &pvals);
+        uint32_t ncols = jmtxf_matrix_crs_get_row(a, row, &pcols, &pvals);
         for (uint32_t n = 0; n < ncols; ++n)
         {
             uint32_t col = pcols[n];
@@ -94,13 +94,13 @@ jmtx_result jmtx_decompose_ldu_split_crs(const jmtx_matrix_crs *a, jmtx_matrix_c
         }
     }
 
-    jmtx_result res = jmtx_matrix_crs_new(&l, rows, cols, total_count_l, allocator_callbacks);
+    jmtx_result res = jmtxf_matrix_crs_new(&l, rows, cols, total_count_l, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, count_u);
         return res;
     }
-    res = jmtx_matrix_ccs_new(&u, rows, cols, total_count_u, allocator_callbacks);
+    res = jmtxf_matrix_ccs_new(&u, rows, cols, total_count_u, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         allocator_callbacks->free(allocator_callbacks->state, count_u);
@@ -123,7 +123,7 @@ jmtx_result jmtx_decompose_ldu_split_crs(const jmtx_matrix_crs *a, jmtx_matrix_c
     {
         uint32_t *in_cols;
         float *in_vals;
-        uint32_t n_row = jmtx_matrix_crs_get_row(a, row, &in_cols, &in_vals);
+        uint32_t n_row = jmtxf_matrix_crs_get_row(a, row, &in_cols, &in_vals);
 
         for (uint32_t idx = 0; idx < n_row; ++idx)
         {
@@ -159,8 +159,8 @@ jmtx_result jmtx_decompose_ldu_split_crs(const jmtx_matrix_crs *a, jmtx_matrix_c
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p_l, jmtx_matrix_ccs **p_u,
-                                   const jmtx_allocator_callbacks *allocator_callbacks)
+jmtx_result jmtxf_decompose_ilu_crs(const jmtxf_matrix_crs *a, jmtxf_matrix_crs **p_l, jmtxf_matrix_ccs **p_u,
+                                    const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
@@ -169,9 +169,9 @@ jmtx_result jmtx_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p
 
     //  L and U have at most this many entries (in the case that A is already triangular)
     const uint32_t n = a->base.rows;
-    jmtx_matrix_crs *l = NULL;
-    jmtx_matrix_ccs *u = NULL;
-    jmtx_result res = jmtx_decompose_ldu_split_crs(a, &l, &u, allocator_callbacks);
+    jmtxf_matrix_crs *l = NULL;
+    jmtxf_matrix_ccs *u = NULL;
+    jmtx_result res = jmtxf_decompose_ldu_split_crs(a, &l, &u, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
@@ -183,13 +183,13 @@ jmtx_result jmtx_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p
         {
             uint32_t *l_idx;
             float *l_val;
-            const uint32_t l_cnt = jmtx_matrix_crs_get_row(l, idx, &l_idx, &l_val);
+            const uint32_t l_cnt = jmtxf_matrix_crs_get_row(l, idx, &l_idx, &l_val);
             for (uint32_t k = 0; k < l_cnt - 1; ++k)
             {
                 uint32_t col = l_idx[k];
                 uint32_t *u_idx;
                 float *u_val;
-                const uint32_t u_cnt = jmtx_matrix_ccs_get_col(u, col, &u_idx, &u_val);
+                const uint32_t u_cnt = jmtxf_matrix_ccs_get_col(u, col, &u_idx, &u_val);
                 const float dp = jmtx_multiply_matrix_sparse_vectors(k, l_idx, l_val, u_cnt, u_idx, u_val);
                 l_val[k] = (l_val[k] - dp) / u_val[u_cnt - 1];
                 assert(u_idx[u_cnt - 1] == col);
@@ -199,13 +199,13 @@ jmtx_result jmtx_decompose_ilu_crs(const jmtx_matrix_crs *a, jmtx_matrix_crs **p
         {
             uint32_t *u_idx;
             float *u_val;
-            const uint32_t u_cnt = jmtx_matrix_ccs_get_col(u, idx, &u_idx, &u_val);
+            const uint32_t u_cnt = jmtxf_matrix_ccs_get_col(u, idx, &u_idx, &u_val);
             for (uint32_t k = 0; k < u_cnt; ++k)
             {
                 uint32_t row = u_idx[k];
                 uint32_t *l_idx;
                 float *l_val;
-                const uint32_t l_cnt = jmtx_matrix_crs_get_row(l, row, &l_idx, &l_val);
+                const uint32_t l_cnt = jmtxf_matrix_crs_get_row(l, row, &l_idx, &l_val);
                 const float dp = jmtx_multiply_matrix_sparse_vectors(k, u_idx, u_val, l_cnt, l_idx, l_val);
                 u_val[k] -= dp;
                 assert(l_idx[l_cnt - 1] == row);

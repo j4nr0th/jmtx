@@ -35,7 +35,7 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(const jmtxc_matrix_crs 
                                                          _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                          _Complex float *restrict aux_vec2,
                                                          _Complex float *restrict aux_vec3,
-                                                         jmtx_solver_arguments *args);
+                                                         jmtxf_solver_arguments *args);
 
 /**
  * Parallel version of the function jmtxc_solve_iterative_conjugate_gradient_crs using OpenMP
@@ -65,7 +65,7 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(const jmtxc_matrix_crs 
 jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs_parallel(
     const jmtxc_matrix_crs *mtx, const _Complex float *restrict y, _Complex float *restrict x,
     _Complex float *restrict aux_vec1, _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
-    jmtx_solver_arguments *args);
+    jmtxf_solver_arguments *args);
 
 /**
  * Iterative solution method used to solve systems of equations Ax = y where A is symmetric positive definite (SPD).
@@ -103,7 +103,7 @@ jmtx_result jmtxc_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
     const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *cho, const jmtxc_matrix_crs *cho_t,
     const _Complex float *restrict y, _Complex float *restrict x, _Complex float *restrict aux_vec1,
     _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3, _Complex float *restrict aux_vec4,
-    jmtx_solver_arguments *args);
+    jmtxf_solver_arguments *args);
 #endif // JMTXC_SPARSE_ROW_COMPRESSED_H
 
 #ifdef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
@@ -134,7 +134,7 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_cds(const jmtxc_matrix_cds 
                                                          _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                          _Complex float *restrict aux_vec2,
                                                          _Complex float *restrict aux_vec3,
-                                                         jmtx_solver_arguments *args);
+                                                         jmtxf_solver_arguments *args);
 #endif // JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
 
 #endif // JMTXC_CONJUGATE_GRADIENT_ITERATION_H

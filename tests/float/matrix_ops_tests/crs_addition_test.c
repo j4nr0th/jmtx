@@ -8,34 +8,20 @@
 
 int main()
 {
-    jmtx_matrix_crs* mtx;
+    jmtxf_matrix_crs *mtx;
     jmtx_result mtx_res;
     MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, 4, 4, 4, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    const float m1[16] =
-            {
-            1, 1, 2, -3,
-            0, 2, -4, 2,
-            0, 0, 3, 0,
-            0, 0, 0, 4,
-            };
+    const float m1[16] = {
+        1, 1, 2, -3, 0, 2, -4, 2, 0, 0, 3, 0, 0, 0, 0, 4,
+    };
 
-    const float m2[16] =
-            {
-            -3, 2, 0, 0,
-            0, 1, 0, 0,
-            0, 0, -3, 2,
-            0, 0, 0, 1,
-            };
+    const float m2[16] = {
+        -3, 2, 0, 0, 0, 1, 0, 0, 0, 0, -3, 2, 0, 0, 0, 1,
+    };
 
-    const float m3[16] =
-            {
-            1, 0, 0, 1,
-            0, 2, 3, 0,
-            0, 3, 2, 0,
-            1, 0, 0, 1
-            };
+    const float m3[16] = {1, 0, 0, 1, 0, 2, 3, 0, 0, 3, 2, 0, 1, 0, 0, 1};
     int beef_status;
 
     //  Matrix is empty, so this is effectively just setting the entries

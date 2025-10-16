@@ -2,10 +2,10 @@
 // Created by jan on 24.11.2023.
 //
 
-#ifndef JMTX_BAND_LU_DECOMPOSITION_H
-#define JMTX_BAND_LU_DECOMPOSITION_H
+#ifndef JMTXF_BAND_LU_DECOMPOSITION_H
+#define JMTXF_BAND_LU_DECOMPOSITION_H
 
-#ifndef JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXF_BAND_ROW_MAJOR_H
 #    include "../matrices/band_row_major.h"
 #endif
 /**
@@ -23,7 +23,7 @@
  * and free are used.
  * @return JMTX_RESULT_SUCCESS if successfully
  */
-jmtx_result jmtx_decompose_lu_brm(const jmtx_matrix_brm *a, jmtx_matrix_brm **p_l, jmtx_matrix_brm **p_u,
-                                  const jmtx_allocator_callbacks *allocator_callbacks);
+jmtx_result jmtxf_decompose_lu_brm(const jmtxf_matrix_brm *a, jmtxf_matrix_brm **p_l, jmtxf_matrix_brm **p_u,
+                                   const jmtx_allocator_callbacks *allocator_callbacks);
 
-#endif // JMTX_BAND_LU_DECOMPOSITION_H
+#endif // JMTXF_BAND_LU_DECOMPOSITION_H

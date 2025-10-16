@@ -7,11 +7,11 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
 #    include "../../matrix_base_internal.h"
 #endif
-#ifndef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifndef JMTXF_SPARSE_ROW_COMPRESSED_H
 #    include "../../../include/jmtx/float/matrices/sparse_row_compressed.h"
 #endif
 
-struct jmtx_matrix_crs_struct
+struct jmtxf_matrix_crs_struct
 {
     jmtx_matrix_base base;
     //  end_of_row_offsets[i] has the number of values are there before the end of the row i

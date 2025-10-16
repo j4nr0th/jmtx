@@ -8,8 +8,8 @@
 #    include "../../solver_base.h"
 #endif
 
-#ifdef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
-#    ifndef JMTX_BAND_ROW_MAJOR_H
+#ifdef JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
+#    ifndef JMTXF_BAND_ROW_MAJOR_H
 #        include "../matrices/band_row_major.h"
 #    endif
 /**
@@ -45,14 +45,14 @@
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x,
-                                            uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+                                            uint32_t m, uint32_t l, jmtxf_matrix_brm *r_mtx,
                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6,
                                             float *restrict aux_vecs1, float *restrict aux_vecs2,
-                                            float *restrict aux_vecs3, jmtx_solver_arguments *args);
+                                            float *restrict aux_vecs3, jmtxf_solver_arguments *args);
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
  * Builds up a set of m orthonormal basis for the Krylov subspace in order to find an optimal search direction, then
@@ -88,16 +88,16 @@ jmtx_result jmtx_solve_iterative_gmresr_cds(const jmtx_matrix_cds *mtx, const fl
  */
 jmtx_result jmtxs_solve_iterative_gmresr_cds(
     const jmtx_matrix_cds *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtxf_matrix_brm *r_mtx,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args);
+    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtxf_solver_arguments *args);
 #endif
 
-#ifdef JMTX_SPARSE_ROW_COMPRESSED_H
-#    ifndef JMTX_BAND_ROW_MAJOR_H
+#ifdef JMTXF_SPARSE_ROW_COMPRESSED_H
+#    ifndef JMTXF_BAND_ROW_MAJOR_H
 #        include "../matrices/band_row_major.h"
 #    endif
 /**
@@ -132,15 +132,15 @@ jmtx_result jmtxs_solve_iterative_gmresr_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations, other error codes for other errors
  */
-jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
-                                            uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
+                                            uint32_t m, uint32_t l, jmtxf_matrix_brm *r_mtx,
                                             float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
                                             float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6,
                                             float *restrict aux_vecs1, float *restrict aux_vecs2,
-                                            float *restrict aux_vecs3, jmtx_solver_arguments *args);
+                                            float *restrict aux_vecs3, jmtxf_solver_arguments *args);
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
  * Builds up a set of m orthonormal basis for the Krylov subspace in order to find an optimal search direction, then
@@ -175,13 +175,13 @@ jmtx_result jmtx_solve_iterative_gmresr_crs(const jmtx_matrix_crs *mtx, const fl
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtxs_solve_iterative_gmresr_crs(
-    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtx_matrix_brm *r_mtx,
+    const jmtxf_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
+    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, uint32_t l, jmtxf_matrix_brm *r_mtx,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)], float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args);
+    float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtxf_solver_arguments *args);
 #endif
 
 #endif // JMTX_RECURSIVE_GENERALIZED_MINIMUM_RESIDUAL_ITERATION_H

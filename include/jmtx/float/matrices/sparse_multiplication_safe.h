@@ -8,7 +8,7 @@
 #    include "../../common.h"
 #endif
 
-#if defined(JMTX_SPARSE_ROW_COMPRESSED_H) && defined(JMTX_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTXF_SPARSE_ROW_COMPRESSED_H) && defined(JMTXF_SPARSE_COLUMN_COMPRESSED_H)
 /**
  * Multiplies CRS and CCS matrix together and saves the result into a CRS matrix
  * @param a CRS matrix
@@ -18,7 +18,7 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_multiply_matrix_crs(const jmtx_matrix_crs *a, const jmtx_matrix_ccs *b, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_multiply_matrix_crs(const jmtxf_matrix_crs *a, const jmtxf_matrix_ccs *b, jmtxf_matrix_crs **p_out,
                                       const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -30,11 +30,11 @@ jmtx_result jmtxs_multiply_matrix_crs(const jmtx_matrix_crs *a, const jmtx_matri
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_multiply_matrix_ccs(const jmtx_matrix_crs *a, const jmtx_matrix_ccs *b, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_multiply_matrix_ccs(const jmtxf_matrix_crs *a, const jmtxf_matrix_ccs *b, jmtxf_matrix_ccs **p_out,
                                       const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#ifdef JMTX_BAND_ROW_MAJOR_H
+#ifdef JMTXF_BAND_ROW_MAJOR_H
 /**
  * Multiplies two BRM matrices together and produces a BRM matrix with the result of the matrix multiplication.
  * @param a BRM matrix
@@ -44,11 +44,11 @@ jmtx_result jmtxs_multiply_matrix_ccs(const jmtx_matrix_crs *a, const jmtx_matri
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_multiply_matrix_brm(const jmtx_matrix_brm *a, const jmtx_matrix_brm *b, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_multiply_matrix_brm(const jmtxf_matrix_brm *a, const jmtxf_matrix_brm *b, jmtxf_matrix_brm **p_out,
                                       const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#ifdef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#ifdef JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
 /**
  * Multiplies two CDS matrices together and produces a CDS matrix with the result of the matrix multiplication.
  * @param a CDS matrix

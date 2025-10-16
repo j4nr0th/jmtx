@@ -4,7 +4,7 @@
 
 #ifndef JMTXD_DENSE_LU_DECOMPOSITION_H
 #define JMTXD_DENSE_LU_DECOMPOSITION_H
-#ifndef JMTX_DENSE_ROW_MAJOR_H
+#ifndef JMTXF_DENSE_ROW_MAJOR_H
 #    include "../matrices/dense_row_major.h"
 #endif
 

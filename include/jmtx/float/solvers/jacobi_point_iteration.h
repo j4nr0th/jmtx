@@ -15,7 +15,7 @@
  * functions in this file require that the diagonals of the matrices are non-zero.
  */
 
-#ifdef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifdef JMTXF_SPARSE_ROW_COMPRESSED_H
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
  * to solve the linear system Ax = y
@@ -34,9 +34,9 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args);
+                                            jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -57,12 +57,12 @@ jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const fl
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtxf_matrix_crs *mtx, uint32_t n,
                                              const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                              float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                              float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
                                              float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
-                                             jmtx_solver_arguments *args);
+                                             jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -87,10 +87,10 @@ jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args);
+                                                    jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -112,12 +112,12 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                      float *restrict x, float *restrict aux_vector1,
-                                                     float *restrict aux_vector2, jmtx_solver_arguments *args);
+                                                     float *restrict aux_vector2, jmtxf_solver_arguments *args);
 #endif
 
-#ifdef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#ifdef JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
  * to solve the linear system Ax = y
@@ -138,7 +138,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx,
  */
 jmtx_result jmtx_solve_iterative_jacobi_cds(const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args);
+                                            jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -166,10 +166,10 @@ jmtx_result jmtx_solve_iterative_jacobi_cds(const jmtx_matrix_cds *mtx, const fl
 jmtx_result jmtx_solve_iterative_jacobi_relaxed_cds(const jmtx_matrix_cds *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args);
+                                                    jmtxf_solver_arguments *args);
 #endif
 
-#ifdef JMTX_BAND_ROW_MAJOR_H
+#ifdef JMTXF_BAND_ROW_MAJOR_H
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
  * to solve the linear system Ax = y
@@ -188,9 +188,9 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_cds(const jmtx_matrix_cds *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtxf_matrix_brm *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args);
+                                            jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -215,10 +215,10 @@ jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const fl
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtxf_matrix_brm *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args);
+                                                    jmtxf_solver_arguments *args);
 
 /**
  * Uses Jacobi point iteration (also known as Jacobi method: https://en.wikipedia.org/wiki/Jacobi_method)
@@ -240,9 +240,9 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtx_matrix_brm *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtxf_matrix_brm *mtx, const float *restrict y,
                                                      float *restrict x, float *restrict aux_vector1,
-                                                     float *restrict aux_vector2, jmtx_solver_arguments *args);
+                                                     float *restrict aux_vector2, jmtxf_solver_arguments *args);
 #endif
 
 #endif // JMTX_JACOBI_POINT_ITERATION_H

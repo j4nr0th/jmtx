@@ -10,7 +10,7 @@
 
 int main()
 {
-    jmtx_matrix_ccs* mtx;
+    jmtxf_matrix_ccs *mtx;
     const uint32_t n_rows = 16, n_cols = 16;
     jmtx_result mtx_res;
     MATRIX_TEST_CALL(jmtxs_matrix_ccs_new(&mtx, n_rows, n_cols, 4, NULL));
@@ -25,9 +25,9 @@ int main()
             mtx_res = jmtxs_matrix_ccs_get_entry(mtx, row, col, &v);
             ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             ASSERT(v == 0.0f);
-//            printf("%7g ", (double)v);
+            //            printf("%7g ", (double)v);
         }
-//        printf("\n");
+        //        printf("\n");
     }
 
     float v;
@@ -54,16 +54,13 @@ int main()
     ASSERT(mtx_res == JMTX_RESULT_INDEX_OUT_OF_BOUNDS);
 
     //  Setting a whole row
-    float some_values[15] =
-            {
-            1.23f, 123.0f, 4830.0f, 21.43f, 32414.92f,
-            940.0f, 924.34f, 450.0f, 342.03f, 5.30f,
-            -344.0f, 34.0f, 240.0f, 32.1f, 324.0f,
-            };
-    uint32_t indices[15] =
-            {
-            0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-            };
+    float some_values[15] = {
+        1.23f,   123.0f, 4830.0f, 21.43f, 32414.92f, 940.0f, 924.34f, 450.0f,
+        342.03f, 5.30f,  -344.0f, 34.0f,  240.0f,    32.1f,  324.0f,
+    };
+    uint32_t indices[15] = {
+        0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    };
     MATRIX_TEST_CALL(jmtxs_matrix_ccs_set_col(mtx, 3, 15, indices, some_values));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
@@ -83,7 +80,8 @@ int main()
                 uint32_t i;
                 for (i = 0; i < 15; ++i)
                 {
-                    if (indices[i] == row) break;
+                    if (indices[i] == row)
+                        break;
                 }
                 if (i != 15)
                 {
@@ -96,7 +94,6 @@ int main()
             }
         }
     }
-
 
     //  Set the diagonal to negative zeros
     for (uint32_t i = 0; i < n_rows && i < n_cols; ++i)
@@ -120,35 +117,24 @@ int main()
         }
     }
 
-    const float other_values[16] =
-            {
-            124.756f, -123e5f, -1.35f, 31.092f,
-            490.0231e-4f, 123.21f, -232e9f, +195.2f,
-            -412.0f, 5556.0f, -513.04f, 4494.342f,
-            95.3053f, 441.034f, 596.3f, 3059.03f,
-            };
-    const uint32_t row_indices[16] =
-            {
-             1,  5,  2, 12,
-             3,  4,  6,  5,
-             7, 15, 15,  2,
-            11, 12,  3,  4,
-            };
-    const uint32_t col_indices[16] =
-            {
-             0,  0,  2,  5,
-            14, 15, 13, 13,
-             2,  4, 15,  8,
-             7,  7,  2,  6,
-            };
+    const float other_values[16] = {
+        124.756f, -123e5f, -1.35f,   31.092f,   490.0231e-4f, 123.21f,  -232e9f, +195.2f,
+        -412.0f,  5556.0f, -513.04f, 4494.342f, 95.3053f,     441.034f, 596.3f,  3059.03f,
+    };
+    const uint32_t row_indices[16] = {
+        1, 5, 2, 12, 3, 4, 6, 5, 7, 15, 15, 2, 11, 12, 3, 4,
+    };
+    const uint32_t col_indices[16] = {
+        0, 0, 2, 5, 14, 15, 13, 13, 2, 4, 15, 8, 7, 7, 2, 6,
+    };
 
     for (uint32_t i = 0; i < 16; ++i)
     {
-//        print_ccs_matrix(&mtx);
+        //        print_ccs_matrix(&mtx);
         mtx_res = jmtxs_matrix_ccs_set_entry(mtx, row_indices[i], col_indices[i], other_values[i]);
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//        print_ccs_matrix(&mtx);
+        //        print_ccs_matrix(&mtx);
         for (uint32_t j = 0; j <= i; ++j)
         {
             mtx_res = jmtxs_matrix_ccs_get_entry(mtx, row_indices[j], col_indices[j], &v);
@@ -156,7 +142,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-//    print_ccs_matrix(&mtx);
+    //    print_ccs_matrix(&mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -178,7 +164,7 @@ int main()
             ASSERT(v == other_values[j]);
         }
     }
-//    print_ccs_matrix(&mtx);
+    //    print_ccs_matrix(&mtx);
 
     for (uint32_t i = 0; i < 16; ++i)
     {
@@ -187,9 +173,7 @@ int main()
         ASSERT(v == other_values[i]);
     }
 
-
-//    print_ccs_matrix(&mtx);
-
+    //    print_ccs_matrix(&mtx);
 
     MATRIX_TEST_CALL(jmtxs_matrix_ccs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);

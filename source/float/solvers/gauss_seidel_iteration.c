@@ -31,9 +31,9 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                   float *restrict x, float *restrict aux_vec1,
-                                                  jmtx_solver_arguments *args)
+                                                  jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -41,7 +41,7 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, co
     float mag_y = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
-        const float d = jmtx_matrix_crs_get_entry(mtx, i, i);
+        const float d = jmtxf_matrix_crs_get_entry(mtx, i, i);
         div_factors[i] = 1 / d;
         mag_y += y[i] * y[i];
     }
@@ -54,7 +54,7 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, co
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            float res = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            float res = jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             const float new_x = (y[i] - res) * div_factors[i] + x[i];
             x[i] = new_x;
         }
@@ -62,7 +62,7 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, co
         err = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float val = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            const float val = y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             err += val * val;
         }
         err = sqrtf(err) / mag_y;
@@ -140,11 +140,11 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size,
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtxf_matrix_crs *mtx, uint32_t n,
                                                    const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                                    float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                    float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                   jmtx_solver_arguments *args)
+                                                   jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {

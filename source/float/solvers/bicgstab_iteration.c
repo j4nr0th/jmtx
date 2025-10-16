@@ -35,11 +35,11 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
                                               float *restrict aux_vec1, float *restrict aux_vec2,
                                               float *restrict aux_vec3, float *restrict aux_vec4,
                                               float *restrict aux_vec5, float *restrict aux_vec6,
-                                              jmtx_solver_arguments *args)
+                                              jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -54,7 +54,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const 
 
     float err = 0;
 
-    jmtx_matrix_crs_vector_multiply(mtx, x, r);
+    jmtxf_matrix_crs_vector_multiply(mtx, x, r);
     float y_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -77,7 +77,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const 
     uint32_t iter_count = 0;
     for (;;)
     {
-        jmtx_matrix_crs_vector_multiply(mtx, p, Ap);
+        jmtxf_matrix_crs_vector_multiply(mtx, p, Ap);
         float rQAp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -100,7 +100,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const 
         {
             break;
         }
-        jmtx_matrix_crs_vector_multiply(mtx, s, As);
+        jmtxf_matrix_crs_vector_multiply(mtx, s, As);
         float sAs_dp = 0, sAAs_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -211,11 +211,11 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size,
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxs_solve_iterative_bicgstab_crs(
-    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    const jmtxf_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
     float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -278,7 +278,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_cds(const jmtx_matrix_cds *mtx, const 
                                               float *restrict aux_vec1, float *restrict aux_vec2,
                                               float *restrict aux_vec3, float *restrict aux_vec4,
                                               float *restrict aux_vec5, float *restrict aux_vec6,
-                                              jmtx_solver_arguments *args)
+                                              jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -428,7 +428,7 @@ jmtx_result jmtxs_solve_iterative_bicgstab_cds(
     float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -494,13 +494,13 @@ jmtx_result jmtxs_solve_iterative_bicgstab_cds(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
-                                                  const jmtx_matrix_crs *u, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtxf_matrix_crs *mtx, const jmtxf_matrix_crs *l,
+                                                  const jmtxf_matrix_crs *u, const float *restrict y, float *restrict x,
                                                   float *restrict aux_vec1, float *restrict aux_vec2,
                                                   float *restrict aux_vec3, float *restrict aux_vec4,
                                                   float *restrict aux_vec5, float *restrict aux_vec6,
                                                   float *restrict aux_vec7, float *restrict aux_vec8,
-                                                  jmtx_solver_arguments *args)
+                                                  jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -517,7 +517,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, co
 
     float err = 0;
 
-    jmtx_matrix_crs_vector_multiply(mtx, x, r);
+    jmtxf_matrix_crs_vector_multiply(mtx, x, r);
     float y_mag = 0;
     for (uint32_t i = 0; i < n; ++i)
     {
@@ -541,7 +541,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, co
     for (;;)
     {
         jmtx_solve_direct_lu_crs(l, u, p, p_hat);
-        jmtx_matrix_crs_vector_multiply(mtx, p_hat, Ap);
+        jmtxf_matrix_crs_vector_multiply(mtx, p_hat, Ap);
         float rQAp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -569,7 +569,7 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, co
             break;
         }
         jmtx_solve_direct_lu_crs(l, u, s, s_hat);
-        jmtx_matrix_crs_vector_multiply(mtx, s_hat, As);
+        jmtxf_matrix_crs_vector_multiply(mtx, s_hat, As);
         float sAs_dp = 0, sAAs_dp = 0;
         for (uint32_t i = 0; i < n; ++i)
         {
@@ -669,13 +669,13 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, co
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
-                                                           const jmtx_matrix_crs *u, const float *restrict y,
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtxf_matrix_crs *mtx, const jmtxf_matrix_crs *l,
+                                                           const jmtxf_matrix_crs *u, const float *restrict y,
                                                            float *restrict x, float *restrict aux_vec1,
                                                            float *restrict aux_vec2, float *restrict aux_vec3,
                                                            float *restrict aux_vec4, float *restrict aux_vec5,
                                                            float *restrict aux_vec6, float *restrict aux_vec7,
-                                                           float *restrict aux_vec8, jmtx_solver_arguments *args)
+                                                           float *restrict aux_vec8, jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -703,11 +703,11 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs
 #pragma omp parallel shared(err, y_mag, r, rQ, p, Ap, s, As, p_hat, s_hat, rho, alpha, omega, n, iter_count, rQAp,     \
                                 sksk_dp, sAs_dp, sAAs_dp, rkrk_dp)
     {
-        // jmtx_matrix_crs_vector_multiply(mtx, x, r);
+        // jmtxf_matrix_crs_vector_multiply(mtx, x, r);
 #pragma omp for reduction(+ : err, y_mag)
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float yv = jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            const float yv = jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             r[i] = y[i] - yv;
             rQ[i] = r[i];
             p[i] = r[i];
@@ -730,12 +730,12 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs
                 sksk_dp = 0;
             }
 
-            // jmtx_matrix_crs_vector_multiply(mtx, p_hat, Ap);
+            // jmtxf_matrix_crs_vector_multiply(mtx, p_hat, Ap);
 
 #pragma omp for reduction(+ : rQAp)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const float ap = jmtx_matrix_crs_vector_multiply_row(mtx, p_hat, i);
+                const float ap = jmtxf_matrix_crs_vector_multiply_row(mtx, p_hat, i);
                 Ap[i] = ap;
                 rQAp += rQ[i] * Ap[i];
             }
@@ -773,11 +773,11 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs
                 sAs_dp = 0, sAAs_dp = 0, rkrk_dp = 0, rQrk_dp = 0;
             }
 
-            // jmtx_matrix_crs_vector_multiply(mtx, s_hat, As);
+            // jmtxf_matrix_crs_vector_multiply(mtx, s_hat, As);
 #pragma omp for reduction(+ : sAs_dp, sAAs_dp)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const float as = jmtx_matrix_crs_vector_multiply_row(mtx, s_hat, i);
+                const float as = jmtxf_matrix_crs_vector_multiply_row(mtx, s_hat, i);
                 As[i] = as;
                 sAAs_dp += As[i] * As[i];
                 sAs_dp += s[i] * As[i];

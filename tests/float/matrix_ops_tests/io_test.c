@@ -8,7 +8,8 @@
 
 enum
 {
-    PROBLEM_SIZE_X = 1 << 2, PROBLEM_SIZE_Y = 1 << 2,
+    PROBLEM_SIZE_X = 1 << 2,
+    PROBLEM_SIZE_Y = 1 << 2,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
@@ -16,9 +17,12 @@ enum
     MAXIMUM_ITERATIONS = (1 << 10),
 };
 
-static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }
+static unsigned lexicographic_position(unsigned i, unsigned j)
+{
+    return INTERNAL_SIZE_X * i + j;
+}
 
-static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
+static void from_lexicographic(unsigned n, unsigned *pi, unsigned *pj)
 {
     *pj = n % INTERNAL_SIZE_X;
     *pi = n / INTERNAL_SIZE_X;
@@ -26,7 +30,7 @@ static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
 
 int main()
 {
-    jmtx_matrix_crs* mtx;
+    jmtxf_matrix_crs *mtx;
     jmtx_result mtx_res;
 
     const float dy = 1.0f / (PROBLEM_SIZE_Y - 1);
@@ -35,7 +39,11 @@ int main()
     const float rdy2 = 1.0f / (dy * dy);
     const float rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ? 5 * PROBLEM_INTERNAL_PTS : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+                                          5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
+                                              ? 5 * PROBLEM_INTERNAL_PTS
+                                              : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
+                                          NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
@@ -49,7 +57,7 @@ int main()
             if (i != 0)
             {
                 // There's a bottom boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i - 1, j);
                 k += 1;
             }
@@ -57,7 +65,7 @@ int main()
             if (j != 0)
             {
                 // There's a left boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j - 1);
                 k += 1;
             }
@@ -69,7 +77,7 @@ int main()
             if (j != INTERNAL_SIZE_X - 1)
             {
                 // There's a right boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j + 1);
                 k += 1;
             }
@@ -77,21 +85,20 @@ int main()
             if (i != INTERNAL_SIZE_Y - 1)
             {
                 // There's a top boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i + 1, j);
                 k += 1;
             }
 
-            jmtx_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            jmtxf_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
         }
     }
 
     print_crs_matrix(mtx);
-    MATRIX_TEST_CALL(jmtx_matrix_crs_to_file(mtx, "test_output_matrix.txt"));
+    MATRIX_TEST_CALL(jmtxf_matrix_crs_to_file(mtx, "test_output_matrix.txt"));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtx_matrix_crs_to_file_explicit(mtx, "test_output_matrix_full.txt"));
+    MATRIX_TEST_CALL(jmtxf_matrix_crs_to_file_explicit(mtx, "test_output_matrix_full.txt"));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_destroy(mtx));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);

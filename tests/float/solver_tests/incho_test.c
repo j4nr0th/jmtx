@@ -14,7 +14,8 @@
 
 enum
 {
-    PROBLEM_SIZE_X = 4, PROBLEM_SIZE_Y = 4,
+    PROBLEM_SIZE_X = 4,
+    PROBLEM_SIZE_Y = 4,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
@@ -22,9 +23,12 @@ enum
     MAXIMUM_ITERATIONS = (1 << 10),
 };
 
-static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }
+static unsigned lexicographic_position(unsigned i, unsigned j)
+{
+    return INTERNAL_SIZE_X * i + j;
+}
 
-static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
+static void from_lexicographic(unsigned n, unsigned *pi, unsigned *pj)
 {
     *pj = n % INTERNAL_SIZE_X;
     *pi = n / INTERNAL_SIZE_X;
@@ -32,7 +36,7 @@ static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
 
 int main()
 {
-    jmtx_matrix_crs* mtx;
+    jmtxf_matrix_crs *mtx;
     jmtx_result mtx_res;
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
@@ -45,7 +49,11 @@ int main()
     const float rdy2 = 1.0f / (dy * dy);
     const float rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ? 5 * PROBLEM_INTERNAL_PTS : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+                                          5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
+                                              ? 5 * PROBLEM_INTERNAL_PTS
+                                              : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
+                                          NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
@@ -59,7 +67,7 @@ int main()
             if (i != 0)
             {
                 // There's a bottom boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i - 1, j);
                 k += 1;
             }
@@ -67,7 +75,7 @@ int main()
             if (j != 0)
             {
                 // There's a left boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j - 1);
                 k += 1;
             }
@@ -79,7 +87,7 @@ int main()
             if (j != INTERNAL_SIZE_X - 1)
             {
                 // There's a right boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j + 1);
                 k += 1;
             }
@@ -87,34 +95,33 @@ int main()
             if (i != INTERNAL_SIZE_Y - 1)
             {
                 // There's a top boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i + 1, j);
                 k += 1;
             }
 
-            jmtx_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            jmtxf_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
         }
     }
-    jmtx_matrix_crs* cholesky = NULL;
+    jmtxf_matrix_crs *cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtx_decompose_icho_crs(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(jmtxf_decompose_icho_crs(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     print_crs_matrix(cholesky);
-    printf("Decomposition took %g seconds and the result: %s\n", t1_decomp -
-    t0_decomp, jmtx_result_to_str(mtx_res));
+    printf("Decomposition took %g seconds and the result: %s\n", t1_decomp - t0_decomp, jmtx_result_to_str(mtx_res));
 
-    jmtx_matrix_crs* cpy;
-    jmtx_matrix_ccs* cho_t = NULL;
-    MATRIX_TEST_CALL(jmtx_matrix_crs_copy(cholesky, &cpy, NULL));
+    jmtxf_matrix_crs *cpy;
+    jmtxf_matrix_ccs *cho_t = NULL;
+    MATRIX_TEST_CALL(jmtxf_matrix_crs_copy(cholesky, &cpy, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    cho_t = jmtx_convert_crs_to_ccs_inplace_transpose(cpy);
+    cho_t = jmtxf_convert_crs_to_ccs_inplace_transpose(cpy);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     print_ccs_matrix(cho_t);
 
-    jmtx_matrix_crs* approx_mtx = NULL;
+    jmtxf_matrix_crs *approx_mtx = NULL;
     MATRIX_TEST_CALL(jmtx_multiply_matrix_crs(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 

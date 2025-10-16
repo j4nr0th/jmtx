@@ -37,10 +37,10 @@
  * given number of iterations
  */
 jmtx_result jmtx_solve_iterative_gmresm_crs(
-    const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtx_matrix_brm *r,
+    const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vecs, jmtx_solver_arguments *args)
+    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vecs, jmtxf_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
@@ -63,7 +63,7 @@ jmtx_result jmtx_solve_iterative_gmresm_crs(
         float *p = q;
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float res = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            const float res = y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             r_mag += res * res;
             p[i] = res;
         }
@@ -84,7 +84,7 @@ jmtx_result jmtx_solve_iterative_gmresm_crs(
         for (k = 1; k < m; ++k)
         {
             //  Generate new basis vector
-            jmtx_matrix_crs_vector_multiply(mtx, p, p + n);
+            jmtxf_matrix_crs_vector_multiply(mtx, p, p + n);
             p += n;
             //  Make the basis orthogonal to other basis
             for (uint32_t l = 0; l < k; ++l)
@@ -132,7 +132,7 @@ jmtx_result jmtx_solve_iterative_gmresm_crs(
             sk[k - 1] = s_new;
             h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-            jmtx_matrix_brm_set_col(r, k - 1, h);
+            jmtxf_matrix_brm_set_col(r, k - 1, h);
 
             g[k] = -s_new * g[k - 1];
             g[k - 1] = c_new * g[k - 1];
@@ -155,7 +155,7 @@ jmtx_result jmtx_solve_iterative_gmresm_crs(
         {
             const uint_fast32_t i = k - 1 - row;
             float *elements;
-            jmtx_matrix_brm_get_row(r, i, &elements);
+            jmtxf_matrix_brm_get_row(r, i, &elements);
             float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -213,12 +213,12 @@ jmtx_result jmtx_solve_iterative_gmresm_crs(
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtxs_solve_iterative_gmresm_crs(
-    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
-    float x[JMTX_ARRAY_ATTRIB(restrict static n)], uint32_t m, jmtx_matrix_brm *r,
+    const jmtxf_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    float x[JMTX_ARRAY_ATTRIB(restrict static n)], uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     if (mtx->base.type != JMTX_TYPE_CRS)
     {
@@ -250,7 +250,7 @@ jmtx_result jmtxs_solve_iterative_gmresm_crs(
 
 uint32_t jmtx_gmresm_round_cds(const jmtx_matrix_cds *mtx, const uint32_t n, const uint32_t m, const float y_mag,
                                const float tol, const float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
-                               float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtx_matrix_brm *r,
+                               float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxf_matrix_brm *r,
                                float ck[JMTX_ARRAY_ATTRIB(const restrict m)],
                                float sk[JMTX_ARRAY_ATTRIB(const restrict m)],
                                float g[JMTX_ARRAY_ATTRIB(const restrict m)],
@@ -329,7 +329,7 @@ uint32_t jmtx_gmresm_round_cds(const jmtx_matrix_cds *mtx, const uint32_t n, con
         sk[k - 1] = s_new;
         h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-        jmtx_matrix_brm_set_col(r, k - 1, h);
+        jmtxf_matrix_brm_set_col(r, k - 1, h);
 
         g[k] = -s_new * g[k - 1];
         g[k - 1] = c_new * g[k - 1];
@@ -348,7 +348,7 @@ uint32_t jmtx_gmresm_round_cds(const jmtx_matrix_cds *mtx, const uint32_t n, con
     {
         const uint_fast32_t i = k - 1 - row;
         float *elements;
-        jmtx_matrix_brm_get_row(r, i, &elements);
+        jmtxf_matrix_brm_get_row(r, i, &elements);
         float sum = 0;
         for (uint_fast32_t j = 1; j < row + 1; ++j)
         {
@@ -369,9 +369,9 @@ uint32_t jmtx_gmresm_round_cds(const jmtx_matrix_cds *mtx, const uint32_t n, con
     return n_iteration;
 }
 
-uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs *mtx, const uint32_t n, const uint32_t m, const float y_mag,
+uint32_t jmtx_gmresm_round_crs(const jmtxf_matrix_crs *mtx, const uint32_t n, const uint32_t m, const float y_mag,
                                const float tol, const float residual[JMTX_ARRAY_ATTRIB(const restrict static n)],
-                               float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtx_matrix_brm *r,
+                               float x[JMTX_ARRAY_ATTRIB(const restrict static n)], jmtxf_matrix_brm *r,
                                float ck[JMTX_ARRAY_ATTRIB(const restrict m)],
                                float sk[JMTX_ARRAY_ATTRIB(const restrict m)],
                                float g[JMTX_ARRAY_ATTRIB(const restrict m)],
@@ -402,7 +402,7 @@ uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs *mtx, const uint32_t n, con
     for (k = 1; k < m; ++k)
     {
         //  Generate new basis vector
-        jmtx_matrix_crs_vector_multiply(mtx, p, p + n);
+        jmtxf_matrix_crs_vector_multiply(mtx, p, p + n);
         p += n;
         //  Make the basis orthogonal to other basis
         for (uint32_t l = 0; l < k; ++l)
@@ -450,7 +450,7 @@ uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs *mtx, const uint32_t n, con
         sk[k - 1] = s_new;
         h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-        jmtx_matrix_brm_set_col(r, k - 1, h);
+        jmtxf_matrix_brm_set_col(r, k - 1, h);
 
         g[k] = -s_new * g[k - 1];
         g[k - 1] = c_new * g[k - 1];
@@ -469,7 +469,7 @@ uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs *mtx, const uint32_t n, con
     {
         const uint_fast32_t i = k - 1 - row;
         float *elements;
-        jmtx_matrix_brm_get_row(r, i, &elements);
+        jmtxf_matrix_brm_get_row(r, i, &elements);
         float sum = 0;
         for (uint_fast32_t j = 1; j < row + 1; ++j)
         {
@@ -518,10 +518,10 @@ uint32_t jmtx_gmresm_round_crs(const jmtx_matrix_crs *mtx, const uint32_t n, con
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtx_solve_iterative_gmresm_cds(
-    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtx_matrix_brm *r,
+    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
-    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vecs, jmtx_solver_arguments *args)
+    float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vecs, jmtxf_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
@@ -614,7 +614,7 @@ jmtx_result jmtx_solve_iterative_gmresm_cds(
             sk[k - 1] = s_new;
             h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-            jmtx_matrix_brm_set_col(r, k - 1, h);
+            jmtxf_matrix_brm_set_col(r, k - 1, h);
 
             g[k] = -s_new * g[k - 1];
             g[k - 1] = c_new * g[k - 1];
@@ -637,7 +637,7 @@ jmtx_result jmtx_solve_iterative_gmresm_cds(
         {
             const uint_fast32_t i = k - 1 - row;
             float *elements;
-            jmtx_matrix_brm_get_row(r, i, &elements);
+            jmtxf_matrix_brm_get_row(r, i, &elements);
             float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -696,11 +696,11 @@ jmtx_result jmtx_solve_iterative_gmresm_cds(
  */
 jmtx_result jmtxs_solve_iterative_gmresm_cds(
     const jmtx_matrix_cds *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
-    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, jmtx_matrix_brm *r,
+    float x[JMTX_ARRAY_ATTRIB(static restrict n)], uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     if (mtx->base.type != JMTX_TYPE_CDS)
     {
@@ -766,11 +766,11 @@ jmtx_result jmtxs_solve_iterative_gmresm_cds(
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtx_solve_iterative_gmresm_rpc_jacobi_cds(
-    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtx_matrix_brm *r,
+    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6, float *restrict aux_vec7,
-    float *restrict aux_vecs, jmtx_solver_arguments *args)
+    float *restrict aux_vecs, jmtxf_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
@@ -870,7 +870,7 @@ jmtx_result jmtx_solve_iterative_gmresm_rpc_jacobi_cds(
             sk[k - 1] = s_new;
             h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-            jmtx_matrix_brm_set_col(r, k - 1, h);
+            jmtxf_matrix_brm_set_col(r, k - 1, h);
 
             g[k] = -s_new * g[k - 1];
             g[k - 1] = c_new * g[k - 1];
@@ -893,7 +893,7 @@ jmtx_result jmtx_solve_iterative_gmresm_rpc_jacobi_cds(
         {
             const uint_fast32_t i = k - 1 - row;
             float *elements;
-            jmtx_matrix_brm_get_row(r, i, &elements);
+            jmtxf_matrix_brm_get_row(r, i, &elements);
             float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {
@@ -969,11 +969,11 @@ jmtx_result jmtx_solve_iterative_gmresm_rpc_jacobi_cds(
  * given number of iterations, other error codes for other errors
  */
 jmtx_result jmtx_solve_iterative_gmresm_lpc_jacobi_cds(
-    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtx_matrix_brm *r,
+    const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x, uint32_t m, jmtxf_matrix_brm *r,
     float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], float *restrict aux_vec6, float *restrict aux_vecs,
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     float err = 0, y_mag = 0, r_mag = 0;
     uint32_t n_iteration = 0;
@@ -1078,7 +1078,7 @@ jmtx_result jmtx_solve_iterative_gmresm_lpc_jacobi_cds(
             sk[k - 1] = s_new;
             h[k - 1] = c_new * h[k - 1] + s_new * mag_p;
 
-            jmtx_matrix_brm_set_col(r, k - 1, h);
+            jmtxf_matrix_brm_set_col(r, k - 1, h);
 
             g[k] = -s_new * g[k - 1];
             g[k - 1] = c_new * g[k - 1];
@@ -1101,7 +1101,7 @@ jmtx_result jmtx_solve_iterative_gmresm_lpc_jacobi_cds(
         {
             const uint_fast32_t i = k - 1 - row;
             float *elements;
-            jmtx_matrix_brm_get_row(r, i, &elements);
+            jmtxf_matrix_brm_get_row(r, i, &elements);
             float sum = 0;
             for (uint_fast32_t j = 1; j < row + 1; ++j)
             {

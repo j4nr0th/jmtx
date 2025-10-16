@@ -84,7 +84,7 @@ jmtx_result jmtxc_solve_iterative_lu_brm_refine(const jmtxc_matrix_brm *a, const
                                                 const _Complex float y[JMTX_ARRAY_ATTRIB(restrict)],
                                                 _Complex float x[JMTX_ARRAY_ATTRIB(restrict)],
                                                 _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict)],
-                                                jmtx_solver_arguments *args);
+                                                jmtxf_solver_arguments *args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -111,7 +111,7 @@ jmtx_result jmtxcs_solve_iterative_lu_brm_refine(const jmtxc_matrix_brm *a, cons
                                                  const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
                                                  _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                  _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                 jmtx_solver_arguments *args);
+                                                 jmtxf_solver_arguments *args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -139,7 +139,7 @@ jmtx_result jmtxc_solve_iterative_lu_brm_refine_parallel(const jmtxc_matrix_brm 
                                                          const _Complex float y[JMTX_ARRAY_ATTRIB(const restrict)],
                                                          _Complex float x[JMTX_ARRAY_ATTRIB(const restrict)],
                                                          _Complex float aux_vec[JMTX_ARRAY_ATTRIB(const restrict)],
-                                                         jmtx_solver_arguments *args);
+                                                         jmtxf_solver_arguments *args);
 #endif
 #ifdef JMTXC_SPARSE_ROW_COMPRESSED_H
 
@@ -213,7 +213,7 @@ jmtx_result jmtxcs_solve_direct_lu_crs_inplace(const jmtxc_matrix_crs *l, const 
  */
 jmtx_result jmtxc_solve_iterative_ilu_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                           _Complex float *restrict x, _Complex float *aux_vec,
-                                          jmtx_solver_arguments *args,
+                                          jmtxf_solver_arguments *args,
                                           const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -240,7 +240,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs(const jmtxc_matrix_crs *mtx, uint32_t
                                            const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
                                            _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                            _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)],
-                                           jmtx_solver_arguments *args,
+                                           jmtxf_solver_arguments *args,
                                            const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -267,7 +267,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs(const jmtxc_matrix_crs *mtx, uint32_t
 jmtx_result jmtxc_solve_iterative_ilu_crs_precomputed(const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *l,
                                                       const jmtxc_matrix_crs *u, const _Complex float *restrict y,
                                                       _Complex float *restrict x, _Complex float *aux_vec,
-                                                      jmtx_solver_arguments *args);
+                                                      jmtxf_solver_arguments *args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -296,7 +296,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs_precomputed(const jmtxc_matrix_crs *m
                                                        const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
                                                        _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                        _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                       jmtx_solver_arguments *args);
+                                                       jmtxf_solver_arguments *args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -321,7 +321,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs_precomputed(const jmtxc_matrix_crs *m
  */
 jmtx_result jmtxc_solve_iterative_ilu_crs_parallel(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                                    _Complex float *restrict x, _Complex float *restrict aux_vec,
-                                                   jmtx_solver_arguments *args,
+                                                   jmtxf_solver_arguments *args,
                                                    const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -350,7 +350,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs_parallel(const jmtxc_matrix_crs *mtx,
                                                     const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)],
                                                     _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                     _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                    jmtx_solver_arguments *args,
+                                                    jmtxf_solver_arguments *args,
                                                     const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -378,7 +378,7 @@ jmtx_result jmtxcs_solve_iterative_ilu_crs_parallel(const jmtxc_matrix_crs *mtx,
  */
 jmtx_result jmtxc_solve_iterative_ilu_crs_precomputed_parallel(
     const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *l, const jmtxc_matrix_crs *u, const _Complex float *restrict y,
-    _Complex float *restrict x, _Complex float *restrict aux_vec, jmtx_solver_arguments *args);
+    _Complex float *restrict x, _Complex float *restrict aux_vec, jmtxf_solver_arguments *args);
 
 /**
  * Solves the A x = L U x = y problem by computing the residual, then solving for L U e = r for the error e if residual
@@ -407,7 +407,7 @@ jmtx_result jmtxc_solve_iterative_ilu_crs_precomputed_parallel(
 jmtx_result jmtxcs_solve_iterative_ilu_crs_precomputed_parallel(
     const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *l, const jmtxc_matrix_crs *u, uint32_t n,
     const _Complex float y[JMTX_ARRAY_ATTRIB(restrict static n)], _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
-    _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args);
+    _Complex float aux_vec[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args);
 
 #endif
 

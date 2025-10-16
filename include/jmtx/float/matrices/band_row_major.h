@@ -7,10 +7,14 @@
  * functions, which do perform parameter validation are in the "band_row_major_safe.h" header.
  */
 
-#ifndef JMTX_BAND_ROW_MAJOR_H
-#define JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXF_BAND_ROW_MAJOR_H
+#define JMTXF_BAND_ROW_MAJOR_H
 #ifndef JMTX_MATRIX_BASE_H
 #    include "../../matrix_base.h"
+#endif
+
+#ifndef JMTXF_DEFINES_H
+#    include "../jmtxf_defines.h"
 #endif
 /**
  * @paragraph
@@ -26,7 +30,7 @@
  * with N being the size of the matrix. This means that using full LU decomposition can be viable, given that the
  * bandwidth is low (most PDEs on a 1D domain).
  */
-typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
+typedef struct jmtxf_matrix_brm_struct jmtxf_matrix_brm;
 
 /**
  * Initializes a new Band Row Major matrix
@@ -40,14 +44,14 @@ typedef struct jmtx_matrix_brm_struct jmtx_matrix_brm;
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_brm_new(jmtx_matrix_brm **p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw,
-                                const float *set_value, const jmtx_allocator_callbacks *allocator_callbacks);
+jmtx_result jmtxf_matrix_brm_new(jmtxf_matrix_brm **p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw,
+                                 const jmtxf_scalar *set_value, const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Cleans up the BRM matrix and frees all of its memory
  * @param mtx pointer to memory where the matrix is stored
  */
-void jmtx_matrix_brm_destroy(jmtx_matrix_brm *mtx);
+void jmtxf_matrix_brm_destroy(jmtxf_matrix_brm *mtx);
 
 /**
  * Sets the row of the matrix. More efficient than setting it element by element
@@ -55,7 +59,7 @@ void jmtx_matrix_brm_destroy(jmtx_matrix_brm *mtx);
  * @param row index of the row to set
  * @param values values of entries
  */
-void jmtx_matrix_brm_set_row(const jmtx_matrix_brm *mtx, uint32_t row, const float values[]);
+void jmtxf_matrix_brm_set_row(const jmtxf_matrix_brm *mtx, uint32_t row, const jmtxf_scalar values[]);
 
 /**
  * Sets the column of the matrix. More efficient than setting it element by element
@@ -63,7 +67,7 @@ void jmtx_matrix_brm_set_row(const jmtx_matrix_brm *mtx, uint32_t row, const flo
  * @param col index of the column to set
  * @param values values of entries
  */
-void jmtx_matrix_brm_set_col(const jmtx_matrix_brm *mtx, uint32_t col, const float values[]);
+void jmtxf_matrix_brm_set_col(const jmtxf_matrix_brm *mtx, uint32_t col, const jmtxf_scalar values[]);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -73,7 +77,7 @@ void jmtx_matrix_brm_set_col(const jmtx_matrix_brm *mtx, uint32_t col, const flo
  * @return number of elements in the row, which is the number of valid elements in arrays given to p_indices and
  * p_elements
  */
-uint_fast32_t jmtx_matrix_brm_get_row(const jmtx_matrix_brm *mtx, uint32_t row, float *p_elements[1]);
+uint_fast32_t jmtxf_matrix_brm_get_row(const jmtxf_matrix_brm *mtx, uint32_t row, jmtxf_scalar *p_elements[1]);
 
 /**
  * Returns the index of the first non-zero column in a specific row
@@ -81,7 +85,7 @@ uint_fast32_t jmtx_matrix_brm_get_row(const jmtx_matrix_brm *mtx, uint32_t row, 
  * @param row row of the matrix for which this is to be determined
  * @return index of the first non-zero column in the row
  */
-uint_fast32_t jmtx_matrix_brm_first_pos_in_row(const jmtx_matrix_brm *mtx, uint32_t row);
+uint_fast32_t jmtxf_matrix_brm_first_pos_in_row(const jmtxf_matrix_brm *mtx, uint32_t row);
 
 /**
  * Returns the index of the last non-zero column in a specific row
@@ -89,7 +93,7 @@ uint_fast32_t jmtx_matrix_brm_first_pos_in_row(const jmtx_matrix_brm *mtx, uint3
  * @param row row of the matrix for which this is to be determined
  * @return index of the last non-zero column in the row
  */
-uint_fast32_t jmtx_matrix_brm_last_pos_in_row(const jmtx_matrix_brm *mtx, uint32_t row);
+uint_fast32_t jmtxf_matrix_brm_last_pos_in_row(const jmtxf_matrix_brm *mtx, uint32_t row);
 
 /**
  * Returns the number of non-zero elements in a row of a matrix
@@ -97,7 +101,7 @@ uint_fast32_t jmtx_matrix_brm_last_pos_in_row(const jmtx_matrix_brm *mtx, uint32
  * @param row row of the matrix for which this is to be determined
  * @return index of the last non-zero column in the row
  */
-uint_fast32_t jmtx_matrix_brm_length_of_row(const jmtx_matrix_brm *mtx, uint32_t row);
+uint_fast32_t jmtxf_matrix_brm_length_of_row(const jmtxf_matrix_brm *mtx, uint32_t row);
 
 /**
  * Returns the index of the first non-zero row in a specific column
@@ -105,7 +109,7 @@ uint_fast32_t jmtx_matrix_brm_length_of_row(const jmtx_matrix_brm *mtx, uint32_t
  * @param col column of the matrix for which this is to be determined
  * @return index of the first non-zero row in the column
  */
-uint_fast32_t jmtx_matrix_brm_first_pos_in_col(const jmtx_matrix_brm *mtx, uint32_t col);
+uint_fast32_t jmtxf_matrix_brm_first_pos_in_col(const jmtxf_matrix_brm *mtx, uint32_t col);
 
 /**
  * Returns the index of the last non-zero row in a specific column
@@ -113,7 +117,7 @@ uint_fast32_t jmtx_matrix_brm_first_pos_in_col(const jmtx_matrix_brm *mtx, uint3
  * @param col column of the matrix for which this is to be determined
  * @return index of the last non-zero row in the column
  */
-uint_fast32_t jmtx_matrix_brm_last_pos_in_col(const jmtx_matrix_brm *mtx, uint32_t col);
+uint_fast32_t jmtxf_matrix_brm_last_pos_in_col(const jmtxf_matrix_brm *mtx, uint32_t col);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y
@@ -121,7 +125,8 @@ uint_fast32_t jmtx_matrix_brm_last_pos_in_col(const jmtx_matrix_brm *mtx, uint32
  * @param x pointer to vector to be multiplied
  * @param y pointer to vector where the result of multiplication is to be stored
  */
-void jmtx_matrix_brm_vector_multiply(const jmtx_matrix_brm *mtx, const float *restrict x, float *restrict y);
+void jmtxf_matrix_brm_vector_multiply(const jmtxf_matrix_brm *mtx, const jmtxf_scalar *restrict x,
+                                      jmtxf_scalar *restrict y);
 
 /**
  * Sets a single entry in the matrix. This is about as fast as setting the entire row of the matrix at once, if the
@@ -131,7 +136,7 @@ void jmtx_matrix_brm_vector_multiply(const jmtx_matrix_brm *mtx, const float *re
  * @param j column index
  * @param value value to which the value is set
  */
-void jmtx_matrix_brm_set_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
+void jmtxf_matrix_brm_set_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j, jmtxf_scalar value);
 
 /**
  * Returns a single entry from the matrix.
@@ -140,7 +145,7 @@ void jmtx_matrix_brm_set_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t 
  * @param j column index
  * @return value of the entry (0 if the entry was not manually set to anything else)
  */
-float jmtx_matrix_brm_get_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j);
+jmtxf_scalar jmtxf_matrix_brm_get_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j);
 
 /**
  * Adds a value to an entry in the matrix when it exists or sets it to that value if it does not. This is about as
@@ -150,7 +155,7 @@ float jmtx_matrix_brm_get_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t
  * @param j column index
  * @param value value to which the value is to be added
  */
-void jmtx_matrix_brm_add_to_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
+void jmtxf_matrix_brm_add_to_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Counts the number of times a specific value occurs in the matrix
@@ -158,21 +163,21 @@ void jmtx_matrix_brm_add_to_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32
  * @param v value which to search for
  * @return number of times the value appeared in the matrix
  */
-uint32_t jmtx_matrix_brm_count_values(const jmtx_matrix_brm *mtx, float v);
+uint32_t jmtxf_matrix_brm_count_values(const jmtxf_matrix_brm *mtx, float v);
 
 /**
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  */
-void jmtx_matrix_brm_zero_all_entries(const jmtx_matrix_brm *mtx);
+void jmtxf_matrix_brm_zero_all_entries(const jmtxf_matrix_brm *mtx);
 
 /**
- * Similar to jmtx_matrix_brm_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows
+ * Similar to jmtxf_matrix_brm_zero_all_entries, but slower, since it cannot use memset. On the other hand, it allows
  * for the value to be other than 0
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  */
-void jmtx_matrix_brm_set_all_entries(const jmtx_matrix_brm *mtx, float x);
+void jmtxf_matrix_brm_set_all_entries(const jmtxf_matrix_brm *mtx, float x);
 
 /**
  * Returns the number of entries in the column of the matrix
@@ -180,7 +185,7 @@ void jmtx_matrix_brm_set_all_entries(const jmtx_matrix_brm *mtx, float x);
  * @param col column index of the matrix to look at
  * @return number of entries in the column
  */
-uint32_t jmtx_matrix_brm_length_of_col(const jmtx_matrix_brm *mtx, uint32_t col);
+uint32_t jmtxf_matrix_brm_length_of_col(const jmtxf_matrix_brm *mtx, uint32_t col);
 
 /**
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
@@ -190,7 +195,7 @@ uint32_t jmtx_matrix_brm_length_of_col(const jmtx_matrix_brm *mtx, uint32_t col)
  * @return number of entries that were extracted from the column (may be less than are really in the column if n was too
  * small)
  */
-uint32_t jmtx_matrix_brm_get_col(const jmtx_matrix_brm *mtx, uint32_t col, float values[]);
+uint32_t jmtxf_matrix_brm_get_col(const jmtxf_matrix_brm *mtx, uint32_t col, float values[]);
 
 /**
  * Creates a transpose of a matrix
@@ -200,8 +205,8 @@ uint32_t jmtx_matrix_brm_get_col(const jmtx_matrix_brm *mtx, uint32_t col, float
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_brm_transpose(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **p_out,
-                                      const jmtx_allocator_callbacks *allocator_callbacks);
+jmtx_result jmtxf_matrix_brm_transpose(const jmtxf_matrix_brm *mtx, jmtxf_matrix_brm **p_out,
+                                       const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Creates a copy of the matrix
@@ -211,8 +216,8 @@ jmtx_result jmtx_matrix_brm_transpose(const jmtx_matrix_brm *mtx, jmtx_matrix_br
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_brm_copy(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **p_out,
-                                 const jmtx_allocator_callbacks *allocator_callbacks);
+jmtx_result jmtxf_matrix_brm_copy(const jmtxf_matrix_brm *mtx, jmtxf_matrix_brm **p_out,
+                                  const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
  * Computes one entry of Ax. This function only computes the i-th entry to make it possible to compute it in parallel.
@@ -221,7 +226,7 @@ jmtx_result jmtx_matrix_brm_copy(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **p
  * @param i what entry of the residual to compute
  * @return result of the multiplication
  */
-float jmtx_matrix_brm_vector_multiply_row(const jmtx_matrix_brm *mtx, const float *x, uint32_t i);
+jmtxf_scalar jmtxf_matrix_brm_vector_multiply_row(const jmtxf_matrix_brm *mtx, const jmtxf_scalar *x, uint32_t i);
 
 /**
  * Returns the upper bandwidth and the lower bandwidth of the BRM matrix
@@ -229,6 +234,6 @@ float jmtx_matrix_brm_vector_multiply_row(const jmtx_matrix_brm *mtx, const floa
  * @param ubw pointer which receives the upper bandwidth of the matrix
  * @param lbw pointer which receives the lower bandwidth of the matrix
  */
-void jmtx_matrix_brm_get_bandwidths(const jmtx_matrix_brm *mtx, uint32_t *ubw, uint32_t *lbw);
+void jmtxf_matrix_brm_get_bandwidths(const jmtxf_matrix_brm *mtx, uint32_t *ubw, uint32_t *lbw);
 
-#endif // JMTX_BAND_ROW_MAJOR_H
+#endif // JMTXF_BAND_ROW_MAJOR_H

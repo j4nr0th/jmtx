@@ -16,7 +16,7 @@
  * @param y memory containing forcing vector
  * @param x memory which receives the solution
  */
-void jmtx_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx_matrix_crs *ct, const float *restrict y,
+void jmtx_solve_direct_cholesky_crs(const jmtxf_matrix_crs *c, const jmtxf_matrix_crs *ct, const float *restrict y,
                                     float *restrict x)
 {
     const uint32_t n = c->base.cols;
@@ -26,7 +26,7 @@ void jmtx_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx_matrix_
     {
         uint32_t *indices;
         float *values;
-        uint32_t count = jmtx_matrix_crs_get_row(c, i, &indices, &values);
+        uint32_t count = jmtxf_matrix_crs_get_row(c, i, &indices, &values);
         assert(indices[count - 1] == (uint32_t)i);
 
         float v = 0;
@@ -42,7 +42,7 @@ void jmtx_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx_matrix_
     {
         uint32_t *indices;
         float *values;
-        uint32_t count = jmtx_matrix_crs_get_row(ct, i, &indices, &values);
+        uint32_t count = jmtxf_matrix_crs_get_row(ct, i, &indices, &values);
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
@@ -62,7 +62,7 @@ void jmtx_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx_matrix_
  * @param ct transpose of the matrix C in the CRS format
  * @param x memory which contains the forcing vector and receives the solution
  */
-void jmtx_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs *c, const jmtx_matrix_crs *ct, float *restrict x)
+void jmtx_solve_direct_cholesky_crs_inplace(const jmtxf_matrix_crs *c, const jmtxf_matrix_crs *ct, float *restrict x)
 {
     const uint32_t n = c->base.cols;
     //  First is the forward substitution for C v = y
@@ -70,7 +70,7 @@ void jmtx_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs *c, const jmtx
     {
         uint32_t *indices;
         float *values;
-        uint32_t count = jmtx_matrix_crs_get_row(c, i, &indices, &values);
+        uint32_t count = jmtxf_matrix_crs_get_row(c, i, &indices, &values);
         assert(indices[count - 1] == (uint32_t)i);
 
         float v = 0;
@@ -86,7 +86,7 @@ void jmtx_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs *c, const jmtx
     {
         uint32_t *indices;
         float *values;
-        uint32_t count = jmtx_matrix_crs_get_row(ct, i, &indices, &values);
+        uint32_t count = jmtxf_matrix_crs_get_row(ct, i, &indices, &values);
         assert(indices[0] == (uint32_t)i);
 
         float v = 0;
@@ -132,7 +132,7 @@ static inline int check_vector_overlaps(const unsigned n, const size_t size,
  * @param x memory which receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx_matrix_crs *ct, uint32_t n,
+jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtxf_matrix_crs *c, const jmtxf_matrix_crs *ct, uint32_t n,
                                             const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                             float x[JMTX_ARRAY_ATTRIB(restrict n)])
 {
@@ -184,7 +184,7 @@ jmtx_result jmtxs_solve_direct_cholesky_crs(const jmtx_matrix_crs *c, const jmtx
  * @param x memory which contains the forcing vector and receives the solution
  * @returns JMTX_RESULT_SUCCESS if successful, otherwise an error code indicating error in the input parameters
  */
-jmtx_result jmtxs_solve_direct_cholesky_crs_inplace(const jmtx_matrix_crs *c, const jmtx_matrix_crs *ct, uint32_t n,
+jmtx_result jmtxs_solve_direct_cholesky_crs_inplace(const jmtxf_matrix_crs *c, const jmtxf_matrix_crs *ct, uint32_t n,
                                                     float x[JMTX_ARRAY_ATTRIB(static n)])
 {
     if (!c)

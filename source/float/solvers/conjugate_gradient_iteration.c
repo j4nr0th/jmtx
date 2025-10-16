@@ -11,10 +11,10 @@
 #include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
 #include <math.h>
 
-jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                         float *restrict x, float *restrict aux_vec1,
                                                         float *restrict aux_vec2, float *restrict aux_vec3,
-                                                        jmtx_solver_arguments *args)
+                                                        jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -70,7 +70,7 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtx_matrix_crs *m
     {
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
@@ -97,7 +97,7 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtx_matrix_crs *m
             pAp_dp = 0;
             for (uint_fast32_t i = 0; i < n; ++i)
             {
-                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
+                Ap[i] = jmtxf_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -160,10 +160,10 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs(const jmtx_matrix_crs *m
     return err < args->in_convergence_criterion ? JMTX_RESULT_SUCCESS : JMTX_RESULT_NOT_CONVERGED;
 }
 
-jmtx_result jmtx_solve_iterative_conjugate_gradient_crs_parallel(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_conjugate_gradient_crs_parallel(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                                  float *restrict x, float *restrict aux_vec1,
                                                                  float *restrict aux_vec2, float *restrict aux_vec3,
-                                                                 jmtx_solver_arguments *args)
+                                                                 jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -224,7 +224,7 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs_parallel(const jmtx_matr
 #pragma omp for
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
             p[i] = r[i];
         }
 
@@ -248,7 +248,7 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs_parallel(const jmtx_matr
 #pragma omp for reduction(+ : pAp_dp)
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
+                Ap[i] = jmtxf_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -328,9 +328,9 @@ jmtx_result jmtx_solve_iterative_conjugate_gradient_crs_parallel(const jmtx_matr
 }
 
 jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
-    const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *cho, const jmtx_matrix_crs *cho_t, const float *restrict y,
+    const jmtxf_matrix_crs *mtx, const jmtxf_matrix_crs *cho, const jmtxf_matrix_crs *cho_t, const float *restrict y,
     float *restrict x, float *restrict aux_vec1, float *restrict aux_vec2, float *restrict aux_vec3,
-    float *restrict aux_vec4, jmtx_solver_arguments *args)
+    float *restrict aux_vec4, jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -429,7 +429,7 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
         //  Compute initial residual
         for (unsigned i = 0; i < n; ++i)
         {
-            r[i] = y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x, i);
+            r[i] = y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x, i);
         }
         //  Compute initial z
         jmtx_solve_direct_cholesky_crs(cho, cho_t, r, z);
@@ -452,7 +452,7 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
             pAp_dp = 0;
             for (unsigned i = 0; i < n; ++i)
             {
-                Ap[i] = jmtx_matrix_crs_vector_multiply_row(mtx, p, i);
+                Ap[i] = jmtxf_matrix_crs_vector_multiply_row(mtx, p, i);
                 pAp_dp += p[i] * Ap[i];
             }
 
@@ -516,7 +516,7 @@ jmtx_result jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gr
 jmtx_result jmtx_solve_iterative_conjugate_gradient_cds(const jmtx_matrix_cds *mtx, const float *restrict y,
                                                         float *restrict x, float *restrict aux_vec1,
                                                         float *restrict aux_vec2, float *restrict aux_vec3,
-                                                        jmtx_solver_arguments *args)
+                                                        jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {

@@ -8,7 +8,7 @@
 #    include "../../solver_base.h"
 #endif
 
-#ifdef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifdef JMTXF_SPARSE_ROW_COMPRESSED_H
 /*
  * Gauss-Seidel is an iterative method for solving the system Ax = y. It works by splitting the matrix A into
  * matrices D (diagonal), L (lower triangular with zero diagonal), and U (upper triangular with zero diagonal), such
@@ -33,9 +33,9 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                   float *restrict x, float *restrict aux_vec1,
-                                                  jmtx_solver_arguments *args);
+                                                  jmtxf_solver_arguments *args);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)
@@ -54,11 +54,11 @@ jmtx_result jmtx_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, co
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+jmtx_result jmtxs_solve_iterative_gauss_seidel_crs(const jmtxf_matrix_crs *mtx, uint32_t n,
                                                    const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                                    float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                    float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                   jmtx_solver_arguments *args);
+                                                   jmtxf_solver_arguments *args);
 
 #endif
 

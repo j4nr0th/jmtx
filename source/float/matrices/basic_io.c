@@ -9,7 +9,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs *mtx, const char *filename)
+jmtx_result jmtxf_matrix_crs_to_file(const jmtxf_matrix_crs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -36,7 +36,7 @@ jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs *mtx, const char *file
     {
         float *elements = NULL;
         uint32_t *indices = NULL;
-        const uint32_t count = jmtx_matrix_crs_get_row(mtx, i, &indices, &elements);
+        const uint32_t count = jmtxf_matrix_crs_get_row(mtx, i, &indices, &elements);
         fprintf(f_out, "\nRow %" PRIu32 ":", i);
         for (uint32_t j = 0; j < count; ++j)
         {
@@ -50,7 +50,7 @@ jmtx_result jmtx_matrix_crs_to_file(const jmtx_matrix_crs *mtx, const char *file
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs *mtx, const char *filename)
+jmtx_result jmtxf_matrix_crs_to_file_explicit(const jmtxf_matrix_crs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -75,7 +75,7 @@ jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs *mtx, const c
     {
         float *elements = NULL;
         uint32_t *indices = NULL;
-        const uint32_t count = jmtx_matrix_crs_get_row(mtx, i, &indices, &elements);
+        const uint32_t count = jmtxf_matrix_crs_get_row(mtx, i, &indices, &elements);
         for (uint32_t j = 0, k = 0; j < mtx->base.cols; ++j)
         {
             if (k < count && indices[k] == j)
@@ -95,7 +95,7 @@ jmtx_result jmtx_matrix_crs_to_file_explicit(const jmtx_matrix_crs *mtx, const c
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs *mtx, const char *filename)
+jmtx_result jmtxf_matrix_ccs_to_file(const jmtxf_matrix_ccs *mtx, const char *filename)
 {
     if (!mtx)
     {
@@ -122,7 +122,7 @@ jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs *mtx, const char *file
     {
         float *elements = NULL;
         uint32_t *indices = NULL;
-        const uint32_t count = jmtx_matrix_ccs_get_col(mtx, i, &indices, &elements);
+        const uint32_t count = jmtxf_matrix_ccs_get_col(mtx, i, &indices, &elements);
         fprintf(f_out, "\nCol %" PRIu32 ":", i);
         for (uint32_t j = 0; j < count; ++j)
         {
@@ -136,7 +136,7 @@ jmtx_result jmtx_matrix_ccs_to_file(const jmtx_matrix_ccs *mtx, const char *file
     return JMTX_RESULT_SUCCESS;
 }
 
-jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs *mtx, const char *filename)
+jmtx_result jmtxf_matrix_ccs_to_file_explicit(const jmtxf_matrix_ccs *mtx, const char *filename)
 
 {
     if (!mtx)
@@ -162,7 +162,7 @@ jmtx_result jmtx_matrix_ccs_to_file_explicit(const jmtx_matrix_ccs *mtx, const c
     {
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            fprintf(f_out, "%+.8e\t", jmtx_matrix_ccs_get_entry(mtx, i, j));
+            fprintf(f_out, "%+.8e\t", jmtxf_matrix_ccs_get_entry(mtx, i, j));
         }
         fprintf(f_out, "\n");
     }

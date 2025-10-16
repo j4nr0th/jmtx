@@ -7,35 +7,41 @@
 #include "../../../include/jmtx/float/solvers/conjugate_gradient_iteration.h"
 #include "../../../include/jmtx/float/decompositions/incomplete_cholesky_decomposition.h"
 
-enum {PROBLEM_DIMS = (1 << 10), MAX_ITERATIONS = (PROBLEM_DIMS), CG_ITERATION_ROUND = 1};
+enum
+{
+    PROBLEM_DIMS = (1 << 10),
+    MAX_ITERATIONS = (PROBLEM_DIMS),
+    CG_ITERATION_ROUND = 1
+};
 
 int main()
 {
     //  Make the CRS matrix for the 1D Poisson equation
-    jmtx_matrix_crs* mtx = NULL;
+    jmtxf_matrix_crs *mtx = NULL;
     jmtx_result mtx_res;
     //  Problem to solve is -d^2/dx^2 (u) = 1, with u(0) = 0 and u(1) = 0, on x in (0, 1)
     //  Exact solution is u(x) = x * (x - 1) / 2
 
-    float* const exact_solution = calloc(PROBLEM_DIMS, sizeof(*exact_solution)); // exact solution of u
+    float *const exact_solution = calloc(PROBLEM_DIMS, sizeof(*exact_solution)); // exact solution of u
     ASSERT(exact_solution != NULL);
-    float* const forcing_vector = calloc(PROBLEM_DIMS, sizeof(*forcing_vector)); // forcing vector for u (all values are 1)
+    float *const forcing_vector =
+        calloc(PROBLEM_DIMS, sizeof(*forcing_vector)); // forcing vector for u (all values are 1)
     ASSERT(forcing_vector != NULL);
-    float* const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
+    float *const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
     ASSERT(iterative_solution != NULL);
-    float* const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
+    float *const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
     ASSERT(aux_v1 != NULL);
-    float* const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
+    float *const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
     ASSERT(aux_v2 != NULL);
-    float* const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
+    float *const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
     ASSERT(aux_v3 != NULL);
-    float* const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
+    float *const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
     ASSERT(aux_v4 != NULL);
 
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
     printf("OpenMP found %d processors\n", proc_count);
-    
+
 #pragma omp parallel for shared(exact_solution) default(none) schedule(static)
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
@@ -44,7 +50,6 @@ int main()
     }
     const float dx = 1.0f / (float)(PROBLEM_DIMS - 1);
     const float dx2 = dx * dx;
-
 
     MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
@@ -62,49 +67,52 @@ int main()
     for (unsigned i = 1; i < PROBLEM_DIMS - 3; ++i)
     {
         const uint32_t indices[3] = {i - 1, i, i + 1};
-        const float values[3] = { -1.0f / dx2, 2.0f / dx2, -1.0f / dx2 };
+        const float values[3] = {-1.0f / dx2, 2.0f / dx2, -1.0f / dx2};
         ASSERT(JMTX_RESULT_SUCCESS == (jmtxs_matrix_crs_set_row(mtx, i, 3, indices, values)));
     }
 
 #pragma omp parallel for shared(forcing_vector, mtx, exact_solution) default(none) schedule(static)
     for (unsigned i = 0; i < PROBLEM_DIMS - 2; ++i)
     {
-        forcing_vector[i + 1] = jmtx_matrix_crs_vector_multiply_row(mtx, exact_solution + 1, i);
+        forcing_vector[i + 1] = jmtxf_matrix_crs_vector_multiply_row(mtx, exact_solution + 1, i);
     }
-    jmtx_matrix_crs* cho = NULL;
-    MATRIX_TEST_CALL(jmtx_decompose_icho_crs(mtx, &cho, NULL));
+    jmtxf_matrix_crs *cho = NULL;
+    MATRIX_TEST_CALL(jmtxf_decompose_icho_crs(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-//    print_crs_matrix(cho);
+    //    print_crs_matrix(cho);
 
-    jmtx_matrix_crs* cho_t;
+    jmtxf_matrix_crs *cho_t;
     MATRIX_TEST_CALL(jmtxs_matrix_crs_transpose(cho, &cho_t, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     uint32_t total_iterations = 0;
     double total_time = 0;
-    const float approx_condition_number = 1/dx2;
-    jmtx_solver_arguments solver_arguments =
-            {
-            .in_convergence_criterion = 1e-8f * approx_condition_number,
-            .in_max_iterations = MAX_ITERATIONS,
-            };
+    const float approx_condition_number = 1 / dx2;
+    jmtxf_solver_arguments solver_arguments = {
+        .in_convergence_criterion = 1e-8f * approx_condition_number,
+        .in_max_iterations = MAX_ITERATIONS,
+    };
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
         mtx_res = jmtx_incomplete_cholesky_preconditioned_solve_iterative_conjugate_gradient_crs(
-                mtx, cho, cho_t, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, &solver_arguments);
+            mtx, cho, cho_t, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4,
+            &solver_arguments);
         const double t1 = omp_get_wtime();
-        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n", t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS,
-               jmtx_result_to_str(mtx_res), solver_arguments.out_last_error);
-        ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED || mtx_res == JMTX_RESULT_STAGNATED);
+        printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n",
+               t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS, jmtx_result_to_str(mtx_res),
+               solver_arguments.out_last_error);
+        ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED ||
+               mtx_res == JMTX_RESULT_STAGNATED);
         total_iterations += solver_arguments.out_last_iteration;
         total_time += t1 - t0;
     }
 
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
-    printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error, total_iterations);
+    printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error,
+           total_iterations);
 
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {

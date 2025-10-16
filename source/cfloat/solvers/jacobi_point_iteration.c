@@ -31,7 +31,7 @@
  */
 jmtx_result jmtxc_solve_iterative_jacobi_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                              _Complex float *restrict x, _Complex float *restrict aux_vec1,
-                                             _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                             _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -132,7 +132,7 @@ jmtx_result jmtxcs_solve_iterative_jacobi_crs(const jmtxc_matrix_crs *mtx, uint3
                                               _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                               _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
                                               _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
-                                              jmtx_solver_arguments *args)
+                                              jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -262,7 +262,7 @@ jmtx_result jmtxcs_solve_iterative_jacobi_crs(const jmtxc_matrix_crs *mtx, uint3
 jmtx_result jmtxc_solve_iterative_jacobi_relaxed_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                                      _Complex float *restrict x, _Complex float relaxation_factor,
                                                      _Complex float *restrict aux_vec1,
-                                                     _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                                     _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -349,7 +349,8 @@ jmtx_result jmtxc_solve_iterative_jacobi_relaxed_crs(const jmtxc_matrix_crs *mtx
  */
 jmtx_result jmtxc_solve_iterative_jacobi_crs_parallel(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                                       _Complex float *restrict x, _Complex float *restrict aux_vector1,
-                                                      _Complex float *restrict aux_vector2, jmtx_solver_arguments *args)
+                                                      _Complex float *restrict aux_vector2,
+                                                      jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -449,7 +450,7 @@ jmtx_result jmtxc_solve_iterative_jacobi_crs_parallel(const jmtxc_matrix_crs *mt
  */
 jmtx_result jmtxc_solve_iterative_jacobi_cds(const jmtxc_matrix_cds *mtx, const _Complex float *restrict y,
                                              _Complex float *restrict x, _Complex float *restrict aux_vec1,
-                                             _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                             _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -542,7 +543,7 @@ jmtx_result jmtxc_solve_iterative_jacobi_cds(const jmtxc_matrix_cds *mtx, const 
 jmtx_result jmtxc_solve_iterative_jacobi_relaxed_cds(const jmtxc_matrix_cds *mtx, const _Complex float *restrict y,
                                                      _Complex float *restrict x, _Complex float relaxation_factor,
                                                      _Complex float *restrict aux_vec1,
-                                                     _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                                     _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -627,7 +628,7 @@ jmtx_result jmtxc_solve_iterative_jacobi_relaxed_cds(const jmtxc_matrix_cds *mtx
  */
 jmtx_result jmtxc_solve_iterative_jacobi_brm(const jmtxc_matrix_brm *mtx, const _Complex float *restrict y,
                                              _Complex float *restrict x, _Complex float *restrict aux_vec1,
-                                             _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                             _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -720,7 +721,7 @@ jmtx_result jmtxc_solve_iterative_jacobi_brm(const jmtxc_matrix_brm *mtx, const 
 jmtx_result jmtxc_solve_iterative_jacobi_relaxed_brm(const jmtxc_matrix_brm *mtx, const _Complex float *restrict y,
                                                      _Complex float *restrict x, _Complex float relaxation_factor,
                                                      _Complex float *restrict aux_vec1,
-                                                     _Complex float *restrict aux_vec2, jmtx_solver_arguments *args)
+                                                     _Complex float *restrict aux_vec2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -807,7 +808,8 @@ jmtx_result jmtxc_solve_iterative_jacobi_relaxed_brm(const jmtxc_matrix_brm *mtx
  */
 jmtx_result jmtxc_solve_iterative_jacobi_brm_parallel(const jmtxc_matrix_brm *mtx, const _Complex float *restrict y,
                                                       _Complex float *restrict x, _Complex float *restrict aux_vector1,
-                                                      _Complex float *restrict aux_vector2, jmtx_solver_arguments *args)
+                                                      _Complex float *restrict aux_vector2,
+                                                      jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;

@@ -47,7 +47,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_crs(const jmtxc_matrix_crs *mtx, const 
                                              _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
                                              _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
                                              _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float *restrict aux_vecs, jmtx_solver_arguments *args);
+                                             _Complex float *restrict aux_vecs, jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -83,7 +83,7 @@ jmtx_result jmtxcs_solve_iterative_gmresm_crs(
     _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-    jmtx_solver_arguments *args);
+    jmtxf_solver_arguments *args);
 #endif
 
 #ifdef JMTXC_SPARSE_DIAGONAL_COMPRESSED_H
@@ -122,7 +122,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_cds(const jmtxc_matrix_cds *mtx, const 
                                              _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
                                              _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
                                              _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
-                                             _Complex float *restrict aux_vecs, jmtx_solver_arguments *args);
+                                             _Complex float *restrict aux_vecs, jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -158,7 +158,7 @@ jmtx_result jmtxcs_solve_iterative_gmresm_cds(
     _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vecs[JMTX_ARRAY_ATTRIB(restrict m * n)],
-    jmtx_solver_arguments *args);
+    jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -201,7 +201,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_rpc_jacobi_cds(
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float *restrict aux_vec6, _Complex float *restrict aux_vec7, _Complex float *restrict aux_vecs,
-    jmtx_solver_arguments *args);
+    jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual method with a restart interval of M (known as GMRES(M)). Builds up a set of m
@@ -243,7 +243,7 @@ jmtx_result jmtxc_solve_iterative_gmresm_lpc_jacobi_cds(
     jmtxc_matrix_brm *r, _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
-    _Complex float *restrict aux_vec6, _Complex float *restrict aux_vecs, jmtx_solver_arguments *args);
+    _Complex float *restrict aux_vec6, _Complex float *restrict aux_vecs, jmtxf_solver_arguments *args);
 
 #endif
 

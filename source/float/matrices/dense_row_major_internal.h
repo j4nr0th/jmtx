@@ -7,10 +7,10 @@
 #ifndef JMTX_MATRIX_BASE_INTERNAL_H
 #    include "../../matrix_base_internal.h"
 #endif
-#ifndef JMTX_DENSE_ROW_MAJOR_H
+#ifndef JMTXF_DENSE_ROW_MAJOR_H
 #    include "../../../include/jmtx/float/matrices/dense_row_major.h"
 #endif
-struct jmtx_matrix_drm_struct
+struct jmtxf_matrix_drm_struct
 {
     jmtx_matrix_base base;
     //  Length this->base.rows, contains the order in which the rows are permuted (what row is read from where)
@@ -37,6 +37,41 @@ struct jmtx_matrix_drm_struct
  *
  * @return An initialized dense row-major matrix.
  */
-jmtx_matrix_drm jmtx_matrix_drm_from_data(unsigned rows, unsigned cols,
-                                          float values[JMTX_ARRAY_ATTRIB(static rows * cols)]);
+jmtxf_matrix_drm jmtxf_matrix_drm_from_data(unsigned rows, unsigned cols,
+                                            float values[JMTX_ARRAY_ATTRIB(static rows * cols)]);
+
+jmtx_result jmtxf_matrix_drm_set_default_permutations(jmtxf_matrix_drm *this);
+
+inline void jmtxf_matrix_drm_clear_permutations(jmtxf_matrix_drm *this)
+{
+    if (this->permutations)
+    {
+        this->base.allocator_callbacks.free(this->base.allocator_callbacks.state, this->permutations);
+        this->permutations = NULL;
+    }
+    if (this->rperm)
+    {
+        this->base.allocator_callbacks.free(this->base.allocator_callbacks.state, this->rperm);
+        this->rperm = NULL;
+    }
+}
+
+inline float *MATRIX_DRM_ENTRY_READ(const jmtxf_matrix_drm *this, unsigned row, unsigned col)
+{
+    if (this->permutations)
+    {
+        return this->values + this->permutations[row] * this->base.cols + col;
+    }
+    return this->values + row * this->base.cols + col;
+}
+
+inline float *MATRIX_DRM_ENTRY_WRITE(const jmtxf_matrix_drm *this, unsigned row, unsigned col)
+{
+    if (this->rperm)
+    {
+        return this->values + this->rperm[row] * this->base.cols + col;
+    }
+    return this->values + row * this->base.cols + col;
+}
+
 #endif // JMTX_DENSE_ROW_MAJOR_INTERNAL_H

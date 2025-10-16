@@ -16,7 +16,8 @@
 jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                                          _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                          _Complex float *restrict aux_vec2,
-                                                         _Complex float *restrict aux_vec3, jmtx_solver_arguments *args)
+                                                         _Complex float *restrict aux_vec3,
+                                                         jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -165,7 +166,7 @@ jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs(const jmtxc_matrix_crs 
 jmtx_result jmtxc_solve_iterative_conjugate_gradient_crs_parallel(
     const jmtxc_matrix_crs *mtx, const _Complex float *restrict y, _Complex float *restrict x,
     _Complex float *restrict aux_vec1, _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -333,7 +334,7 @@ jmtx_result jmtxc_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
     const jmtxc_matrix_crs *mtx, const jmtxc_matrix_crs *cho, const jmtxc_matrix_crs *cho_t,
     const _Complex float *restrict y, _Complex float *restrict x, _Complex float *restrict aux_vec1,
     _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3, _Complex float *restrict aux_vec4,
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -528,7 +529,8 @@ jmtx_result jmtxc_incomplete_cholesky_preconditioned_solve_iterative_conjugate_g
 jmtx_result jmtxc_solve_iterative_conjugate_gradient_cds(const jmtxc_matrix_cds *mtx, const _Complex float *restrict y,
                                                          _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                          _Complex float *restrict aux_vec2,
-                                                         _Complex float *restrict aux_vec3, jmtx_solver_arguments *args)
+                                                         _Complex float *restrict aux_vec3,
+                                                         jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {

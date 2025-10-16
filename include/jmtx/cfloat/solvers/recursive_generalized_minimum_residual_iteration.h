@@ -49,7 +49,7 @@ jmtx_result jmtxc_solve_iterative_gmresr_cds(
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float *restrict aux_vec6, _Complex float *restrict aux_vecs1, _Complex float *restrict aux_vecs2,
-    _Complex float *restrict aux_vecs3, jmtx_solver_arguments *args);
+    _Complex float *restrict aux_vecs3, jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
@@ -92,7 +92,7 @@ jmtx_result jmtxcs_solve_iterative_gmresr_cds(
     _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)],
     _Complex float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-    _Complex float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args);
+    _Complex float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtxf_solver_arguments *args);
 #endif
 
 #ifdef JMTXC_SPARSE_ROW_COMPRESSED_H
@@ -136,7 +136,7 @@ jmtx_result jmtxc_solve_iterative_gmresr_crs(
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)],
     _Complex float *restrict aux_vec6, _Complex float *restrict aux_vecs1, _Complex float *restrict aux_vecs2,
-    _Complex float *restrict aux_vecs3, jmtx_solver_arguments *args);
+    _Complex float *restrict aux_vecs3, jmtxf_solver_arguments *args);
 
 /**
  * Applies Generalized Minimum Residual Recursive method (known as GMRESR) to solve a linear system A x = y.
@@ -179,7 +179,7 @@ jmtx_result jmtxcs_solve_iterative_gmresr_crs(
     _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict m)], _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vecs1[JMTX_ARRAY_ATTRIB(restrict m * n)],
     _Complex float aux_vecs2[JMTX_ARRAY_ATTRIB(restrict l * n)],
-    _Complex float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtx_solver_arguments *args);
+    _Complex float aux_vecs3[JMTX_ARRAY_ATTRIB(restrict l * n)], jmtxf_solver_arguments *args);
 #endif
 
 #endif // JMTXC_RECURSIVE_GENERALIZED_MINIMUM_RESIDUAL_ITERATION_H

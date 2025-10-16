@@ -2,9 +2,9 @@
 // Created by jan on 4.1.2024.
 //
 
-#ifndef JMTX_DENSE_LU_DECOMPOSITION_H
-#define JMTX_DENSE_LU_DECOMPOSITION_H
-#ifndef JMTX_DENSE_ROW_MAJOR_H
+#ifndef JMTXF_DENSE_LU_DECOMPOSITION_H
+#define JMTXF_DENSE_LU_DECOMPOSITION_H
+#ifndef JMTXF_DENSE_ROW_MAJOR_H
 #    include "../matrices/dense_row_major.h"
 #endif
 
@@ -16,7 +16,7 @@
  * @param mtx square matrix to decompose
  * @param decomposed square matrix which receives the decomposition
  */
-void jmtx_decompose_lu_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed);
+void jmtxf_decompose_lu_drm(jmtxf_matrix_drm *mtx, jmtxf_matrix_drm *decomposed);
 
 /**
  * Decomposes a matrix into a lower triangular matrix L and upper triangular matrix U, storing the result in the
@@ -28,6 +28,6 @@ void jmtx_decompose_lu_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed);
  * @param decomposed square matrix which receives the decomposition
  * @return JMTX_RESULT_SUCCESS on success, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_decompose_lu_pivot_drm(jmtx_matrix_drm *mtx, jmtx_matrix_drm *decomposed);
+jmtx_result jmtxf_decompose_lu_pivot_drm(jmtxf_matrix_drm *mtx, jmtxf_matrix_drm *decomposed);
 
-#endif // JMTX_DENSE_LU_DECOMPOSITION_H
+#endif // JMTXF_DENSE_LU_DECOMPOSITION_H

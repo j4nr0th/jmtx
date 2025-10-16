@@ -12,7 +12,7 @@
 /**
  * Parameters used for any kind of iterative solution algorithm.
  */
-struct jmtx_solver_arguments_T
+struct jmtxf_solver_arguments_t
 {
     /**
      * Used to determine if the solution is close enough to the exact value. For linear solvers this is typically
@@ -42,12 +42,12 @@ struct jmtx_solver_arguments_T
      */
     float *opt_error_evolution;
 };
-typedef struct jmtx_solver_arguments_T jmtx_solver_arguments;
+typedef struct jmtxf_solver_arguments_t jmtxf_solver_arguments;
 
 /**
  * Parameters used for any kind of iterative solution algorithm.
  */
-struct jmtxd_solver_arguments_T
+struct jmtxd_solver_arguments_t
 {
     /**
      * Used to determine if the solution is close enough to the exact value. For linear solvers this is typically
@@ -77,6 +77,6 @@ struct jmtxd_solver_arguments_T
      */
     double *opt_error_evolution;
 };
-typedef struct jmtxd_solver_arguments_T jmtxd_solver_arguments;
+typedef struct jmtxd_solver_arguments_t jmtxd_solver_arguments;
 
 #endif // JMTX_SOLVER_BASE_H

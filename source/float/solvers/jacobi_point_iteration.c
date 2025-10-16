@@ -30,9 +30,9 @@
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args)
+                                            jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -41,7 +41,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const fl
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
+        float d = jmtxf_matrix_crs_get_entry(mtx, i, i);
         x[i] = y[i] / d;
         div_factor[i] = 1.0f / d;
         y_mag += y[i] * y[i];
@@ -70,7 +70,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const fl
         {
             float *row_ptr;
             uint32_t *index_ptr;
-            uint32_t n_elements = jmtx_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
+            uint32_t n_elements = jmtxf_matrix_crs_get_row(mtx, i, &index_ptr, &row_ptr);
             float res = 0;
             for (uint32_t j = 0; j < n_elements; ++j)
             {
@@ -85,7 +85,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const fl
 
         for (uint32_t i = 0; i < n; ++i)
         {
-            float val = jmtx_matrix_crs_vector_multiply_row(mtx, x1, i);
+            float val = jmtxf_matrix_crs_vector_multiply_row(mtx, x1, i);
             val -= y[i];
             err += val * val;
         }
@@ -128,11 +128,12 @@ jmtx_result jmtx_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, const fl
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_t n,
+jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtxf_matrix_crs *mtx, uint32_t n,
                                              const float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                              float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                              float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-                                             float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
+                                             float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)],
+                                             jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -169,7 +170,7 @@ jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        float d = jmtx_matrix_crs_get_entry(mtx, i, i);
+        float d = jmtxf_matrix_crs_get_entry(mtx, i, i);
         if (d == 0.0f)
         {
             //  Diagonal entry is zero!
@@ -202,13 +203,13 @@ jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_
         //  row
         for (uint_fast32_t i = 0; i < n; ++i)
         {
-            const float res = jmtx_matrix_crs_vector_multiply_row(mtx, x0, i);
+            const float res = jmtxf_matrix_crs_vector_multiply_row(mtx, x0, i);
             //  Multiplication of vector x by D⁻¹
             x1[i] = (y[i] - res) * div_factor[i];
         }
 
         //  Vector x0 no longer needed
-        jmtx_matrix_crs_vector_multiply(mtx, x1, x0);
+        jmtxf_matrix_crs_vector_multiply(mtx, x1, x0);
         //  Loop is easier to vectorize like this
         for (uint_fast32_t i = 0; i < n; ++i)
         {
@@ -258,10 +259,10 @@ jmtx_result jmtxs_solve_iterative_jacobi_crs(const jmtx_matrix_crs *mtx, uint32_
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args)
+                                                    jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -270,7 +271,7 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, 
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        const float d = jmtx_matrix_crs_get_entry(mtx, i, i);
+        const float d = jmtxf_matrix_crs_get_entry(mtx, i, i);
         x[i] = y[i] / d;
         div_factor[i] = relaxation_factor / d;
         y_mag += y[i] * y[i];
@@ -297,11 +298,11 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, 
         //  row
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float res = jmtx_matrix_crs_vector_multiply_row(mtx, x0, i);
+            const float res = jmtxf_matrix_crs_vector_multiply_row(mtx, x0, i);
             x1[i] = x0[i] + (y[i] - res) * div_factor[i];
         }
 
-        jmtx_matrix_crs_vector_multiply(mtx, x1, x0);
+        jmtxf_matrix_crs_vector_multiply(mtx, x1, x0);
         for (uint32_t i = 0; i < n; ++i)
         {
             const float val = y[i] - x0[i];
@@ -346,9 +347,9 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_crs(const jmtx_matrix_crs *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtxf_matrix_crs *mtx, const float *restrict y,
                                                      float *restrict x, float *restrict aux_vector1,
-                                                     float *restrict aux_vector2, jmtx_solver_arguments *args)
+                                                     float *restrict aux_vector2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -367,7 +368,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx,
 #pragma omp for schedule(static)
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float d = jmtx_matrix_crs_get_entry(mtx, i, i);
+            const float d = jmtxf_matrix_crs_get_entry(mtx, i, i);
             aux_vector1[i] = 1.0f / d;
             const float mag = y[i] * y[i];
             y_mag += mag;
@@ -395,13 +396,13 @@ jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx,
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x1[i] = x0[i] + (y[i] - jmtx_matrix_crs_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
+                x1[i] = x0[i] + (y[i] - jmtxf_matrix_crs_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
             }
 
 #pragma omp for reduction(+ : err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const float val = jmtx_matrix_crs_vector_multiply_row(mtx, x1, i) - y[i];
+                const float val = jmtxf_matrix_crs_vector_multiply_row(mtx, x1, i) - y[i];
                 err += val * val;
             }
 
@@ -448,7 +449,7 @@ jmtx_result jmtx_solve_iterative_jacobi_crs_parallel(const jmtx_matrix_crs *mtx,
  */
 jmtx_result jmtx_solve_iterative_jacobi_cds(const jmtx_matrix_cds *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args)
+                                            jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -541,7 +542,7 @@ jmtx_result jmtx_solve_iterative_jacobi_cds(const jmtx_matrix_cds *mtx, const fl
 jmtx_result jmtx_solve_iterative_jacobi_relaxed_cds(const jmtx_matrix_cds *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args)
+                                                    jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -624,9 +625,9 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_cds(const jmtx_matrix_cds *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtxf_matrix_brm *mtx, const float *restrict y, float *restrict x,
                                             float *restrict aux_vec1, float *restrict aux_vec2,
-                                            jmtx_solver_arguments *args)
+                                            jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -635,7 +636,7 @@ jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const fl
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        const float d = jmtx_matrix_brm_get_entry(mtx, i, i);
+        const float d = jmtxf_matrix_brm_get_entry(mtx, i, i);
         x[i] = y[i] / d;
         div_factor[i] = 1.0f / d;
         y_mag += y[i] * y[i];
@@ -660,14 +661,14 @@ jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const fl
 
         //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
         //  row
-        jmtx_matrix_brm_vector_multiply(mtx, x0, x1);
+        jmtxf_matrix_brm_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
             //  Multiplication of vector x by D⁻¹
             x1[i] = (y[i] - x1[i]) * div_factor[i];
         }
 
-        jmtx_matrix_brm_vector_multiply(mtx, x1, x0);
+        jmtxf_matrix_brm_vector_multiply(mtx, x1, x0);
         for (uint32_t i = 0; i < n; ++i)
         {
             const float val = y[i] - x0[i];
@@ -716,10 +717,10 @@ jmtx_result jmtx_solve_iterative_jacobi_brm(const jmtx_matrix_brm *mtx, const fl
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtxf_matrix_brm *mtx, const float *restrict y,
                                                     float *restrict x, float relaxation_factor,
                                                     float *restrict aux_vec1, float *restrict aux_vec2,
-                                                    jmtx_solver_arguments *args)
+                                                    jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -728,7 +729,7 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, 
     //  Initial guess by assuming that mtx is a diagonal matrix
     for (uint32_t i = 0; i < n; ++i)
     {
-        const float d = jmtx_matrix_brm_get_entry(mtx, i, i);
+        const float d = jmtxf_matrix_brm_get_entry(mtx, i, i);
         x[i] = y[i] / d;
         div_factor[i] = relaxation_factor / d;
         y_mag += y[i] * y[i];
@@ -753,13 +754,13 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, 
 
         //  For each entry, find the corresponding row in matrix A - D and compute the dot product between x and that
         //  row
-        jmtx_matrix_brm_vector_multiply(mtx, x0, x1);
+        jmtxf_matrix_brm_vector_multiply(mtx, x0, x1);
         for (uint32_t i = 0; i < n; ++i)
         {
             x1[i] = x0[i] + (y[i] - x1[i]) * div_factor[i];
         }
 
-        jmtx_matrix_brm_vector_multiply(mtx, x1, x0);
+        jmtxf_matrix_brm_vector_multiply(mtx, x1, x0);
         for (uint32_t i = 0; i < n; ++i)
         {
             const float val = y[i] - x0[i];
@@ -804,9 +805,9 @@ jmtx_result jmtx_solve_iterative_jacobi_relaxed_brm(const jmtx_matrix_brm *mtx, 
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_NOT_CONVERGED if it hasn't reached given stopping criterion,
  * in case of failure it returns the associated error code
  */
-jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtx_matrix_brm *mtx, const float *restrict y,
+jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtxf_matrix_brm *mtx, const float *restrict y,
                                                      float *restrict x, float *restrict aux_vector1,
-                                                     float *restrict aux_vector2, jmtx_solver_arguments *args)
+                                                     float *restrict aux_vector2, jmtxf_solver_arguments *args)
 {
     //  Length of x and y
     const uint32_t n = mtx->base.cols;
@@ -825,7 +826,7 @@ jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtx_matrix_brm *mtx,
 #pragma omp for schedule(static)
         for (uint32_t i = 0; i < n; ++i)
         {
-            const float d = jmtx_matrix_brm_get_entry(mtx, i, i);
+            const float d = jmtxf_matrix_brm_get_entry(mtx, i, i);
             aux_vector1[i] = 1.0f / d;
             const float mag = y[i] * y[i];
             y_mag += mag;
@@ -853,13 +854,13 @@ jmtx_result jmtx_solve_iterative_jacobi_brm_parallel(const jmtx_matrix_brm *mtx,
 #pragma omp for schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                x1[i] = x0[i] + (y[i] - jmtx_matrix_brm_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
+                x1[i] = x0[i] + (y[i] - jmtxf_matrix_brm_vector_multiply_row(mtx, x0, i)) * aux_vector1[i];
             }
 
 #pragma omp for reduction(+ : err) schedule(static)
             for (uint32_t i = 0; i < n; ++i)
             {
-                const float val = jmtx_matrix_brm_vector_multiply_row(mtx, x1, i) - y[i];
+                const float val = jmtxf_matrix_brm_vector_multiply_row(mtx, x1, i) - y[i];
                 err += val * val;
             }
 

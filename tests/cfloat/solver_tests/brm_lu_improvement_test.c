@@ -16,19 +16,25 @@ static float get_rms_error_for_element_count_brm(const unsigned n)
     const float dx = 1.0f / (_Complex float)n;
     const float r_dx2 = 1.0f / (dx * dx);
 
-    jmtxc_matrix_brm* system_matrix;
+    jmtxc_matrix_brm *system_matrix;
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_new(&system_matrix, n, n, 1, 1, NULL, NULL));
 
     //  Build the matrix
     {
         //  First row
-        enum {ROW_SIZE = 2};
+        enum
+        {
+            ROW_SIZE = 2
+        };
         _Complex float val[ROW_SIZE] = {-2.0f * r_dx2, r_dx2};
         jmtxc_matrix_brm_set_row(system_matrix, 0, val);
     }
     {
         //  Interior rows
-        enum {ROW_SIZE = 3};
+        enum
+        {
+            ROW_SIZE = 3
+        };
         _Complex float val[ROW_SIZE] = {r_dx2, -2.0f * r_dx2, r_dx2};
         for (uint32_t row = 1; row < n - 1; ++row)
         {
@@ -37,16 +43,19 @@ static float get_rms_error_for_element_count_brm(const unsigned n)
     }
     {
         //  Last row
-        enum {ROW_SIZE = 2};
+        enum
+        {
+            ROW_SIZE = 2
+        };
         _Complex float val[ROW_SIZE] = {2.0f * r_dx2, -2.0f * r_dx2};
         jmtxc_matrix_brm_set_row(system_matrix, n - 1, val);
     }
 
-    _Complex float* const x = calloc(n + 1, sizeof(*x));
+    _Complex float *const x = calloc(n + 1, sizeof(*x));
     ASSERT(x);
-    _Complex float* const f = calloc(n + 1, sizeof(*f));
+    _Complex float *const f = calloc(n + 1, sizeof(*f));
     ASSERT(f);
-    _Complex float* const sol = calloc(n + 1, sizeof(*sol));
+    _Complex float *const sol = calloc(n + 1, sizeof(*sol));
     ASSERT(sol);
     sol[0] = 0;
 
@@ -56,11 +65,11 @@ static float get_rms_error_for_element_count_brm(const unsigned n)
         f[i] = sinf(x[i] * 1.5f * (_Complex float)M_PI);
     }
 
-    jmtxc_matrix_brm* l, *u;
+    jmtxc_matrix_brm *l, *u;
 
     MATRIX_TEST_CALL(jmtxc_decompose_lu_brm(system_matrix, &l, &u, NULL));
-//    print_brmc_matrix(l);
-//    print_brmc_matrix(u);
+    //    print_brmc_matrix(l);
+    //    print_brmc_matrix(u);
 
     jmtxc_solve_direct_lu_brm(l, u, f + 1, sol + 1);
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(u));
@@ -68,8 +77,11 @@ static float get_rms_error_for_element_count_brm(const unsigned n)
     free(f);
     sol[0] = 0.0f;
 
-    enum {EXACT_POINTS = 257};
-    _Complex float* const err = calloc(n + 1, sizeof(*err));
+    enum
+    {
+        EXACT_POINTS = 257
+    };
+    _Complex float *const err = calloc(n + 1, sizeof(*err));
     ASSERT(err);
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(system_matrix));
 
@@ -92,19 +104,25 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
     const _Complex float dx = 1.0f / (_Complex float)n;
     const _Complex float r_dx2 = 1.0f / (dx * dx);
 
-    jmtxc_matrix_brm* system_matrix;
+    jmtxc_matrix_brm *system_matrix;
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_new(&system_matrix, n, n, 1, 1, NULL, NULL));
 
     //  Build the matrix
     {
         //  First row
-        enum {ROW_SIZE = 2};
+        enum
+        {
+            ROW_SIZE = 2
+        };
         _Complex float val[ROW_SIZE] = {-2.0f * r_dx2, r_dx2};
         jmtxc_matrix_brm_set_row(system_matrix, 0, val);
     }
     {
         //  Interior rows
-        enum {ROW_SIZE = 3};
+        enum
+        {
+            ROW_SIZE = 3
+        };
         _Complex float val[ROW_SIZE] = {r_dx2, -2.0f * r_dx2, r_dx2};
         for (uint32_t row = 1; row < n - 1; ++row)
         {
@@ -113,18 +131,21 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
     }
     {
         //  Last row
-        enum {ROW_SIZE = 2};
+        enum
+        {
+            ROW_SIZE = 2
+        };
         _Complex float val[ROW_SIZE] = {2.0f * r_dx2, -2.0f * r_dx2};
         jmtxc_matrix_brm_set_row(system_matrix, n - 1, val);
     }
 
-    _Complex float* const x = calloc(n + 1, sizeof(*x));
+    _Complex float *const x = calloc(n + 1, sizeof(*x));
     ASSERT(x);
-    _Complex float* const f = calloc(n + 1, sizeof(*f));
+    _Complex float *const f = calloc(n + 1, sizeof(*f));
     ASSERT(f);
-    _Complex float* const sol = calloc(n + 1, sizeof(*sol));
+    _Complex float *const sol = calloc(n + 1, sizeof(*sol));
     ASSERT(sol);
-    _Complex float* const aux = calloc(n + 1, sizeof(*aux));
+    _Complex float *const aux = calloc(n + 1, sizeof(*aux));
     ASSERT(aux);
     sol[0] = 0;
 
@@ -134,25 +155,27 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
         f[i] = sinf(x[i] * 1.5f * (_Complex float)M_PI);
     }
 
-    jmtxc_matrix_brm* l, *u;
+    jmtxc_matrix_brm *l, *u;
 
     MATRIX_TEST_CALL(jmtxc_decompose_lu_brm(system_matrix, &l, &u, NULL));
-//    print_brmc_matrix(l);
-//    print_brmc_matrix(u);
+    //    print_brmc_matrix(l);
+    //    print_brmc_matrix(u);
 
-    jmtx_solver_arguments args =
-            {
-            .in_max_iterations = 64,//n,
-            .in_convergence_criterion = 1e-8f,
-            };
+    jmtxf_solver_arguments args = {
+        .in_max_iterations = 64, // n,
+        .in_convergence_criterion = 1e-8f,
+    };
     jmtxc_solve_iterative_lu_brm_refine(system_matrix, l, u, f + 1, sol + 1, aux, &args);
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(u));
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(l));
     free(f);
     sol[0] = 0.0f;
 
-    enum {EXACT_POINTS = 257};
-    _Complex float* const err = calloc(n + 1, sizeof(*err));
+    enum
+    {
+        EXACT_POINTS = 257
+    };
+    _Complex float *const err = calloc(n + 1, sizeof(*err));
     ASSERT(err);
     MATRIX_TEST_CALL(jmtxcs_matrix_brm_destroy(system_matrix));
 
@@ -171,9 +194,10 @@ static float get_rms_error_for_element_count_brm_improved(const unsigned n)
     return rms;
 }
 
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
-    (void)argv; (void)argc;
+    (void)argv;
+    (void)argc;
     //  Copied after work of Marc Gerritsma
 
     /*
@@ -184,24 +208,27 @@ int main(int argc, const char* argv[])
      * uniform mesh spacing on domain (0, 1)
      */
 
-    enum {POWER_COUNT = 10};
+    enum
+    {
+        POWER_COUNT = 10
+    };
     float errors1[POWER_COUNT];
     float errors2[POWER_COUNT];
     float size[POWER_COUNT];
     unsigned p = 1;
 
     struct timespec ts0, ts1;
-//    clock_gettime(CLOCK_MONOTONIC, &ts0);
-//    for (unsigned i = 0; i < POWER_COUNT; ++i)
-//    {
-//        p <<= 1;
-//        size[i] = log10f((_Complex float)p);
-//        errors[i] = log10f(get_rms_error_for_element_count(p));
-//        printf("RMS error for %u elements was %g\n", p, errors[i]);
-//    }
-//    clock_gettime(CLOCK_MONOTONIC, &ts1);
-//    printf("Time taken using CRS/CCS %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
-//    p = 1;
+    //    clock_gettime(CLOCK_MONOTONIC, &ts0);
+    //    for (unsigned i = 0; i < POWER_COUNT; ++i)
+    //    {
+    //        p <<= 1;
+    //        size[i] = log10f((_Complex float)p);
+    //        errors[i] = log10f(get_rms_error_for_element_count(p));
+    //        printf("RMS error for %u elements was %g\n", p, errors[i]);
+    //    }
+    //    clock_gettime(CLOCK_MONOTONIC, &ts1);
+    //    printf("Time taken using CRS/CCS %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec -
+    //    ts0.tv_nsec) * 1e-9); p = 1;
 
     clock_gettime(CLOCK_MONOTONIC, &ts0);
     for (unsigned i = 0; i < POWER_COUNT; ++i)
@@ -213,8 +240,8 @@ int main(int argc, const char* argv[])
         printf("RMS error for %u elements was %g for base and %g for improved\n", p, errors1[i], errors2[i]);
     }
     clock_gettime(CLOCK_MONOTONIC, &ts1);
-    printf("Time taken using BRM %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
-
+    printf("Time taken using BRM %g seconds\n",
+           (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
 
     return 0;
 }

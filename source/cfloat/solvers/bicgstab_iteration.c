@@ -41,7 +41,7 @@ jmtx_result jmtxc_solve_iterative_bicgstab_crs(const jmtxc_matrix_crs *mtx, cons
                                                _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
                                                _Complex float *restrict aux_vec4, _Complex float *restrict aux_vec5,
-                                               _Complex float *restrict aux_vec6, jmtx_solver_arguments *args)
+                                               _Complex float *restrict aux_vec6, jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -217,7 +217,7 @@ jmtx_result jmtxcs_solve_iterative_bicgstab_crs(
     _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
+    _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -280,7 +280,7 @@ jmtx_result jmtxc_solve_iterative_bicgstab_cds(const jmtxc_matrix_cds *mtx, cons
                                                _Complex float *restrict x, _Complex float *restrict aux_vec1,
                                                _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
                                                _Complex float *restrict aux_vec4, _Complex float *restrict aux_vec5,
-                                               _Complex float *restrict aux_vec6, jmtx_solver_arguments *args)
+                                               _Complex float *restrict aux_vec6, jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -430,7 +430,7 @@ jmtx_result jmtxcs_solve_iterative_bicgstab_cds(
     _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     _Complex float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], _Complex float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args)
+    _Complex float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args)
 {
     if (!mtx)
     {
@@ -502,7 +502,7 @@ jmtx_result jmtxc_solve_iterative_pilubicgstab_crs(const jmtxc_matrix_crs *mtx, 
                                                    _Complex float *restrict aux_vec2, _Complex float *restrict aux_vec3,
                                                    _Complex float *restrict aux_vec4, _Complex float *restrict aux_vec5,
                                                    _Complex float *restrict aux_vec6, _Complex float *restrict aux_vec7,
-                                                   _Complex float *restrict aux_vec8, jmtx_solver_arguments *args)
+                                                   _Complex float *restrict aux_vec8, jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 
@@ -677,7 +677,7 @@ jmtx_result jmtxc_solve_iterative_pilubicgstab_crs_parallel(
     _Complex float *restrict x, _Complex float *restrict aux_vec1, _Complex float *restrict aux_vec2,
     _Complex float *restrict aux_vec3, _Complex float *restrict aux_vec4, _Complex float *restrict aux_vec5,
     _Complex float *restrict aux_vec6, _Complex float *restrict aux_vec7, _Complex float *restrict aux_vec8,
-    jmtx_solver_arguments *args)
+    jmtxf_solver_arguments *args)
 {
     const uint32_t n = mtx->base.rows;
 

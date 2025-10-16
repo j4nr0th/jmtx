@@ -8,10 +8,10 @@
 #    include "../../matrix_base_internal.h"
 #endif
 
-#ifndef JMTX_SPARSE_COLUMN_COMPRESSED_H
+#ifndef JMTXF_SPARSE_COLUMN_COMPRESSED_H
 #    include "../../../include/jmtx/float/matrices/sparse_column_compressed.h"
 #endif
-struct jmtx_matrix_ccs_struct
+struct jmtxf_matrix_ccs_struct
 {
     jmtx_matrix_base base;
     //  How many values exist in the columns left, so that column i is from index end_of_column_offsets[i] to

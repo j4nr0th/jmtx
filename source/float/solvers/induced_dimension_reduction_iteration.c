@@ -9,14 +9,14 @@
 
 #include <math.h>
 
-jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_idrs_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
                                           float *restrict aux_vec1, float *restrict aux_vec2, uint32_t s,
                                           float *restrict aux_vec3, float *restrict aux_vec4, float *restrict aux_vec5,
                                           float *restrict aux_vec6, float *restrict aux_vec7,
-                                          const jmtx_matrix_drm *p_mtx, jmtx_matrix_drm *aux_mtx1,
-                                          jmtx_matrix_drm *aux_mtx2, jmtx_matrix_drm *aux_mtx3,
-                                          jmtx_matrix_drm *aux_mtx4, jmtx_matrix_drm *aux_mtx5,
-                                          jmtx_solver_arguments *args)
+                                          const jmtxf_matrix_drm *p_mtx, jmtxf_matrix_drm *aux_mtx1,
+                                          jmtxf_matrix_drm *aux_mtx2, jmtxf_matrix_drm *aux_mtx3,
+                                          jmtxf_matrix_drm *aux_mtx4, jmtxf_matrix_drm *aux_mtx5,
+                                          jmtxf_solver_arguments *args)
 {
     (void)aux_vec7, (void)aux_mtx5;
     const uint32_t n = mtx->base.rows;
@@ -34,7 +34,7 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
     //  Size n
     float *const t = aux_vec6;
     float mag_y = 0, mag_r = 0;
-    jmtx_matrix_crs_vector_multiply(mtx, x, r);
+    jmtxf_matrix_crs_vector_multiply(mtx, x, r);
     for (uint32_t i = 0; i < n; ++i)
     {
         r[i] = (y[i] - r[i]);
@@ -52,15 +52,15 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
     }
 
     //  Size s x n
-    jmtx_matrix_drm *const DR = aux_mtx1;
+    jmtxf_matrix_drm *const DR = aux_mtx1;
     //  Size s x n
-    jmtx_matrix_drm *const DX = aux_mtx2;
+    jmtxf_matrix_drm *const DX = aux_mtx2;
     uint32_t n_iter = 0;
     //  reduce the residual, while producing linearly independent vectors in Krylov subspace
     for (uint32_t i = 0; i < s; ++i)
     {
         //  New search direction
-        jmtx_matrix_crs_vector_multiply(mtx, r, v);
+        jmtxf_matrix_crs_vector_multiply(mtx, r, v);
         float vr_dp = 0, vv_dp = 0;
         for (uint32_t j = 0; j < n; ++j)
         {
@@ -84,7 +84,7 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
     }
 
     //  Size s x s
-    jmtx_matrix_drm *const pdr_mat = aux_mtx3;
+    jmtxf_matrix_drm *const pdr_mat = aux_mtx3;
     //  Prepare the P^T DR = pdr matrix
     for (uint32_t i = 0; i < s; ++i)
     {
@@ -104,7 +104,7 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
     }
 
     //  Size s x s
-    jmtx_matrix_drm *const decomposed = aux_mtx4;
+    jmtxf_matrix_drm *const decomposed = aux_mtx4;
 
     //  DX and DR are now properly assembled for IDR
     float omega = 1.0f;
@@ -112,8 +112,8 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
     {
         for (uint32_t k = 0; k < s; ++k)
         {
-            jmtx_matrix_drm_vector_multiply(p_mtx, r, pr);
-            jmtx_decompose_lu_drm(pdr_mat, decomposed);
+            jmtxf_matrix_drm_vector_multiply(p_mtx, r, pr);
+            jmtxf_decompose_lu_drm(pdr_mat, decomposed);
             jmtx_solve_direct_lu_drm(decomposed, pr, c, solve);
             float *const dr_new = DR->values + n * k;
             for (uint32_t i = 0; i < n; ++i)
@@ -130,7 +130,7 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
 
             if (k == 0)
             {
-                jmtx_matrix_crs_vector_multiply(mtx, v, t);
+                jmtxf_matrix_crs_vector_multiply(mtx, v, t);
                 float num = 0, denom = 0;
                 for (uint32_t i = 0; i < n; ++i)
                 {
@@ -191,7 +191,7 @@ jmtx_result jmtx_solve_iterative_idrs_crs(const jmtx_matrix_crs *mtx, const floa
                     dx_new[i] = sum;
                     x[i] += sum;
                 }
-                jmtx_matrix_crs_vector_multiply(mtx, dx_new, dr_new);
+                jmtxf_matrix_crs_vector_multiply(mtx, dx_new, dr_new);
                 mag_r = 0;
                 for (uint32_t i = 0; i < n; ++i)
                 {

@@ -5,7 +5,7 @@
 #ifndef JMTX_SPARSE_CONVERSION_SAFE_H
 #define JMTX_SPARSE_CONVERSION_SAFE_H
 
-#if defined(JMTX_SPARSE_ROW_COMPRESSED_H) && defined(JMTX_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTXF_SPARSE_ROW_COMPRESSED_H) && defined(JMTXF_SPARSE_COLUMN_COMPRESSED_H)
 /**
  * Converts a CRS matrix into the CCS format. Input matrix remains untouched.
  * @param in CRS matrix to convert
@@ -14,7 +14,7 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_crs_to_ccs(const jmtxf_matrix_crs *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -25,11 +25,11 @@ jmtx_result jmtxs_convert_crs_to_ccs(const jmtx_matrix_crs *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_ccs_to_crs(const jmtxf_matrix_ccs *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#if defined(JMTX_SPARSE_ROW_COMPRESSED_H) && defined(JMTX_SPARSE_DIAGONAL_COMPRESSED_H)
+#if defined(JMTXF_SPARSE_ROW_COMPRESSED_H) && defined(JMTXF_SPARSE_DIAGONAL_COMPRESSED_H)
 /**
  * Converts a CDS matrix into the CRS format. Input matrix remains untouched.
  * @param in CDS matrix to convert
@@ -38,7 +38,7 @@ jmtx_result jmtxs_convert_ccs_to_crs(const jmtx_matrix_ccs *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -49,11 +49,11 @@ jmtx_result jmtxs_convert_cds_to_crs(const jmtx_matrix_cds *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_crs_to_cds(const jmtxf_matrix_crs *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#if defined(JMTX_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTX_SPARSE_DIAGONAL_COMPRESSED_H)
+#if defined(JMTXF_SPARSE_COLUMN_COMPRESSED_H) && defined(JMTXF_SPARSE_DIAGONAL_COMPRESSED_H)
 /**
  * Converts a CDS matrix into the CCS format. Input matrix remains untouched.
  * @param in CDS matrix to convert
@@ -62,7 +62,7 @@ jmtx_result jmtxs_convert_crs_to_cds(const jmtx_matrix_crs *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -73,11 +73,11 @@ jmtx_result jmtxs_convert_cds_to_ccs(const jmtx_matrix_cds *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_ccs_to_cds(const jmtxf_matrix_ccs *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#if defined(JMTX_BAND_ROW_MAJOR_H) && defined(JMTX_SPARSE_ROW_COMPRESSED_H)
+#if defined(JMTXF_BAND_ROW_MAJOR_H) && defined(JMTXF_SPARSE_ROW_COMPRESSED_H)
 /**
  * Converts a BRM matrix into the CRS format. Input matrix remains untouched.
  * @param in BRM matrix to convert
@@ -86,7 +86,7 @@ jmtx_result jmtxs_convert_ccs_to_cds(const jmtx_matrix_ccs *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs **p_out,
+jmtx_result jmtxs_convert_brm_to_crs(const jmtxf_matrix_brm *in, jmtxf_matrix_crs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -97,11 +97,11 @@ jmtx_result jmtxs_convert_brm_to_crs(const jmtx_matrix_brm *in, jmtx_matrix_crs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_crs_to_brm(const jmtxf_matrix_crs *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#if defined(JMTX_BAND_ROW_MAJOR_H) && defined(JMTX_SPARSE_COLUMN_COMPRESSED_H)
+#if defined(JMTXF_BAND_ROW_MAJOR_H) && defined(JMTXF_SPARSE_COLUMN_COMPRESSED_H)
 /**
  * Converts a BRM matrix into the CCS format. Input matrix remains untouched.
  * @param in BRM matrix to convert
@@ -110,7 +110,7 @@ jmtx_result jmtxs_convert_crs_to_brm(const jmtx_matrix_crs *in, jmtx_matrix_brm 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs **p_out,
+jmtx_result jmtxs_convert_brm_to_ccs(const jmtxf_matrix_brm *in, jmtxf_matrix_ccs **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -121,11 +121,11 @@ jmtx_result jmtxs_convert_brm_to_ccs(const jmtx_matrix_brm *in, jmtx_matrix_ccs 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_ccs_to_brm(const jmtxf_matrix_ccs *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 
-#if defined(JMTX_BAND_ROW_MAJOR_H) && defined(JMTX_SPARSE_DIAGONAL_COMPRESSED_H)
+#if defined(JMTXF_BAND_ROW_MAJOR_H) && defined(JMTXF_SPARSE_DIAGONAL_COMPRESSED_H)
 /**
  * Converts a BRM matrix into the CDS format. Input matrix remains untouched.
  * @param in BRM matrix to convert
@@ -134,7 +134,7 @@ jmtx_result jmtxs_convert_ccs_to_brm(const jmtx_matrix_ccs *in, jmtx_matrix_brm 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds **p_out,
+jmtx_result jmtxs_convert_brm_to_cds(const jmtxf_matrix_brm *in, jmtx_matrix_cds **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -145,7 +145,7 @@ jmtx_result jmtxs_convert_brm_to_cds(const jmtx_matrix_brm *in, jmtx_matrix_cds 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_convert_cds_to_brm(const jmtx_matrix_cds *in, jmtxf_matrix_brm **p_out,
                                      const jmtx_allocator_callbacks *allocator_callbacks);
 #endif
 

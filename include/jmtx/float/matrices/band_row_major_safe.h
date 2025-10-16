@@ -8,9 +8,14 @@
 
 #ifndef JMTX_BAND_ROW_MAJOR_SAFE_H
 #define JMTX_BAND_ROW_MAJOR_SAFE_H
-#ifndef JMTX_BAND_ROW_MAJOR_H
+#ifndef JMTXF_BAND_ROW_MAJOR_H
 #    include "band_row_major.h"
 #endif
+
+#ifndef JMTX_DEFINES_H
+#    include "../jmtxf_defines.h"
+#endif
+
 /**
  * @paragraph
  * Band Row-Major matrix (BRM) is a matrix which has constant upper bandwidth (ubw) and lower bandwidths (lbw): constant
@@ -38,7 +43,7 @@
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_brm_new(jmtx_matrix_brm **p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw,
+jmtx_result jmtxs_matrix_brm_new(jmtxf_matrix_brm **p_mtx, uint32_t rows, uint32_t cols, uint32_t ubw, uint32_t lbw,
                                  const float *set_value, const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -46,7 +51,7 @@ jmtx_result jmtxs_matrix_brm_new(jmtx_matrix_brm **p_mtx, uint32_t rows, uint32_
  * @param mtx pointer to memory where the matrix is stored
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_destroy(jmtx_matrix_brm *mtx);
+jmtx_result jmtxs_matrix_brm_destroy(jmtxf_matrix_brm *mtx);
 
 /**
  * Sets the row of the matrix. More efficient than setting it element by element
@@ -55,7 +60,7 @@ jmtx_result jmtxs_matrix_brm_destroy(jmtx_matrix_brm *mtx);
  * @param values values of non-zero entries
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_set_row(const jmtx_matrix_brm *mtx, uint32_t row, const float values[]);
+jmtx_result jmtxs_matrix_brm_set_row(const jmtxf_matrix_brm *mtx, uint32_t row, const float values[]);
 
 /**
  * Sets the column of the matrix. More efficient than setting it element by element
@@ -64,7 +69,7 @@ jmtx_result jmtxs_matrix_brm_set_row(const jmtx_matrix_brm *mtx, uint32_t row, c
  * @param values values of entries
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_set_col(const jmtx_matrix_brm *mtx, uint32_t col, const float *values);
+jmtx_result jmtxs_matrix_brm_set_col(const jmtxf_matrix_brm *mtx, uint32_t col, const float *values);
 
 /**
  * Returns the pointers to arrays of column indices and element values for that row
@@ -75,7 +80,7 @@ jmtx_result jmtxs_matrix_brm_set_col(const jmtx_matrix_brm *mtx, uint32_t col, c
  * given to p_indices and p_elements
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_get_row(const jmtx_matrix_brm *mtx, uint_fast32_t *n, uint32_t row, float *p_elements[1]);
+jmtx_result jmtxs_matrix_brm_get_row(const jmtxf_matrix_brm *mtx, uint_fast32_t *n, uint32_t row, float *p_elements[1]);
 
 /**
  * Multiplies a dense column vector x by the sparse matrix and stores the result at y
@@ -84,7 +89,7 @@ jmtx_result jmtxs_matrix_brm_get_row(const jmtx_matrix_brm *mtx, uint_fast32_t *
  * @param y pointer to vector where the result of multiplication is to be stored
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_vector_multiply(const jmtx_matrix_brm *mtx, const float *restrict x, float *restrict y);
+jmtx_result jmtxs_matrix_brm_vector_multiply(const jmtxf_matrix_brm *mtx, const float *restrict x, float *restrict y);
 
 /**
  * Sets a single entry in the matrix. This is about as fast as setting the entire row of the matrix at once, if the
@@ -95,7 +100,7 @@ jmtx_result jmtxs_matrix_brm_vector_multiply(const jmtx_matrix_brm *mtx, const f
  * @param value value to which the value is set
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_set_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
+jmtx_result jmtxs_matrix_brm_set_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Returns a single entry from the matrix.
@@ -105,7 +110,7 @@ jmtx_result jmtxs_matrix_brm_set_entry(const jmtx_matrix_brm *mtx, uint32_t i, u
  * @param p_value pointer that receives the value of the entry (0 if the entry was not manually set to anything else)
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_get_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j, float *p_value);
+jmtx_result jmtxs_matrix_brm_get_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j, float *p_value);
 
 /**
  * Adds a value to an entry in the matrix when it exists or sets it to that value if it does not. This is about as
@@ -116,7 +121,7 @@ jmtx_result jmtxs_matrix_brm_get_entry(const jmtx_matrix_brm *mtx, uint32_t i, u
  * @param value value to which the value is to be added
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_add_to_entry(const jmtx_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
+jmtx_result jmtxs_matrix_brm_add_to_entry(const jmtxf_matrix_brm *mtx, uint32_t i, uint32_t j, float value);
 
 /**
  * Counts the number of times a specific value occurs in the matrix
@@ -125,23 +130,23 @@ jmtx_result jmtxs_matrix_brm_add_to_entry(const jmtx_matrix_brm *mtx, uint32_t i
  * @param p_count pointer which receives the number of times the value appeared in the matrix
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_count_values(const jmtx_matrix_brm *mtx, float v, uint32_t *p_count);
+jmtx_result jmtxs_matrix_brm_count_values(const jmtxf_matrix_brm *mtx, float v, uint32_t *p_count);
 
 /**
  * Zeros all entries within a matrix, but does not remove them in case they need to be reused
  * @param mtx matrix to zero
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_zero_all_entries(const jmtx_matrix_brm *mtx);
+jmtx_result jmtxs_matrix_brm_zero_all_entries(const jmtxf_matrix_brm *mtx);
 
 /**
- * Similar to jmtx_matrix_brm_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows
+ * Similar to jmtxf_matrix_brm_zero_all_entries, but slower, since it can not use memset. On the other hand, it allows
  * for the value to be other than 0
  * @param mtx matrix to set
  * @param x value to which to set all entries to
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_set_all_entries(const jmtx_matrix_brm *mtx, float x);
+jmtx_result jmtxs_matrix_brm_set_all_entries(const jmtxf_matrix_brm *mtx, float x);
 
 /**
  * Returns the number of entries in the column of the matrix
@@ -150,7 +155,7 @@ jmtx_result jmtxs_matrix_brm_set_all_entries(const jmtx_matrix_brm *mtx, float x
  * @param p_n pointer which receives the number of entries in the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_length_of_col(const jmtx_matrix_brm *mtx, uint32_t col, uint32_t *p_n);
+jmtx_result jmtxs_matrix_brm_length_of_col(const jmtxf_matrix_brm *mtx, uint32_t col, uint32_t *p_n);
 
 /**
  * Returns the values of entries in the matrix, along with what row of the matrix they were located in
@@ -160,7 +165,7 @@ jmtx_result jmtxs_matrix_brm_length_of_col(const jmtx_matrix_brm *mtx, uint32_t 
  * @param p_count the pointer which receives number of entries that were extracted from the column
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_get_col(const jmtx_matrix_brm *mtx, uint32_t col, uint32_t *p_count, float p_values[]);
+jmtx_result jmtxs_matrix_brm_get_col(const jmtxf_matrix_brm *mtx, uint32_t col, uint32_t *p_count, float p_values[]);
 
 /**
  * Creates a transpose of a matrix
@@ -170,7 +175,7 @@ jmtx_result jmtxs_matrix_brm_get_col(const jmtx_matrix_brm *mtx, uint32_t col, u
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_brm_transpose(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_matrix_brm_transpose(const jmtxf_matrix_brm *mtx, jmtxf_matrix_brm **p_out,
                                        const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -181,7 +186,7 @@ jmtx_result jmtxs_matrix_brm_transpose(const jmtx_matrix_brm *mtx, jmtx_matrix_b
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_brm_copy(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **p_out,
+jmtx_result jmtxs_matrix_brm_copy(const jmtxf_matrix_brm *mtx, jmtxf_matrix_brm **p_out,
                                   const jmtx_allocator_callbacks *allocator_callbacks);
 
 /**
@@ -192,7 +197,7 @@ jmtx_result jmtxs_matrix_brm_copy(const jmtx_matrix_brm *mtx, jmtx_matrix_brm **
  * @param p_r pointer which receives the result of the multiplication
  * @return JMTX_RESULT_SUCCESS if successful
  */
-jmtx_result jmtxs_matrix_brm_vector_multiply_row(const jmtx_matrix_brm *mtx, const float *restrict x, uint32_t i,
+jmtx_result jmtxs_matrix_brm_vector_multiply_row(const jmtxf_matrix_brm *mtx, const float *restrict x, uint32_t i,
                                                  float *restrict p_r);
 
 #endif // JMTX_BAND_ROW_MAJOR_SAFE_H

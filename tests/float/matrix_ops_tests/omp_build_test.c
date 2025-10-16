@@ -11,22 +11,27 @@
 
 enum
 {
-    PROBLEM_SIZE_X = 8, PROBLEM_SIZE_Y = 8,
+    PROBLEM_SIZE_X = 8,
+    PROBLEM_SIZE_Y = 8,
     INTERNAL_SIZE_X = PROBLEM_SIZE_X - 2,
     INTERNAL_SIZE_Y = PROBLEM_SIZE_Y - 2,
     PROBLEM_INTERNAL_PTS = INTERNAL_SIZE_X * INTERNAL_SIZE_Y,
     WORK_DIVISIONS = 4,
 };
 
-static unsigned lexicographic_position(unsigned i, unsigned j) { return INTERNAL_SIZE_X * i + j; }
+static unsigned lexicographic_position(unsigned i, unsigned j)
+{
+    return INTERNAL_SIZE_X * i + j;
+}
 
-static void from_lexicographic(unsigned n, unsigned* pi, unsigned* pj)
+static void from_lexicographic(unsigned n, unsigned *pi, unsigned *pj)
 {
     *pj = n % INTERNAL_SIZE_X;
     *pi = n / INTERNAL_SIZE_X;
 }
 
-static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsigned count, const float rdy2, const float rdx2)
+static void construct_rows_of_matrix(jmtxf_matrix_crs *mtx, unsigned first, unsigned count, const float rdy2,
+                                     const float rdx2)
 {
     unsigned i, j;
     from_lexicographic(first, &i, &j);
@@ -38,15 +43,15 @@ static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsig
         if (i != 0)
         {
             // There's a bottom boundary
-            values[l] = - rdy2;
-            positions[l] = k - INTERNAL_SIZE_X;//lexicographic_position(i - 1, j);
+            values[l] = -rdy2;
+            positions[l] = k - INTERNAL_SIZE_X; // lexicographic_position(i - 1, j);
             l += 1;
         }
 
         if (j != 0)
         {
             // There's a left boundary
-            values[l] = - rdx2;
+            values[l] = -rdx2;
             positions[l] = k - 1;
             l += 1;
         }
@@ -58,7 +63,7 @@ static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsig
         if (j != INTERNAL_SIZE_X - 1)
         {
             // There's a right boundary
-            values[l] = - rdx2;
+            values[l] = -rdx2;
             positions[l] = k + 1;
             l += 1;
         }
@@ -66,18 +71,18 @@ static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsig
         if (i != INTERNAL_SIZE_Y - 1)
         {
             // There's a top boundary
-            values[l] = - rdy2;
+            values[l] = -rdy2;
             positions[l] = k + INTERNAL_SIZE_X;
             l += 1;
         }
 
-//        MATRIX_TEST_CALL(
-        jmtx_matrix_crs_build_row(mtx, k - first, l, positions, values);
-//                );
-//        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-//        int beef_stat;
-//        ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
-//        ASSERT(beef_stat == 0xBeef);
+        //        MATRIX_TEST_CALL(
+        jmtxf_matrix_crs_build_row(mtx, k - first, l, positions, values);
+        //                );
+        //        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        //        int beef_stat;
+        //        ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
+        //        ASSERT(beef_stat == 0xBeef);
 
         if ((j += 1) == INTERNAL_SIZE_X)
         {
@@ -85,12 +90,11 @@ static void construct_rows_of_matrix(jmtx_matrix_crs* mtx, unsigned first, unsig
             i += 1;
         }
     }
-
 }
 
 int main()
 {
-    jmtx_matrix_crs* mtx;
+    jmtxf_matrix_crs *mtx;
     jmtx_result mtx_res;
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
@@ -103,12 +107,14 @@ int main()
     const float rdy2 = 1.0f / (dy * dy);
     const float rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS, NULL));
+    MATRIX_TEST_CALL(jmtxs_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+                                          5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
+                                              ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
+                                          NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     const double t0_serial = omp_get_wtime();
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
-
 
     {
         for (unsigned j = 0; j < INTERNAL_SIZE_X; ++j)
@@ -120,7 +126,7 @@ int main()
             if (i != 0)
             {
                 // There's a bottom boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i - 1, j);
                 k += 1;
             }
@@ -128,7 +134,7 @@ int main()
             if (j != 0)
             {
                 // There's a left boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j - 1);
                 k += 1;
             }
@@ -140,7 +146,7 @@ int main()
             if (j != INTERNAL_SIZE_X - 1)
             {
                 // There's a right boundary
-                values[k] = - rdx2;
+                values[k] = -rdx2;
                 positions[k] = lexicographic_position(i, j + 1);
                 k += 1;
             }
@@ -148,31 +154,32 @@ int main()
             if (i != INTERNAL_SIZE_Y - 1)
             {
                 // There's a top boundary
-                values[k] = - rdy2;
+                values[k] = -rdy2;
                 positions[k] = lexicographic_position(i + 1, j);
                 k += 1;
             }
 
-//            MATRIX_TEST_CALL(
-                    jmtx_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
-//                    );
-//            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-//            int beef_stat;
-//            ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
-//            ASSERT(beef_stat == 0xBeef);
+            //            MATRIX_TEST_CALL(
+            jmtxf_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            //                    );
+            //            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+            //            int beef_stat;
+            //            ASSERT(mtx_res == jmtxs_matrix_crs_beef_check(mtx, &beef_stat));
+            //            ASSERT(beef_stat == 0xBeef);
         }
     }
     const double t1_serial = omp_get_wtime();
 
-    printf("Serial construction of a %d by %d matrix took %g seconds\n", PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, t1_serial - t0_serial);
+    printf("Serial construction of a %d by %d matrix took %g seconds\n", PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+           t1_serial - t0_serial);
 
     //  Parallel construction
 
     const double t0_par_outer = omp_get_wtime();
 
-    jmtx_matrix_crs** const mtx_array = calloc(WORK_DIVISIONS, sizeof(*mtx_array));
+    jmtxf_matrix_crs **const mtx_array = calloc(WORK_DIVISIONS, sizeof(*mtx_array));
     ASSERT(mtx_array);
-    unsigned* sizes = calloc(WORK_DIVISIONS + 1, sizeof(*sizes));
+    unsigned *sizes = calloc(WORK_DIVISIONS + 1, sizeof(*sizes));
     ASSERT(sizes);
 
     const unsigned single_size = PROBLEM_INTERNAL_PTS / WORK_DIVISIONS;
@@ -182,11 +189,14 @@ int main()
         sizes[i] = counted;
         counted += single_size;
     }
-    sizes[WORK_DIVISIONS] += PROBLEM_INTERNAL_PTS - (counted - single_size);    //  Add remaining to the last
+    sizes[WORK_DIVISIONS] += PROBLEM_INTERNAL_PTS - (counted - single_size); //  Add remaining to the last
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
-        MATRIX_TEST_CALL(jmtxs_matrix_crs_new(mtx_array + i, (sizes[i + 1] - sizes[i]), PROBLEM_INTERNAL_PTS, 5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i]) ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]),  NULL));
+        MATRIX_TEST_CALL(jmtxs_matrix_crs_new(mtx_array + i, (sizes[i + 1] - sizes[i]), PROBLEM_INTERNAL_PTS,
+                                              5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i])
+                                                  ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]),
+                                              NULL));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 
@@ -201,12 +211,11 @@ int main()
         }
     }
 
-    jmtx_matrix_crs* joined;
-    MATRIX_TEST_CALL(jmtxs_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS,
-                                                     (const jmtx_matrix_crs**) mtx_array));
+    jmtxf_matrix_crs *joined;
+    MATRIX_TEST_CALL(
+        jmtxs_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS, (const jmtxf_matrix_crs **)mtx_array));
     const double t1_par_inner = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
@@ -219,8 +228,8 @@ int main()
     const double t1_par_outer = omp_get_wtime();
     const double t_construct = (t1_par_inner - t0_par_inner);
     const double t_overhead = (t1_par_outer - t0_par_outer) - t_construct;
-    printf("Constructed matrix in parallel in %g seconds, with %g seconds of additional overhead\n", t_construct, t_overhead);
-
+    printf("Constructed matrix in parallel in %g seconds, with %g seconds of additional overhead\n", t_construct,
+           t_overhead);
 
     //  Checking that parallel joined matrix is the same as the serial
     for (unsigned i = 0; i < PROBLEM_INTERNAL_PTS; ++i)

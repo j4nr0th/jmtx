@@ -9,7 +9,7 @@
 #    include "../../solver_base.h"
 #endif
 
-#ifdef JMTX_SPARSE_ROW_COMPRESSED_H
+#ifdef JMTXF_SPARSE_ROW_COMPRESSED_H
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
  *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
@@ -36,11 +36,11 @@
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtxf_matrix_crs *mtx, const float *restrict y, float *restrict x,
                                               float *restrict aux_vec1, float *restrict aux_vec2,
                                               float *restrict aux_vec3, float *restrict aux_vec4,
                                               float *restrict aux_vec5, float *restrict aux_vec6,
-                                              jmtx_solver_arguments *args);
+                                              jmtxf_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -70,11 +70,11 @@ jmtx_result jmtx_solve_iterative_bicgstab_crs(const jmtx_matrix_crs *mtx, const 
  * given number of iterations, other error codes in case of other errors
  */
 jmtx_result jmtxs_solve_iterative_bicgstab_crs(
-    const jmtx_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
+    const jmtxf_matrix_crs *mtx, uint32_t n, const float y[JMTX_ARRAY_ATTRIB(restrict static n)],
     float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args);
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args);
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
  *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
@@ -108,13 +108,13 @@ jmtx_result jmtxs_solve_iterative_bicgstab_crs(
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
-                                                  const jmtx_matrix_crs *u, const float *restrict y, float *restrict x,
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtxf_matrix_crs *mtx, const jmtxf_matrix_crs *l,
+                                                  const jmtxf_matrix_crs *u, const float *restrict y, float *restrict x,
                                                   float *restrict aux_vec1, float *restrict aux_vec2,
                                                   float *restrict aux_vec3, float *restrict aux_vec4,
                                                   float *restrict aux_vec5, float *restrict aux_vec6,
                                                   float *restrict aux_vec7, float *restrict aux_vec8,
-                                                  jmtx_solver_arguments *args);
+                                                  jmtxf_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -151,16 +151,16 @@ jmtx_result jmtx_solve_iterative_pilubicgstab_crs(const jmtx_matrix_crs *mtx, co
  * @return JMTX_RESULT_SUCCESS if solution converged, JMTX_RESULT_NOT_CONVERGED if solution did not converge in the
  * given number of iterations
  */
-jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtx_matrix_crs *mtx, const jmtx_matrix_crs *l,
-                                                           const jmtx_matrix_crs *u, const float *restrict y,
+jmtx_result jmtx_solve_iterative_pilubicgstab_crs_parallel(const jmtxf_matrix_crs *mtx, const jmtxf_matrix_crs *l,
+                                                           const jmtxf_matrix_crs *u, const float *restrict y,
                                                            float *restrict x, float *restrict aux_vec1,
                                                            float *restrict aux_vec2, float *restrict aux_vec3,
                                                            float *restrict aux_vec4, float *restrict aux_vec5,
                                                            float *restrict aux_vec6, float *restrict aux_vec7,
-                                                           float *restrict aux_vec8, jmtx_solver_arguments *args);
+                                                           float *restrict aux_vec8, jmtxf_solver_arguments *args);
 #endif
 
-#ifdef JMTX_SPARSE_DIAGONAL_COMPRESSED_H
+#ifdef JMTXF_SPARSE_DIAGONAL_COMPRESSED_H
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
  *  explicitly solve the adjoint problem, instead computing values by computing results of polynomial relations for it.
@@ -191,7 +191,7 @@ jmtx_result jmtx_solve_iterative_bicgstab_cds(const jmtx_matrix_cds *mtx, const 
                                               float *restrict aux_vec1, float *restrict aux_vec2,
                                               float *restrict aux_vec3, float *restrict aux_vec4,
                                               float *restrict aux_vec5, float *restrict aux_vec6,
-                                              jmtx_solver_arguments *args);
+                                              jmtxf_solver_arguments *args);
 
 /**
  *  Solves the linear problem A x = y for a general matrix A by using the relations used for Bi-CG, but does not
@@ -225,7 +225,7 @@ jmtx_result jmtxs_solve_iterative_bicgstab_cds(
     float x[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec2[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec3[JMTX_ARRAY_ATTRIB(restrict n)],
     float aux_vec4[JMTX_ARRAY_ATTRIB(restrict n)], float aux_vec5[JMTX_ARRAY_ATTRIB(restrict n)],
-    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtx_solver_arguments *args);
+    float aux_vec6[JMTX_ARRAY_ATTRIB(restrict n)], jmtxf_solver_arguments *args);
 #endif
 
 #endif // JMTX_BICGSTAB_ITERATION_H

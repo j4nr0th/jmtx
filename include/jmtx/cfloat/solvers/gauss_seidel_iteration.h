@@ -36,7 +36,7 @@
  */
 jmtx_result jmtxc_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs *mtx, const _Complex float *restrict y,
                                                    _Complex float *restrict x, _Complex float *restrict aux_vec1,
-                                                   jmtx_solver_arguments *args);
+                                                   jmtxf_solver_arguments *args);
 
 /**
  * Uses Gauss-Seidel (https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)
@@ -59,7 +59,7 @@ jmtx_result jmtxcs_solve_iterative_gauss_seidel_crs(const jmtxc_matrix_crs *mtx,
                                                     const _Complex float y[JMTX_ARRAY_ATTRIB(static restrict n)],
                                                     _Complex float x[JMTX_ARRAY_ATTRIB(restrict n)],
                                                     _Complex float aux_vec1[JMTX_ARRAY_ATTRIB(restrict n)],
-                                                    jmtx_solver_arguments *args);
+                                                    jmtxf_solver_arguments *args);
 
 #endif
 
