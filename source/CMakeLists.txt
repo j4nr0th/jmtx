@@ -1,0 +1,137 @@
+
+target_sources(jmtx PRIVATE
+        modules/double_module.c
+)
+
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx-tests")
+add_executable(base_crs_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/base_crs_test.c tests/double/test_common.c)
+target_link_libraries(base_crs_test_JMTX_SCALAR_T jmtx m)
+add_test(NAME base_crs_JMTX_SCALAR_T COMMAND base_crs_test_double)
+
+add_executable(base_ccs_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/base_ccs_test.c tests/double/test_common.c)
+target_link_libraries(base_ccs_test_JMTX_SCALAR_T jmtx m)
+add_test(NAME base_ccs_JMTX_SCALAR_T COMMAND base_ccs_test_double)
+
+add_executable(old_crs_demo_JMTX_SCALAR_T tests/double/really_old_tests/run_crs_tests.c tests/double/test_common.c)
+target_link_libraries(old_crs_demo_JMTX_SCALAR_T PRIVATE jmtx m)
+add_test(NAME old_crs_JMTX_SCALAR_T COMMAND old_crs_demo_double)
+
+add_executable(old_ccs_demo_JMTX_SCALAR_T tests/double/really_old_tests/run_ccs_tests.c tests/double/test_common.c)
+target_link_libraries(old_ccs_demo_JMTX_SCALAR_T PRIVATE jmtx m)
+add_test(NAME old_ccs_JMTX_SCALAR_T COMMAND old_ccs_demo_double)
+
+add_executable(add_crs_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/crs_addition_test.c tests/double/test_common.c)
+target_link_libraries(add_crs_test_JMTX_SCALAR_T PRIVATE jmtx m)
+add_test(NAME addition_crs_JMTX_SCALAR_T COMMAND add_crs_test_double)
+
+add_executable(jacobi_point_test_JMTX_SCALAR_T tests/double/solver_tests/jacobi_test.c tests/double/test_common.c source/double/solvers/jacobi_point_iteration.c)
+target_link_libraries(jacobi_point_test_JMTX_SCALAR_T PRIVATE jmtx m)
+add_test(NAME jacobi_JMTX_SCALAR_T COMMAND jacobi_point_test_double)
+
+add_executable(omp_jacobi_test_JMTX_SCALAR_T tests/double/solver_tests/omp_jacobi_test.c tests/double/test_common.c)
+target_link_libraries(omp_jacobi_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME omp_jacobi_JMTX_SCALAR_T COMMAND omp_jacobi_test_double)
+
+add_executable(gauss_test_JMTX_SCALAR_T tests/double/solver_tests/gauss_test.c tests/double/test_common.c)
+target_link_libraries(gauss_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME gauss_JMTX_SCALAR_T COMMAND gauss_test_double)
+
+add_executable(omp_build_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/omp_build_test.c tests/double/test_common.c)
+target_link_libraries(omp_build_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME omp_build_JMTX_SCALAR_T COMMAND omp_build_test_double)
+
+add_executable(omp_cg_test_JMTX_SCALAR_T tests/double/solver_tests/omp_cg_test.c tests/double/test_common.c)
+target_link_libraries(omp_cg_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME omp_cg_JMTX_SCALAR_T COMMAND omp_cg_test_double)
+
+add_executable(incomplete_lu_test_JMTX_SCALAR_T tests/double/solver_tests/inclu_test.c tests/double/test_common.c)
+target_link_libraries(incomplete_lu_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME solve_ilu_JMTX_SCALAR_T COMMAND incomplete_lu_test_double)
+
+add_executable(ilu_test_JMTX_SCALAR_T tests/double/solver_tests/ilu_test.c tests/double/test_common.c)
+target_link_libraries(ilu_test_JMTX_SCALAR_T PRIVATE jmtx)
+target_compile_options(ilu_test_JMTX_SCALAR_T PRIVATE -fopenmp)
+
+add_executable(icho_test_JMTX_SCALAR_T tests/double/solver_tests/incho_test.c tests/double/test_common.c)
+target_link_libraries(icho_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME solve_icho_JMTX_SCALAR_T COMMAND icho_test_double)
+
+add_executable(icpcg_test_JMTX_SCALAR_T tests/double/solver_tests/icpcg_test.c tests/double/test_common.c)
+target_link_libraries(icpcg_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME test_icpcg_JMTX_SCALAR_T COMMAND icpcg_test_double)
+
+add_executable(lu_solve_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/lu_solve_test.c tests/double/test_common.c)
+target_link_libraries(lu_solve_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME lu_solve_test_JMTX_SCALAR_T COMMAND lu_solve_test_double)
+
+add_executable(base_io_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/io_test.c tests/double/test_common.c)
+target_link_libraries(base_io_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME base_io_test_JMTX_SCALAR_T COMMAND base_io_test_double)
+
+add_executable(base_brm_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/base_brm_test.c tests/double/test_common.c)
+target_link_libraries(base_brm_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME base_brm_test_JMTX_SCALAR_T COMMAND base_brm_test_double)
+
+add_executable(lu_solve_test_brm_JMTX_SCALAR_T tests/double/matrix_ops_tests/lu_solve_test_brm.c tests/double/test_common.c)
+target_link_libraries(lu_solve_test_brm_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME lu_solve_test_brm_JMTX_SCALAR_T COMMAND lu_solve_test_brm_double)
+
+add_executable(brm_decompose_test_JMTX_SCALAR_T tests/double/solver_tests/brm_decompose_test.c tests/double/test_common.c)
+target_link_libraries(brm_decompose_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME brm_decompose_test_JMTX_SCALAR_T COMMAND brm_decompose_test_double)
+
+add_executable(brm_lu_improvement_test_JMTX_SCALAR_T tests/double/solver_tests/brm_lu_improvement_test.c tests/double/test_common.c)
+target_link_libraries(brm_lu_improvement_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME brm_lu_improvement_test_JMTX_SCALAR_T COMMAND brm_lu_improvement_test_double)
+
+add_executable(base_cds_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/base_cds_test.c tests/double/test_common.c)
+target_link_libraries(base_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME base_cds_test_JMTX_SCALAR_T COMMAND base_cds_test_double)
+
+add_executable(cg_cds_test_JMTX_SCALAR_T tests/double/solver_tests/cg_cds_test.c tests/double/test_common.c)
+target_link_libraries(cg_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME cg_cds_JMTX_SCALAR_T COMMAND cg_cds_test_double)
+
+add_executable(icho_cds_test_JMTX_SCALAR_T tests/double/solver_tests/incho_cds_test.c tests/double/test_common.c)
+target_link_libraries(icho_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME icho_cds_test_JMTX_SCALAR_T COMMAND icho_cds_test_double)
+
+add_executable(bicgstab_cds_test_JMTX_SCALAR_T tests/double/solver_tests/bicgstab_cds_test.c tests/double/test_common.c)
+target_link_libraries(bicgstab_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME bicgstab_cds_test_JMTX_SCALAR_T COMMAND bicgstab_cds_test_double)
+
+add_executable(bicgstab_crs_test_JMTX_SCALAR_T tests/double/solver_tests/bicgstab_crs_test.c tests/double/test_common.c)
+target_link_libraries(bicgstab_crs_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME bicgstab_crs_test_JMTX_SCALAR_T COMMAND bicgstab_crs_test_double)
+
+add_executable(parallel_pilubicgstab_crs_test_JMTX_SCALAR_T tests/double/solver_tests/parallel_bicgstab_crs.c tests/double/test_common.c)
+target_link_libraries(parallel_pilubicgstab_crs_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME parallel_pilubicgstab_crs_test_JMTX_SCALAR_T COMMAND parallel_pilubicgstab_crs_test_double)
+
+add_executable(gmres_test_JMTX_SCALAR_T tests/double/solver_tests/gmres_test.c tests/double/test_common.c)
+target_link_libraries(gmres_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME gmres_test_JMTX_SCALAR_T COMMAND gmres_test_double)
+
+add_executable(gmres_cds_test_JMTX_SCALAR_T tests/double/solver_tests/gmres_cds_test.c tests/double/test_common.c)
+target_link_libraries(gmres_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME gmres_cds_test_JMTX_SCALAR_T COMMAND gmres_cds_test_double)
+
+add_executable(gmresr_cds_test_JMTX_SCALAR_T tests/double/solver_tests/gmresr_cds_test.c tests/double/test_common.c)
+target_link_libraries(gmresr_cds_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME gmresr_cds_test_JMTX_SCALAR_T COMMAND gmresr_cds_test_double)
+
+add_executable(base_drm_test_JMTX_SCALAR_T tests/double/matrix_ops_tests/base_drm_test.c tests/double/test_common.c)
+target_link_libraries(base_drm_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME base_drm_test_JMTX_SCALAR_T COMMAND base_drm_test_double)
+
+add_executable(drm_decompose_test_JMTX_SCALAR_T tests/double/solver_tests/drm_decompose_test.c tests/double/test_common.c)
+target_link_libraries(drm_decompose_test_JMTX_SCALAR_T PRIVATE jmtx)
+add_test(NAME drm_decompose_test_JMTX_SCALAR_T COMMAND drm_decompose_test_double)
+
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    add_executable(drm_givens_rotations_JMTX_SCALAR_T tests/double/matrix_ops_tests/drm_givens_rotations.c tests/double/test_common.c)
+    target_link_libraries(drm_givens_rotations_JMTX_SCALAR_T PRIVATE jmtx)
+    add_test(NAME drm_givens_rotations_JMTX_SCALAR_T COMMAND drm_givens_rotations_double)
+endif()
+
+endif()

@@ -5,14 +5,14 @@
 #include <assert.h>
 #include <complex.h>
 
-#include "../double/matrices/sparse_diagonal_compressed_internal.h"
-#include "../float/matrices/sparse_diagonal_compressed_internal.h"
-#include "../matrix_base_internal.h"
+#include "../double/matrices/sparse_diagonal_compressed.h"
+#include "../float/matrices/sparse_diagonal_compressed.h"
+#include "../matrix_base.h"
 #ifndef _MSC_BUILD
-#    include "../cdouble/matrices/sparse_diagonal_compressed_internal.h"
-#    include "../cfloat/matrices/sparse_diagonal_compressed_internal.h"
+#    include "../cdouble/matrices/sparse_diagonal_compressed.h"
+#    include "../cfloat/matrices/sparse_diagonal_compressed.h"
 #endif
-#include "../../include/jmtx/conversion/cds_conversion.h"
+#include "cds_conversion.h"
 
 /***********************************************************************************************************************
  *                                                                                                                     *
@@ -21,14 +21,14 @@
  **********************************************************************************************************************/
 
 /**
- * Creates a new CDS matrix with single precision from a CDS matrix with double precision.
+ * Creates a new CDS matrix with single precision from a CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtx_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const jmtxd_matrix_cds *in,
+jmtx_result jmtx_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const JMTX_NAME_TYPED(matrix_cds) * in,
                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
@@ -42,33 +42,33 @@ jmtx_result jmtx_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const jmtxd_mat
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
-        const double *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
+        const JMTX_SCALAR_T *const dia_ptr = in->sub_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (float)dia_ptr[j];
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (float)in->main_diagonal[j];
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
-        const double *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
+        const JMTX_SCALAR_T *const dia_ptr = in->super_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (float)dia_ptr[j];
         }
@@ -85,41 +85,41 @@ jmtx_result jmtx_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const jmtxd_mat
 }
 
 /**
- * Creates a new CDS matrix with single precision from a CDS matrix with double precision. Requires no memory
+ * Creates a new CDS matrix with single precision from a CDS matrix with JMTX_SCALAR_T precision. Requires no memory
  * allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtx_matrix_cds *jmtx_matrix_cds_from_double_inplace(jmtxd_matrix_cds *in)
+jmtx_matrix_cds *jmtx_matrix_cds_from_double_inplace(JMTX_NAME_TYPED(matrix_cds) * in)
 {
     //  Convert diagonals
     if (in->main_diagonal)
     {
         float *const values = (float *)in->main_diagonal;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = (float)in->main_diagonal[i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        double *ptr = in->sub_diagonals.diagonals[i];
+        JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (float)ptr[j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        double *ptr = in->super_diagonals.diagonals[i];
+        JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (float)ptr[j];
         }
@@ -128,34 +128,34 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_double_inplace(jmtxd_matrix_cds *in)
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
         float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (double *)new_ptr;
+            in->main_diagonal = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
@@ -165,14 +165,14 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_double_inplace(jmtxd_matrix_cds *in)
 }
 
 /**
- * Creates a new CDS matrix with single precision from a CDS matrix with double precision.
+ * Creates a new CDS matrix with single precision from a CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxs_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const jmtxd_matrix_cds *in,
+jmtx_result jmtxs_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const JMTX_NAME_TYPED(matrix_cds) * in,
                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
@@ -197,56 +197,56 @@ jmtx_result jmtxs_matrix_cds_from_double(jmtx_matrix_cds **p_mtx, const jmtxd_ma
 }
 
 /**
- * Creates a new CDS matrix with double precision from a CDS matrix with single precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_cds_from_float(jmtxd_matrix_cds **p_mtx, const jmtx_matrix_cds *in,
+jmtx_result JMTX_NAME_TYPED(matrix_cds_from_float(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtx_matrix_cds *in,
                                         const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtxd_matrix_cds *mtx;
-    jmtx_result res = jmtxd_matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
+    JMTX_NAME_TYPED(matrix_cds) * mtx;
+    jmtx_result res = JMTX_NAME_TYPED(matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
         const float *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
-            ptr[j] = (double)dia_ptr[j];
+            ptr[j] = (JMTX_SCALAR_T)dia_ptr[j];
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, 0, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
-            ptr[j] = (double)in->main_diagonal[j];
+            ptr[j] = (JMTX_SCALAR_T)in->main_diagonal[j];
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
         const float *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
-            ptr[j] = (double)dia_ptr[j];
+            ptr[j] = (JMTX_SCALAR_T)dia_ptr[j];
         }
     }
 
@@ -261,19 +261,19 @@ jmtx_result jmtxd_matrix_cds_from_float(jmtxd_matrix_cds **p_mtx, const jmtx_mat
 }
 
 /**
- * Creates a new CDS matrix with double precision from a CDS matrix with single precision. Only one memory reallocation
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with single precision. Only one memory reallocation
  * may be needed. Can not fail if the input matrix is valid.
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxd_matrix_cds *jmtxd_matrix_cds_from_float_inplace(jmtx_matrix_cds *in)
+JMTX_NAME_TYPED(matrix_cds) *JMTX_NAME_TYPED(matrix_cds_from_float_inplace(jmtx_matrix_cds *in)
 {
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
-        double *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
-                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
+                                                                            in->main_diagonal, sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
             return NULL;
@@ -281,10 +281,10 @@ jmtxd_matrix_cds *jmtxd_matrix_cds_from_float_inplace(jmtx_matrix_cds *in)
         in->main_diagonal = (float *)new_ptr;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
@@ -293,10 +293,10 @@ jmtxd_matrix_cds *jmtxd_matrix_cds_from_float_inplace(jmtx_matrix_cds *in)
         in->sub_diagonals.diagonals[i] = (float *)new_ptr;
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
@@ -308,50 +308,50 @@ jmtxd_matrix_cds *jmtxd_matrix_cds_from_float_inplace(jmtx_matrix_cds *in)
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        double *const values = (double *)in->main_diagonal;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
-            values[len - 1 - i] = (double)in->main_diagonal[len - 1 - i];
+            values[len - 1 - i] = (JMTX_SCALAR_T)in->main_diagonal[len - 1 - i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         float *ptr = in->sub_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
-            values[len - 1 - j] = (double)ptr[len - 1 - j];
+            values[len - 1 - j] = (JMTX_SCALAR_T)ptr[len - 1 - j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         float *ptr = in->super_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
-            values[len - 1 - j] = (double)ptr[len - 1 - j];
+            values[len - 1 - j] = (JMTX_SCALAR_T)ptr[len - 1 - j];
         }
     }
 
     in->base.type = JMTXD_TYPE_CDS;
 
-    return (jmtxd_matrix_cds *)in;
+    return (JMTX_NAME_TYPED(matrix_cds) *)in;
 }
 
 /**
- * Creates a new CDS matrix with double precision from a CDS matrix with single precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_cds_from_float(jmtxd_matrix_cds **p_mtx, const jmtx_matrix_cds *in,
+jmtx_result .,.,.,.,..matrix_cds_from_float(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtx_matrix_cds *in,
                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
@@ -372,7 +372,7 @@ jmtx_result jmtxds_matrix_cds_from_float(jmtxd_matrix_cds **p_mtx, const jmtx_ma
         return JMTX_RESULT_WRONG_TYPE;
     }
 
-    return jmtxd_matrix_cds_from_float(p_mtx, in, allocator_callbacks);
+    return JMTX_NAME_TYPED(matrix_cds_from_float(p_mtx, in, allocator_callbacks);
 }
 
 #ifndef _MSC_BUILD
@@ -404,33 +404,33 @@ jmtx_result jmtx_matrix_cds_from_cfloat_real(jmtx_matrix_cds **p_mtx, const jmtx
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = crealf(dia_ptr[j]);
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = crealf(in->main_diagonal[j]);
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = crealf(dia_ptr[j]);
         }
@@ -468,33 +468,33 @@ jmtx_result jmtx_matrix_cds_from_cfloat_imag(jmtx_matrix_cds **p_mtx, const jmtx
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimagf(dia_ptr[j]);
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimagf(in->main_diagonal[j]);
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
+        JMTX_INDEX_T len;
         float *const ptr = jmtx_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimagf(dia_ptr[j]);
         }
@@ -522,30 +522,30 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_real_inplace(jmtxc_matrix_cds *in)
     if (in->main_diagonal)
     {
         float *const values = (float *)in->main_diagonal;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = crealf(in->main_diagonal[i]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         _Complex float *ptr = in->sub_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = crealf(ptr[j]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         _Complex float *ptr = in->super_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = crealf(ptr[j]);
         }
@@ -554,7 +554,7 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_real_inplace(jmtxc_matrix_cds *in)
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
         float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -563,9 +563,9 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_real_inplace(jmtxc_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -574,9 +574,9 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_real_inplace(jmtxc_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -602,30 +602,30 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_imag_inplace(jmtxc_matrix_cds *in)
     if (in->main_diagonal)
     {
         float *const values = (float *)in->main_diagonal;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = cimagf(in->main_diagonal[i]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         _Complex float *ptr = in->sub_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = cimagf(ptr[j]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         _Complex float *ptr = in->super_diagonals.diagonals[i];
         float *const values = (float *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = cimagf(ptr[j]);
         }
@@ -634,7 +634,7 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_imag_inplace(jmtxc_matrix_cds *in)
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
         float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -643,9 +643,9 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_imag_inplace(jmtxc_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -654,9 +654,9 @@ jmtx_matrix_cds *jmtx_matrix_cds_from_cfloat_imag_inplace(jmtxc_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
         float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -751,7 +751,7 @@ jmtx_result jmtxc_matrix_cds_from_float(jmtxc_matrix_cds **p_mtx, const jmtx_mat
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    uint32_t r, c;
+    JMTX_INDEX_T r, c;
     assert(in_real || in_imag);
     if (in_real)
     {
@@ -773,33 +773,33 @@ jmtx_result jmtxc_matrix_cds_from_float(jmtxc_matrix_cds **p_mtx, const jmtx_mat
 
     if (in_real)
     {
-        for (uint_fast32_t i = 0; i < in_real->sub_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_real->sub_diagonals.count; ++i)
         {
             const int32_t dia_idx = -(int32_t)in_real->sub_diagonals.indices[i];
             const float *const dia_ptr = in_real->sub_diagonals.diagonals[i];
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)dia_ptr[j];
             }
         }
         if (in_real->main_diagonal)
         {
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)in_real->main_diagonal[j];
             }
         }
-        for (uint_fast32_t i = 0; i < in_real->super_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_real->super_diagonals.count; ++i)
         {
             const int32_t dia_idx = (int32_t)in_real->super_diagonals.indices[i];
             const float *const dia_ptr = in_real->super_diagonals.diagonals[i];
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)dia_ptr[j];
             }
@@ -807,33 +807,33 @@ jmtx_result jmtxc_matrix_cds_from_float(jmtxc_matrix_cds **p_mtx, const jmtx_mat
     }
     if (in_imag)
     {
-        for (uint_fast32_t i = 0; i < in_imag->sub_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_imag->sub_diagonals.count; ++i)
         {
             const int32_t dia_idx = -(int32_t)in_imag->sub_diagonals.indices[i];
             const float *const dia_ptr = in_imag->sub_diagonals.diagonals[i];
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)dia_ptr[j] * _Complex_I;
             }
         }
         if (in_imag->main_diagonal)
         {
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)in_imag->main_diagonal[j] * _Complex_I;
             }
         }
-        for (uint_fast32_t i = 0; i < in_imag->super_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_imag->super_diagonals.count; ++i)
         {
             const int32_t dia_idx = (int32_t)in_imag->super_diagonals.indices[i];
             const float *const dia_ptr = in_imag->super_diagonals.diagonals[i];
-            uint32_t len;
+            JMTX_INDEX_T len;
             _Complex float *const ptr = jmtxc_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex float)dia_ptr[j] * _Complex_I;
             }
@@ -862,7 +862,7 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_real_inplace(jmtx_matrix_cds *in)
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                              in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -871,9 +871,9 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_real_inplace(jmtx_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -882,9 +882,9 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_real_inplace(jmtx_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -897,30 +897,30 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_real_inplace(jmtx_matrix_cds *in)
     if (in->main_diagonal)
     {
         _Complex float *const values = (_Complex float *)in->main_diagonal;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = in->main_diagonal[i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         float *ptr = in->sub_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = ptr[j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         float *ptr = in->super_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (ptr[j]);
         }
@@ -943,7 +943,7 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_imag_inplace(jmtx_matrix_cds *in)
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                              in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -952,9 +952,9 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_imag_inplace(jmtx_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -963,9 +963,9 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_imag_inplace(jmtx_matrix_cds *in)
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
@@ -978,30 +978,30 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_float_imag_inplace(jmtx_matrix_cds *in)
     if (in->main_diagonal)
     {
         _Complex float *const values = (_Complex float *)in->main_diagonal;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = in->main_diagonal[i] * _Complex_I;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         float *ptr = in->sub_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = ptr[j] * _Complex_I;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         float *ptr = in->super_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtx_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (ptr[j]) * _Complex_I;
         }
@@ -1057,54 +1057,54 @@ jmtx_result jmtxcs_matrix_cds_from_float(jmtxc_matrix_cds **p_mtx, const jmtx_ma
  **********************************************************************************************************************/
 
 /**
- * Creates a new CDS matrix with double precision from the real part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the real part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_cds_from_cdouble_real(jmtxd_matrix_cds **p_mtx, const jmtxz_matrix_cds *in,
+jmtx_result JMTX_NAME_TYPED(matrix_cds_from_cdouble_real(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtxz_matrix_cds *in,
                                                const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtxd_matrix_cds *mtx;
-    jmtx_result res = jmtxd_matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
+    JMTX_NAME_TYPED(matrix_cds) * mtx;
+    jmtx_result res = JMTX_NAME_TYPED(matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->sub_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = creal(dia_ptr[j]);
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, 0, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = creal(in->main_diagonal[j]);
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->super_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = creal(dia_ptr[j]);
         }
@@ -1120,54 +1120,54 @@ jmtx_result jmtxd_matrix_cds_from_cdouble_real(jmtxd_matrix_cds **p_mtx, const j
     return JMTX_RESULT_SUCCESS;
 }
 /**
- * Creates a new CDS matrix with double precision from the imaginary part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the imaginary part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxd_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds **p_mtx, const jmtxz_matrix_cds *in,
+jmtx_result JMTX_NAME_TYPED(matrix_cds_from_cdouble_imag(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtxz_matrix_cds *in,
                                                const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    jmtxd_matrix_cds *mtx;
-    jmtx_result res = jmtxd_matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
+    JMTX_NAME_TYPED(matrix_cds) * mtx;
+    jmtx_result res = JMTX_NAME_TYPED(matrix_cds_new(&mtx, in->base.rows, in->base.cols, 0, (int32_t[]){0}, allocator_callbacks);
     if (res != JMTX_RESULT_SUCCESS)
     {
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->sub_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimag(dia_ptr[j]);
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, 0, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimag(in->main_diagonal[j]);
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
-        double *const ptr = jmtxd_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->super_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
+        JMTX_SCALAR_T *const ptr = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = cimag(dia_ptr[j]);
         }
@@ -1184,41 +1184,41 @@ jmtx_result jmtxd_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds **p_mtx, const j
 }
 
 /**
- * Creates a new CDS matrix with double precision from the real part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the real part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * Requires no memory allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtxd_matrix_cds *jmtxd_matrix_cds_from_cdouble_real_inplace(jmtxz_matrix_cds *in)
+JMTX_NAME_TYPED(matrix_cds) *JMTX_NAME_TYPED(matrix_cds_from_cdouble_real_inplace(jmtxz_matrix_cds *in)
 {
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        double *const values = (double *)in->main_diagonal;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = creal(in->main_diagonal[i]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->sub_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = creal(ptr[j]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->super_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = creal(ptr[j]);
         }
@@ -1227,78 +1227,78 @@ jmtxd_matrix_cds *jmtxd_matrix_cds_from_cdouble_real_inplace(jmtxz_matrix_cds *i
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
-        double *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
-                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
+                                                                            in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (_Complex double *)new_ptr;
+            in->main_diagonal = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
     in->base.type = JMTXD_TYPE_CDS;
 
-    return (jmtxd_matrix_cds *)in;
+    return (JMTX_NAME_TYPED(matrix_cds) *)in;
 }
 
 /**
- * Creates a new CDS matrix with double precision from the imaginary part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the imaginary part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * Requires no memory allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
  */
-jmtxd_matrix_cds *jmtxd_matrix_cds_from_cdouble_imag_inplace(jmtxz_matrix_cds *in)
+JMTX_NAME_TYPED(matrix_cds) *JMTX_NAME_TYPED(matrix_cds_from_cdouble_imag_inplace(jmtxz_matrix_cds *in)
 {
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        double *const values = (double *)in->main_diagonal;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = cimag(in->main_diagonal[i]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->sub_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = cimag(ptr[j]);
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->super_diagonals.diagonals[i];
-        double *const values = (double *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
+        JMTX_SCALAR_T *const values = (JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = cimag(ptr[j]);
         }
@@ -1307,51 +1307,51 @@ jmtxd_matrix_cds *jmtxd_matrix_cds_from_cdouble_imag_inplace(jmtxz_matrix_cds *i
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
-        double *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
-                                                                     in->main_diagonal, sizeof(*new_ptr) * len);
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
+                                                                            in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (_Complex double *)new_ptr;
+            in->main_diagonal = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
     in->base.type = JMTXD_TYPE_CDS;
 
-    return (jmtxd_matrix_cds *)in;
+    return (JMTX_NAME_TYPED(matrix_cds) *)in;
 }
 
 /**
- * Creates a new CDS matrix with double precision from the real part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the real part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_cds_from_cdouble_real(jmtxd_matrix_cds **p_mtx, const jmtxz_matrix_cds *in,
+jmtx_result .,.,.,.,..matrix_cds_from_cdouble_real(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtxz_matrix_cds *in,
                                                 const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
@@ -1372,18 +1372,18 @@ jmtx_result jmtxds_matrix_cds_from_cdouble_real(jmtxd_matrix_cds **p_mtx, const 
         return JMTX_RESULT_WRONG_TYPE;
     }
 
-    return jmtxd_matrix_cds_from_cdouble_real(p_mtx, in, allocator_callbacks);
+    return JMTX_NAME_TYPED(matrix_cds_from_cdouble_real(p_mtx, in, allocator_callbacks);
 }
 
 /**
- * Creates a new CDS matrix with double precision from the imaginary part of a complex CDS matrix with double precision.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from the imaginary part of a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxds_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds **p_mtx, const jmtxz_matrix_cds *in,
+jmtx_result .,.,.,.,..matrix_cds_from_cdouble_imag(JMTX_NAME_TYPED(matrix_cds) **p_mtx, const jmtxz_matrix_cds *in,
                                                 const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
@@ -1404,11 +1404,11 @@ jmtx_result jmtxds_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds **p_mtx, const 
         return JMTX_RESULT_WRONG_TYPE;
     }
 
-    return jmtxd_matrix_cds_from_cdouble_imag(p_mtx, in, allocator_callbacks);
+    return JMTX_NAME_TYPED(matrix_cds_from_cdouble_imag(p_mtx, in, allocator_callbacks);
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a CDS matrix with double precision.
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in_real matrix to use as the real component of the new matrix (if NULL real part is zero)
  * @param in_imag matrix to use as the real component of the new matrix (if NULL imaginary part is zero)
@@ -1416,15 +1416,15 @@ jmtx_result jmtxds_matrix_cds_from_cdouble_imag(jmtxd_matrix_cds **p_mtx, const 
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_matrix_cds *in_real,
-                                         const jmtxd_matrix_cds *in_imag,
+jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const JMTX_NAME_TYPED(matrix_cds) *in_real,
+                                         const JMTX_NAME_TYPED(matrix_cds) *in_imag,
                                          const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (allocator_callbacks == NULL)
     {
         allocator_callbacks = &JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
     }
-    uint32_t r, c;
+    JMTX_INDEX_T r, c;
     assert(in_real || in_imag);
     if (in_real)
     {
@@ -1446,33 +1446,33 @@ jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_m
 
     if (in_real)
     {
-        for (uint_fast32_t i = 0; i < in_real->sub_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_real->sub_diagonals.count; ++i)
         {
             const int32_t dia_idx = -(int32_t)in_real->sub_diagonals.indices[i];
-            const double *const dia_ptr = in_real->sub_diagonals.diagonals[i];
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            const JMTX_SCALAR_T *const dia_ptr = in_real->sub_diagonals.diagonals[i];
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)dia_ptr[j];
             }
         }
         if (in_real->main_diagonal)
         {
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)in_real->main_diagonal[j];
             }
         }
-        for (uint_fast32_t i = 0; i < in_real->super_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_real->super_diagonals.count; ++i)
         {
             const int32_t dia_idx = (int32_t)in_real->super_diagonals.indices[i];
-            const double *const dia_ptr = in_real->super_diagonals.diagonals[i];
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            const JMTX_SCALAR_T *const dia_ptr = in_real->super_diagonals.diagonals[i];
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)dia_ptr[j];
             }
@@ -1480,33 +1480,33 @@ jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_m
     }
     if (in_imag)
     {
-        for (uint_fast32_t i = 0; i < in_imag->sub_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_imag->sub_diagonals.count; ++i)
         {
             const int32_t dia_idx = -(int32_t)in_imag->sub_diagonals.indices[i];
-            const double *const dia_ptr = in_imag->sub_diagonals.diagonals[i];
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            const JMTX_SCALAR_T *const dia_ptr = in_imag->sub_diagonals.diagonals[i];
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)dia_ptr[j] * _Complex_I;
             }
         }
         if (in_imag->main_diagonal)
         {
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, 0, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)in_imag->main_diagonal[j] * _Complex_I;
             }
         }
-        for (uint_fast32_t i = 0; i < in_imag->super_diagonals.count; ++i)
+        for (JMTX_FAST_INT_T i = 0; i < in_imag->super_diagonals.count; ++i)
         {
             const int32_t dia_idx = (int32_t)in_imag->super_diagonals.indices[i];
-            const double *const dia_ptr = in_imag->super_diagonals.diagonals[i];
-            uint32_t len;
-            _Complex double *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
-            for (uint_fast32_t j = 0; j < len; ++j)
+            const JMTX_SCALAR_T *const dia_ptr = in_imag->super_diagonals.diagonals[i];
+            JMTX_INDEX_T len;
+            _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_zero_diagonal(mtx, dia_idx, &len);
+            for (JMTX_FAST_INT_T j = 0; j < len; ++j)
             {
                 ptr[j] += (_Complex double)dia_ptr[j] * _Complex_I;
             }
@@ -1524,76 +1524,76 @@ jmtx_result jmtxz_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_m
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a CDS matrix with double precision as its real part.
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with JMTX_SCALAR_T precision as its real part.
  * Only one memory reallocation.
  * may be needed. Can not fail if the input matrix is valid.
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_real_inplace(jmtxd_matrix_cds *in)
+jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_real_inplace(JMTX_NAME_TYPED(matrix_cds) *in)
 {
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (double *)new_ptr;
+            in->main_diagonal = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        _Complex double *const values = (_Complex double *)in->main_diagonal;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = in->main_diagonal[i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        double *ptr = in->sub_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = ptr[j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        double *ptr = in->super_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (ptr[j]);
         }
@@ -1605,76 +1605,76 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_real_inplace(jmtxd_matrix_cds *in
 }
 
 /**
- * Creates a new CDS matrix with double precision from a CDS matrix with double precision as its imaginary part.
+ * Creates a new CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with JMTX_SCALAR_T precision as its imaginary part.
  * Only one memory reallocation.
  * may be needed. Can not fail if the input matrix is valid.
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
  */
-jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_imag_inplace(jmtxd_matrix_cds *in)
+jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_imag_inplace(JMTX_NAME_TYPED(matrix_cds) *in)
 {
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (double *)new_ptr;
+            in->main_diagonal = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (JMTX_SCALAR_T *)new_ptr;
         }
     }
 
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        _Complex double *const values = (_Complex double *)in->main_diagonal;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = in->main_diagonal[i] * _Complex_I;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        double *ptr = in->sub_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = ptr[j] * _Complex_I;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        double *ptr = in->super_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxd_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = JMTX_NAME_TYPED(matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (ptr[j]) * _Complex_I;
         }
@@ -1686,7 +1686,7 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_imag_inplace(jmtxd_matrix_cds *in
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a CDS matrix with double precision.
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in_real matrix to use as the real component of the new matrix (if NULL real part is zero)
  * @param in_imag matrix to use as the real component of the new matrix (if NULL imaginary part is zero)
@@ -1694,8 +1694,8 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_double_imag_inplace(jmtxd_matrix_cds *in
  * malloc, free, and realloc
  * @return JMTX_RESULT_SUCCESS if successful, JMTX_RESULT_BAD_ALLOC on memory allocation failure
  */
-jmtx_result jmtxzs_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_matrix_cds *in_real,
-                                          const jmtxd_matrix_cds *in_imag,
+jmtx_result jmtxzs_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const JMTX_NAME_TYPED(matrix_cds) *in_real,
+                                          const JMTX_NAME_TYPED(matrix_cds) *in_imag,
                                           const jmtx_allocator_callbacks *allocator_callbacks)
 {
     if (!p_mtx)
@@ -1729,7 +1729,7 @@ jmtx_result jmtxzs_matrix_cds_from_double(jmtxz_matrix_cds **p_mtx, const jmtxd_
  *                                                                                                                     *
  **********************************************************************************************************************/
 /**
- * Creates a new complex CDS matrix with single precision from a complex CDS matrix with double precision.
+ * Creates a new complex CDS matrix with single precision from a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
@@ -1750,33 +1750,33 @@ jmtx_result jmtxc_matrix_cds_from_cdouble(jmtxc_matrix_cds **p_mtx, const jmtxz_
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->sub_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
         _Complex float *const ptr = jmtxc_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex float)dia_ptr[j];
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
+        JMTX_INDEX_T len;
         _Complex float *const ptr = jmtxc_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex float)in->main_diagonal[j];
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
-        const _Complex double *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
+        const _Complex JMTX_SCALAR_T *const dia_ptr = in->super_diagonals.diagonals[i];
+        JMTX_INDEX_T len;
         _Complex float *const ptr = jmtxc_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex float)dia_ptr[j];
         }
@@ -1792,7 +1792,7 @@ jmtx_result jmtxc_matrix_cds_from_cdouble(jmtxc_matrix_cds **p_mtx, const jmtxz_
     return JMTX_RESULT_SUCCESS;
 }
 /**
- * Creates a new complex CDS matrix with single precision from a complex CDS matrix with double precision. Requires no
+ * Creates a new complex CDS matrix with single precision from a complex CDS matrix with JMTX_SCALAR_T precision. Requires no
  * memory allocation by reusing the memory of the initial matrix. Can not fail if the input matrix is valid.
  * @param in matrix which to convert (will be invalid if function succeeds)
  * @return converted matrix
@@ -1803,30 +1803,30 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_cdouble_inplace(jmtxz_matrix_cds *in)
     if (in->main_diagonal)
     {
         _Complex float *const values = (_Complex float *)in->main_diagonal;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[i] = (_Complex float)in->main_diagonal[i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->sub_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *ptr = in->sub_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (_Complex float)ptr[j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        _Complex double *ptr = in->super_diagonals.diagonals[i];
+        _Complex JMTX_SCALAR_T *ptr = in->super_diagonals.diagonals[i];
         _Complex float *const values = (_Complex float *)ptr;
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[j] = (_Complex float)ptr[j];
         }
@@ -1835,34 +1835,34 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_cdouble_inplace(jmtxz_matrix_cds *in)
     //  Shrink the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, 0);
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, 0);
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(in->base.allocator_callbacks.state,
                                                                              in->main_diagonal, sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->main_diagonal = (_Complex double *)new_ptr;
+            in->main_diagonal = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, -((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->sub_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->sub_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        const JMTX_INDEX_T len = jmtxz_matrix_cds_entries_in_dia(in, +((int32_t)i));
         _Complex float *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (new_ptr)
         {
-            in->super_diagonals.diagonals[i] = (_Complex double *)new_ptr;
+            in->super_diagonals.diagonals[i] = (_Complex JMTX_SCALAR_T *)new_ptr;
         }
     }
 
@@ -1872,7 +1872,7 @@ jmtxc_matrix_cds *jmtxc_matrix_cds_from_cdouble_inplace(jmtxz_matrix_cds *in)
 }
 
 /**
- * Creates a new complex CDS matrix with single precision from a complex CDS matrix with double precision.
+ * Creates a new complex CDS matrix with single precision from a complex CDS matrix with JMTX_SCALAR_T precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
@@ -1904,7 +1904,7 @@ jmtx_result jmtxcs_matrix_cds_from_cdouble(jmtxc_matrix_cds **p_mtx, const jmtxz
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a complex CDS matrix with single precision.
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a complex CDS matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use
@@ -1925,33 +1925,33 @@ jmtx_result jmtxz_matrix_cds_from_cfloat(jmtxz_matrix_cds **p_mtx, const jmtxc_m
         return res;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         const int32_t dia_idx = -(int32_t)in->sub_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->sub_diagonals.diagonals[i];
-        uint32_t len;
-        _Complex double *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex double)dia_ptr[j];
         }
     }
     if (in->main_diagonal)
     {
-        uint32_t len;
-        _Complex double *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, 0, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, 0, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex double)in->main_diagonal[j];
         }
     }
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         const int32_t dia_idx = (int32_t)in->super_diagonals.indices[i];
         const _Complex float *const dia_ptr = in->super_diagonals.diagonals[i];
-        uint32_t len;
-        _Complex double *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
-        for (uint_fast32_t j = 0; j < len; ++j)
+        JMTX_INDEX_T len;
+        _Complex JMTX_SCALAR_T *const ptr = jmtxz_matrix_cds_allocate_diagonal(mtx, dia_idx, &len);
+        for (JMTX_FAST_INT_T j = 0; j < len; ++j)
         {
             ptr[j] = (_Complex double)dia_ptr[j];
         }
@@ -1968,7 +1968,7 @@ jmtx_result jmtxz_matrix_cds_from_cfloat(jmtxz_matrix_cds **p_mtx, const jmtxc_m
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a complex CDS matrix with single precision. Only one
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a complex CDS matrix with single precision. Only one
  * memory reallocation may be needed. Can not fail if the input matrix is valid.
  * @param in matrix which to convert
  * @return converted matrix, or NULL in case of allocation failure
@@ -1978,8 +1978,8 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_cfloat_inplace(jmtxc_matrix_cds *in)
     //  Expand the diagonals
     if (in->main_diagonal)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->main_diagonal, sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
@@ -1988,10 +1988,10 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_cfloat_inplace(jmtxc_matrix_cds *in)
         in->main_diagonal = (_Complex float *)new_ptr;
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->sub_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
@@ -2000,10 +2000,10 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_cfloat_inplace(jmtxc_matrix_cds *in)
         in->sub_diagonals.diagonals[i] = (_Complex float *)new_ptr;
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        _Complex double *const new_ptr = in->base.allocator_callbacks.realloc(
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        _Complex JMTX_SCALAR_T *const new_ptr = in->base.allocator_callbacks.realloc(
             in->base.allocator_callbacks.state, in->super_diagonals.diagonals[i], sizeof(*new_ptr) * len);
         if (!new_ptr)
         {
@@ -2015,31 +2015,31 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_cfloat_inplace(jmtxc_matrix_cds *in)
     //  Convert diagonals
     if (in->main_diagonal)
     {
-        _Complex double *const values = (_Complex double *)in->main_diagonal;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, 0);
-        for (uint32_t i = 0; i < len; ++i)
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)in->main_diagonal;
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, 0);
+        for (JMTX_INDEX_T i = 0; i < len; ++i)
         {
             values[len - 1 - i] = (_Complex double)in->main_diagonal[len - 1 - i];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->sub_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->sub_diagonals.count; ++i)
     {
         _Complex float *ptr = in->sub_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, -((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[len - 1 - j] = (_Complex double)ptr[len - 1 - j];
         }
     }
 
-    for (uint_fast32_t i = 0; i < in->super_diagonals.count; ++i)
+    for (JMTX_FAST_INT_T i = 0; i < in->super_diagonals.count; ++i)
     {
         _Complex float *ptr = in->super_diagonals.diagonals[i];
-        _Complex double *const values = (_Complex double *)ptr;
-        const uint32_t len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
-        for (uint32_t j = 0; j < len; ++j)
+        _Complex JMTX_SCALAR_T *const values = (_Complex JMTX_SCALAR_T *)ptr;
+        const JMTX_INDEX_T len = jmtxc_matrix_cds_entries_in_dia(in, +((int32_t)i));
+        for (JMTX_INDEX_T j = 0; j < len; ++j)
         {
             values[len - 1 - j] = (_Complex double)ptr[len - 1 - j];
         }
@@ -2051,7 +2051,7 @@ jmtxz_matrix_cds *jmtxz_matrix_cds_from_cfloat_inplace(jmtxc_matrix_cds *in)
 }
 
 /**
- * Creates a new complex CDS matrix with double precision from a complex CDS matrix with single precision.
+ * Creates a new complex CDS matrix with JMTX_SCALAR_T precision from a complex CDS matrix with single precision.
  * @param p_mtx Pointer which receives the pointer to the new matrix
  * @param in matrix which to convert
  * @param allocator_callbacks pointer to a struct with callbacks and state to use for memory allocation or NULL to use

@@ -1,4 +1,4 @@
-#include "../include/jmtx/matrix_base.h"
+#include "matrix_base.h"
 #include "matrix_base_internal.h"
 #include <assert.h>
 #include <stdlib.h>

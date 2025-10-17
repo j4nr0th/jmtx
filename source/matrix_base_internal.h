@@ -2,7 +2,7 @@
 #define JMTX_MATRIX_BASE_INTERNAL_H
 
 #ifndef JMTX_MATRIX_BASE_H
-#    include "../include/jmtx/matrix_base.h"
+#    include "matrix_base.h"
 #endif
 
 enum jmtx_matrix_type_T
@@ -58,5 +58,10 @@ uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices,
                                            uint32_t value);
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+
+enum
+{
+    DEFAULT_RESERVED_ELEMENTS = 64
+};
 
 #endif // !JMTX_MATRIX_BASE_INTERNAL_H
