@@ -1,18 +1,8 @@
-// Automatically generated from tests/float/solver_tests/bicgstab_cds_test.c on Sun Dec 17 16:07:06 2023
-//
-// Created by jan on 3.12.2023.
-//
 #include <inttypes.h>
 #include <omp.h>
 #include <math.h>
 #include "../test_common.h"
-#include "../../../source/matrices/sparse_diagonal_compressed_safe.h"
-#include "../../../source/matrices/sparse_row_compressed_safe.h"
-#include "../../../source/matrices/sparse_column_compressed_safe.h"
-#include "../../../include/jmtx/double/matrices/sparse_conversion.h"
-#include "../../../source/decompositions/incomplete_lu_decomposition.h"
-#include "../../../include/jmtx/double/matrices/sparse_conversion.h"
-#include "../../../source/solvers/bicgstab_iteration.h"
+#include "solvers/bicgstab_iteration.h"
 
 enum
 {
@@ -28,45 +18,46 @@ int main()
     jmtx_result mtx_res;
     //  Problem to solve is d^2/dx^2 (u) - d/dx (u) = -pi^2 sin(pi x) - pi cos(pi x), with u(0) = 0 and u(1) = 0,
     //  on x in (0, 1). Exact solution is u(x) = sin(pi x).
-    double *const exact_solution = calloc(PROBLEM_DIMS, sizeof(*exact_solution)); // exact solution of u
+    JMTX_SCALAR_T *const exact_solution = calloc(PROBLEM_DIMS, sizeof(*exact_solution)); // exact solution of u
     ASSERT(exact_solution);
-    double *const forcing_vector =
+    JMTX_SCALAR_T *const forcing_vector =
         calloc(PROBLEM_DIMS, sizeof(*forcing_vector)); // forcing vector for u (all values are 1)
     ASSERT(forcing_vector);
-    double *const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
+    JMTX_SCALAR_T *const iterative_solution = calloc(PROBLEM_DIMS, sizeof(*iterative_solution));
     ASSERT(iterative_solution);
-    double *const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
+    JMTX_SCALAR_T *const aux_v1 = calloc(PROBLEM_DIMS, sizeof(*aux_v1));
     ASSERT(aux_v1);
-    double *const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
+    JMTX_SCALAR_T *const aux_v2 = calloc(PROBLEM_DIMS, sizeof(*aux_v2));
     ASSERT(aux_v2);
-    double *const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
+    JMTX_SCALAR_T *const aux_v3 = calloc(PROBLEM_DIMS, sizeof(*aux_v3));
     ASSERT(aux_v3);
-    double *const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
+    JMTX_SCALAR_T *const aux_v4 = calloc(PROBLEM_DIMS, sizeof(*aux_v4));
     ASSERT(aux_v4);
-    double *const aux_v5 = calloc(PROBLEM_DIMS, sizeof(*aux_v5));
+    JMTX_SCALAR_T *const aux_v5 = calloc(PROBLEM_DIMS, sizeof(*aux_v5));
     ASSERT(aux_v5);
-    double *const aux_v6 = calloc(PROBLEM_DIMS, sizeof(*aux_v6));
+    JMTX_SCALAR_T *const aux_v6 = calloc(PROBLEM_DIMS, sizeof(*aux_v6));
     ASSERT(aux_v6);
-    double *const aux_v7 = calloc(PROBLEM_DIMS, sizeof(*aux_v7));
+    JMTX_SCALAR_T *const aux_v7 = calloc(PROBLEM_DIMS, sizeof(*aux_v7));
     ASSERT(aux_v7);
-    double *const aux_v8 = calloc(PROBLEM_DIMS, sizeof(*aux_v8));
+    JMTX_SCALAR_T *const aux_v8 = calloc(PROBLEM_DIMS, sizeof(*aux_v8));
     ASSERT(aux_v8);
-    double *const err_evol = calloc(MAX_ITERATIONS, sizeof(*err_evol));
+    JMTX_REAL_T *const err_evol = calloc(MAX_ITERATIONS, sizeof(*err_evol));
     ASSERT(err_evol);
 
-    const double dx = 1.0f / (double)(PROBLEM_DIMS - 1);
+    const JMTX_REAL_T dx = 1.0f / (double)(PROBLEM_DIMS - 1);
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
-        const double x = (double)i / (double)(PROBLEM_DIMS - 1);
+        const JMTX_REAL_T x = (JMTX_REAL_T)i / (JMTX_REAL_T)(PROBLEM_DIMS - 1);
         exact_solution[i] = sinf(M_PI * x);
-        forcing_vector[i] = (double)(-M_PI * M_PI * sinf(M_PI * x) - M_PI * cosf(M_PI * x));
+        forcing_vector[i] = (JMTX_SCALAR_T)(-M_PI * M_PI * sinf(M_PI * x) - M_PI * cosf(M_PI * x));
     }
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_new(&mtx, PROBLEM_DIMS, PROBLEM_DIMS, 3, (int32_t[]){-1, 0, +1}, NULL));
+    MATRIX_TEST_CALL(
+        JMTX_NAME_TYPED(matrix_cds_new)(&mtx, PROBLEM_DIMS, PROBLEM_DIMS, 3, (int32_t[]){-1, 0, +1}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     uint32_t len;
-    double *dia = jmtxd_matrix_cds_allocate_diagonal(mtx, 0, &len);
+    JMTX_SCALAR_T *dia = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal)(mtx, 0, &len);
     //  Main diagonal
     dia[0] = 1;
     for (uint_fast32_t i = 1; i < len - 1; ++i)
@@ -74,7 +65,7 @@ int main()
         dia[i] = -2.0f / (dx * dx);
     }
     dia[len - 1] = 1;
-    dia = jmtxd_matrix_cds_allocate_diagonal(mtx, +1, &len);
+    dia = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal)(mtx, +1, &len);
     //  Superdiagonal
     dia[0] = 0;
     for (uint_fast32_t i = 1; i < len - 1; ++i)
@@ -82,7 +73,7 @@ int main()
         dia[i] = 1.0f / (dx * dx) + 1.0f / (2.0f * dx);
     }
     dia[len - 1] = 0;
-    dia = jmtxd_matrix_cds_allocate_diagonal(mtx, -1, &len);
+    dia = JMTX_NAME_TYPED(matrix_cds_allocate_diagonal)(mtx, -1, &len);
     //  Subdiagonal
     dia[0] = 0;
     for (uint_fast32_t i = 1; i < len - 1; ++i)
@@ -92,9 +83,9 @@ int main()
     dia[len - 1] = 0;
 
     // print_cdsd_matrix(mtx);
-    jmtxd_matrix_cds_vector_multiply(mtx, exact_solution, forcing_vector);
+    JMTX_NAME_TYPED(matrix_cds_vector_multiply)(mtx, exact_solution, forcing_vector);
     JMTX_NAME_TYPED(matrix_crs) * newmtx;
-    MATRIX_TEST_CALL(jmtxd_convert_cds_to_crs(mtx, &newmtx, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(convert_cds_to_crs)(mtx, &newmtx, NULL));
     JMTX_NAME_TYPED(matrix_crs) * l, *u;
     double ti = omp_get_wtime();
 

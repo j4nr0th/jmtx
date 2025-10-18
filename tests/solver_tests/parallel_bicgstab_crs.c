@@ -1,6 +1,3 @@
-//
-// Created by jan on 3.7.2024.
-//
 #include <omp.h>
 #include "../test_common.h"
 #include <inttypes.h>

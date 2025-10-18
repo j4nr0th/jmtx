@@ -1,14 +1,7 @@
-// Automatically generated from tests/float/matrix_ops_tests/omp_build_test.c on Fri Dec  1 06:43:09 2023
-//
-// Created by jan on 30.10.2023.
-//
 #include <omp.h>
 #include "../test_common.h"
 #include <inttypes.h>
 #include <stdio.h>
-
-#include "../../../source/matrices/sparse_row_compressed.h"
-#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
 
 enum
 {
@@ -32,14 +25,14 @@ static void from_lexicographic(unsigned n, unsigned *pi, unsigned *pj)
 }
 
 static void construct_rows_of_matrix(JMTX_NAME_TYPED(matrix_crs) * mtx, unsigned first, unsigned count,
-                                     const double rdy2, const double rdx2)
+                                     const JMTX_SCALAR_T rdy2, const JMTX_SCALAR_T rdx2)
 {
     unsigned i, j;
     from_lexicographic(first, &i, &j);
     for (unsigned k = first; k < first + count; ++k)
     {
         unsigned l = 0;
-        double values[5];
+        JMTX_SCALAR_T values[5];
         uint32_t positions[5];
         if (i != 0)
         {
@@ -78,7 +71,7 @@ static void construct_rows_of_matrix(JMTX_NAME_TYPED(matrix_crs) * mtx, unsigned
         }
 
         //        MATRIX_TEST_CALL(
-        jmtxd_matrix_crs_build_row(mtx, k - first, l, positions, values);
+        JMTX_NAME_TYPED(matrix_crs_build_row)(mtx, k - first, l, positions, values);
         //                );
         //        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
         //        int beef_stat;
@@ -102,16 +95,17 @@ int main()
     const int max_threads = omp_get_max_threads();
     printf("OpenMP found %d processors, with a maximum of %d threads\n", proc_count, max_threads);
 
-    const double dy = 1.0f / (PROBLEM_SIZE_Y - 1);
-    const double dx = 1.0f / (PROBLEM_SIZE_X - 1);
+    const JMTX_REAL_T dy = 1.0f / (PROBLEM_SIZE_Y - 1);
+    const JMTX_REAL_T dx = 1.0f / (PROBLEM_SIZE_X - 1);
 
-    const double rdy2 = 1.0f / (dy * dy);
-    const double rdx2 = 1.0f / (dx * dx);
+    const JMTX_REAL_T rdy2 = 1.0f / (dy * dy);
+    const JMTX_REAL_T rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
-                                           5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
-                                               ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
-                                           NULL));
+    MATRIX_TEST_CALL(
+        JMTX_NAME_TYPED(matrix_crs_new)(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+                                        5 * PROBLEM_INTERNAL_PTS > PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
+                                            ?: PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
+                                        NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     const double t0_serial = omp_get_wtime();
@@ -122,7 +116,7 @@ int main()
         {
             //  Point is (DX * j, DY * i)
             unsigned k = 0;
-            double values[5];
+            JMTX_SCALAR_T values[5];
             uint32_t positions[5];
             if (i != 0)
             {
@@ -161,7 +155,7 @@ int main()
             }
 
             //            MATRIX_TEST_CALL(
-            jmtxd_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            JMTX_NAME_TYPED(matrix_crs_build_row)(mtx, lexicographic_position(i, j), k, positions, values);
             //                    );
             //            ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
             //            int beef_stat;
@@ -195,10 +189,10 @@ int main()
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
         MATRIX_TEST_CALL(
-            jmtxds_matrix_crs_new(mtx_array + i, (sizes[i + 1] - sizes[i]), PROBLEM_INTERNAL_PTS,
-                                  5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i])
-                                      ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]),
-                                  NULL));
+            JMTX_NAME_TYPED(matrix_crs_new)(mtx_array + i, (sizes[i + 1] - sizes[i]), PROBLEM_INTERNAL_PTS,
+                                            5 * (sizes[i + 1] - sizes[i]) < WORK_DIVISIONS * (sizes[i + 1] - sizes[i])
+                                                ?: WORK_DIVISIONS * (sizes[i + 1] - sizes[i]),
+                                            NULL));
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     }
 
@@ -214,15 +208,14 @@ int main()
     }
 
     JMTX_NAME_TYPED(matrix_crs) * joined;
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_join_vertically(&joined, NULL, WORK_DIVISIONS,
-                                                       (const JMTX_NAME_TYPED(matrix_crs) **)mtx_array));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_join_vertically)(&joined, NULL, WORK_DIVISIONS,
+                                                                 (const JMTX_NAME_TYPED(matrix_crs) **)mtx_array));
     const double t1_par_inner = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     for (unsigned i = 0; i < WORK_DIVISIONS; ++i)
     {
-        MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx_array[i]));
-        ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+        JMTX_NAME_TYPED(matrix_crs_destroy)(mtx_array[i]);
     }
 
     free(sizes);
@@ -238,16 +231,13 @@ int main()
     {
         for (unsigned j = 0; j < PROBLEM_INTERNAL_PTS; ++j)
         {
-            double v_serial, v_joined;
-            ASSERT(jmtxds_matrix_crs_get_entry(mtx, i, j, &v_serial) == JMTX_RESULT_SUCCESS);
-            ASSERT(jmtxds_matrix_crs_get_entry(joined, i, j, &v_joined) == JMTX_RESULT_SUCCESS);
+            const JMTX_SCALAR_T v_serial = JMTX_NAME_TYPED(matrix_crs_get_entry)(mtx, i, j);
+            const JMTX_SCALAR_T v_joined = JMTX_NAME_TYPED(matrix_crs_get_entry)(joined, i, j);
             ASSERT(v_serial == v_joined);
         }
     }
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(joined));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(joined);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(mtx);
     return 0;
 }

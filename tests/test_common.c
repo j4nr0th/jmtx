@@ -210,7 +210,7 @@ void jmtxd_print_brm_matrix(const jmtxd_matrix_brm *mtx)
 {
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
     {
-        float *p_vals;
+        double *p_vals;
         uint_fast32_t first = jmtxd_matrix_brm_first_pos_in_row(mtx, i);
         uint_fast32_t last = jmtxd_matrix_brm_get_row(mtx, i, &p_vals) + first;
         uint_fast32_t j = 0;
@@ -420,7 +420,7 @@ void jmtxz_print_crs_matrix(const jmtxz_matrix_crs *mtx)
         printf("\t[");
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            const _Complex double x = jmtxc_matrix_crs_get_entry(mtx, i, j);
+            const _Complex double x = jmtxz_matrix_crs_get_entry(mtx, i, j);
             printf("%10g%+10g ", creal(x), cimag(x));
         }
         printf("] - %u", mtx->end_of_row_offsets[i] - (i ? mtx->end_of_row_offsets[i - 1] : 0));
@@ -472,9 +472,9 @@ void jmtxz_print_brm_matrix(const jmtxz_matrix_brm *mtx)
 {
     for (uint_fast32_t i = 0; i < mtx->base.rows; ++i)
     {
-        _Complex float *p_vals;
-        uint_fast32_t first = jmtxc_matrix_brm_first_pos_in_row(mtx, i);
-        uint_fast32_t last = jmtxc_matrix_brm_get_row(mtx, i, &p_vals) + first;
+        _Complex double *p_vals;
+        uint_fast32_t first = jmtxz_matrix_brm_first_pos_in_row(mtx, i);
+        uint_fast32_t last = jmtxz_matrix_brm_get_row(mtx, i, &p_vals) + first;
         uint_fast32_t j = 0;
         while (j < first)
         {
@@ -504,7 +504,7 @@ void jmtxz_print_cds_matrix(const jmtxz_matrix_cds *mtx)
         printf("\t[");
         for (uint32_t j = 0; j < mtx->base.cols; ++j)
         {
-            const _Complex double x = jmtxc_matrix_cds_get_entry(mtx, i, j);
+            const _Complex double x = jmtxz_matrix_cds_get_entry(mtx, i, j);
             printf("%10g%+10g ", creal(x), cimag(x));
         }
         printf("]\n");

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "../source/common.h"
 #include INCLUDE_HEADER
+#include "solver_base.h"
 #include "matrices/band_row_major.h"
 #include "matrices/dense_row_major.h"
 #include "matrices/sparse_column_compressed.h"

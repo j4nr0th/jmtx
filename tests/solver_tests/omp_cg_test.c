@@ -1,12 +1,8 @@
-// Automatically generated from tests/float/solver_tests/omp_cg_test.c on Fri Dec  1 06:43:09 2023
-//
-// Created by jan on 22.10.2023.
-//
 #include <omp.h>
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../../source/matrices/sparse_row_compressed_safe.h"
-#include "../../../source/solvers/conjugate_gradient_iteration.h"
+#include "matrices/sparse_row_compressed.h"
+#include "solvers/conjugate_gradient_iteration.h"
 
 enum
 {
@@ -22,12 +18,12 @@ int main()
     jmtx_result mtx_res;
     //  Problem to solve is d^2/dx^2 (u) = 1, with u(0) = 0 and u(1) = 0, on x in (0, 1)
     //  Exact solution is u(x) = x * (x - 1) / 2
-    double exact_solution[PROBLEM_DIMS]; // exact solution of u
-    double forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all values are 1)
-    double iterative_solution[PROBLEM_DIMS] = {0};
-    double aux_v1[PROBLEM_DIMS];
-    double aux_v2[PROBLEM_DIMS];
-    double aux_v3[PROBLEM_DIMS];
+    JMTX_SCALAR_T exact_solution[PROBLEM_DIMS]; // exact solution of u
+    JMTX_SCALAR_T forcing_vector[PROBLEM_DIMS]; // forcing vector for u (all values are 1)
+    JMTX_SCALAR_T iterative_solution[PROBLEM_DIMS] = {0};
+    JMTX_SCALAR_T aux_v1[PROBLEM_DIMS];
+    JMTX_SCALAR_T aux_v2[PROBLEM_DIMS];
+    JMTX_SCALAR_T aux_v3[PROBLEM_DIMS];
 
     omp_set_dynamic(1);
     const int proc_count = omp_get_num_procs();
@@ -47,24 +43,24 @@ int main()
         forcing_vector[i] = 1.0f * dx * dx;
     }
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_new)(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     {
         const uint32_t indices1[2] = {0, 1};
-        const double values1[2] = {-2.0f, 1.0f};
+        const JMTX_SCALAR_T values1[2] = {-2.0f, 1.0f};
         const uint32_t indices2[2] = {PROBLEM_DIMS - 4, PROBLEM_DIMS - 3};
-        const double values2[2] = {1.0f, -2.0f};
+        const JMTX_SCALAR_T values2[2] = {1.0f, -2.0f};
         forcing_vector[0] += -0.0f;
         forcing_vector[PROBLEM_DIMS - 1] += -0.0f;
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, 0, 2, indices1, values1)));
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
     }
     for (unsigned i = 1; i < PROBLEM_DIMS - 3; ++i)
     {
         const uint32_t indices[3] = {i - 1, i, i + 1};
-        const double values[3] = {1.0f, -2.0f, 1.0f};
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, i, 3, indices, values)));
+        const JMTX_SCALAR_T values[3] = {1.0f, -2.0f, 1.0f};
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, i, 3, indices, values)));
     }
     //    print_crsd_matrix(mtx);
     uint32_t total_iterations = 0;
@@ -77,8 +73,8 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxd_solve_iterative_conjugate_gradient_crs_parallel(mtx, forcing_vector, iterative_solution + 1,
-                                                                        aux_v1, aux_v2, aux_v3, &solver_arguments);
+        mtx_res = JMTX_NAME_TYPED(solve_iterative_conjugate_gradient_crs_parallel)(
+            mtx, forcing_vector, iterative_solution + 1, aux_v1, aux_v2, aux_v3, &solver_arguments);
         const double t1 = omp_get_wtime();
         printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n",
                t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS, jmtx_result_to_str(mtx_res),
@@ -99,7 +95,6 @@ int main()
     //        const double x = (double)i / (double)(PROBLEM_DIMS - 1);
     //        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
     //    }
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(mtx);
     return 0;
 }

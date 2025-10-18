@@ -1,7 +1,3 @@
-// Automatically generated from tests/float/solver_tests/omp_inclu_test.c on Fri Dec  1 06:43:09 2023
-//
-// Created by jan on 2.11.2023.
-//
 #include <omp.h>
 #include <stdio.h>
 #include "../test_common.h"

@@ -19,7 +19,7 @@
 #include <complex.h>
 #define JMTX_REAL_ROOT(x) csqrt(x)
 #define JMTX_FULL_ROOT(x) csqrt(x)
-#define JMTX_DOT(x, y) (conj(x) * (y))
+#define JMTX_DOT(x, y) ((JMTX_REAL_T)(conj(x) * (y)))
 #define JMTX_ABS(x) cabs(x)
 
 #endif // JMTX_JMTX_CDOUBLE_DEFINES_H

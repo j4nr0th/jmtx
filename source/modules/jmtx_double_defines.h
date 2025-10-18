@@ -15,7 +15,7 @@
 #define JMTX_SIZE_T size_t
 
 #define JMTX_NAME_TYPED(base_name) jmtxd_##base_name
-
+#include <math.h>
 #define JMTX_REAL_ROOT(x) sqrt(x)
 #define JMTX_FULL_ROOT(x) sqrt(x)
 #define JMTX_DOT(x, y) ((x) * (y))

@@ -1,11 +1,7 @@
-// Automatically generated from tests/float/solver_tests/omp_cg_test.c on Fri Dec  1 06:43:09 2023
-//
-// Created by jan on 22.10.2023.
-//
 #include <inttypes.h>
 #include "../test_common.h"
-#include "../../../source/matrices/sparse_row_compressed_safe.h"
-#include "../../../source/solvers/generalized_minimum_residual_iteration.h"
+#include "matrices/sparse_row_compressed.h"
+#include "solvers/generalized_minimum_residual_iteration.h"
 #include <omp.h>
 
 enum
@@ -23,24 +19,24 @@ int main()
     jmtx_result mtx_res;
     //  Problem to solve is d^2/dx^2 (u) = 1, with u(0) = 0 and u(1) = 0, on x in (0, 1)
     //  Exact solution is u(x) = x * (x - 1) / 2
-    double *const exact_solution = calloc(sizeof(*exact_solution), PROBLEM_DIMS); // exact solution of u
+    JMTX_SCALAR_T *const exact_solution = calloc(sizeof(*exact_solution), PROBLEM_DIMS); // exact solution of u
     ASSERT(exact_solution);
-    double *const forcing_vector =
+    JMTX_SCALAR_T *const forcing_vector =
         calloc(sizeof(*forcing_vector), PROBLEM_DIMS); // forcing vector for u (all values are 1)
     ASSERT(forcing_vector);
-    double *const iterative_solution = calloc(sizeof(*iterative_solution), PROBLEM_DIMS);
+    JMTX_SCALAR_T *const iterative_solution = calloc(sizeof(*iterative_solution), PROBLEM_DIMS);
     ASSERT(iterative_solution);
-    double *const aux_v1 = calloc(sizeof(*aux_v1), RESTART_INTERVAL);
+    JMTX_SCALAR_T *const aux_v1 = calloc(sizeof(*aux_v1), RESTART_INTERVAL);
     ASSERT(aux_v1);
-    double *const aux_v2 = calloc(sizeof(*aux_v2), RESTART_INTERVAL);
+    JMTX_SCALAR_T *const aux_v2 = calloc(sizeof(*aux_v2), RESTART_INTERVAL);
     ASSERT(aux_v2);
-    double *const aux_v3 = calloc(sizeof(*aux_v3), RESTART_INTERVAL);
+    JMTX_SCALAR_T *const aux_v3 = calloc(sizeof(*aux_v3), RESTART_INTERVAL);
     ASSERT(aux_v3);
-    double *const aux_v4 = calloc(sizeof(*aux_v4), RESTART_INTERVAL);
+    JMTX_SCALAR_T *const aux_v4 = calloc(sizeof(*aux_v4), RESTART_INTERVAL);
     ASSERT(aux_v4);
-    double *const aux_v5 = calloc(sizeof(*aux_v5), RESTART_INTERVAL);
+    JMTX_SCALAR_T *const aux_v5 = calloc(sizeof(*aux_v5), RESTART_INTERVAL);
     ASSERT(aux_v5);
-    double *const aux_vecs = calloc(sizeof(*aux_vecs), RESTART_INTERVAL * PROBLEM_DIMS);
+    JMTX_SCALAR_T *const aux_vecs = calloc(sizeof(*aux_vecs), RESTART_INTERVAL * PROBLEM_DIMS);
     ASSERT(aux_vecs);
 
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
@@ -55,32 +51,31 @@ int main()
         forcing_vector[i] = 1.0f * dx * dx;
     }
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_new(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_new)(&mtx, PROBLEM_DIMS - 2, PROBLEM_DIMS - 2, 3 * PROBLEM_DIMS, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Build the matrix
     {
         const uint32_t indices1[2] = {0, 1};
-        const double values1[2] = {-2.0f, 1.0f};
+        const JMTX_SCALAR_T values1[2] = {-2.0f, 1.0f};
         const uint32_t indices2[2] = {PROBLEM_DIMS - 4, PROBLEM_DIMS - 3};
-        const double values2[2] = {1.0f, -2.0f};
+        const JMTX_SCALAR_T values2[2] = {1.0f, -2.0f};
         forcing_vector[0] += -0.0f;
         forcing_vector[PROBLEM_DIMS - 1] += -0.0f;
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, 0, 2, indices1, values1)));
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, 0, 2, indices1, values1)));
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, PROBLEM_DIMS - 3, 2, indices2, values2)));
     }
     for (unsigned i = 1; i < PROBLEM_DIMS - 3; ++i)
     {
         const uint32_t indices[3] = {i - 1, i, i + 1};
-        const double values[3] = {1.0f, -2.0f, 1.0f};
-        ASSERT(mtx_res == (jmtxds_matrix_crs_set_row(mtx, i, 3, indices, values)));
+        const JMTX_SCALAR_T values[3] = {1.0f, -2.0f, 1.0f};
+        ASSERT(mtx_res == (JMTX_NAME_TYPED(matrix_crs_set_row)(mtx, i, 3, indices, values)));
     }
     //    print_crsd_matrix(mtx);
     JMTX_NAME_TYPED(matrix_brm) *r_mtx = NULL;
-    MATRIX_TEST_CALL(
-        jmtxd_matrix_brm_new(&r_mtx, RESTART_INTERVAL, RESTART_INTERVAL, RESTART_INTERVAL - 1, 0, NULL, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_brm_new)(&r_mtx, RESTART_INTERVAL, RESTART_INTERVAL, RESTART_INTERVAL - 1,
+                                                     0, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     uint32_t total_iterations = 0;
-    double total_time = 0;
     JMTX_NAME_TYPED(solver_arguments)
     solver_arguments = {
         .in_convergence_criterion = 1e-4f,
@@ -89,8 +84,9 @@ int main()
 
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxd_solve_iterative_gmresm_crs(mtx, forcing_vector, iterative_solution + 1, RESTART_INTERVAL, r_mtx,
-                                                   aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_vecs, &solver_arguments);
+        mtx_res = JMTX_NAME_TYPED(solve_iterative_gmresm_crs)(mtx, forcing_vector, iterative_solution + 1,
+                                                              RESTART_INTERVAL, r_mtx, aux_v1, aux_v2, aux_v3, aux_v4,
+                                                              aux_v5, aux_vecs, &solver_arguments);
         const double t1 = omp_get_wtime();
         printf("Solution took %g seconds (%u iterations) for a problem of size %d (outcome: %s), error ratio: %g\n",
                t1 - t0, solver_arguments.out_last_iteration, PROBLEM_DIMS, jmtx_result_to_str(mtx_res),
@@ -98,9 +94,8 @@ int main()
         ASSERT(mtx_res == JMTX_RESULT_SUCCESS || mtx_res == JMTX_RESULT_NOT_CONVERGED ||
                mtx_res == JMTX_RESULT_STAGNATED);
         total_iterations += solver_arguments.out_last_iteration;
-        total_time += t1 - t0;
     }
-    jmtxd_matrix_brm_destroy(r_mtx);
+    JMTX_NAME_TYPED(matrix_brm_destroy)(r_mtx);
 
     iterative_solution[0] = 0;
     iterative_solution[PROBLEM_DIMS - 1] = 0;
@@ -110,10 +105,9 @@ int main()
     for (unsigned i = 0; i < PROBLEM_DIMS; ++i)
     {
         const double x = (double)i / (double)(PROBLEM_DIMS - 1);
-        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, exact_solution[i], x, iterative_solution[i]);
+        printf("u_ex(%g) = %g, u_num(%g) = %g\n", x, JMTX_ABS(exact_solution[i]), x, JMTX_ABS(iterative_solution[i]));
     }
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(mtx);
 
     free(aux_vecs);
     free(aux_v5);

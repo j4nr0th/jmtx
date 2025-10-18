@@ -59,3 +59,12 @@ add_subdirectory(tests ${CMAKE_BINARY_DIR}/float-tests)
 set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cfloat_defines.h")
 set(TEST_TYPE_NAME "cfloat")
 add_subdirectory(tests ${CMAKE_BINARY_DIR}/cfloat-tests)
+
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_double_defines.h")
+set(TEST_TYPE_NAME "double")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/double-tests)
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cdouble_defines.h")
+set(TEST_TYPE_NAME "cdouble")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/cdouble-tests)

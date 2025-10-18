@@ -1,9 +1,4 @@
-//
-// Created by jan on 18.7.2024.
-//
 #include <math.h>
-#include "../../../source/matrices/dense_row_major.h"
-#include "../../cfloat/test_common.h"
 #include "../test_common.h"
 #include <stdlib.h>
 
@@ -16,28 +11,28 @@ static void eliminate_entry_upper(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i,
 {
     ASSERT(i < N - 1);
     ASSERT(j < N && j > 0);
-    const double a11 = jmtxd_matrix_drm_get_entry(mat, i, i);
-    const double a12 = jmtxd_matrix_drm_get_entry(mat, i, j);
+    const double a11 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, i);
+    const double a12 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, j);
 
     const double mag = hypot(a11, a12);
     const double s = -a12 / mag;
     const double c = +a11 / mag;
 
-    jmtxd_matrix_drm_givens_rotation_right(mat, i, j, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_right)(mat, i, j, c, s);
 }
 
 static void eliminate_entry_lower(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i, unsigned j)
 {
     ASSERT(j < i);
     ASSERT(i < N && i > 0);
-    const double a11 = jmtxd_matrix_drm_get_entry(mat, j, j);
-    const double a21 = jmtxd_matrix_drm_get_entry(mat, i, j);
+    const double a11 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, j, j);
+    const double a21 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, j);
 
     const double mag = hypot(a11, a21);
     const double s = -a21 / mag;
     const double c = +a11 / mag;
 
-    jmtxd_matrix_drm_givens_rotation_left(mat, j, i, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_left)(mat, j, i, c, s);
 }
 
 static void eliminate_entry_upper2(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i, unsigned j,
@@ -45,15 +40,15 @@ static void eliminate_entry_upper2(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i
 {
     ASSERT(i < N - 1);
     ASSERT(j < N && j > 0);
-    const double a11 = jmtxd_matrix_drm_get_entry(mat, i, i);
-    const double a12 = jmtxd_matrix_drm_get_entry(mat, i, j);
+    const double a11 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, i);
+    const double a12 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, j);
 
     const double mag = hypot(a11, a12);
     const double s = -a12 / mag;
     const double c = +a11 / mag;
 
-    jmtxd_matrix_drm_givens_rotation_right(mat, i, j, c, s);
-    jmtxd_matrix_drm_givens_rotation_left(q, i, j, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_right)(mat, i, j, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_left)(q, i, j, c, s);
 }
 
 static void eliminate_entry_upper3(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i, unsigned j,
@@ -61,48 +56,50 @@ static void eliminate_entry_upper3(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned i
 {
     ASSERT(i < N - 1);
     ASSERT(j < N && j > 0);
-    const double a11 = jmtxd_matrix_drm_get_entry(mat, i, i) - k;
-    const double a12 = jmtxd_matrix_drm_get_entry(mat, i, j);
+    const double a11 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, i) - k;
+    const double a12 = JMTX_NAME_TYPED(matrix_drm_get_entry)(mat, i, j);
 
     const double mag = hypot(a11, a12);
     const double s = -a12 / mag;
     const double c = +a11 / mag;
 
-    jmtxd_matrix_drm_givens_rotation_right(mat, i, j, c, s);
-    jmtxd_matrix_drm_givens_rotation_left(q, i, j, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_right)(mat, i, j, c, s);
+    JMTX_NAME_TYPED(matrix_drm_givens_rotation_left)(q, i, j, c, s);
 }
 
-static inline void eigenvals2x2(const double a11, const double a12, const double a21, const double a22, double out[2])
+static inline void eigenvals2x2(const JMTX_SCALAR_T a11, const JMTX_SCALAR_T a12, const JMTX_SCALAR_T a21,
+                                const JMTX_SCALAR_T a22, JMTX_SCALAR_T out[2])
 {
-    const double f = (a11 + a22) / 2;
-    const double s = sqrt(f * f + a12 * a21 - a11 * a22);
+    const JMTX_SCALAR_T f = (a11 + a22) / 2;
+    const JMTX_SCALAR_T s = JMTX_FULL_ROOT(f * f + a12 * a21 - a11 * a22);
     out[0] = f + s;
     out[1] = f - s;
 }
 
-static void qr_algo(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned max_itr, double out[])
+static void qr_algo(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned max_itr, JMTX_SCALAR_T out[])
 {
     JMTX_NAME_TYPED(matrix_drm) * q, *l, *t;
-    jmtx_result mtx_res = jmtxd_matrix_drm_copy(mat, &l, NULL);
+    jmtx_result mtx_res = JMTX_NAME_TYPED(matrix_drm_copy)(mat, &l, NULL);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    mtx_res = jmtxd_matrix_drm_new(&q, N, N, NULL, NULL);
+    mtx_res = JMTX_NAME_TYPED(matrix_drm_new)(&q, N, N, NULL, NULL);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    mtx_res = jmtxd_matrix_drm_new(&t, N, N, NULL, NULL);
+    mtx_res = JMTX_NAME_TYPED(matrix_drm_new)(&t, N, N, NULL, NULL);
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     unsigned p = N;
-    double ev = jmtxd_matrix_drm_get_entry(l, p - 1, p - 1);
+    JMTX_SCALAR_T ev = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, p - 1, p - 1);
     unsigned itr;
-    double ev_est[2];
+    JMTX_SCALAR_T ev_est[2];
     for (itr = 0; itr < max_itr && p > 2; ++itr)
     {
-        jmtxd_matrix_drm_set_all_entries(q, 0);
+        JMTX_NAME_TYPED(matrix_drm_set_all_entries)(q, 0);
         for (unsigned i = 0; i < N; ++i)
-            jmtxd_matrix_drm_set_entry(q, i, i, 1);
-        // print_drmd_matrix(l);
-        // print_drmd_matrix(q);
-        eigenvals2x2(jmtxd_matrix_drm_get_entry(l, p - 2, p - 2), jmtxd_matrix_drm_get_entry(l, p - 2, p - 1),
-                     jmtxd_matrix_drm_get_entry(l, p - 1, p - 2), ev, ev_est);
+            JMTX_NAME_TYPED(matrix_drm_set_entry)(q, i, i, 1);
+        // JMTX_NAME_TYPED(print_drm_matrix)(l);
+        // JMTX_NAME_TYPED(print_drm_matrix)(q);
+        eigenvals2x2(JMTX_NAME_TYPED(matrix_drm_get_entry)(l, p - 2, p - 2),
+                     JMTX_NAME_TYPED(matrix_drm_get_entry)(l, p - 2, p - 1),
+                     JMTX_NAME_TYPED(matrix_drm_get_entry)(l, p - 1, p - 2), ev, ev_est);
 
         // jmtxd_matrix_drm_shift_diagonal(l, -ev_est[1]);
         for (unsigned i = 0; i < p - 1; ++i)
@@ -111,12 +108,12 @@ static void qr_algo(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned max_itr, double 
             {
                 // eliminate_entry_upper2(l, i, j, q);
                 eliminate_entry_upper3(l, i, j, q, ev_est[1]);
-                // print_drmd_matrix(l);
+                // JMTX_NAME_TYPED(print_drm_matrix)(l);
             }
         }
-        // print_drmd_matrix(l);
+        // JMTX_NAME_TYPED(print_drm_matrix)(l);
         // jmtxd_matrix_drm_transpose_inplace(q, out);
-        jmtxd_matrix_drm_multiply_matrix(q, l, t);
+        JMTX_NAME_TYPED(matrix_drm_multiply_matrix)(q, l, t);
         {
             JMTX_NAME_TYPED(matrix_drm) *tmp = t;
             t = l;
@@ -124,7 +121,7 @@ static void qr_algo(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned max_itr, double 
         }
         // jmtxd_matrix_drm_multiply_matrix2(l, q, t);
         // jmtxd_matrix_drm_shift_diagonal(l, +ev_est[1]);
-        const double new_ev = jmtxd_matrix_drm_get_entry(l, p - 1, p - 1);
+        const double new_ev = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, p - 1, p - 1);
 
         const double de = new_ev - ev;
         if (fabs(de) < 1e-15)
@@ -136,20 +133,24 @@ static void qr_algo(JMTX_NAME_TYPED(matrix_drm) * mat, unsigned max_itr, double 
         {
             ev = new_ev;
         }
-        // print_drmd_matrix(t);
+        // JMTX_NAME_TYPED(print_drm_matrix)(t);
     }
-    // print_drmd_matrix(l);
-    const double a = jmtxd_matrix_drm_get_entry(l, 0, 0);
-    const double b = jmtxd_matrix_drm_get_entry(l, 0, 1);
-    const double c = jmtxd_matrix_drm_get_entry(l, 1, 0);
-    const double d = jmtxd_matrix_drm_get_entry(l, 1, 1);
+    // JMTX_NAME_TYPED(print_drm_matrix)(l);
+    const double a = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, 0, 0);
+    const double b = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, 0, 1);
+    const double c = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, 1, 0);
+    const double d = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, 1, 1);
     eigenvals2x2(a, b, c, d, out);
 
     for (unsigned i = 2; i < N; ++i)
     {
-        out[i] = jmtxd_matrix_drm_get_entry(l, i, i);
+        out[i] = JMTX_NAME_TYPED(matrix_drm_get_entry)(l, i, i);
     }
     printf("Finished on iteration %u\n", itr);
+
+    JMTX_NAME_TYPED(matrix_drm_destroy)(l);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(q);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(t);
 }
 
 int main()
@@ -157,74 +158,72 @@ int main()
     JMTX_NAME_TYPED(matrix_drm) * mtx;
     jmtx_result mtx_res;
 
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_new(&mtx, N, N, (double[]){0.0}, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_new)(&mtx, N, N, (JMTX_SCALAR_T[]){0.0}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     for (unsigned i = 0; i < N; ++i)
-        jmtxd_matrix_drm_set_entry(mtx, i, i, 1.0);
+        JMTX_NAME_TYPED(matrix_drm_set_entry)(mtx, i, i, 1.0);
 
-    print_drmd_matrix(mtx);
+    JMTX_NAME_TYPED(print_drm_matrix)(mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_drm_givens_rotation_left(mtx, 1, 2, cos(0.4), sin(0.4)));
+    (JMTX_NAME_TYPED(matrix_drm_givens_rotation_left)(mtx, 1, 2, cos(0.4), sin(0.4)));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_drmd_matrix(mtx);
+    JMTX_NAME_TYPED(print_drm_matrix)(mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_drm_givens_rotation_right(mtx, 1, 2, cos(0.4), sin(0.4)));
+    (JMTX_NAME_TYPED(matrix_drm_givens_rotation_right)(mtx, 1, 2, cos(0.4), sin(0.4)));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_drmd_matrix(mtx);
+    JMTX_NAME_TYPED(print_drm_matrix)(mtx);
     srand(0);
     for (unsigned i = 0; i < N; ++i)
     {
         for (unsigned j = 0; j < N; ++j)
         {
-            jmtxd_matrix_drm_set_entry(mtx, i, j, ((double)rand() / (double)RAND_MAX * 2 - 1));
+            JMTX_NAME_TYPED(matrix_drm_set_entry)(mtx, i, j,
+                                                  (JMTX_SCALAR_T)((JMTX_REAL_T)rand() / (JMTX_REAL_T)RAND_MAX * 2 - 1));
         }
     }
-    print_drmd_matrix(mtx);
+    JMTX_NAME_TYPED(print_drm_matrix)(mtx);
 
     JMTX_NAME_TYPED(matrix_drm) * trp;
-    jmtxd_matrix_drm_transpose(mtx, &trp, NULL);
+    JMTX_NAME_TYPED(matrix_drm_transpose)(mtx, &trp, NULL);
     JMTX_NAME_TYPED(matrix_drm) * spdm, *eye, *spdm2;
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_new(&spdm, N, N, NULL, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_new)(&spdm, N, N, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_multiply_matrix(trp, mtx, spdm));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_multiply_matrix)(trp, mtx, spdm));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    jmtxd_matrix_drm_destroy(trp);
-    print_drmd_matrix(spdm);
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_copy(spdm, &spdm2, NULL));
+    JMTX_NAME_TYPED(matrix_drm_destroy)(trp);
+    JMTX_NAME_TYPED(print_drm_matrix)(spdm);
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_copy)(spdm, &spdm2, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_new(&eye, N, N, (double[]){0.0}, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_new)(&eye, N, N, (JMTX_SCALAR_T[]){0.0}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
     for (unsigned i = 0; i < N; ++i)
-        jmtxd_matrix_drm_set_entry(eye, i, i, 1.0);
+        JMTX_NAME_TYPED(matrix_drm_set_entry)(eye, i, i, 1.0);
 
-    double results[N];
-    const double real[N] = {12.947353812927712,   8.397417766375117,   4.522814669443053,  2.5762574981520463,
-                            1.9548461558510135,   1.4955423031466695,  0.7171290281538076, 0.4648214913182648,
-                            0.026795848501450264, 0.011904133726680758};
+    JMTX_SCALAR_T results[N];
+    const JMTX_SCALAR_T real[N] = {12.947353812927712,   8.397417766375117,   4.522814669443053,  2.5762574981520463,
+                                   1.9548461558510135,   1.4955423031466695,  0.7171290281538076, 0.4648214913182648,
+                                   0.026795848501450264, 0.011904133726680758};
 
     // for (unsigned n = 90; n < 91; ++n)
     {
         qr_algo(spdm, 90, results);
         printf("eigvals for n = %u:\n\t", 90);
-        for (unsigned i = 0; i < N; ++i)
-        {
-            printf("%g ", results[i]);
-        }
+        JMTX_NAME_TYPED(print_vec)(N, results);
         printf("\n");
     }
 
     printf("Errors:\n\t");
     for (unsigned i = 0; i < N; ++i)
     {
-        double e = INFINITY;
+        JMTX_REAL_T e = INFINITY;
         unsigned k = ~0u;
         for (unsigned j = 0; j < N; ++j)
         {
-            const double new_e = fabs(results[i] - real[j]);
+            const JMTX_REAL_T new_e = JMTX_ABS(results[i] - real[j]);
             if (new_e < e)
             {
                 e = new_e;
@@ -235,7 +234,7 @@ int main()
     }
     printf("\n");
 
-    const double test_mtx[10][10] = {
+    const JMTX_SCALAR_T test_mtx[10][10] = {
         {
             -1.43774796e+01,
             -1.62717870e+01,
@@ -280,28 +279,25 @@ int main()
     {
         for (unsigned j = 0; j < 10; ++j)
         {
-            jmtxd_matrix_drm_set_entry(mtx, i, j, test_mtx[i][j]);
+            JMTX_NAME_TYPED(matrix_drm_set_entry)(mtx, i, j, test_mtx[i][j]);
         }
     }
 
     {
         qr_algo(mtx, 90, results);
         printf("eigvals for n = %u:\n\t", 90);
-        for (unsigned i = 0; i < N; ++i)
-        {
-            printf("%g ", results[i]);
-        }
+        JMTX_NAME_TYPED(print_vec)(N, results);
         printf("\n");
     }
 
     printf("Errors:\n\t");
     for (unsigned i = 0; i < N; ++i)
     {
-        double e = INFINITY;
+        JMTX_REAL_T e = INFINITY;
         unsigned k = ~0u;
         for (unsigned j = 0; j < N; ++j)
         {
-            const double new_e = fabs(results[i] - (double)(j + 1));
+            const JMTX_REAL_T new_e = JMTX_ABS(results[i] - (double)(j + 1));
             if (new_e < e)
             {
                 e = new_e;
@@ -312,7 +308,7 @@ int main()
     }
     printf("\n");
 
-    exit(0);
+    // exit(0);
 
     for (unsigned i = 0; i < N - 1; ++i)
     {
@@ -322,15 +318,15 @@ int main()
         }
     }
 
-    print_drmd_matrix(spdm);
-    print_drmd_matrix(eye);
+    JMTX_NAME_TYPED(print_drm_matrix)(spdm);
+    JMTX_NAME_TYPED(print_drm_matrix)(eye);
 
     JMTX_NAME_TYPED(matrix_drm) * r;
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_new(&r, N, N, NULL, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_new)(&r, N, N, NULL, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    MATRIX_TEST_CALL(jmtxd_matrix_drm_multiply_matrix(eye, spdm, r));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_drm_multiply_matrix)(eye, spdm, r));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_drmd_matrix(r);
+    JMTX_NAME_TYPED(print_drm_matrix)(r);
 
     for (unsigned j = 0; j < N - 1; ++j)
     {
@@ -339,13 +335,13 @@ int main()
             eliminate_entry_lower(spdm2, i, j);
         }
     }
-    print_drmd_matrix(spdm2);
+    JMTX_NAME_TYPED(print_drm_matrix)(spdm2);
 
-    jmtxd_matrix_drm_destroy(r);
-    jmtxd_matrix_drm_destroy(spdm2);
-    jmtxd_matrix_drm_destroy(spdm);
-    jmtxd_matrix_drm_destroy(eye);
-    jmtxd_matrix_drm_destroy(mtx);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(r);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(spdm2);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(spdm);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(eye);
+    JMTX_NAME_TYPED(matrix_drm_destroy)(mtx);
 
     return 0;
 }
