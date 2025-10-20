@@ -6,41 +6,29 @@ set(CMAKE_C_STANDARD 99)
 find_package(OpenMP REQUIRED)
 if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
     enable_testing()
-endif()
+endif ()
 add_library(jmtx
-    include/jmtx/common.h
-    source/matrix_base_internal.h
-    source/matrix_base.c
-    include/jmtx/matrix_base.h
-    include/jmtx/solver_base.h
+        source/common.h
+        source/matrix_base_internal.h
+        source/matrix_base.c
+        source/matrix_base.h
+        source/solver_base.h
+        source/modules/float_module.c
+        source/modules/double_module.c
+        source/modules/cfloat_module.c
+        source/modules/cdouble_module.c
+        source/modules/conversion_module.c
 )
 
-include(source/float/CMakeLists.txt)
-include(source/double/CMakeLists.txt)
-
-if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    include(source/cfloat/CMakeLists.txt)
-    include(source/cdouble/CMakeLists.txt)
-endif()
-include(source/conversion/CMakeLists.txt)
-
-
-
-target_sources(jmtx PRIVATE
-        ${MATRIX_TYPE_SOURCE_FILES} ${MATRIX_TYPE_HEADER_FILES}
-        ${SOLVER_SOURCE_FILES} ${SOLVER_HEADER_FILES}
-        ${INTERNAL_SOURCE_FILES} ${INTERNAL_HEADER_FILES}
-        ${CONVERSION_SOURCE_FILES} ${CONVERSION_HEADER_FILES}
-        ${DECOMPOSITIONS_SOURCE_FILES} ${DECOMPOSITIONS_HEADER_FILES}
-        )
+message("Added extra sources: ${MATRIX_MODULE_SOURCE_FILES}")
 
 set_property(TARGET jmtx PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT result LANGUAGES C)
-if(result)
+if (result)
     set_property(TARGET jmtx PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
+endif ()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jmtx PRIVATE -Wall -Wpedantic -Werror -Wextra)
@@ -57,7 +45,27 @@ endif ()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(jmtx m)
-#elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-#    add_compile_definitions(jmtx JMTX_NO_ARRAY_ATTRIBS)
-#    add_compile_definitions(jmtx JMTX_MSVC)
+    #elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    #    add_compile_definitions(jmtx JMTX_NO_ARRAY_ATTRIBS)
+    #    add_compile_definitions(jmtx JMTX_MSVC)
 endif ()
+
+enable_testing()
+
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_float_defines.h")
+set(TEST_TYPE_NAME "float")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/float-tests)
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cfloat_defines.h")
+set(TEST_TYPE_NAME "cfloat")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/cfloat-tests)
+
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_double_defines.h")
+set(TEST_TYPE_NAME "double")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/double-tests)
+
+set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cdouble_defines.h")
+set(TEST_TYPE_NAME "cdouble")
+add_subdirectory(tests ${CMAKE_BINARY_DIR}/cdouble-tests)

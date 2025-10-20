@@ -2,7 +2,7 @@
 #define JMTX_MATRIX_BASE_INTERNAL_H
 
 #ifndef JMTX_MATRIX_BASE_H
-#    include "../include/jmtx/matrix_base.h"
+#    include "matrix_base.h"
 #endif
 
 enum jmtx_matrix_type_T
@@ -10,11 +10,11 @@ enum jmtx_matrix_type_T
     JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
 
     //  Single precision types
-    JMTX_TYPE_CRS, //  Compressed row sparse
-    JMTX_TYPE_CCS, //  Compressed column sparse
-    JMTX_TYPE_BRM, //  Band row-major
-    JMTX_TYPE_CDS, //  Compressed diagonal sparse
-    JMTX_TYPE_DRM, //  Dense row-major
+    JMTXF_TYPE_CRS, //  Compressed row sparse
+    JMTXF_TYPE_CCS, //  Compressed column sparse
+    JMTXF_TYPE_BRM, //  Band row-major
+    JMTXF_TYPE_CDS, //  Compressed diagonal sparse
+    JMTXF_TYPE_DRM, //  Dense row-major
 
     //  Single precision complex
     JMTXC_TYPE_CRS, //  Compressed row sparse
@@ -58,5 +58,10 @@ uint32_t jmtx_internal_find_last_leq_value(uint32_t n_indices,
                                            uint32_t value);
 
 extern const jmtx_allocator_callbacks JMTX_DEFAULT_ALLOCATOR_CALLBACKS;
+
+enum
+{
+    DEFAULT_RESERVED_ELEMENTS = 64
+};
 
 #endif // !JMTX_MATRIX_BASE_INTERNAL_H
