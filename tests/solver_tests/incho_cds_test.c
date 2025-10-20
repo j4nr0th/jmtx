@@ -1,12 +1,6 @@
-//
-// Created by jan on 2.11.2023.
-//
 #include "../test_common.h"
-#include "../../../source/matrices/sparse_diagonal_compressed_safe.h"
-#include "../../../source/decompositions/incomplete_cholesky_decomposition.h"
-#include "../../../include/jmtx/double/matrices/sparse_multiplication.h"
-#include "../../../source/solvers/lu_solving.h"
-#include "../../../source/matrices/sparse_conversion.h"
+#include "decompositions/incomplete_cholesky_decomposition.h"
+#include "matrices/sparse_multiplication.h"
 
 #include <math.h>
 #include <omp.h>
@@ -22,15 +16,9 @@ enum
     MAXIMUM_ITERATIONS = (1 << 10),
 };
 
-static unsigned lexicographic_position(unsigned i, unsigned j)
+static unsigned lexicographic_position(const unsigned i, const unsigned j)
 {
     return INTERNAL_SIZE_X * i + j;
-}
-
-static void from_lexicographic(unsigned n, unsigned *pi, unsigned *pj)
-{
-    *pj = n % INTERNAL_SIZE_X;
-    *pi = n / INTERNAL_SIZE_X;
 }
 
 int main()
@@ -48,9 +36,9 @@ int main()
     const double rdy2 = 1.0f / (dy * dy);
     const double rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(
-        jmtxds_matrix_cds_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 0, (const int32_t[]){0}, NULL));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_new)(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS, 0,
+                                                     (const int32_t[]){0}, NULL));
+
     //  Serial construction
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
     {
@@ -58,7 +46,7 @@ int main()
         {
             //  Point is (DX * j, DY * i)
             unsigned k = 0;
-            double values[5];
+            JMTX_SCALAR_T values[5];
             uint32_t positions[5];
             if (i != 0)
             {
@@ -96,55 +84,47 @@ int main()
                 k += 1;
             }
 
-            jmtxd_matrix_cds_set_row(mtx, lexicographic_position(i, j), k, values, positions);
+            JMTX_NAME_TYPED(matrix_cds_set_row)(mtx, lexicographic_position(i, j), k, values, positions);
         }
     }
-    print_cdsd_matrix(mtx);
+    JMTX_NAME_TYPED(print_cds_matrix)(mtx);
     JMTX_NAME_TYPED(matrix_cds) *cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxd_decompose_icho_cds(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_icho_cds)(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_cdsd_matrix(cholesky);
+    JMTX_NAME_TYPED(print_cds_matrix)(cholesky);
     printf("Decomposition took %g seconds and the result: %s\n", t1_decomp - t0_decomp, jmtx_result_to_str(mtx_res));
 
     JMTX_NAME_TYPED(matrix_cds) *cho_t = NULL;
-    MATRIX_TEST_CALL(jmtxd_matrix_cds_transpose(cholesky, &cho_t, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_transpose)(cholesky, &cho_t, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_cdsd_matrix(cho_t);
+    JMTX_NAME_TYPED(print_cds_matrix)(cho_t);
 
     JMTX_NAME_TYPED(matrix_cds) *approx_mtx = NULL;
-    MATRIX_TEST_CALL(jmtxd_multiply_matrix_cds(cholesky, cho_t, &approx_mtx, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(multiply_matrix_cds)(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_cdsd_matrix(mtx);
-    print_cdsd_matrix(approx_mtx);
+    JMTX_NAME_TYPED(print_cds_matrix)(mtx);
+    JMTX_NAME_TYPED(print_cds_matrix)(approx_mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(approx_mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(approx_mtx);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(cho_t);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(cholesky);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(cho_t));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(cholesky));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_new(&mtx, 16, 16, 0, (int32_t[]){0}, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_new)(&mtx, 16, 16, 0, (int32_t[]){0}, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     dx = 1.0f / (double)(4 - 1);
     dy = 1.0f / (double)(4 - 1);
     {
         uint32_t dummy_size;
-        double *dummy_ptr;
-        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 0, &dummy_size, &dummy_ptr));
-        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 1, &dummy_size, &dummy_ptr));
-        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, 4, &dummy_size, &dummy_ptr));
-        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, -1, &dummy_size, &dummy_ptr));
-        MATRIX_TEST_CALL(jmtxds_matrix_cds_allocate_zero_diagonal(mtx, -4, &dummy_size, &dummy_ptr));
+        ASSERT(JMTX_NAME_TYPED(matrix_cds_allocate_zero_diagonal)(mtx, 0, &dummy_size) != NULL);
+        ASSERT(JMTX_NAME_TYPED(matrix_cds_allocate_zero_diagonal)(mtx, 1, &dummy_size) != NULL);
+        ASSERT(JMTX_NAME_TYPED(matrix_cds_allocate_zero_diagonal)(mtx, 4, &dummy_size) != NULL);
+        ASSERT(JMTX_NAME_TYPED(matrix_cds_allocate_zero_diagonal)(mtx, -1, &dummy_size) != NULL);
+        ASSERT(JMTX_NAME_TYPED(matrix_cds_allocate_zero_diagonal)(mtx, -4, &dummy_size) != NULL);
     }
 
     //  Build the whole matrix
@@ -160,46 +140,45 @@ int main()
                 //  Left point not on boundary
                 if (col > 1)
                 {
-                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i - 1, -1.0f / (dx * dx)));
+                    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i - 1, -1.0f / (dx * dx)));
                 }
                 //  Right point not on the boundary
                 if (col < 4 - 2)
                 {
-                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i + 1, -1.0 / (dx * dx)));
+                    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i + 1, -1.0 / (dx * dx)));
                 }
                 //  Middle point (just exists I guess)
-                MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i, 2.0 / (dx * dx) + 2.0 / (dy * dy)));
+                MATRIX_TEST_CALL(
+                    JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i, 2.0 / (dx * dx) + 2.0 / (dy * dy)));
                 //  Top point not on the boundary
                 if (row > 1)
                 {
-                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i - 4, -1.0 / (dy * dy)));
+                    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i - 4, -1.0 / (dy * dy)));
                 }
                 //  Bottom point not on the boundary
                 if (row < 4 - 2)
                 {
-                    MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i + 4, -1.0 / (dy * dy)));
+                    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i + 4, -1.0 / (dy * dy)));
                 }
             }
             else
             {
-                MATRIX_TEST_CALL(jmtxds_matrix_cds_insert_entry(mtx, i, i, 1.0));
+                MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_cds_insert_entry)(mtx, i, i, 1.0));
             }
         }
     }
 
-    print_cdsd_matrix(mtx);
+    JMTX_NAME_TYPED(print_cds_matrix)(mtx);
 
     JMTX_NAME_TYPED(matrix_cds) *cho = NULL;
-    MATRIX_TEST_CALL(jmtxd_decompose_icho_cds(mtx, &cho, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_icho_cds)(mtx, &cho, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_cdsd_matrix(cho);
+    JMTX_NAME_TYPED(print_cds_matrix)(cho);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(cho));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(cho);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(mtx);
 
     return 0;
 }

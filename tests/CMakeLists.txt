@@ -18,8 +18,8 @@ list(APPEND TEST_FILES
          ${MATRIX_TEST_FILES}
 #         ${SOLVER_TEST_FILES}
         solver_tests/bicgstab_cds_test.c
-        # solver_tests/bicgstab_crs_test.c #CONVERSION
-        # solver_tests/brm_decompose_test.c #CONVERSION
+        solver_tests/bicgstab_crs_test.c
+        solver_tests/brm_decompose_test.c
         solver_tests/brm_lu_improvement_test.c
         solver_tests/cg_cds_test.c
         solver_tests/drm_decompose_test.c
@@ -28,15 +28,14 @@ list(APPEND TEST_FILES
         solver_tests/gmres_test.c
         solver_tests/gmresr_cds_test.c
         solver_tests/icpcg_test.c
-        # solver_tests/ilu_test.c #CONVERSION
-        # solver_tests/incho_cds_test.c #CONVERSION
-        # solver_tests/inclu_cds_test.c #CONVERSION
+        solver_tests/ilu_test.c
+        solver_tests/incho_cds_test.c
         solver_tests/jacobi_test.c
-        # solver_tests/lu_solve_test.c #CONVERSION
-        # solver_tests/lu_solve_test_brm.c #CONVERSION
+        solver_tests/lu_solve_test.c
+        solver_tests/lu_solve_test_brm.c
         solver_tests/omp_cg_test.c
         solver_tests/omp_jacobi_test.c
-        # solver_tests/parallel_bicgstab_crs.c #CONVERSION
+        solver_tests/parallel_bicgstab_crs.c
 )
 
 foreach (TEST_FILE ${TEST_FILES})

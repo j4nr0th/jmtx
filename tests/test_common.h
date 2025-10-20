@@ -57,6 +57,8 @@ void jmtxd_print_vec(unsigned n, const double x[JMTX_ARRAY_ATTRIB(static n)]);
 void jmtxc_print_vec(unsigned n, const _Complex float x[JMTX_ARRAY_ATTRIB(static n)]);
 void jmtxz_print_vec(unsigned n, const _Complex double x[JMTX_ARRAY_ATTRIB(static n)]);
 
+int are_close(JMTX_SCALAR_T v1, JMTX_SCALAR_T v2, JMTX_REAL_T relative_tol, JMTX_REAL_T abs_tol);
+
 #ifndef NDEBUG
 #    ifdef __GNUC__
 #        define DBG_BREAK __builtin_trap()

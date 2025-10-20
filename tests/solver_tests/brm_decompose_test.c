@@ -1,18 +1,18 @@
 #include "../test_common.h"
-#include "decompositions/incomplete_lu_decomposition.h"
+#include "decompositions/band_lu_decomposition.h"
+#include "solvers/lu_solving.h"
 #include <time.h>
 #include <math.h>
 #undef MATRIX_TEST_CALL
 #define MATRIX_TEST_CALL(x) ASSERT(x == JMTX_RESULT_SUCCESS)
 
-static JMTX_REAL_T get_rms_error_for_element_count(const unsigned n)
+static JMTX_SCALAR_T get_rms_error_for_element_count_brm(const unsigned n)
 {
-    const JMTX_REAL_T dx = 1.0f / (double)n;
-    const JMTX_REAL_T r_dx2 = 1.0f / (dx * dx);
+    const JMTX_SCALAR_T dx = 1.0f / (JMTX_SCALAR_T)n;
+    const JMTX_SCALAR_T r_dx2 = 1.0f / (dx * dx);
 
-    JMTX_NAME_TYPED(matrix_crs) * system_matrix;
-    jmtx_result mtx_res;
-    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_new)(&system_matrix, n, n, 3 * n < n * n ? 3 * n : 0, NULL));
+    JMTX_NAME_TYPED(matrix_brm) * system_matrix;
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_brm_new)(&system_matrix, n, n, 1, 1, NULL, NULL));
 
     //  Build the matrix
     {
@@ -21,9 +21,8 @@ static JMTX_REAL_T get_rms_error_for_element_count(const unsigned n)
         {
             ROW_SIZE = 2
         };
-        const uint32_t idx[ROW_SIZE] = {0, 1};
-        const JMTX_SCALAR_T val[ROW_SIZE] = {-2.0f * r_dx2, r_dx2};
-        MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_build_row)(system_matrix, 0, ROW_SIZE, idx, val));
+        JMTX_SCALAR_T val[ROW_SIZE] = {-2.0f * r_dx2, r_dx2};
+        JMTX_NAME_TYPED(matrix_brm_set_row)(system_matrix, 0, val);
     }
     {
         //  Interior rows
@@ -31,14 +30,10 @@ static JMTX_REAL_T get_rms_error_for_element_count(const unsigned n)
         {
             ROW_SIZE = 3
         };
-        const double val[ROW_SIZE] = {r_dx2, -2.0f * r_dx2, r_dx2};
-        uint32_t idx[ROW_SIZE];
+        JMTX_SCALAR_T val[ROW_SIZE] = {r_dx2, -2.0f * r_dx2, r_dx2};
         for (uint32_t row = 1; row < n - 1; ++row)
         {
-            idx[0] = row - 1;
-            idx[1] = row;
-            idx[2] = row + 1;
-            MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_build_row)(system_matrix, row, ROW_SIZE, idx, val));
+            JMTX_NAME_TYPED(matrix_brm_set_row)(system_matrix, row, val);
         }
     }
     {
@@ -47,13 +42,10 @@ static JMTX_REAL_T get_rms_error_for_element_count(const unsigned n)
         {
             ROW_SIZE = 2
         };
-        const uint32_t idx[ROW_SIZE] = {n - 2, n - 1};
-        const JMTX_SCALAR_T val[ROW_SIZE] = {2.0f * r_dx2, -2.0f * r_dx2};
-        MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_build_row)(system_matrix, n - 1, ROW_SIZE, idx, val));
+        JMTX_SCALAR_T val[ROW_SIZE] = {2.0f * r_dx2, -2.0f * r_dx2};
+        JMTX_NAME_TYPED(matrix_brm_set_row)(system_matrix, n - 1, val);
     }
 
-    JMTX_SCALAR_T *const x = calloc(n + 1, sizeof(*x));
-    ASSERT(x);
     JMTX_SCALAR_T *const f = calloc(n + 1, sizeof(*f));
     ASSERT(f);
     JMTX_SCALAR_T *const sol = calloc(n + 1, sizeof(*sol));
@@ -62,112 +54,18 @@ static JMTX_REAL_T get_rms_error_for_element_count(const unsigned n)
 
     for (uint32_t i = 0; i < n + 1; ++i)
     {
-        x[i] = (double)i / (double)n;
-        f[i] = sin(x[i] * 1.5f * (double)M_PI);
-    }
-
-    JMTX_NAME_TYPED(matrix_crs) * l, *u;
-    JMTX_NAME_TYPED(matrix_ccs) * cu;
-
-    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_ilu_crs)(system_matrix, &l, &cu, NULL));
-
-    MATRIX_TEST_CALL(jmtxd_convert_ccs_to_crs(cu, &u, NULL));
-    MATRIX_TEST_CALL(jmtxds_matrix_ccs_destroy(cu));
-    //    print_crsd_matrix(l);
-    //    print_crsd_matrix(u);
-
-    JMTX_NAME_TYPED(solve_direct_lu_crs)(l, u, f + 1, sol + 1);
-    (JMTX_NAME_TYPED(matrix_crs_destroy)(u));
-    (JMTX_NAME_TYPED(matrix_crs_destroy)(l));
-    free(f);
-    sol[0] = 0.0f;
-
-    enum
-    {
-        EXACT_POINTS = 257
-    };
-    double *const err = calloc(n + 1, sizeof(*err));
-    ASSERT(err);
-    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_destroy)(system_matrix));
-
-    double rms = 0;
-    for (uint32_t i = 0; i < n + 1; ++i)
-    {
-        err[i] = -sol[i] + (-4.0f * sinf(1.5f * (double)M_PI * x[i]) / (9.0f * (double)(M_PI * M_PI)));
-        rms += err[i] * err[i];
-    }
-    rms = sqrt(rms / (double)(n + 1));
-    free(err);
-    free(sol);
-    free(x);
-
-    return rms;
-}
-
-static double get_rms_error_for_element_count_brm(const unsigned n)
-{
-    const double dx = 1.0f / (double)n;
-    const double r_dx2 = 1.0f / (dx * dx);
-
-    JMTX_NAME_TYPED(matrix_brm) * system_matrix;
-    jmtx_result mtx_res;
-    MATRIX_TEST_CALL(jmtxds_matrix_brm_new(&system_matrix, n, n, 1, 1, NULL, NULL));
-
-    //  Build the matrix
-    {
-        //  First row
-        enum
-        {
-            ROW_SIZE = 2
-        };
-        double val[ROW_SIZE] = {-2.0f * r_dx2, r_dx2};
-        jmtxd_matrix_brm_set_row(system_matrix, 0, val);
-    }
-    {
-        //  Interior rows
-        enum
-        {
-            ROW_SIZE = 3
-        };
-        double val[ROW_SIZE] = {r_dx2, -2.0f * r_dx2, r_dx2};
-        for (uint32_t row = 1; row < n - 1; ++row)
-        {
-            jmtxd_matrix_brm_set_row(system_matrix, row, val);
-        }
-    }
-    {
-        //  Last row
-        enum
-        {
-            ROW_SIZE = 2
-        };
-        double val[ROW_SIZE] = {2.0f * r_dx2, -2.0f * r_dx2};
-        jmtxd_matrix_brm_set_row(system_matrix, n - 1, val);
-    }
-
-    double *const x = calloc(n + 1, sizeof(*x));
-    ASSERT(x);
-    double *const f = calloc(n + 1, sizeof(*f));
-    ASSERT(f);
-    double *const sol = calloc(n + 1, sizeof(*sol));
-    ASSERT(sol);
-    sol[0] = 0;
-
-    for (uint32_t i = 0; i < n + 1; ++i)
-    {
-        x[i] = (double)i / (double)n;
-        f[i] = sinf(x[i] * 1.5f * (double)M_PI);
+        const double x = (double)i / (double)n;
+        f[i] = sin(x * 1.5f * M_PI);
     }
 
     JMTX_NAME_TYPED(matrix_brm) * l, *u;
 
-    MATRIX_TEST_CALL(jmtxd_decompose_lu_brm(system_matrix, &l, &u, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_lu_brm)(system_matrix, &l, &u, NULL));
     //    print_brmd_matrix(l);
     //    print_brmd_matrix(u);
-
-    jmtxd_solve_direct_lu_brm(l, u, f + 1, sol + 1);
-    MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(u));
-    MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(l));
+    JMTX_NAME_TYPED(solve_direct_lu_brm)(l, u, f + 1, sol + 1);
+    JMTX_NAME_TYPED(matrix_brm_destroy)(u);
+    JMTX_NAME_TYPED(matrix_brm_destroy)(l);
     free(f);
     sol[0] = 0.0f;
 
@@ -175,25 +73,24 @@ static double get_rms_error_for_element_count_brm(const unsigned n)
     {
         EXACT_POINTS = 257
     };
-    double *const err = calloc(n + 1, sizeof(*err));
+    JMTX_SCALAR_T *const err = calloc(n + 1, sizeof(*err));
     ASSERT(err);
-    MATRIX_TEST_CALL(jmtxds_matrix_brm_destroy(system_matrix));
+    JMTX_NAME_TYPED(matrix_brm_destroy)(system_matrix);
 
-    double rms = 0;
+    JMTX_SCALAR_T rms = 0;
     for (uint32_t i = 0; i < n + 1; ++i)
     {
-        err[i] = -sol[i] + (-4.0f * sinf(1.5f * (double)M_PI * x[i]) / (9.0f * (double)(M_PI * M_PI)));
+        const double x = (double)i / (double)n;
+        err[i] = -sol[i] - 4.0f * sin(1.5f * M_PI * x) / (9.0f * (M_PI * M_PI));
         rms += err[i] * err[i];
     }
-    rms = sqrt(rms / (double)(n + 1));
+    rms = sqrt(rms / (JMTX_SCALAR_T)(n + 1));
     free(err);
     free(sol);
-    free(x);
-
     return rms;
 }
 
-int main(int argc, const char *argv[])
+int main()
 {
     //  Copied after work of Marc Gerritsma
 
@@ -210,7 +107,7 @@ int main(int argc, const char *argv[])
         POWER_COUNT = 16
     };
     double errors[POWER_COUNT];
-    double size[POWER_COUNT];
+    // double size[POWER_COUNT];
     unsigned p = 1;
 
     struct timespec ts0, ts1;
@@ -218,21 +115,20 @@ int main(int argc, const char *argv[])
     //    for (unsigned i = 0; i < POWER_COUNT; ++i)
     //    {
     //        p <<= 1;
-    //        size[i] = log10f((double)p);
+    //        size[i] = log10f((JMTX_SCALAR_T)p);
     //        errors[i] = log10f(get_rms_error_for_element_count(p));
     //        printf("RMS error for %u elements was %g\n", p, errors[i]);
     //    }
     //    clock_gettime(CLOCK_MONOTONIC, &ts1);
-    //    printf("Time taken using CRS/CCS %g seconds\n", (double)(ts1.tv_sec - ts0.tv_sec) + (double)(ts1.tv_nsec -
-    //    ts0.tv_nsec) * 1e-9);
+    //    printf("Time taken using CRS/CCS %g seconds\n", (JMTX_SCALAR_T)(ts1.tv_sec - ts0.tv_sec) +
+    //    (JMTX_SCALAR_T)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9);
 
     clock_gettime(CLOCK_MONOTONIC, &ts0);
-    p = 1;
     for (unsigned i = 0; i < POWER_COUNT; ++i)
     {
         p <<= 1;
-        size[i] = log10f((double)p);
-        errors[i] = log10f(get_rms_error_for_element_count_brm(p));
+        // size[i] = log10(p);
+        errors[i] = log10(get_rms_error_for_element_count_brm(p));
         printf("RMS error for %u elements was %g\n", p, errors[i]);
     }
     clock_gettime(CLOCK_MONOTONIC, &ts1);

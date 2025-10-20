@@ -567,3 +567,28 @@ void jmtxz_print_vec(unsigned n, const _Complex double x[JMTX_ARRAY_ATTRIB(stati
     }
     printf("]\n");
 }
+
+int are_close(const JMTX_SCALAR_T v1, const JMTX_SCALAR_T v2, const JMTX_REAL_T relative_tol, const JMTX_REAL_T abs_tol)
+{
+    if (v1 == v2)
+    {
+        return 1;
+    }
+    ASSERT(abs_tol >= 0.0f);
+    ASSERT(relative_tol >= 0.0f);
+    const double dif = JMTX_ABS(v1 - v2);
+    if (dif < abs_tol)
+    {
+        return 1;
+    }
+
+    const JMTX_REAL_T mag1 = JMTX_ABS(v1);
+    const JMTX_REAL_T mag2 = JMTX_ABS(v2);
+
+    if (mag1 > mag2)
+    {
+        return dif < relative_tol * mag2;
+    }
+
+    return dif < relative_tol * mag1;
+}

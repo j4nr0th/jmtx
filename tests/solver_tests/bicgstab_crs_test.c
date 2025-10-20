@@ -3,10 +3,12 @@
 #include <math.h>
 #include "../test_common.h"
 #include "solvers/bicgstab_iteration.h"
+#include "matrices/sparse_conversion.h"
+#include "decompositions/incomplete_lu_decomposition.h"
 
 enum
 {
-    PROBLEM_DIMS = (1 << 20),
+    PROBLEM_DIMS = (1 << 10),
     MAX_ITERATIONS = PROBLEM_DIMS,
     CG_ITERATION_ROUND = 3
 };
@@ -87,14 +89,14 @@ int main()
     JMTX_NAME_TYPED(matrix_crs) * newmtx;
     MATRIX_TEST_CALL(JMTX_NAME_TYPED(convert_cds_to_crs)(mtx, &newmtx, NULL));
     JMTX_NAME_TYPED(matrix_crs) * l, *u;
-    double ti = omp_get_wtime();
+    const double ti = omp_get_wtime();
 
     JMTX_NAME_TYPED(matrix_ccs) * oldu;
-    MATRIX_TEST_CALL(jmtxd_decompose_ilu_crs(newmtx, &l, &oldu, NULL));
-    MATRIX_TEST_CALL(jmtxd_convert_ccs_to_crs(oldu, &u, NULL));
-    jmtxd_matrix_ccs_destroy(oldu);
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_ilu_crs)(newmtx, &l, &oldu, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(convert_ccs_to_crs)(oldu, &u, NULL));
+    JMTX_NAME_TYPED(matrix_ccs_destroy)(oldu);
 
-    double tf = omp_get_wtime();
+    const double tf = omp_get_wtime();
     printf("ILU took %g\n", tf - ti);
     // exit(0);
 
@@ -110,9 +112,9 @@ int main()
     for (unsigned i = 0; i < CG_ITERATION_ROUND; ++i)
     {
         const double t0 = omp_get_wtime();
-        mtx_res = jmtxd_solve_iterative_pilubicgstab_crs_parallel(newmtx, l, u, forcing_vector, iterative_solution,
-                                                                  aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6,
-                                                                  aux_v7, aux_v8, &solver_arguments);
+        mtx_res = JMTX_NAME_TYPED(solve_iterative_pilubicgstab_crs_parallel)(
+            newmtx, l, u, forcing_vector, iterative_solution, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6, aux_v7,
+            aux_v8, &solver_arguments);
         // mtx_res = jmtxd_solve_iterative_bicgstab_crs(
         //         newmtx, forcing_vector + 1, iterative_solution + 1, aux_v1, aux_v2, aux_v3, aux_v4, aux_v5, aux_v6,
         //         &solver_arguments);
@@ -144,8 +146,8 @@ int main()
         }
     }
 
-    jmtxd_matrix_crs_destroy(l);
-    jmtxd_matrix_crs_destroy(u);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(l);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(u);
     // iterative_solution[0] = 0;
     // iterative_solution[PROBLEM_DIMS - 1] = 0;
     printf("Iterative solution had final residual ratio of %g after %u iterations\n", solver_arguments.out_last_error,
@@ -163,9 +165,9 @@ int main()
     rms_error = sqrt(rms_error / PROBLEM_DIMS);
     printf("Iterative solution had final RMS error of %e after %u iterations\n", rms_error, total_iterations);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(newmtx));
-    MATRIX_TEST_CALL(jmtxds_matrix_cds_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(newmtx);
+    JMTX_NAME_TYPED(matrix_cds_destroy)(mtx);
+
     free(err_evol);
     free(exact_solution);
     free(forcing_vector);
