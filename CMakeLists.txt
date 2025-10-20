@@ -17,6 +17,7 @@ add_library(jmtx
         source/modules/double_module.c
         source/modules/cfloat_module.c
         source/modules/cdouble_module.c
+        source/modules/conversion_module.c
 )
 
 message("Added extra sources: ${MATRIX_MODULE_SOURCE_FILES}")

@@ -10,11 +10,11 @@ enum jmtx_matrix_type_T
     JMTX_TYPE_NONE = 0, //  Invalid, here to force one of other values to be specified
 
     //  Single precision types
-    JMTX_TYPE_CRS, //  Compressed row sparse
-    JMTX_TYPE_CCS, //  Compressed column sparse
-    JMTX_TYPE_BRM, //  Band row-major
-    JMTX_TYPE_CDS, //  Compressed diagonal sparse
-    JMTX_TYPE_DRM, //  Dense row-major
+    JMTXF_TYPE_CRS, //  Compressed row sparse
+    JMTXF_TYPE_CCS, //  Compressed column sparse
+    JMTXF_TYPE_BRM, //  Band row-major
+    JMTXF_TYPE_CDS, //  Compressed diagonal sparse
+    JMTXF_TYPE_DRM, //  Dense row-major
 
     //  Single precision complex
     JMTXC_TYPE_CRS, //  Compressed row sparse

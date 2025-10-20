@@ -10,9 +10,7 @@
 
 #define JMTX_REAL_T float
 #define JMTX_SCALAR_T _Complex float
-#define JMTX_INDEX_T uint32_t
-#define JMTX_FAST_INT_T uint_fast32_t
-#define JMTX_SIZE_T size_t
+#include "jmtx_int_defines.h"
 
 #define JMTX_NAME_TYPED(base_name) jmtxc_##base_name
 

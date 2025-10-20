@@ -30,7 +30,7 @@ jmtx_result JMTX_NAME_TYPED(matrix_drm_new)(JMTX_NAME_TYPED(matrix_drm) * *p_mtx
 
     memset(mtx, 0xCC, sizeof *mtx);
     mtx->base.cols = cols;
-    mtx->base.type = JMTX_TYPE_DRM;
+    mtx->base.type = JMTXF_TYPE_DRM;
     mtx->base.rows = rows;
     mtx->base.allocator_callbacks = *allocator_callbacks;
     const uint64_t entry_count = rows * cols;
