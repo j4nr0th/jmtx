@@ -4,9 +4,6 @@ project(jmtx)
 set(CMAKE_C_STANDARD 99)
 
 find_package(OpenMP REQUIRED)
-if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
-    enable_testing()
-endif ()
 add_library(jmtx
         source/common.h
         source/matrix_base_internal.h
@@ -50,22 +47,23 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     #    add_compile_definitions(jmtx JMTX_MSVC)
 endif ()
 
-enable_testing()
+
+if (CMAKE_PROJECT_NAME STREQUAL "jmtx")
+    enable_testing()
+    set(TEST_INCLUDE_HEADER "../source/modules/jmtx_float_defines.h")
+    set(TEST_TYPE_NAME "float")
+    add_subdirectory(tests ${CMAKE_BINARY_DIR}/float-tests)
+
+    set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cfloat_defines.h")
+    set(TEST_TYPE_NAME "cfloat")
+    add_subdirectory(tests ${CMAKE_BINARY_DIR}/cfloat-tests)
 
 
-set(TEST_INCLUDE_HEADER "../source/modules/jmtx_float_defines.h")
-set(TEST_TYPE_NAME "float")
-add_subdirectory(tests ${CMAKE_BINARY_DIR}/float-tests)
+    set(TEST_INCLUDE_HEADER "../source/modules/jmtx_double_defines.h")
+    set(TEST_TYPE_NAME "double")
+    add_subdirectory(tests ${CMAKE_BINARY_DIR}/double-tests)
 
-set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cfloat_defines.h")
-set(TEST_TYPE_NAME "cfloat")
-add_subdirectory(tests ${CMAKE_BINARY_DIR}/cfloat-tests)
-
-
-set(TEST_INCLUDE_HEADER "../source/modules/jmtx_double_defines.h")
-set(TEST_TYPE_NAME "double")
-add_subdirectory(tests ${CMAKE_BINARY_DIR}/double-tests)
-
-set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cdouble_defines.h")
-set(TEST_TYPE_NAME "cdouble")
-add_subdirectory(tests ${CMAKE_BINARY_DIR}/cdouble-tests)
+    set(TEST_INCLUDE_HEADER "../source/modules/jmtx_cdouble_defines.h")
+    set(TEST_TYPE_NAME "cdouble")
+    add_subdirectory(tests ${CMAKE_BINARY_DIR}/cdouble-tests)
+endif ()
