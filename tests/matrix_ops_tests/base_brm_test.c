@@ -55,11 +55,7 @@ int main()
     JMTX_SCALAR_T out_vec[5];
 
     JMTX_NAME_TYPED(matrix_brm_vector_multiply)(test_matrix, test_vec, out_vec);
-    for (unsigned i = 0; i < 5; ++i)
-    {
-        printf("%g ", out_vec[i]);
-    }
-    printf("\n");
+    JMTX_NAME_TYPED(print_vec)(5, out_vec);
 
     JMTX_NAME_TYPED(matrix_brm) *transpose = NULL;
     MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_brm_transpose)(test_matrix, &transpose, NULL));
