@@ -12,30 +12,12 @@ function(get_test_name OUTPUT_VAR FILENAME)
 endfunction()
 
 file(GLOB MATRIX_TEST_FILES "matrix_ops_tests/*.c")
-# file(GLOB SOLVER_TEST_FILES "solver_tests/*.c")
+file(GLOB SOLVER_TEST_FILES "solver_tests/*.c")
 # file(GLOB TEST_FILES "conversion/*.c")
 list(APPEND TEST_FILES
          ${MATRIX_TEST_FILES}
-#         ${SOLVER_TEST_FILES}
-        solver_tests/bicgstab_cds_test.c
-        solver_tests/bicgstab_crs_test.c
-        solver_tests/brm_decompose_test.c
-        solver_tests/brm_lu_improvement_test.c
-        solver_tests/cg_cds_test.c
-        solver_tests/drm_decompose_test.c
-        solver_tests/gauss_test.c
-        solver_tests/gmres_cds_test.c
-        solver_tests/gmres_test.c
-        solver_tests/gmresr_cds_test.c
-        solver_tests/icpcg_test.c
-        solver_tests/ilu_test.c
-        solver_tests/incho_cds_test.c
-        solver_tests/jacobi_test.c
-        solver_tests/lu_solve_test.c
-        solver_tests/lu_solve_test_brm.c
-        solver_tests/omp_cg_test.c
-        solver_tests/omp_jacobi_test.c
-        solver_tests/parallel_bicgstab_crs.c
+         ${SOLVER_TEST_FILES}
+
 )
 
 foreach (TEST_FILE ${TEST_FILES})

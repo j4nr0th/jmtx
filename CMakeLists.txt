@@ -16,6 +16,10 @@ add_library(jmtx
         source/modules/cdouble_module.c
         source/modules/conversion_module.c
 )
+target_include_directories(jmtx
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 message("Added extra sources: ${MATRIX_MODULE_SOURCE_FILES}")
 

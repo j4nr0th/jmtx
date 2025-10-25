@@ -1,14 +1,8 @@
-// Automatically generated from tests/float/solver_tests/incho_test.c on Fri Dec  1 06:43:09 2023
-//
-// Created by jan on 2.11.2023.
-//
 #include "../test_common.h"
-#include "../../../include/jmtx/double/matrices/sparse_row_compressed_safe.h"
-#include "../../../source/matrices/sparse_column_compressed_safe.h"
-#include "../../../source/decompositions/incomplete_cholesky_decomposition.h"
-#include "../../../source/matrices/sparse_multiplication.h"
-#include "../../../source/solvers/lu_solving.h"
-#include "../../../include/jmtx/double/matrices/sparse_conversion.h"
+#include "decompositions/incomplete_cholesky_decomposition.h"
+#include "matrices/sparse_multiplication.h"
+#include "solvers/lu_solving.h"
+#include "matrices/sparse_conversion.h"
 
 #include <math.h>
 #include <omp.h>
@@ -50,11 +44,12 @@ int main()
     const double rdy2 = 1.0f / (dy * dy);
     const double rdx2 = 1.0f / (dx * dx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_new(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
-                                           5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
-                                               ? 5 * PROBLEM_INTERNAL_PTS
-                                               : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
-                                           NULL));
+    MATRIX_TEST_CALL(
+        JMTX_NAME_TYPED(matrix_crs_new)(&mtx, PROBLEM_INTERNAL_PTS, PROBLEM_INTERNAL_PTS,
+                                        5 * PROBLEM_INTERNAL_PTS < PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS
+                                            ? 5 * PROBLEM_INTERNAL_PTS
+                                            : PROBLEM_INTERNAL_PTS * PROBLEM_INTERNAL_PTS,
+                                        NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     //  Serial construction
     for (unsigned i = 0; i < INTERNAL_SIZE_Y; ++i)
@@ -63,7 +58,7 @@ int main()
         {
             //  Point is (DX * j, DY * i)
             unsigned k = 0;
-            double values[5];
+            JMTX_SCALAR_T values[5];
             uint32_t positions[5];
             if (i != 0)
             {
@@ -101,44 +96,38 @@ int main()
                 k += 1;
             }
 
-            jmtxd_matrix_crs_build_row(mtx, lexicographic_position(i, j), k, positions, values);
+            JMTX_NAME_TYPED(matrix_crs_build_row)(mtx, lexicographic_position(i, j), k, positions, values);
         }
     }
     JMTX_NAME_TYPED(matrix_crs) *cholesky = NULL;
     const double t0_decomp = omp_get_wtime();
-    MATRIX_TEST_CALL(jmtxd_decompose_icho_crs(mtx, &cholesky, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(decompose_icho_crs)(mtx, &cholesky, NULL));
     const double t1_decomp = omp_get_wtime();
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crsd_matrix(cholesky);
+    JMTX_NAME_TYPED(print_crs_matrix)(cholesky);
     printf("Decomposition took %g seconds and the result: %s\n", t1_decomp - t0_decomp, jmtx_result_to_str(mtx_res));
 
     JMTX_NAME_TYPED(matrix_crs) * cpy;
     JMTX_NAME_TYPED(matrix_ccs) *cho_t = NULL;
-    MATRIX_TEST_CALL(jmtxd_matrix_crs_copy(cholesky, &cpy, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(matrix_crs_copy)(cholesky, &cpy, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    cho_t = (jmtxd_convert_crs_to_ccs_inplace_transpose(cpy));
+    cho_t = (JMTX_NAME_TYPED(convert_crs_to_ccs_inplace_transpose)(cpy));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-    print_ccsd_matrix(cho_t);
+    JMTX_NAME_TYPED(print_ccs_matrix)(cho_t);
 
     JMTX_NAME_TYPED(matrix_crs) *approx_mtx = NULL;
-    MATRIX_TEST_CALL(jmtxd_multiply_matrix_crs(cholesky, cho_t, &approx_mtx, NULL));
+    MATRIX_TEST_CALL(JMTX_NAME_TYPED(multiply_matrix_crs)(cholesky, cho_t, &approx_mtx, NULL));
     ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
 
-    print_crsd_matrix(mtx);
-    print_crsd_matrix(approx_mtx);
+    JMTX_NAME_TYPED(print_crs_matrix)(mtx);
+    JMTX_NAME_TYPED(print_crs_matrix)(approx_mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(approx_mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(approx_mtx);
+    JMTX_NAME_TYPED(matrix_ccs_destroy)(cho_t);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(cholesky);
+    JMTX_NAME_TYPED(matrix_crs_destroy)(mtx);
 
-    MATRIX_TEST_CALL(jmtxds_matrix_ccs_destroy(cho_t));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(cholesky));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
-
-    MATRIX_TEST_CALL(jmtxds_matrix_crs_destroy(mtx));
-    ASSERT(mtx_res == JMTX_RESULT_SUCCESS);
     return 0;
 }
